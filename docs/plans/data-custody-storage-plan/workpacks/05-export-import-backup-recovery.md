@@ -62,20 +62,228 @@ Failure conditions:
 
 ## Completion
 
-- Status: complete for WP05 only; no broader plan, provider-runtime, or PR readiness claim is made.
+- Status: bounded fail-closed base source accepted but unmounted; all five expected runtime test roots, focused execution, proof refresh, dependency-owned adapters/caller, and WP11 runtime composition remain open. Scheduled backup and unavailable-provider paths remain manual-required.
 - Proof root: `output/data-custody-storage-plan-proof/05-export-import-backup-recovery/`
-- Canonical owners: `crates/schema` for the shared export/import/restore contract and `crates/storage-custody-core` for bundle derivation, import preflight, and restore/apply state derivation.
+- Canonical owners: `crates/schema` for the shared export/import/restore contract and durable backup/schedule/job/migration/rollback shapes; `crates/storage-custody-core` for pure bundle derivation, import preflight, restore/migration orchestration, fail-closed compensation, and provider-neutral ports; `crates/parent-runtime-core` for durable scheduler/job persistence, restore/migration ledgers, restart reconciliation, executor/rollback mounting, and real Eventing journal/outbox composition.
 - TS/shared edge note: no new `packages/schema-domain` surface was needed for WP05. TS ownership was not widened.
 
-## Required acceptance proved
+## Reviewed source ownership route (2026-08-18)
 
-- Versioned manifest with schema version, created-at, source household/device binding, data classes, proof tier, and retention notes is covered by the Rust contract proof.
-- Encrypted payload sections by data class plus manifest/payload integrity refs are covered by the Rust contract and runtime derivation tests.
-- Redacted human summary safe for support and parent review is enforced by the runtime builder and covered by contract/runtime tests.
+WP05's bounded source packet is present in the reviewed ownership route. The
+route is deliberately split by authority and durability; no crate may mint a
+caller-selected Account/family authority, key/decrypt capability, integrity
+decision, or provider identity.
+
+### Canonical schema contract owner
+
+- `crates/schema/src/export_import_backup_recovery.rs`
+- `crates/schema/src/export_import_backup_recovery/`
+- `crates/schema/tests/contract/export_import_backup_recovery.rs`
+
+These shapes own durable backup cadence and schedule identity, backup/job
+lifecycle, idempotency and execution references, provider-neutral operation
+references, and migration apply/rollback/reconciliation results and receipts
+bound to bundle and plan identity. The schema is the source of contract truth;
+it does not persist jobs or execute provider/producer work.
+
+### Pure storage-custody-core owner
+
+- `crates/storage-custody-core/src/export_import_backup_recovery.rs`
+- `crates/storage-custody-core/src/export_import_backup_recovery_build.rs`
+- `crates/storage-custody-core/src/export_import_backup_recovery_import.rs`
+- `crates/storage-custody-core/src/export_import_backup_recovery_import_integrity.rs`
+- `crates/storage-custody-core/src/export_import_backup_recovery_import_logic.rs`
+- `crates/storage-custody-core/src/export_import_backup_recovery_import_rejection.rs`
+- `crates/storage-custody-core/src/export_import_backup_recovery_import_response.rs`
+- `crates/storage-custody-core/src/export_import_backup_recovery_import_sections.rs`
+- `crates/storage-custody-core/src/export_import_backup_recovery_restore.rs`
+- `crates/storage-custody-core/src/export_import_backup_recovery_migration.rs`
+- `crates/storage-custody-core/src/export_import_backup_recovery_backup_schedule.rs`
+- `crates/storage-custody-core/src/export_import_backup_recovery_backup_job_state.rs`
+- `crates/storage-custody-core/src/export_import_backup_recovery_restore_execution_plan.rs`
+- `crates/storage-custody-core/src/export_import_backup_recovery_restore_execution_plan_validation.rs`
+- `crates/storage-custody-core/src/export_import_backup_recovery_migration_execution.rs`
+- `crates/storage-custody-core/src/export_import_backup_recovery_bundle_preflight_binding.rs`
+- `crates/storage-custody-core/src/export_import_backup_recovery_bundle_preflight_binding_custody_port.rs`
+- `crates/storage-custody-core/src/export_import_backup_recovery_bundle_preflight_binding_execution.rs`
+- `crates/storage-custody-core/src/export_import_backup_recovery_bundle_preflight_binding_execution_metadata.rs`
+- `crates/storage-custody-core/src/export_import_backup_recovery_bundle_preflight_binding_execution_metadata_identity.rs`
+- `crates/storage-custody-core/src/export_import_backup_recovery_compensation.rs`
+- `crates/storage-custody-core/tests/unit/export_import_backup_recovery.rs`
+
+These modules remain pure decisions/orchestration. They derive safe plans from
+owner-bound opaque inputs, bind bundle/preflight identity, enforce no
+resurrection, and describe partial-write compensation; they do not own durable
+job/receipt storage, filesystem/provider SDKs, or producer mutation.
+
+### Parent-runtime-core durable owner
+
+- `crates/parent-runtime-core/src/data_custody_backup_runtime.rs`
+- `crates/parent-runtime-core/src/data_custody_backup_runtime_lifecycle.rs`
+- `crates/parent-runtime-core/src/data_custody_backup_runtime_persistence.rs`
+- `crates/parent-runtime-core/src/data_custody_backup_runtime_ports.rs`
+- `crates/parent-runtime-core/src/data_custody_backup_runtime_schedule.rs`
+- `crates/parent-runtime-core/src/data_custody_backup_runtime_schedule_execute.rs`
+- `crates/parent-runtime-core/src/data_custody_backup_runtime_schedule_execute_artifact.rs`
+- `crates/parent-runtime-core/src/data_custody_backup_runtime_schedule_execute_authority.rs`
+- `crates/parent-runtime-core/src/data_custody_backup_runtime_schedule_execute_finish.rs`
+- `crates/parent-runtime-core/src/data_custody_backup_runtime_schedule_execute_helpers.rs`
+- `crates/parent-runtime-core/src/data_custody_backup_runtime_job_ledger.rs`
+- `crates/parent-runtime-core/src/data_custody_backup_runtime_job_ledger_apply.rs`
+- `crates/parent-runtime-core/src/data_custody_backup_runtime_job_ledger_event_apply.rs`
+- `crates/parent-runtime-core/src/data_custody_backup_runtime_reconciliation.rs`
+- `crates/parent-runtime-core/src/data_custody_runtime_eventing.rs`
+- `crates/parent-runtime-core/src/data_custody_runtime_eventing_identity.rs`
+- `crates/parent-runtime-core/src/data_custody_runtime_eventing_identity_backup.rs`
+- `crates/parent-runtime-core/src/data_custody_runtime_eventing_identity_kind.rs`
+- `crates/parent-runtime-core/src/data_custody_runtime_eventing_validation.rs`
+- `crates/parent-runtime-core/src/data_custody_runtime_eventing_validation_payload.rs`
+- `crates/parent-runtime-core/src/data_custody_parent_runtime_clock.rs`
+- `crates/parent-runtime-core/src/data_custody_restore_runtime.rs`
+- `crates/parent-runtime-core/src/data_custody_restore_runtime_binding.rs`
+- `crates/parent-runtime-core/src/data_custody_restore_runtime_stage.rs`
+- `crates/parent-runtime-core/src/data_custody_restore_runtime_recovery.rs`
+- `crates/parent-runtime-core/src/data_custody_restore_runtime_dispatch.rs`
+- `crates/parent-runtime-core/src/data_custody_restore_runtime_dispatch_apply.rs`
+- `crates/parent-runtime-core/src/data_custody_restore_runtime_dispatch_preflight.rs`
+- `crates/parent-runtime-core/src/data_custody_restore_runtime_ledger.rs`
+- `crates/parent-runtime-core/src/data_custody_restore_runtime_ledger_event_apply.rs`
+- `crates/parent-runtime-core/src/data_custody_restore_runtime_ledger_event_stage.rs`
+- `crates/parent-runtime-core/src/data_custody_restore_runtime_reconciliation.rs`
+- `crates/parent-runtime-core/src/data_custody_restore_runtime_reconciliation_section_partition.rs`
+- `crates/parent-runtime-core/src/data_custody_restore_runtime_reconciliation_sections.rs`
+- `crates/parent-runtime-core/src/data_custody_restore_runtime_reconciliation_validation.rs`
+- `crates/parent-runtime-core/src/data_custody_restore_runtime_executor.rs`
+- `crates/parent-runtime-core/src/data_custody_restore_runtime_executor_receipts.rs`
+- `crates/parent-runtime-core/src/data_custody_restore_runtime_receipts.rs`
+- `crates/parent-runtime-core/src/data_custody_restore_runtime_receipts.rs`
+- `crates/parent-runtime-core/src/data_custody_restore_runtime_rollback.rs`
+- `crates/parent-runtime-core/src/data_custody_restore_runtime_rollback_dispatch.rs`
+- `crates/parent-runtime-core/src/data_custody_restore_runtime_rollback_dispatch_validation.rs`
+
+This is the legal parent-runtime owner for the bounded source packet. It
+persists scheduler/job and restore/migration state, reconciles interrupted work
+on restart, and mounts only
+opaque provider/key/Account ports, and composes the real Eventing journal and
+outbox seam. It must fail closed when an external authority, key/decrypt
+capability, provider-neutral adapter, or producer handoff is unavailable; no
+provider SDK, OAuth flow, local filesystem adapter, or authority minting is
+added here. The current source keeps the mount constructors and dispatch
+ports owner-private until the dependency-owned Account/key/provider composer
+supplies a trusted implementation; this is an explicit external mounting
+blocker, not an authorization or source-completion claim.
+
+The Eventing owner also owns a stateful runtime clock/fence in this parent
+boundary: durable replay establishes the timestamp floor, mutation is denied
+before successful recovery, timestamps are monotonic with checked overflow,
+and excessive forward wall-clock skew fails closed. Future schedule deadlines
+remain payload data and are never reused as event-observed time.
+
+The backup dispatch path also requires a sealed custody-artifact port that
+binds the encrypted bundle, manifest/payload integrity references, and
+tombstone cursor to the durable job before a provider can observe a dispatch.
+Because no dependency-owned artifact/provider composer is mounted in this
+source wave, backup execution remains manual-required; the source does not
+claim a functioning scheduled or provider-backed backup.
+
+### Expected test roots (deferred)
+
+- `crates/schema/tests/contract/export_import_backup_recovery_runtime.rs`
+- `crates/storage-custody-core/tests/unit/export_import_backup_recovery_runtime.rs`
+- `crates/parent-runtime-core/tests/unit/data_custody_backup_runtime.rs`
+- `crates/parent-runtime-core/tests/unit/data_custody_restore_runtime.rs`
+- `crates/parent-runtime-core/tests/integration/data_custody_runtime.rs`
+
+The expected-test wave remains deferred. These paths are routing obligations,
+not evidence that tests exist or passed.
+
+## Source-wave checkpoint (2026-08-17)
+
+- `crates/storage-custody-core/src/export_import_backup_recovery_import_integrity.rs` now rejects dishonest import bundles before restore/apply derivation.
+- The current source packet now includes the schema-owned lifecycle contracts, manual-required scheduled-cadence gate, parent durable job/restore/migration ledgers, migration-before-restore ordering, and fenced rollback boundary; external provider/custody mounting remains blocked.
+- No tests were written or run in this source wave. Integrity, backup, migration, and rollback tests remain deferred to the expected-test wave, and source completion is not claimed.
+
+The 2026-08-18 route correction assigns the durable scheduler, ledgers,
+restart reconciliation, executor/rollback mount, and Eventing/outbox
+composition to `crates/parent-runtime-core`; `storage-custody-core` remains a
+pure decision/orchestration owner. This changes routing only and does not mark
+any source, test, proof, or runtime composition complete.
+
+## 2026-08-18 rollback authority source review
+
+The independently reviewed rollback validation source is now mapped at
+`crates/parent-runtime-core/src/data_custody_restore_runtime_rollback_dispatch_validation.rs`.
+It binds rollback dispatch to the observed sealed provider-operation reference
+and execution binding, rejects missing or mismatched identity, and refuses to
+treat a persisted reference as restartable provider authority by itself. This
+is a real source-level authority boundary, not provider execution or runtime
+reachability. The provider-neutral restore port, Account/family authority,
+key/import custody, producer composition, five expected runtime tests, focused
+validation, proof, precommit, CI, and DONE remain open; unavailable provider
+paths stay manual-required.
+
+## 2026-08-19 live caller and test-gap audit
+
+The bounded schema, storage-decision, parent-ledger, restart, rollback, and
+Eventing/outbox source is real and fail-closed. It is not reachable product
+behavior: repository-wide caller tracing found no production caller or
+implementation for the Account authority, provider operation, key/import
+custody, or producer-result ports, and the mount methods remain crate-private.
+`ImportCustodyCapabilityPort` is sealed inside `storage-custody-core`; a legal
+cross-crate mount needs an owner-side adapter/interface decision, not a public
+escape hatch.
+
+All five expected runtime test roots are absent. One existing blocked-restore
+test is stale against source: the source returns
+`local_truth_authoritative=false` and `tombstones_preserved=false`, while the
+test expects true/true. That discrepancy is carried into the later test-source
+wave and must be resolved from the custody contract before any test execution.
+
+No honest WP05-only production edit closes the remaining route. The next code
+order is Account WP05 base authority/fencing, Account WP05A's durable
+multi-owner effect/CAS coordinator and recovery typed handoff, Data WP09 byte
+custody, WP10 producer handoffs, WP11 composition/mount, and then a real runtime
+caller. This audit makes no test, proof, validation, runtime-ready, or `DONE`
+claim.
+
+## Candidate source acceptance (tests and proof unresolved)
+
+The following are candidate source outcomes for the current implementation wave;
+none is acceptance evidence until the expected test roots, focused validation,
+runtime composition, and retained proof artifacts are completed and reviewed:
+
+- Versioned manifest with schema version, created-at, source household/device binding, data classes, proof tier, and retention notes.
+- Encrypted payload sections by data class plus manifest/payload integrity refs.
+- Redacted human summary safe for support and parent review.
 - Import preflight validates version, household binding, key availability, tombstones, duplicates, and migration path before apply.
 - Partial restore is explicit with accepted and rejected section lists.
 - Wrong-household, wrong-key, corrupt-bundle, expired-retention, duplicate-device, and unsupported migration cases fail closed in the shared Rust preflight state machine.
 - Default support recovery of child evidence decryption remains blocked.
+
+## 2026-08-18 base/composition routing correction
+
+WP05 is the base owner only. Its legal scope is the schema contract, pure
+`storage-custody-core` decisions, durable parent-runtime scheduler/job and
+restore/migration ledgers, restart reconciliation, Eventing/outbox seam, and
+manual-required gates. It does not claim that those seams are mounted to live
+Account, key/import, provider, or producer owners.
+
+The separate runtime composition and custody-mount route is
+[WP11](11-runtime-composition-and-custody-mount.md), with only these planned
+parent-runtime roots:
+
+- `crates/parent-runtime-core/src/data_custody_runtime_composition.rs`
+- `crates/parent-runtime-core/src/data_custody_runtime_composition_mount.rs`
+- `crates/parent-runtime-core/tests/integration/data_custody_runtime_composition.rs`
+
+WP09 and WP10 consume this WP05 base layer independently and retain a direct
+dependency on Account WP05A's multi-owner coordinator/recovery typed Data
+handoff. They must not depend on or implement WP11 composition, duplicate the
+WP05 ledgers, publicize private mount traits, or treat source presence as runtime
+completion. Account WP05 supplies the base authority transaction/CAS consumer
+seam; Account WP05A supplies the durable effect/recovery coordinator; key/import
+custody, producer artifact custody, WP09 provider operation capability, and
+WP10 owner outcomes remain external composition gates for WP11.
 
 ## Proof artifacts
 
@@ -96,9 +304,17 @@ Failure conditions:
 
 ## Adjacent handoffs
 
-- Provider adapters remain sibling owners for actual cloud/local-folder retrieval and upload runtime.
+- WP09 remains the downstream source-only route for provider-neutral byte
+  custody/adapter-port composition after this contract and runtime-owner
+  slice; it must not duplicate the parent scheduler/job ledger.
+- WP10 remains the downstream source-only route for producer handoffs after
+  this contract and runtime-owner slice; it must not duplicate the parent
+  restore/migration ledger or fabricate producer receipts.
+- Provider adapters remain sibling owners for actual cloud/provider SDK or
+  local-folder execution; WP05 supplies only opaque provider-neutral ports.
 - Portal surfaces remain sibling owners for preview and confirmation UI only.
-- Eventing remains the replay/idempotency spine; WP05 consumes tombstone ordering without re-owning the event bus.
+- Eventing remains the replay/idempotency spine. Parent-runtime-core composes
+  its real journal/outbox seam; WP05 does not re-own event-bus internals.
 
 ## No-claim boundary
 

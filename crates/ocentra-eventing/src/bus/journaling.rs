@@ -1,16 +1,29 @@
 use crate::{
-    DispatchMode, EventingError, JournalAppend, JournalDispatchPhase, QueueDisposition, ReplayMode,
-    ReplayRecord, StoredEventEnvelope,
+    DispatchMode, EventingError, JournalAppend, JournalDispatchPhase, QueueDisposition,
+    ReplayActionReport, StoredEventEnvelope,
 };
 
 use super::{
+    dispatch_chain::DispatchChain,
+    publisher::RootEventPublisher,
     reports::{dead_letter::DeadLetter, empty_publish_report, handler::PublishReport},
     EventBus,
 };
 
-const PROJECTION_ONLY_REPLAY_EVENT_TYPE: &str = "projection-only-replay";
 const IN_MEMORY_STORED_EVENT_LIMIT: usize = 4096;
 const IN_MEMORY_DEAD_LETTER_LIMIT: usize = 4096;
+
+impl RootEventPublisher {
+    pub async fn replay_to_handlers(
+        &self,
+        report: ReplayActionReport,
+        dispatch_mode: DispatchMode,
+    ) -> Result<Vec<PublishReport>, EventingError> {
+        self.bus
+            .replay_to_handlers_internal(report, dispatch_mode)
+            .await
+    }
+}
 
 impl EventBus {
     pub(super) async fn record_stored_snapshot(&self, stored: &StoredEventEnvelope) {
@@ -40,31 +53,61 @@ impl EventBus {
             return Ok(None);
         }
         if let Some(journal) = &self.event_journal {
-            return journal.append_phase(stored, phase).await.map(Some);
+            return journal
+                .append_phase_idempotent(stored, phase)
+                .await
+                .map(Some);
         }
         Ok(None)
     }
 
-    pub async fn replay_to_handlers(
+    pub(super) fn causal_publication_requires_root(&self, stored: &StoredEventEnvelope) -> bool {
+        self.event_journal.is_some()
+            && (self
+                .journal_policy
+                .should_append(stored, JournalDispatchPhase::BeforeDispatch)
+                || self
+                    .journal_policy
+                    .should_append(stored, JournalDispatchPhase::AfterDispatch))
+    }
+
+    pub(super) async fn commit_causal_effects(
         &self,
-        records: Vec<ReplayRecord>,
-        mode: ReplayMode,
+        dispatch_chain: &DispatchChain,
+        stored: &StoredEventEnvelope,
+        new_dead_letters: Vec<DeadLetter>,
+    ) -> Result<(), EventingError> {
+        dispatch_chain.ensure_current_handler_task()?;
+        dispatch_chain.ensure_live()?;
+        let mut stored_journal = self.stored_journal.write().await;
+        dispatch_chain.ensure_current_handler_task()?;
+        dispatch_chain.ensure_live()?;
+        let mut dead_letters = self.dead_letters.write().await;
+        dispatch_chain.ensure_current_handler_task()?;
+        dispatch_chain.ensure_live()?;
+
+        // CANCEL-SAFE: both effect locks are held and there is no await between
+        // this liveness check and the complete in-memory causal commit.
+        stored_journal.push(stored.clone());
+        trim_retained(&mut stored_journal, IN_MEMORY_STORED_EVENT_LIMIT);
+        dead_letters.extend(new_dead_letters);
+        trim_retained(&mut dead_letters, IN_MEMORY_DEAD_LETTER_LIMIT);
+        Ok(())
+    }
+
+    async fn replay_to_handlers_internal(
+        &self,
+        report: ReplayActionReport,
         dispatch_mode: DispatchMode,
     ) -> Result<Vec<PublishReport>, EventingError> {
-        if mode != ReplayMode::ActionHandlersAllowed {
-            let event_type = records
-                .first()
-                .map(|record| record.envelope.contract.event_type.clone())
-                .unwrap_or(crate::EventType::parse(PROJECTION_ONLY_REPLAY_EVENT_TYPE)?);
-            return Err(EventingError::ReplayActionNotAllowed { event_type });
-        }
-
+        let _active_dispatch = self.admit_active_dispatch()?;
         let mut reports = Vec::new();
-        for record in records {
-            let subscribers = self.subscribers_for(&record.envelope);
+        for record in report.records() {
+            let envelope = record.envelope.clone();
+            let subscribers = self.subscribers_for(&envelope);
             if subscribers.is_empty() {
                 reports.push(empty_publish_report(
-                    &record.envelope,
+                    &envelope,
                     dispatch_mode,
                     self.queue.report(QueueDisposition::Dispatched),
                     0,
@@ -73,7 +116,7 @@ impl EventBus {
             }
             reports.push(
                 self.dispatch_stored(
-                    record.envelope,
+                    envelope,
                     subscribers,
                     dispatch_mode,
                     self.queue.report(QueueDisposition::Dispatched),

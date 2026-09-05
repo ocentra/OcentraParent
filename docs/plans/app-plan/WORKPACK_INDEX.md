@@ -12,7 +12,7 @@
 
 # Native Apps Plan Workpack Index
 
-Audit date: 2026-08-15. All 95 imported workpacks have reviewed code/test
+Audit date: 2026-08-29. All 95 imported workpacks have reviewed code/test
 topology. `Complete` means no source/test-writing gap in the workpack's bounded
 scope; it does not mean tests, Enforcer, proof, CI, or product acceptance are
 complete. See [CODE_AUDIT.md](CODE_AUDIT.md) for exact evidence and gaps.
@@ -24,7 +24,7 @@ complete. See [CODE_AUDIT.md](CODE_AUDIT.md) for exact evidence and gaps.
 | [03 current app snapshot and gap map](workpacks/03-current-app-snapshot-and-gap-map.md) | Complete, docs-only |
 | [04 app identity model](workpacks/04-app-identity-model.md) | Complete |
 | [05 installed app inventory model](workpacks/05-installed-app-inventory-model.md) | Complete |
-| [06 windows installed app inventory adapter](workpacks/06-windows-installed-app-inventory-adapter.md) | Complete |
+| [06 windows installed app inventory adapter](workpacks/06-windows-installed-app-inventory-adapter.md) | Incomplete — bounded inventory source exists; known-path/executable metadata, publisher/signature/hash, and permission adapter owner remain open |
 | [07 windows store uwp appx inventory adapter](workpacks/07-windows-store-uwp-appx-inventory-adapter.md) | Complete |
 | [08 windows process runtime evidence adapter](workpacks/08-windows-process-runtime-evidence-adapter.md) | Complete |
 | [09 windows foreground app evidence adapter](workpacks/09-windows-foreground-app-evidence-adapter.md) | Complete |
@@ -33,7 +33,7 @@ complete. See [CODE_AUDIT.md](CODE_AUDIT.md) for exact evidence and gaps.
 | [12 app sessionization and duration engine](workpacks/12-app-sessionization-and-duration-engine.md) | Complete |
 | [13 journal and sqlite app ingest](workpacks/13-journal-and-sqlite-app-ingest.md) | Complete |
 | [14 app read models and service events](workpacks/14-app-read-models-and-service-events.md) | Complete |
-| [15 parent portal app inventory running session surfaces](workpacks/15-parent-portal-app-inventory-running-session-surfaces.md) | **Incomplete** |
+| [15 parent portal app inventory running session surfaces](workpacks/15-parent-portal-app-inventory-running-session-surfaces.md) | Complete for bounded source/test scope; runtime/physical UI proof remains open |
 | [16 new app and unknown app approval flow](workpacks/16-new-app-and-unknown-app-approval-flow.md) | **Incomplete** |
 | [17 risk app detection](workpacks/17-risk-app-detection.md) | **Incomplete** |
 | [18 policy target compiler for app rules](workpacks/18-policy-target-compiler-for-app-rules.md) | **Incomplete** |
@@ -43,8 +43,8 @@ complete. See [CODE_AUDIT.md](CODE_AUDIT.md) for exact evidence and gaps.
 | [22 broad blocking proof gates](workpacks/22-broad-blocking-proof-gates.md) | Complete, coordination-only |
 | [23 app ai classifier digest boundary](workpacks/23-app-ai-classifier-digest-boundary.md) | Complete |
 | [24 platform extension checklist and proof routing](workpacks/24-platform-extension-checklist-and-proof-routing.md) | Complete, coordination-only |
-| [25 install and uninstall approval handoff](workpacks/25-install-and-uninstall-approval-handoff.md) | Complete, bounded handoff |
-| [26 performance and service health](workpacks/26-performance-and-service-health.md) | **Incomplete** |
+| [25 install and uninstall approval handoff](workpacks/25-install-and-uninstall-approval-handoff.md) | Incomplete — no modern install/uninstall approval-handoff owner/caller |
+| [26 performance and service health](workpacks/26-performance-and-service-health.md) | **Incomplete, tests-only harness gap; no production-source gap** |
 | [27 e2e and manual proof artifacts](workpacks/27-e2e-and-manual-proof-artifacts.md) | Complete, proof-routing only |
 | [28 rollout checklist and pr gate](workpacks/28-rollout-checklist-and-pr-gate.md) | Complete, coordination-only |
 | [29 rust protocol evidence identity parity](workpacks/29-rust-protocol-evidence-identity-parity.md) | Complete |
@@ -71,16 +71,16 @@ complete. See [CODE_AUDIT.md](CODE_AUDIT.md) for exact evidence and gaps.
 | [53 notification intent contract](workpacks/53-notification-intent-contract.md) | Complete |
 | [54 policy readiness portal renderer](workpacks/54-policy-readiness-portal-renderer.md) | Complete |
 | [56 notification service read model](workpacks/56-notification-service-read-model.md) | Complete |
-| [58 notification local outbox bridge](workpacks/58-notification-local-outbox-bridge.md) | **Incomplete** |
-| [59 notification scheduler bridge](workpacks/59-notification-scheduler-bridge.md) | **Incomplete** |
-| [60 notification audit history bridge](workpacks/60-notification-audit-history-bridge.md) | **Incomplete** |
-| [61 notification provider preflight](workpacks/61-notification-provider-preflight.md) | **Incomplete** |
-| [62 notification preference preflight](workpacks/62-notification-preference-preflight.md) | **Incomplete** |
+| [58 notification local outbox bridge](workpacks/58-notification-local-outbox-bridge.md) | **Complete for bounded Phase 1; Phase 2 passed; proof open** |
+| [59 notification scheduler bridge](workpacks/59-notification-scheduler-bridge.md) | **Bounded Phase 1 complete; focused Phase 2 green; proof open** |
+| [60 notification audit history bridge](workpacks/60-notification-audit-history-bridge.md) | **Bounded Phase 1 complete; focused Phase 2 green; proof open** |
+| [61 notification provider preflight](workpacks/61-notification-provider-preflight.md) | **Bounded Phase 1 complete; focused Phase 2 green; proof open** |
+| [62 notification preference preflight](workpacks/62-notification-preference-preflight.md) | **Bounded Phase 1 source/test reviewed; focused execution and proof open** |
 | [63 source freshness source panel polish](workpacks/63-source-freshness-source-panel-polish.md) | **Incomplete** |
 | [64 notification provider status handoff](workpacks/64-notification-provider-status-handoff.md) | **Incomplete** |
 | [65 notification preference status handoff](workpacks/65-notification-preference-status-handoff.md) | **Incomplete** |
-| [66 notification parent surface intent](workpacks/66-notification-parent-surface-intent.md) | Complete |
-| [67 notification parent surface renderer](workpacks/67-notification-parent-surface-renderer.md) | Complete |
+| [66 notification parent surface intent](workpacks/66-notification-parent-surface-intent.md) | **Bounded source/test complete; focused validation and proof open** |
+| [67 notification parent surface renderer](workpacks/67-notification-parent-surface-renderer.md) | **Bounded source/test complete; focused validation and proof open** |
 | [74 source freshness policy consumption](workpacks/74-source-freshness-policy-consumption.md) | Complete, bounded contract |
 | [75 source freshness preview gate](workpacks/75-source-freshness-preview-gate.md) | Complete, bounded projection |
 | [76 source gated policy preview read model](workpacks/76-source-gated-policy-preview-read-model.md) | Complete, bounded projection |
@@ -107,7 +107,7 @@ complete. See [CODE_AUDIT.md](CODE_AUDIT.md) for exact evidence and gaps.
 | [99 source gated policy preview timer service readiness response consumer parent surface status read model parent surface handoff](workpacks/99-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-handoff.md) | Complete, bounded projection |
 | [100 source gated policy preview timer service readiness response consumer parent surface status read model parent surface read model handoff](workpacks/100-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff.md) | Complete, bounded projection |
 | [101 source gated policy preview timer service readiness response consumer parent surface status read model parent surface read model](workpacks/101-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model.md) | Complete, bounded projection |
-| [102 source gated policy preview timer service readiness response consumer parent surface status read model parent surface read model service handoff](workpacks/102-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff.md) | **Incomplete** |
+| [102 source gated policy preview timer service readiness response consumer parent surface status read model parent surface read model service handoff](workpacks/102-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff.md) | **Route-only; no App production source required; shared dependency validation open** |
 | [103 timer service read model handoff](workpacks/103-timer-service-read-model-handoff.md) | Complete |
 | [104 timer service event handoff](workpacks/104-timer-service-event-handoff.md) | Complete |
 | [105 timer service read api handoff](workpacks/105-timer-service-read-api-handoff.md) | Complete |

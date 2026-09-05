@@ -4,6 +4,7 @@ use std::path::Path;
 use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::activity::ActivityEvent;
 use ocentra_parent_agent_protocol::browser::{BrowserChannel, BrowserCustodyLabel, BrowserFamily};
+use ocentra_parent_agent_protocol::browser_intervention::BrowserInterventionReadModel;
 use ocentra_parent_agent_protocol::browser_intervention_values::{
     BrowserBoundaryState, BrowserExactUrlClaimState, BrowserInterventionAction,
     BrowserInterventionCapabilityState, BrowserInterventionDecisionSource,
@@ -14,6 +15,7 @@ use ocentra_parent_agent_protocol::browser_intervention_values::{
 use ocentra_parent_agent_protocol::browser_managed::BrowserQueryVisibilityLabel;
 use ocentra_parent_agent_protocol::browser_unmanaged_enforcement::BrowserUnmanagedEnforcementState;
 use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
 
 use crate::{
     browser_intervention_applied_event, ActivityJournal, ActivityStore,
@@ -48,7 +50,7 @@ fn activity_store_reports_typed_browser_intervention_read_model_from_ingested_ev
     );
     assert_eq!(
         read_model.unmanaged_fallback_action,
-        BrowserUnmanagedFallbackActionState::OsBlockManualRequired
+        BrowserUnmanagedFallbackActionState::Unavailable
     );
     let row = &read_model.rows[0];
     assert_eq!(
@@ -224,6 +226,278 @@ fn activity_store_reconstructs_unmanaged_fallback_action_state_without_url_claim
 }
 
 #[test]
+fn activity_store_defaults_invalid_capability_and_enforcement_to_fail_closed_states() {
+    let store =
+        ActivityStore::open_in_memory().expect_value(constants::error::ACTIVITY_STORE_OPENS);
+    let mut event = browser_intervention_event();
+    set_field(
+        &mut event,
+        constants::field::MANAGED_SESSION_INTERVENTION_CAPABILITY,
+        "invalid-capability",
+    );
+    set_field(
+        &mut event,
+        constants::field::UNMANAGED_BROWSER_ENFORCEMENT,
+        "invalid-enforcement",
+    );
+
+    store
+        .ingest_events(std::slice::from_ref(&event))
+        .expect_value(constants::error::ACTIVITY_STORE_INGESTS);
+    let read_model = store
+        .browser_intervention_read_model(
+            constants::activity_store::DEFAULT_RECENT_LIMIT,
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+        )
+        .expect_value(constants::error::ACTIVITY_STORE_QUERIES);
+
+    assert_eq!(
+        read_model.managed_session_intervention_capability,
+        BrowserInterventionCapabilityState::NeedsManagedSession
+    );
+    assert_eq!(
+        read_model.unmanaged_browser_enforcement,
+        BrowserUnmanagedEnforcementState::Unavailable
+    );
+}
+
+#[test]
+fn activity_store_downgrades_unmanaged_exact_url_claim_and_redacts_target_value() {
+    let store =
+        ActivityStore::open_in_memory().expect_value(constants::error::ACTIVITY_STORE_OPENS);
+    let mut event = unmanaged_browser_terminate_event();
+    let untrusted_url = "https://private.example/child-profile";
+    set_field(
+        &mut event,
+        constants::browser::INTERVENTION_FIELD_EXACT_URL_CLAIM_STATE,
+        BrowserExactUrlClaimState::ExactUrlProven.as_protocol_str(),
+    );
+    set_field(
+        &mut event,
+        constants::field::INTERVENTION_TARGET_TYPE,
+        BrowserInterventionTargetType::Url.as_protocol_str(),
+    );
+    set_field(
+        &mut event,
+        constants::field::INTERVENTION_TARGET_VALUE,
+        untrusted_url,
+    );
+    set_field(&mut event, constants::field::REQUESTED_URL, untrusted_url);
+    set_field(&mut event, constants::field::OBSERVED_URL, untrusted_url);
+
+    store
+        .ingest_events(std::slice::from_ref(&event))
+        .expect_value(constants::error::ACTIVITY_STORE_INGESTS);
+    let read_model = store
+        .browser_intervention_read_model(
+            constants::activity_store::DEFAULT_RECENT_LIMIT,
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+        )
+        .expect_value(constants::error::ACTIVITY_STORE_QUERIES);
+
+    let row = &read_model.rows[0];
+    assert_eq!(
+        row.browser_boundary_state,
+        BrowserBoundaryState::UnmanagedBrowserProcess
+    );
+    assert_eq!(
+        row.exact_url_claim_state,
+        BrowserExactUrlClaimState::NotClaimed
+    );
+    assert_eq!(row.requested_url, None);
+    assert_eq!(row.observed_url, None);
+    assert_eq!(
+        row.intervention_target_value,
+        constants::browser::INTERVENTION_TARGET_VALUE_REDACTED
+    );
+    let serialized =
+        serde_json::to_string(&read_model).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
+    let reparsed: BrowserInterventionReadModel =
+        serde_json::from_str(&serialized).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
+    assert_eq!(reparsed.rows[0].requested_url, None);
+    assert_eq!(reparsed.rows[0].observed_url, None);
+    assert_eq!(
+        reparsed.rows[0].intervention_target_value,
+        constants::browser::INTERVENTION_TARGET_VALUE_REDACTED
+    );
+}
+
+#[test]
+fn activity_store_rejects_unmanaged_fallback_without_explicit_process_identity() {
+    let store =
+        ActivityStore::open_in_memory().expect_value(constants::error::ACTIVITY_STORE_OPENS);
+    let mut event = unmanaged_browser_terminate_event();
+    remove_field(&mut event, constants::field::PROCESS_ID);
+
+    store
+        .ingest_events(std::slice::from_ref(&event))
+        .expect_value(constants::error::ACTIVITY_STORE_INGESTS);
+    let read_model = store
+        .browser_intervention_read_model(
+            constants::activity_store::DEFAULT_RECENT_LIMIT,
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+        )
+        .expect_value(constants::error::ACTIVITY_STORE_QUERIES);
+
+    let row = &read_model.rows[0];
+    assert_eq!(row.process_id, None);
+    assert_eq!(
+        row.unmanaged_detection_state,
+        BrowserUnmanagedDetectionState::Unavailable
+    );
+    assert_eq!(
+        row.unmanaged_fallback_action,
+        BrowserUnmanagedFallbackActionState::Unavailable
+    );
+    assert_eq!(
+        read_model.unmanaged_fallback_action,
+        BrowserUnmanagedFallbackActionState::Unavailable
+    );
+    assert_eq!(
+        row.intervention_outcome,
+        BrowserInterventionOutcome::ManualRequired
+    );
+    assert_eq!(
+        row.intervention_target_value,
+        constants::browser::INTERVENTION_TARGET_VALUE_REDACTED
+    );
+}
+
+#[test]
+fn activity_store_keeps_unsupported_unmanaged_browser_state_unavailable() {
+    let store =
+        ActivityStore::open_in_memory().expect_value(constants::error::ACTIVITY_STORE_OPENS);
+    let mut event = unmanaged_browser_terminate_event();
+    set_field(
+        &mut event,
+        constants::browser::INTERVENTION_FIELD_BROWSER_BOUNDARY_STATE,
+        BrowserBoundaryState::Unsupported.as_protocol_str(),
+    );
+    set_field(
+        &mut event,
+        constants::browser::INTERVENTION_FIELD_EXACT_URL_CLAIM_STATE,
+        BrowserExactUrlClaimState::ExactUrlProven.as_protocol_str(),
+    );
+    set_field(
+        &mut event,
+        constants::browser::INTERVENTION_FIELD_UNMANAGED_DETECTION_STATE,
+        BrowserUnmanagedDetectionState::Unavailable.as_protocol_str(),
+    );
+    set_field(
+        &mut event,
+        constants::field::INTERVENTION_ACTION,
+        BrowserInterventionAction::Unknown.as_protocol_str(),
+    );
+    set_field(
+        &mut event,
+        constants::field::INTERVENTION_OUTCOME,
+        BrowserInterventionOutcome::Unsupported.as_protocol_str(),
+    );
+    set_field(
+        &mut event,
+        constants::field::UNMANAGED_BROWSER_ENFORCEMENT,
+        BrowserUnmanagedEnforcementState::Unsupported.as_protocol_str(),
+    );
+    remove_field(&mut event, constants::field::UNMANAGED_FALLBACK_ACTION);
+
+    store
+        .ingest_events(std::slice::from_ref(&event))
+        .expect_value(constants::error::ACTIVITY_STORE_INGESTS);
+    let read_model = store
+        .browser_intervention_read_model(
+            constants::activity_store::DEFAULT_RECENT_LIMIT,
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+        )
+        .expect_value(constants::error::ACTIVITY_STORE_QUERIES);
+
+    let row = &read_model.rows[0];
+    assert_eq!(
+        row.browser_boundary_state,
+        BrowserBoundaryState::Unsupported
+    );
+    assert_eq!(
+        row.exact_url_claim_state,
+        BrowserExactUrlClaimState::NotClaimed
+    );
+    assert_eq!(
+        row.unmanaged_detection_state,
+        BrowserUnmanagedDetectionState::Unavailable
+    );
+    assert_eq!(
+        row.unmanaged_fallback_action,
+        BrowserUnmanagedFallbackActionState::Unavailable
+    );
+    assert_eq!(
+        read_model.unmanaged_browser_enforcement,
+        BrowserUnmanagedEnforcementState::Unsupported
+    );
+    assert_eq!(
+        read_model.unmanaged_fallback_action,
+        BrowserUnmanagedFallbackActionState::Unavailable
+    );
+}
+
+#[test]
+fn activity_store_preserves_degraded_unmanaged_fallback_without_success_claim() {
+    let store =
+        ActivityStore::open_in_memory().expect_value(constants::error::ACTIVITY_STORE_OPENS);
+    let mut event = unmanaged_browser_terminate_event();
+    set_field(
+        &mut event,
+        constants::browser::INTERVENTION_FIELD_BROWSER_BOUNDARY_STATE,
+        BrowserBoundaryState::BrowserLikeProcess.as_protocol_str(),
+    );
+    set_field(
+        &mut event,
+        constants::browser::INTERVENTION_FIELD_UNMANAGED_DETECTION_STATE,
+        BrowserUnmanagedDetectionState::Detected.as_protocol_str(),
+    );
+    set_field(
+        &mut event,
+        constants::field::INTERVENTION_ACTION,
+        BrowserInterventionAction::Unknown.as_protocol_str(),
+    );
+    set_field(
+        &mut event,
+        constants::field::INTERVENTION_OUTCOME,
+        BrowserInterventionOutcome::Failed.as_protocol_str(),
+    );
+    set_field(
+        &mut event,
+        constants::field::UNMANAGED_BROWSER_ENFORCEMENT,
+        BrowserUnmanagedEnforcementState::Degraded.as_protocol_str(),
+    );
+    remove_field(&mut event, constants::field::UNMANAGED_FALLBACK_ACTION);
+
+    store
+        .ingest_events(std::slice::from_ref(&event))
+        .expect_value(constants::error::ACTIVITY_STORE_INGESTS);
+    let read_model = store
+        .browser_intervention_read_model(
+            constants::activity_store::DEFAULT_RECENT_LIMIT,
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+        )
+        .expect_value(constants::error::ACTIVITY_STORE_QUERIES);
+
+    let row = &read_model.rows[0];
+    assert_eq!(
+        row.browser_boundary_state,
+        BrowserBoundaryState::BrowserLikeProcess
+    );
+    assert_eq!(
+        row.unmanaged_fallback_action,
+        BrowserUnmanagedFallbackActionState::Degraded
+    );
+    assert_eq!(
+        read_model.unmanaged_fallback_action,
+        BrowserUnmanagedFallbackActionState::Degraded
+    );
+    assert_eq!(row.intervention_outcome, BrowserInterventionOutcome::Failed);
+    assert_eq!(row.requested_url, None);
+    assert_eq!(row.observed_url, None);
+}
+
+#[test]
 fn activity_store_replays_browser_interventions_from_encrypted_journal() {
     let journal_path = {
         let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
@@ -301,7 +575,7 @@ fn activity_store_reports_empty_browser_intervention_readiness_without_rows() {
     );
     assert_eq!(
         read_model.unmanaged_fallback_action,
-        BrowserUnmanagedFallbackActionState::OsBlockManualRequired
+        BrowserUnmanagedFallbackActionState::Unavailable
     );
 }
 
@@ -420,6 +694,22 @@ fn remove_browser_intervention_proof_fields(event: &mut ActivityEvent) {
                 && key != constants::field::EVIDENCE_REFERENCE_IDS
                 && key != constants::field::CHILD_DELIVERY_STATE
         })
+        .collect();
+}
+
+fn set_field(event: &mut ActivityEvent, key: &str, value: &str) {
+    event
+        .fields
+        .insert(key.to_string(), LogFieldValue::String(value.to_string()));
+}
+
+fn remove_field(event: &mut ActivityEvent, key: &str) {
+    event.fields = event
+        .fields
+        .clone()
+        .into_inner()
+        .into_iter()
+        .filter(|(field, _)| field != key)
         .collect();
 }
 

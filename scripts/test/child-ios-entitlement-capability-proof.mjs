@@ -1,20 +1,33 @@
 import { spawn } from 'node:child_process';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { join, relative } from 'node:path';
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import {
+  CHILD_IOS_CANONICAL_PROOF_ROOT,
+  CHILD_IOS_LEGACY_PROOF_PATH,
+  classifyIosXctestResult,
+  writeChildIosProofOutputs,
+} from './child-ios-entitlement-capability-proof-artifacts.mjs';
 
 const repoRoot = process.cwd();
 const proofMode = 'child-ios-entitlement-capability-proof';
-const outputDir = join(repoRoot, 'test-results', proofMode);
-const proofPath = join(outputDir, 'proof.json');
 const commands = [];
+const commandResults = [];
 const proofLabels = [];
 
 await main();
 
 async function main() {
-  await mkdir(outputDir, { recursive: true });
-  await runCommand('cargo', ['test', '-p', 'ocentra-schema', '--test', 'contract', 'child_ios_entitlement_capability']);
+  commandResults.push(
+    await runCommand('cargo', [
+      'test',
+      '-p',
+      'ocentra-schema',
+      '--test',
+      'contract',
+      'child_ios_entitlement_capability',
+    ])
+  );
 
   const contracts = await importGeneratedModule(
     'packages/schema-domain/dist/generated-child-ios-entitlement-capability-proof-contracts.js'
@@ -23,6 +36,14 @@ async function main() {
   const sourceProof = await assertIosSourceProof(runtimeReadModel);
   const matrixProof = await assertProofMatrix();
   const scriptWiring = await assertScriptWiring();
+  const xctestOutcome = await runChildIosXctest();
+  commandResults.push({
+    command: xctestOutcome.command,
+    exitCode: xctestOutcome.exitCode,
+    result: xctestOutcome.status === 'passed' ? 'pass' : xctestOutcome.status === 'skipped' ? 'blocked' : 'fail',
+    artifact: CHILD_IOS_LEGACY_PROOF_PATH,
+    notes: xctestOutcome.reason,
+  });
 
   const proof = {
     schemaVersion: 1,
@@ -30,6 +51,7 @@ async function main() {
     commit: await gitHead(),
     proofMode,
     commands,
+    commandResults,
     proofLabels,
     evidence: {
       sourceProof,
@@ -38,11 +60,13 @@ async function main() {
       generatedContract: 'packages/schema-domain/src/generated-child-ios-entitlement-capability-proof-contracts.ts',
       contractTest: 'crates/schema/tests/contract/child_ios_entitlement_capability_proof.rs',
       matrix: 'docs/expectations/pre-ai-proof-matrix.json',
-      output: relativePath(proofPath),
+      output: CHILD_IOS_LEGACY_PROOF_PATH,
+      canonicalProofRoot: CHILD_IOS_CANONICAL_PROOF_ROOT,
     },
     runtimeReadModel,
     matrixProof,
     scriptWiring,
+    xctestOutcome,
     nonClaims: [
       'simulator or physical-device launch proof from this CI source-contract lane',
       'Family Controls, DeviceActivity, Screen Time, or Network Extension implementation',
@@ -52,14 +76,17 @@ async function main() {
     ],
   };
 
-  await writeFile(proofPath, `${JSON.stringify(proof, null, 2)}\n`);
+  await writeChildIosProofOutputs(repoRoot, proof);
+  if (xctestOutcome.status === 'failed') {
+    throw new Error(`child iOS XCTest failed: ${xctestOutcome.reason}`);
+  }
 }
 
 function assertGeneratedContract(module) {
   const readModel = structuredClone(module.GeneratedChildIosEntitlementCapabilityReadModel);
   assertEqual(module.ChildIosEntitlementCapabilityContractRuntime.SchemaVersion, proofMode, 'generated schema version');
   assertEqual(readModel.schemaVersion, proofMode, 'read model schema version');
-  assertEqual(readModel.bundleId, 'ca.ocentra.parent.agent', 'read model bundle identifier');
+  assertEqual(readModel.bundleId, 'ca.ocentra.child.agent', 'read model bundle identifier');
   assertEqual(readModel.surfaceProofs.length, 15, 'surface proof count');
   assertEqual(readModel.packageLifecycleProofs.length, 13, 'package lifecycle proof count');
   assertEqual(readModel.protocolBridgeProof.externalTransportState, 'not-implemented', 'external transport state');
@@ -85,12 +112,12 @@ function assertGeneratedContract(module) {
 }
 
 async function assertIosSourceProof(readModel) {
-  const project = await readRepoFile('platforms/ios/OcentraParentAgent.xcodeproj/project.pbxproj');
-  const plist = await readRepoFile('platforms/ios/OcentraParentAgent/Info.plist');
-  const statusView = await readRepoFile('platforms/ios/OcentraParentAgent/AgentStatusViewController.swift');
+  const project = await readRepoFile('platforms/ios/OcentraChildAgent.xcodeproj/project.pbxproj');
+  const plist = await readRepoFile('platforms/ios/OcentraChildAgent/Info.plist');
+  const statusView = await readRepoFile('platforms/ios/OcentraChildAgent/AgentStatusViewController.swift');
   const buildScript = await readRepoFile('scripts/release/ios/build-simulator-app.sh');
 
-  assertTextIncludes(project, 'OcentraParentAgent.app', 'iOS app product target');
+  assertTextIncludes(project, 'OcentraChildAgent.app', 'iOS app product target');
   assertTextIncludes(project, `PRODUCT_BUNDLE_IDENTIFIER = ${readModel.bundleId}`, 'bundle identifier');
   assertTextIncludes(plist, '<key>CFBundleIdentifier</key>', 'Info.plist bundle identifier');
   assertTextIncludes(plist, '<key>LSRequiresIPhoneOS</key>', 'Info.plist iPhone requirement');
@@ -102,30 +129,36 @@ async function assertIosSourceProof(readModel) {
     'service-mode=capability-only',
     'launch-availability=manual-required',
     'recovery=not-implemented',
-    'family-controls=manual-required',
-    'device-activity=manual-required',
-    'screen-time=manual-required',
-    'network-extension=manual-required',
-    'notifications=manual-required',
-    'background-execution=manual-required',
-    'provisioning=manual-required',
-    'supervision=manual-required',
-    'signing=manual-required',
-    'testflight=manual-required',
-    'device-proof=manual-required',
     'daemon=not-claimed',
     'child-agent-parity=not-claimed',
+    'external-transport=not-implemented',
   ]) {
     assertTextIncludes(statusView, expected, `iOS status label ${expected}`);
+  }
+  for (const renderedObservation of [
+    'bundleIdentity.rendered',
+    'familyControls.rendered',
+    'deviceActivity.rendered',
+    'screenTime.rendered',
+    'networkExtension.rendered',
+    'notifications.rendered',
+    'backgroundExecution.rendered',
+    'provisioning.rendered',
+    'supervision.rendered',
+    'signing.rendered',
+    'testFlight.rendered',
+    'deviceProof.rendered',
+  ]) {
+    assertTextIncludes(statusView, renderedObservation, `iOS runtime observation ${renderedObservation}`);
   }
   for (const expected of ['xcodebuild', 'iphonesimulator', 'CODE_SIGNING_ALLOWED=NO']) {
     assertTextIncludes(buildScript, expected, `simulator build token ${expected}`);
   }
   proofLabels.push('ios-scaffold.entitlement-source-proof');
   return {
-    project: 'platforms/ios/OcentraParentAgent.xcodeproj/project.pbxproj',
-    infoPlist: 'platforms/ios/OcentraParentAgent/Info.plist',
-    statusView: 'platforms/ios/OcentraParentAgent/AgentStatusViewController.swift',
+    project: 'platforms/ios/OcentraChildAgent.xcodeproj/project.pbxproj',
+    infoPlist: 'platforms/ios/OcentraChildAgent/Info.plist',
+    statusView: 'platforms/ios/OcentraChildAgent/AgentStatusViewController.swift',
     simulatorBuildScript: 'scripts/release/ios/build-simulator-app.sh',
   };
 }
@@ -157,14 +190,44 @@ async function assertScriptWiring() {
 }
 
 async function runCommand(command, args) {
-  commands.push([command, ...args].join(' '));
-  await new Promise((resolve, reject) => {
+  const commandLine = [command, ...args].join(' ');
+  commands.push(commandLine);
+  return new Promise((resolveCommand, rejectCommand) => {
     const child = spawn(command, args, { cwd: repoRoot, stdio: 'inherit', windowsHide: true });
-    child.once('exit', (code) =>
-      code === 0 ? resolve() : reject(new Error(`${command} ${args.join(' ')} exited with ${code}`))
-    );
-    child.once('error', reject);
+    child.once('exit', (code) => {
+      if (code !== 0) {
+        rejectCommand(new Error(`${commandLine} exited with ${code}`));
+        return;
+      }
+      resolveCommand({
+        command: commandLine,
+        exitCode: 0,
+        result: 'pass',
+        artifact: 'n/a',
+        notes: 'Rust child iOS capability contract test passed.',
+      });
+    });
+    child.once('error', rejectCommand);
   });
+}
+
+async function runChildIosXctest() {
+  const args = ['--test', 'platforms/ios/tests/child_capability_identity.test.mjs'];
+  const command = [process.execPath, ...args].join(' ');
+  commands.push(command);
+  const result = await new Promise((resolveCommand, rejectCommand) => {
+    const output = [];
+    const child = spawn(process.execPath, args, {
+      cwd: repoRoot,
+      stdio: ['ignore', 'pipe', 'pipe'],
+      windowsHide: true,
+    });
+    child.stdout.on('data', (chunk) => output.push(String(chunk)));
+    child.stderr.on('data', (chunk) => output.push(String(chunk)));
+    child.once('error', rejectCommand);
+    child.once('exit', (code) => resolveCommand({ command, exitCode: code ?? 1, output: output.join('') }));
+  });
+  return classifyIosXctestResult({ ...result, platform: process.platform });
 }
 
 async function gitHead() {
@@ -188,10 +251,6 @@ function importGeneratedModule(path) {
 
 function readRepoFile(path) {
   return readFile(join(repoRoot, path), 'utf8');
-}
-
-function relativePath(path) {
-  return relative(repoRoot, path).replaceAll('\\', '/');
 }
 
 function assertEqual(actual, expected, label) {

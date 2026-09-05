@@ -3,7 +3,8 @@ use ocentra_schema::parent_ui_bridge::{
     ParentAppGameNotificationParentSurfacePanelRowSnapshot,
     ParentAppGameNotificationParentSurfacePanelSnapshot, ParentAppGamePanelDetailSnapshot,
     ParentAppGamePanelRowSnapshot, ParentAppGamePanelSnapshot, ParentBridgeConnectionState,
-    ParentLanAddressRef, ParentLanBrowserAddDeviceDiscoveryDeviceSnapshot, ParentLanDeviceId,
+    ParentDesktopDistributionSnapshot, ParentLanAddressRef,
+    ParentLanBrowserAddDeviceDiscoveryDeviceSnapshot, ParentLanDeviceId,
     ParentLanPairingDeviceRefSnapshot, ParentLanRouteId,
     ParentLanServiceIdentityProbeEvidenceSnapshot, ParentPortalParentAccessState,
     ParentPortalRowSnapshot, ParentPortalShellStatusCardId, ParentPortalShellStatusCardSnapshot,
@@ -58,6 +59,8 @@ pub(super) fn route_snapshot(route: ParentRouteId) -> ParentRouteSnapshot {
             household: "household-alpha".to_string(),
             child_device: "device-alpha".to_string(),
         },
+        service_health: None,
+        parent_desktop_distribution: None,
         diagnostic_panels_enabled: false,
         parent_portal_rows: Some(vec![portal_row]),
         parent_portal_shell_status: Some(shell_status),
@@ -68,13 +71,43 @@ pub(super) fn route_snapshot(route: ParentRouteId) -> ParentRouteSnapshot {
     }
 }
 
+pub(super) fn parent_desktop_distribution_snapshot() -> ParentDesktopDistributionSnapshot {
+    ParentDesktopDistributionSnapshot {
+        payload_source: "rust-parent-runtime".to_string(),
+        source_custody_state: "source-custody-manual-required".to_string(),
+        product_claim_state: "read-only-contract-status-no-execution-owner".to_string(),
+        no_claim: "no-installer-updater-rollback-signing-notarization-store-execution".to_string(),
+        package_frontend_state: "built-portal-dist".to_string(),
+        package_service_manager_state: "package-installs-auto-start-service".to_string(),
+        package_health_probe_state: "package-health-probe-required".to_string(),
+        package_preview_state: "unsigned-package-preview".to_string(),
+        update_channel_state: "update-channel-scaffold".to_string(),
+        rollback_state: "rollback-unavailable".to_string(),
+        signing_state: "signing-manual-required".to_string(),
+        notarization_state: "notarization-manual-required".to_string(),
+        store_distribution_state: "store-distribution-manual-required".to_string(),
+        platform_matrix_state: "platform-matrix-split-proof-rows".to_string(),
+        release_branch_state: "production-promotion-required".to_string(),
+        artifact_proof_state: "ci-package-preview-artifact-proof".to_string(),
+        actions_available: false,
+    }
+}
+
 pub(super) fn route_live_activity_snapshot() -> ParentRouteLiveActivitySnapshot {
     ParentRouteLiveActivitySnapshot {
         recent_summary: None,
         ingest_status: None,
         activity_screen_read_model: None,
+        activity_app_use_read_model: None,
+        activity_app_game_platform_extension_read_model: Some(platform_extension_read_model()),
+        activity_browser_read_model: None,
+        activity_games_read_model: None,
         activity_tracking_panel: None,
         screen_summary_panel: Some(screen_summary_panel()),
+        browser_inventory_event: None,
+        browser_inventory_read_model: None,
+        browser_evidence_event: None,
+        browser_evidence_read_model: None,
         browser_managed_event: None,
         browser_managed_status: None,
         local_ai_runtime_status_event: None,
@@ -104,6 +137,15 @@ pub(super) fn route_live_activity_snapshot() -> ParentRouteLiveActivitySnapshot 
         activity_tracking_read_model: None,
         activity_tracking_retention_settings_write_result: None,
     }
+}
+
+fn platform_extension_read_model() -> serde_json::Value {
+    serde_json::json!({
+        "ok": true,
+        "value": {
+            "rows": [{"platform": "macos"}]
+        }
+    })
 }
 
 fn screen_summary_panel() -> ParentScreenSummaryPanelSnapshot {

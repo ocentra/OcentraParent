@@ -110,7 +110,7 @@ pub const CHILD_SIGNING_STORE_DEVICE_OWNER_MATRIX_ANDROID_MANAGEMENT_BOUNDARY: &
 pub const CHILD_SIGNING_STORE_DEVICE_OWNER_MATRIX_ANDROID_CLAIM_BOUNDARY: &str = "Android row proves debug APK package output only; it does not prove device-owner, managed-profile, Play Store distribution, or parent-client parity";
 
 pub const CHILD_SIGNING_STORE_DEVICE_OWNER_MATRIX_IOS_ARTIFACT_PACKAGE_REF: &str =
-    "target/release-packages/ios/ocentra-parent-agent-ios-simulator-latest.zip";
+    "target/release-packages/ios/ocentra-child-agent-ios-simulator-latest.zip";
 pub const CHILD_SIGNING_STORE_DEVICE_OWNER_MATRIX_IOS_PROOF_REF_1: &str =
     "packages/schema-domain/src/generated-child-ios-entitlement-capability-proof-contracts.ts";
 pub const CHILD_SIGNING_STORE_DEVICE_OWNER_MATRIX_IOS_PROOF_REF_2: &str =

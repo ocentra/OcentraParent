@@ -1,5 +1,6 @@
 use super::fixtures::{
-    browser_add_device_discovery_snapshot, route_live_activity_snapshot, route_snapshot,
+    browser_add_device_discovery_snapshot, parent_desktop_distribution_snapshot,
+    route_live_activity_snapshot, route_snapshot,
 };
 use crate::support::ValueOrUnreachable as _;
 use ocentra_schema::parent_ui_bridge::{
@@ -69,6 +70,38 @@ fn route_snapshot_preserves_rust_owned_encoded_shape() {
 }
 
 #[test]
+fn desktop_distribution_snapshot_preserves_status_only_contract() {
+    let snapshot = parent_desktop_distribution_snapshot();
+    let encoded = serde_json::to_value(&snapshot)
+        .value_or_unreachable(crate::assert_context!("desktop distribution serializes"));
+
+    assert_eq!(encoded["payloadSource"], json!("rust-parent-runtime"));
+    assert_eq!(
+        encoded["sourceCustodyState"],
+        json!("source-custody-manual-required")
+    );
+    assert_eq!(
+        encoded["productClaimState"],
+        json!("read-only-contract-status-no-execution-owner")
+    );
+    assert_eq!(
+        encoded["noClaim"],
+        json!("no-installer-updater-rollback-signing-notarization-store-execution")
+    );
+    assert_eq!(encoded["packageFrontendState"], json!("built-portal-dist"));
+    assert_eq!(
+        encoded["packageServiceManagerState"],
+        json!("package-installs-auto-start-service")
+    );
+    assert_eq!(
+        encoded["updateChannelState"],
+        json!("update-channel-scaffold")
+    );
+    assert_eq!(encoded["rollbackState"], json!("rollback-unavailable"));
+    assert_eq!(encoded["actionsAvailable"], json!(false));
+}
+
+#[test]
 fn route_live_activity_snapshot_preserves_rust_owned_app_game_panel_shapes() {
     let snapshot = route_live_activity_snapshot();
     let encoded = serde_json::to_value(&snapshot)
@@ -93,6 +126,10 @@ fn route_live_activity_snapshot_preserves_rust_owned_app_game_panel_shapes() {
     assert_eq!(
         encoded["appGamePlatformProofStatusPanel"]["rows"][0]["title"],
         json!("Windows")
+    );
+    assert_eq!(
+        encoded["activityAppGamePlatformExtensionReadModel"]["value"]["rows"][0]["platform"],
+        json!("macos")
     );
     assert_eq!(
         encoded["appGameChildRuntimeTransportReceiptPanel"]["rows"][0]["details"][0]["value"],

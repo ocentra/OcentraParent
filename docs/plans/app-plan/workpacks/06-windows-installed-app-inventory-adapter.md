@@ -10,6 +10,11 @@ Windows owned-process enforcement proof exists for a scoped time-limit path, but
 Windows installed-app inventory is not yet a complete adapter with registry,
 Start Menu, known-path, executable metadata, signature, and hash proof.
 
+Current audit (2026-08-29): bounded Rust inventory sources, journal/service
+capture, redacted refs, deduplication, and real filesystem tests exist. The
+known-path/executable publisher-signature-hash and permission-limited adapter
+owner/caller remain incomplete.
+
 ## Where We Want To Be
 
 The Windows adapter can produce inventory evidence from multiple source types,

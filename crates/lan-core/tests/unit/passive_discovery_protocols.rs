@@ -1,4 +1,7 @@
 use super::*;
+use ocentra_lan_core::lan_mdns_advertiser::{
+    encode_advertisement_packet, LanMdnsAdvertisementInstance,
+};
 use ocentra_lan_core::network_inventory::passive_discovery::dns_like::{
     passive_llmnr_summary, passive_netbios_summary,
 };
@@ -9,6 +12,7 @@ use ocentra_lan_core::network_inventory::passive_discovery::udp_multicast::{
     drain_udp_socket_packets_with_observed_at, ingest_passive_datagram,
     ingest_passive_datagram_with_observed_at, udp_multicast_support,
 };
+use ocentra_parent_agent_protocol::lan_pairing::LanMdnsTxtRecord;
 
 #[test]
 fn native_ws_discovery_datagram_records_passive_observation_withost_json_envelope() {
@@ -52,6 +56,53 @@ fn native_ws_discovery_datagram_records_passive_observation_withost_json_envelop
         snapshot.rows[0].device_id.as_ref().map(AsRef::as_ref),
         Some("camera-1")
     );
+}
+
+#[path = "../../src/network_inventory/passive_discovery/udp_multicast/deadline.rs"]
+mod deadline_helper;
+#[path = "../../src/network_inventory/passive_discovery/udp_multicast/timeout_guard.rs"]
+mod timeout_guard_helper;
+
+#[test]
+fn passive_listener_deadline_is_absolute_and_expiry_is_empty() {
+    let start = std::time::Instant::now();
+    let deadline = start + std::time::Duration::from_secs(2);
+    assert_eq!(
+        deadline_helper::remaining_read_timeout_at(
+            deadline,
+            start + std::time::Duration::from_millis(900)
+        ),
+        Some(std::time::Duration::from_millis(1100))
+    );
+    assert_eq!(
+        deadline_helper::remaining_read_timeout_at(deadline, deadline),
+        None
+    );
+}
+
+#[test]
+fn passive_listener_timeout_guard_restores_explicitly() -> std::io::Result<()> {
+    let socket = std::net::UdpSocket::bind("127.0.0.1:0")?;
+    socket.set_read_timeout(Some(std::time::Duration::from_millis(25)))?;
+    let previous = socket.read_timeout()?;
+    let mut guard = timeout_guard_helper::ReadTimeoutRestoreGuard::new(&socket, previous);
+    socket.set_read_timeout(Some(std::time::Duration::from_millis(1)))?;
+    guard.restore()?;
+    assert_eq!(socket.read_timeout()?, previous);
+    Ok(())
+}
+
+#[test]
+fn passive_listener_timeout_guard_restores_when_scope_exits() -> std::io::Result<()> {
+    let socket = std::net::UdpSocket::bind("127.0.0.1:0")?;
+    socket.set_read_timeout(Some(std::time::Duration::from_millis(25)))?;
+    let previous = socket.read_timeout()?;
+    {
+        let _guard = timeout_guard_helper::ReadTimeoutRestoreGuard::new(&socket, previous);
+        socket.set_read_timeout(Some(std::time::Duration::from_millis(1)))?;
+    }
+    assert_eq!(socket.read_timeout()?, previous);
+    Ok(())
 }
 
 #[test]
@@ -632,16 +683,17 @@ fn udp_socket_packets_feed_the_existing_passive_state_path() {
 
     let sender = UdpSocket::bind((Ipv4Addr::LOCALHOST, 0)).value_or_unreachable();
     let receiver_addr = receiver.local_addr().value_or_unreachable();
-    let payload = serde_json::to_vec(&serde_json::json!({
-        "schemaVersion": LanPassiveDiscoveryListenerState::SCHEMA_VERSION,
-        "source": "mdns",
-        "triggerReason": "app-resumed",
-        "observedAt": "2026-06-25T00:00:01Z",
-        "deviceId": "device-sdp-transport",
-        "scanSessionId": "scan-sdp-transport",
-        "summary": "mdns multicast update"
-    }))
-    .value_or_unreachable();
+    let payload = encode_advertisement_packet(
+        &[LanMdnsAdvertisementInstance {
+            service_type: "_ocentra-parent._tcp.local".to_string(),
+            instance_name: "parent._ocentra-parent._tcp.local".to_string(),
+            txt_records: vec![LanMdnsTxtRecord {
+                key: "lan.mdns_advertisement_id".to_string(),
+                value: "parent-test-advertisement".to_string(),
+            }],
+        }],
+        120,
+    );
 
     sender
         .send_to(&payload, receiver_addr)
@@ -661,17 +713,17 @@ fn udp_socket_packets_feed_the_existing_passive_state_path() {
     );
     assert_eq!(
         snapshot.rows[0].trigger_reason,
-        LanPassiveDiscoveryTriggerReason::AppResumed
+        LanPassiveDiscoveryTriggerReason::PassivePacketObserved
     );
-    assert_eq!(
-        snapshot.rows[0].device_id.as_ref().map(AsRef::as_ref),
-        Some("device-sdp-transport")
-    );
+    assert_eq!(snapshot.rows[0].device_id.as_ref().map(AsRef::as_ref), None);
     assert_eq!(
         snapshot.rows[0].scan_session_id.as_ref().map(AsRef::as_ref),
-        Some("scan-sdp-transport")
+        None
     );
-    assert_eq!(snapshot.rows[0].summary, "mdns multicast update");
+    assert_eq!(
+        snapshot.rows[0].summary,
+        "mDNS DNS-SD packet: 1 service type(s), 1 instance(s); first service=_ocentra-parent._tcp.local; display=parent"
+    );
 }
 
 #[test]

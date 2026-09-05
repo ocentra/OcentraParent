@@ -1,6 +1,7 @@
 use ocentra_eventing::envelope::{DomainEvent, EventContract};
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, RuntimeRole, SchemaVersion};
+use serde::de::{Deserializer, Error};
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -10,6 +11,8 @@ use crate::{
 };
 
 pub mod broker_delivery;
+#[path = "network_flow_event_contracts.rs"]
+mod network_flow_event_contracts;
 #[path = "network_flow_eventing.rs"]
 mod network_flow_eventing;
 pub mod remote_delivery_reports;
@@ -65,6 +68,7 @@ pub struct ActivityNetworkFlowObservation {
     pub process_attribution_status: String,
     pub process_id: Option<u64>,
     pub process_name: Option<String>,
+    pub associated_pid_count: Option<usize>,
     pub counters: ActivityNetworkFlowCounters,
     pub evidence: Vec<ActivityEvidenceRef>,
 }
@@ -458,10 +462,143 @@ pub struct NetworkLiveCaptureStatus {
 pub trait NetworkRuntimeEventContract {
     const EVENT_TYPE: &'static str;
     const SCHEMA_VERSION: u16 = crate::constants::network_flow::EVENT_SCHEMA_VERSION;
+
+    fn validate(&self) -> Result<(), EventingError>;
+}
+
+fn deserialize_network_schema_version<'de, D>(deserializer: D) -> Result<u16, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let version = u16::deserialize(deserializer)?;
+    (version == crate::constants::network_flow::EVENT_SCHEMA_VERSION)
+        .then_some(version)
+        .ok_or_else(|| D::Error::custom("unsupported network event schema version"))
+}
+
+fn deserialize_network_non_empty_text<'de, D>(deserializer: D) -> Result<String, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let value = String::deserialize(deserializer)?;
+    (!value.trim().is_empty())
+        .then_some(value)
+        .ok_or_else(|| D::Error::custom("network event text must not be blank"))
+}
+
+fn deserialize_network_optional_non_empty_text<'de, D>(
+    deserializer: D,
+) -> Result<Option<String>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let value = Option::<String>::deserialize(deserializer)?;
+    if matches!(value.as_deref(), Some(value) if value.trim().is_empty()) {
+        return Err(D::Error::custom(
+            "network optional event text must not be blank",
+        ));
+    }
+    Ok(value)
+}
+
+fn deserialize_network_text_vec<'de, D>(deserializer: D) -> Result<Vec<String>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let values = Vec::<String>::deserialize(deserializer)?;
+    if values.iter().any(|value| value.trim().is_empty()) {
+        return Err(D::Error::custom(
+            "network event text list must not contain blanks",
+        ));
+    }
+    Ok(values)
+}
+
+fn deserialize_network_non_empty_text_vec<'de, D>(deserializer: D) -> Result<Vec<String>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let values = deserialize_network_text_vec(deserializer)?;
+    if values.is_empty() {
+        return Err(D::Error::custom(
+            "network event text list must not be empty",
+        ));
+    }
+    Ok(values)
+}
+
+fn deserialize_network_confidence<'de, D>(deserializer: D) -> Result<f32, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let value = f32::deserialize(deserializer)?;
+    (value.is_finite() && (0.0..=1.0).contains(&value))
+        .then_some(value)
+        .ok_or_else(|| {
+            D::Error::custom("network confidence must be finite and between zero and one")
+        })
+}
+
+fn deserialize_network_redacted_bool<'de, D>(deserializer: D) -> Result<bool, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let value = bool::deserialize(deserializer)?;
+    (!value)
+        .then_some(false)
+        .ok_or_else(|| D::Error::custom("raw packet payload must remain excluded"))
+}
+
+fn validate_network_schema_version(version: u16) -> Result<(), EventingError> {
+    (version == crate::constants::network_flow::EVENT_SCHEMA_VERSION)
+        .then_some(())
+        .ok_or(EventingError::InvalidVersion)
+}
+
+fn validate_network_text(value: &str, field: &'static str) -> Result<(), EventingError> {
+    (!value.trim().is_empty())
+        .then_some(())
+        .ok_or(EventingError::EmptyValue { field })
+}
+
+fn validate_network_optional_text(
+    value: Option<&str>,
+    field: &'static str,
+) -> Result<(), EventingError> {
+    if let Some(value) = value {
+        validate_network_text(value, field)?;
+    }
+    Ok(())
+}
+
+fn validate_network_texts(
+    values: &[String],
+    field: &'static str,
+    require_one: bool,
+) -> Result<(), EventingError> {
+    if require_one && values.is_empty() {
+        return Err(EventingError::EmptyValue { field });
+    }
+    for value in values {
+        validate_network_text(value, field)?;
+    }
+    Ok(())
+}
+
+fn validate_network_event(
+    schema_version: u16,
+    fields: &[(&str, &'static str)],
+) -> Result<(), EventingError> {
+    validate_network_schema_version(schema_version)?;
+    for (value, field) in fields.iter().copied() {
+        validate_network_text(value, field)?;
+    }
+    Ok(())
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields)]
 pub struct NetworkClaimBoundary {
     pub exact_url_available: bool,
     pub decrypted_https_payload_available: bool,
@@ -472,183 +609,284 @@ pub struct NetworkClaimBoundary {
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields)]
 pub struct NetworkFlowObservedEvent {
+    #[serde(deserialize_with = "deserialize_network_schema_version")]
     pub schema_version: u16,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text")]
     pub flow_event_ref: String,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text")]
     pub observed_at: String,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text")]
     pub device_ref: String,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text")]
     pub flow_evidence_ref: String,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text")]
     pub custody: String,
     pub evidence_grade: NetworkEvidenceGrade,
     pub claim_boundary: NetworkClaimBoundary,
 }
 
-impl NetworkRuntimeEventContract for NetworkFlowObservedEvent {
-    const EVENT_TYPE: &'static str = crate::constants::network_flow::EVENT_NETWORK_FLOW_OBSERVED;
-}
-
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields)]
 pub struct NetworkDomainObservedEvent {
+    #[serde(deserialize_with = "deserialize_network_schema_version")]
     pub schema_version: u16,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text")]
     pub domain_event_ref: String,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text")]
     pub previous_event_ref: String,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text")]
     pub flow_evidence_ref: String,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text")]
     pub domain_evidence_ref: String,
     pub attribution: NetworkDomainAttributionKind,
     pub evidence_grade: NetworkEvidenceGrade,
+    #[serde(deserialize_with = "deserialize_network_text_vec")]
     pub uncertainty_codes: Vec<String>,
     pub claim_boundary: NetworkClaimBoundary,
 }
 
-impl NetworkRuntimeEventContract for NetworkDomainObservedEvent {
-    const EVENT_TYPE: &'static str = crate::constants::network_flow::EVENT_NETWORK_DOMAIN_OBSERVED;
-}
-
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields)]
 pub struct NetworkActivityClassifiedEvent {
+    #[serde(deserialize_with = "deserialize_network_schema_version")]
     pub schema_version: u16,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text")]
     pub classification_event_ref: String,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text")]
     pub previous_event_ref: String,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text_vec")]
     pub evidence_refs: Vec<String>,
     pub activity_kind: NetworkActivityKind,
+    #[serde(deserialize_with = "deserialize_network_confidence")]
     pub confidence: f32,
     pub evidence_grade: NetworkEvidenceGrade,
+    #[serde(deserialize_with = "deserialize_network_text_vec")]
     pub uncertainty_codes: Vec<String>,
 }
 
-impl NetworkRuntimeEventContract for NetworkActivityClassifiedEvent {
-    const EVENT_TYPE: &'static str =
-        crate::constants::network_flow::EVENT_NETWORK_ACTIVITY_CLASSIFIED;
-}
-
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields)]
 pub struct NetworkAiAnalysisRequestedEvent {
+    #[serde(deserialize_with = "deserialize_network_schema_version")]
     pub schema_version: u16,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text")]
     pub ai_request_ref: String,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text")]
     pub previous_event_ref: String,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text_vec")]
     pub evidence_refs: Vec<String>,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text")]
     pub prompt_template_ref: String,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text")]
     pub custody: String,
+    #[serde(deserialize_with = "deserialize_network_redacted_bool")]
     pub raw_packet_payload_included: bool,
 }
 
-impl NetworkRuntimeEventContract for NetworkAiAnalysisRequestedEvent {
-    const EVENT_TYPE: &'static str = crate::constants::network_flow::EVENT_AI_ANALYSIS_REQUESTED;
-}
-
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields)]
 pub struct NetworkAiAnalysisCompletedEvent {
+    #[serde(deserialize_with = "deserialize_network_schema_version")]
     pub schema_version: u16,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text")]
     pub ai_analysis_ref: String,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text")]
     pub ai_request_ref: String,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text")]
     pub previous_event_ref: String,
     pub advisory_state: NetworkAiAdvisoryState,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text_vec")]
     pub evidence_refs: Vec<String>,
+    #[serde(deserialize_with = "deserialize_network_text_vec")]
     pub unsupported_claims: Vec<String>,
 }
 
-impl NetworkRuntimeEventContract for NetworkAiAnalysisCompletedEvent {
-    const EVENT_TYPE: &'static str = crate::constants::network_flow::EVENT_AI_ANALYSIS_COMPLETED;
-}
-
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields)]
 pub struct NetworkPolicyEvaluationRequestedEvent {
+    #[serde(deserialize_with = "deserialize_network_schema_version")]
     pub schema_version: u16,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text")]
     pub policy_evaluation_ref: String,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text")]
     pub previous_event_ref: String,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text_vec")]
     pub evidence_refs: Vec<String>,
+    #[serde(deserialize_with = "deserialize_network_optional_non_empty_text")]
     pub ai_analysis_ref: Option<String>,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text_vec")]
     pub parent_rule_refs: Vec<String>,
     pub dry_run: bool,
 }
 
-impl NetworkRuntimeEventContract for NetworkPolicyEvaluationRequestedEvent {
-    const EVENT_TYPE: &'static str =
-        crate::constants::network_flow::EVENT_POLICY_EVALUATION_REQUESTED;
-}
-
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields)]
 pub struct NetworkPolicyDecisionCompletedEvent {
+    #[serde(deserialize_with = "deserialize_network_schema_version")]
     pub schema_version: u16,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text")]
     pub policy_decision_ref: String,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text")]
     pub policy_evaluation_ref: String,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text")]
     pub previous_event_ref: String,
     pub decision_action: NetworkPolicyDecisionAction,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text_vec")]
     pub evidence_refs: Vec<String>,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text_vec")]
     pub parent_rule_refs: Vec<String>,
     pub adapter_capability_required: bool,
 }
 
-impl NetworkRuntimeEventContract for NetworkPolicyDecisionCompletedEvent {
-    const EVENT_TYPE: &'static str =
-        crate::constants::network_flow::EVENT_POLICY_DECISION_COMPLETED;
-}
-
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields)]
 pub struct NetworkEnforcementCommandIssuedEvent {
+    #[serde(deserialize_with = "deserialize_network_schema_version")]
     pub schema_version: u16,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text")]
     pub enforcement_command_ref: String,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text")]
     pub previous_event_ref: String,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text")]
     pub policy_decision_ref: String,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text")]
     pub adapter_capability_ref: String,
     pub enforcement_mode: NetworkEnforcementMode,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text_vec")]
     pub evidence_refs: Vec<String>,
+    #[serde(deserialize_with = "deserialize_network_optional_non_empty_text")]
     pub rollback_ref: Option<String>,
 }
 
-impl NetworkRuntimeEventContract for NetworkEnforcementCommandIssuedEvent {
-    const EVENT_TYPE: &'static str =
-        crate::constants::network_flow::EVENT_ENFORCEMENT_COMMAND_ISSUED;
-}
-
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields)]
 pub struct NetworkEnforcementResultObservedEvent {
+    #[serde(deserialize_with = "deserialize_network_schema_version")]
     pub schema_version: u16,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text")]
     pub enforcement_result_ref: String,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text")]
     pub enforcement_command_ref: String,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text")]
     pub previous_event_ref: String,
     pub result_status: NetworkEnforcementResultStatus,
     pub adapter_action_executed: bool,
+    #[serde(deserialize_with = "deserialize_network_optional_non_empty_text")]
     pub rollback_ref: Option<String>,
+    #[serde(deserialize_with = "deserialize_network_optional_non_empty_text")]
     pub unavailable_reason_code: Option<String>,
 }
 
 impl NetworkRuntimeEventContract for NetworkEnforcementResultObservedEvent {
     const EVENT_TYPE: &'static str =
         crate::constants::network_flow::EVENT_ENFORCEMENT_RESULT_OBSERVED;
+
+    fn validate(&self) -> Result<(), EventingError> {
+        validate_network_event(
+            self.schema_version,
+            &[
+                (&self.enforcement_result_ref, "enforcement_result_ref"),
+                (&self.enforcement_command_ref, "enforcement_command_ref"),
+                (&self.previous_event_ref, "previous_event_ref"),
+            ],
+        )
+        .and_then(|_| validate_network_optional_text(self.rollback_ref.as_deref(), "rollback_ref"))
+        .and_then(|_| {
+            validate_network_optional_text(
+                self.unavailable_reason_code.as_deref(),
+                "unavailable_reason_code",
+            )
+        })
+        .and_then(|_| {
+            validate_network_enforcement_result_status(
+                self.result_status == NetworkEnforcementResultStatus::Unavailable,
+                self.unavailable_reason_code.is_some(),
+            )
+        })
+    }
+}
+
+fn validate_network_enforcement_result_status(
+    unavailable_result: bool,
+    has_unavailable_reason: bool,
+) -> Result<(), EventingError> {
+    (!unavailable_result || has_unavailable_reason)
+        .then_some(())
+        .ok_or(EventingError::EmptyValue {
+            field: "unavailable_reason_code",
+        })
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields)]
 pub struct NetworkAuditEntryCommittedEvent {
+    #[serde(deserialize_with = "deserialize_network_schema_version")]
     pub schema_version: u16,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text")]
     pub audit_entry_ref: String,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text")]
     pub previous_event_ref: String,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text")]
     pub policy_decision_ref: String,
+    #[serde(deserialize_with = "deserialize_network_optional_non_empty_text")]
     pub enforcement_command_ref: Option<String>,
+    #[serde(deserialize_with = "deserialize_network_optional_non_empty_text")]
     pub enforcement_result_ref: Option<String>,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text_vec")]
     pub evidence_refs: Vec<String>,
     pub audit_outcome: NetworkAuditOutcome,
 }
 
 impl NetworkRuntimeEventContract for NetworkAuditEntryCommittedEvent {
     const EVENT_TYPE: &'static str = crate::constants::network_flow::EVENT_AUDIT_ENTRY_COMMITTED;
+
+    fn validate(&self) -> Result<(), EventingError> {
+        validate_network_event(
+            self.schema_version,
+            &[
+                (&self.audit_entry_ref, "audit_entry_ref"),
+                (&self.previous_event_ref, "previous_event_ref"),
+                (&self.policy_decision_ref, "policy_decision_ref"),
+            ],
+        )
+        .and_then(|_| validate_network_texts(&self.evidence_refs, "evidence_refs", true))
+        .and_then(|_| {
+            validate_network_optional_text(
+                self.enforcement_command_ref.as_deref(),
+                "enforcement_command_ref",
+            )
+        })
+        .and_then(|_| {
+            validate_network_optional_text(
+                self.enforcement_result_ref.as_deref(),
+                "enforcement_result_ref",
+            )
+        })
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields)]
 pub struct NetworkPortalReadModelUpdatedEvent {
+    #[serde(deserialize_with = "deserialize_network_schema_version")]
     pub schema_version: u16,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text")]
     pub read_model_ref: String,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text")]
     pub previous_event_ref: String,
+    #[serde(deserialize_with = "deserialize_network_non_empty_text")]
     pub audit_entry_ref: String,
     pub update_kind: NetworkPortalUpdateKind,
     pub visible_manual_required: bool,
@@ -658,6 +896,17 @@ pub struct NetworkPortalReadModelUpdatedEvent {
 impl NetworkRuntimeEventContract for NetworkPortalReadModelUpdatedEvent {
     const EVENT_TYPE: &'static str =
         crate::constants::network_flow::EVENT_PORTAL_READ_MODEL_UPDATED;
+
+    fn validate(&self) -> Result<(), EventingError> {
+        validate_network_event(
+            self.schema_version,
+            &[
+                (&self.read_model_ref, "read_model_ref"),
+                (&self.previous_event_ref, "previous_event_ref"),
+                (&self.audit_entry_ref, "audit_entry_ref"),
+            ],
+        )
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -933,6 +1182,7 @@ pub struct NetworkRuntimeEventPayload {
     pub destination_domain: Option<String>,
     pub process_id: Option<u32>,
     pub process_name: Option<String>,
+    pub associated_pid_count: usize,
     pub evidence_scope: NetworkEvidenceScope,
     pub evidence_grade: NetworkRuntimeEvidenceGrade,
     /// Canonical A-D grade carried across the runtime event boundary.
@@ -966,14 +1216,14 @@ impl DomainEvent for NetworkRuntimeEventPayload {
     }
 
     fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
-        AggregateKey::parse(network_runtime_aggregate_key(self))
+        AggregateKey::parse(network_flow_event_contracts::runtime_aggregate_key(self))
     }
 
     fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
         let mut value = String::from(constants::network_flow::IDEMPOTENCY_NETWORK_RUNTIME_PREFIX);
         value.push_str(self.phase.event_type());
         value.push(constants::delimiter::HYPHEN);
-        value.push_str(&network_runtime_aggregate_key(self));
+        value.push_str(&network_flow_event_contracts::runtime_aggregate_key(self));
         value.push(constants::delimiter::HYPHEN);
         value.push_str(&self.observed_at);
         IdempotencyKey::parse(value)
@@ -1063,34 +1313,4 @@ fn expected_runtime_evidence_grade(
     .find(|(selected, _)| *selected)
     .map(|(_, grade)| grade)
     .unwrap_or(NetworkRuntimeEvidenceGrade::AdapterUnavailable)
-}
-
-fn network_runtime_aggregate_key(payload: &NetworkRuntimeEventPayload) -> String {
-    payload.destination_domain.as_ref().map_or_else(
-        || {
-            payload.destination_ip.as_ref().map_or_else(
-                || {
-                    let mut value =
-                        String::from(constants::network_flow::AGGREGATE_NETWORK_FLOW_PREFIX);
-                    value.push_str(payload.capability_status.as_protocol_str());
-                    value
-                },
-                |ip| {
-                    let mut value =
-                        String::from(constants::network_flow::AGGREGATE_NETWORK_FLOW_PREFIX);
-                    value.push_str(ip);
-                    let port_suffix = payload.destination_port.map_or_else(String::new, |port| {
-                        format!("{}{}", constants::delimiter::HYPHEN, port)
-                    });
-                    value.push_str(&port_suffix);
-                    value
-                },
-            )
-        },
-        |domain| {
-            let mut value = String::from(constants::network_flow::AGGREGATE_NETWORK_FLOW_PREFIX);
-            value.push_str(domain);
-            value
-        },
-    )
 }

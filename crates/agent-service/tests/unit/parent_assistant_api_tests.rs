@@ -1,11 +1,7 @@
-#[path = "../support/test_invariants.rs"]
-mod test_invariants;
-
 use std::path::PathBuf as TestPathBuf;
 use std::string::String as TestString;
 use std::{
     fs,
-    path::TestPathBuf,
     time::{SystemTime, UNIX_EPOCH},
 };
 
@@ -43,13 +39,56 @@ use crate::{
     fields::fields_from_pairs,
     parent_assistant_api::{
         api_boundary, build_parent_assistant_scaffold_event,
-        thread_store::thread_response_for_command_in_dir,
+        thread_store::{
+            record_message_for_thread, thread_response_for_command_in_dir, ParentAssistantThreadId,
+        },
     },
-    test_invariants::{
-        require_json_decode, require_log_string_field, require_ok, require_some,
-        serialize_test_json,
-    },
+    test_require_json_decode::require_json_decode,
+    test_require_log_string_field::require_log_string_field,
+    test_require_ok::require_ok,
+    test_require_some::require_some,
+    test_serialize_json::serialize_test_json,
 };
+
+#[tokio::test]
+async fn parent_assistant_thread_message_record_updates_the_durable_thread() {
+    let _guard = crate::activity_report_env_lock::REPORT_ENV_LOCK
+        .lock()
+        .await;
+    let root = unique_temp_dir();
+    let directory = root.join(constants::parent_assistant::THREAD_STORAGE_DIR);
+    let create = command(
+        AgentCommandName::AgentParentAssistantThreadCreate,
+        fields_from_pairs(vec![(
+            constants::parent_assistant::FIELD_THREAD_ID,
+            LogFieldValue::String(constants::parent_assistant::DEFAULT_THREAD_ID.to_string()),
+        )]),
+    );
+    let _ = thread_response_for_command_in_dir(&create, &directory);
+    std::env::set_var(constants::env_var::DEV_LOG_DIR, &root);
+    record_message_for_thread(ParentAssistantThreadId(
+        constants::parent_assistant::DEFAULT_THREAD_ID.to_string(),
+    ));
+    let response = thread_response_for_command_in_dir(
+        &command(
+            AgentCommandName::AgentParentAssistantThreadList,
+            Default::default(),
+        ),
+        &directory,
+    );
+    std::env::remove_var(constants::env_var::DEV_LOG_DIR);
+    let _ = fs::remove_dir_all(root);
+
+    let thread = require_some(
+        response.active_thread.as_ref(),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    );
+    assert_eq!(
+        thread.thread_id,
+        constants::parent_assistant::DEFAULT_THREAD_ID
+    );
+    assert_eq!(thread.message_count, 1);
+}
 
 #[test]
 fn parent_assistant_thread_create_returns_durable_service_state() {
@@ -60,7 +99,7 @@ fn parent_assistant_thread_create_returns_durable_service_state() {
             LogFieldValue::String(constants::parent_assistant::DEFAULT_THREAD_ID.to_string()),
         )]),
     ));
-    let response = thread_response_payload(&crate::test_invariants::log_field(
+    let response = thread_response_payload(&crate::test_log_field::log_field(
         &event.payload,
         constants::parent_assistant::FIELD_THREAD_RESPONSE,
         constants::error::AGENT_EVENT_SERIALIZES,
@@ -130,7 +169,7 @@ fn parent_assistant_provider_status_reports_local_runtime_and_api_boundary() {
         AgentCommandName::AgentParentAssistantProviderStatusGet,
         Default::default(),
     ));
-    let status = provider_status_payload(&crate::test_invariants::log_field(
+    let status = provider_status_payload(&crate::test_log_field::log_field(
         &event.payload,
         constants::parent_assistant::FIELD_PROVIDER_STATUS,
         constants::error::AGENT_EVENT_SERIALIZES,
@@ -310,7 +349,7 @@ fn parent_assistant_run_cancel_reports_not_running_without_process_kill_claim() 
             LogFieldValue::String(constants::parent_assistant::DEFAULT_RUN_ID.to_string()),
         )]),
     ));
-    let result = run_cancel_payload(&crate::test_invariants::log_field(
+    let result = run_cancel_payload(&crate::test_log_field::log_field(
         &event.payload,
         constants::parent_assistant::FIELD_RUN_CANCEL_RESULT,
         constants::error::AGENT_EVENT_SERIALIZES,
@@ -354,7 +393,7 @@ fn parent_assistant_action_preview_returns_draft_without_policy_write_or_enforce
             ),
         ]),
     ));
-    let result = action_preview_payload(&crate::test_invariants::log_field(
+    let result = action_preview_payload(&crate::test_log_field::log_field(
         &event.payload,
         constants::field::PARENT_ASSISTANT_ACTION_PREVIEW,
         constants::error::AGENT_EVENT_SERIALIZES,
@@ -435,7 +474,7 @@ fn parent_assistant_action_confirm_requires_child_contract_without_enforcement()
         AgentCommandName::AgentParentAssistantActionConfirm,
         fields_from_pairs(vec![intent.clone(), preview.clone()]),
     ));
-    let result = action_confirm_payload(&crate::test_invariants::log_field(
+    let result = action_confirm_payload(&crate::test_log_field::log_field(
         &event.payload,
         constants::parent_assistant::FIELD_ACTION_CONFIRM_RESULT,
         constants::error::AGENT_EVENT_SERIALIZES,
@@ -472,12 +511,11 @@ fn parent_assistant_action_confirm_requires_child_contract_without_enforcement()
         AgentCommandName::AgentParentAssistantActionConfirm,
         fields_from_pairs(vec![intent.clone()]),
     ));
-    let missing_preview =
-        action_confirm_payload(&missing_preview_crate::test_invariants::log_field(
-            &event.payload,
-            constants::parent_assistant::FIELD_ACTION_CONFIRM_RESULT,
-            constants::error::AGENT_EVENT_SERIALIZES,
-        ));
+    let missing_preview = action_confirm_payload(&crate::test_log_field::log_field(
+        &missing_preview_event.payload,
+        constants::parent_assistant::FIELD_ACTION_CONFIRM_RESULT,
+        constants::error::AGENT_EVENT_SERIALIZES,
+    ));
     assert_rejected_action_confirm!(
         missing_preview,
         constants::parent_assistant::ACTION_CONFIRM_PREVIEW_REQUIRED_REASON
@@ -497,8 +535,8 @@ fn parent_assistant_action_confirm_requires_child_contract_without_enforcement()
             ),
         ]),
     ));
-    let raw = action_confirm_payload(&raw_crate::test_invariants::log_field(
-        &event.payload,
+    let raw = action_confirm_payload(&crate::test_log_field::log_field(
+        &raw_event.payload,
         constants::parent_assistant::FIELD_ACTION_CONFIRM_RESULT,
         constants::error::AGENT_EVENT_SERIALIZES,
     ));

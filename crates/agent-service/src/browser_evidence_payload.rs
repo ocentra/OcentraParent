@@ -18,6 +18,12 @@ pub fn browser_evidence_read_model_payload(read_model: &BrowserEvidenceReadModel
     pairs.extend(latest_identity_pairs(latest));
     pairs.extend(latest_target_pairs(latest));
     pairs.extend(latest_state_pairs(latest));
+    if let Ok(serialized) = serde_json::to_string(read_model) {
+        pairs.push(field_pair(
+            BrowserEvidenceFieldKey(constants::field::BROWSER_EVIDENCE_READ_MODEL_JSON),
+            LogFieldValue::String(serialized),
+        ));
+    }
     browser_evidence_fields_from_pairs(pairs)
 }
 

@@ -3,24 +3,39 @@ import { randomUUID } from 'node:crypto';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { DevLogEntrySchema } from '@ocentra-parent/logging-domain/logging-contracts';
 import {
+  DevLogEntrySchema,
   GeneratedDevLogEndpoint as DevLogEndpoint,
   GeneratedDevLogEnvironment as DevLogEnvironment,
   GeneratedDevLogFile as DevLogFile,
+  GeneratedDevLogField,
   GeneratedDevLogIdPrefix as DevLogIdPrefix,
+  GeneratedDevLogMessage,
   GeneratedLogLevel as LogLevel,
   GeneratedLogSource as LogSource,
-} from '@ocentra-parent/logging-domain/generated/logging-contracts';
+} from '@ocentra-parent/logging-domain/logging-contracts';
+import { redactStructuredLogValue } from '@ocentra-parent/logging-domain/core/log-redaction';
+
+export const DevLogField = {
+  Port: GeneratedDevLogField.Port,
+};
+
+export const DevLogMessage = {
+  DevServerStarted: GeneratedDevLogMessage.DevServerStarted,
+};
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const requestBodyLimitBytes = 1024 * 256;
 
 export async function appendDevLog(entry) {
   const parsed = DevLogEntrySchema.parse(entry);
+  const sanitized = {
+    ...parsed,
+    fields: redactStructuredLogValue(parsed.fields),
+  };
   const filePath = resolveDevLogFile(parsed.source);
   await mkdir(dirname(filePath), { recursive: true });
-  await appendFile(filePath, `${JSON.stringify(parsed)}\n`, 'utf8');
+  await appendFile(filePath, `${JSON.stringify(sanitized)}\n`, 'utf8');
 }
 
 export async function writeDevServerLog(message, fields = {}) {

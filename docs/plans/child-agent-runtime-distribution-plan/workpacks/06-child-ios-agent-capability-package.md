@@ -9,75 +9,57 @@
 
 <!-- /agent-capsule -->
 
-Purpose: define the child iOS capability package, provisioning limits, and manual-required proof boundary.
+Purpose: own the canonical child iOS capability-package identity, provisioning limits, and manual-required boundary.
 
-Current status: `complete`.
+Status: canonical source identity, expected child capability test source, focused validation, and the exact retained capability-boundary proof are complete. macOS/Xcode execution, Apple signing/provisioning, physical-device launch, TestFlight/App Store authority, and aggregate release completion remain manual-required or open.
 
 ## Owns
 
-- iOS capability package shape
-- provisioning and supervision limits
-- launch, availability, and recovery honesty on iOS
-- manual-required states for unsupported child service behavior
+- actual iOS child project, product, scheme, bundle, application, release artifact, and smoke identity;
+- capability-only lifecycle truth;
+- provisioning, signing, supervision, launch, recovery, and store limits;
+- manual-required states for unsupported child service behavior.
 
-## Must prove
+## Tracking boundary
 
-- the iOS artifact is honest about what it can and cannot do
-- provisioning and supervision limits are explicitly represented
-- capability-only state is used when full service behavior is unavailable
-- no hidden control or daemon claim exceeds iOS limits
-- parent-client parity is not implied from the iOS slice
+WP06 owns the canonical iOS child package and capability-only truth. It does
+not own Core Location foreground/background semantics or a tracking transport.
+Tracking WP11/WP12 may add only their routed Swift adapter roots after Child
+WP10 supplies trusted child startup/ingress and Tracking WP40 supplies trusted
+durable tracking ingress. A local file/JSON handoff with no owner consumer is
+not an implementation.
+
+## Live source truth
+
+Rust-owned capability/limit contracts, generated/thin TypeScript edges, contract tests, and a focused proof runner exist. They correctly model capability-only, no-daemon, no-parity, provisioning/signing/supervision/manual-required states.
+
+`platforms/ios/tests/child_capability_identity.test.mjs` invokes the real `OcentraChildAgentUITests/ChildCapabilityIdentityUITests` XCTest on macOS/Xcode and records an explicit platform-unavailable/manual-required skip elsewhere. The XCTest verifies the launched child bundle/product identity and rendered capability-only/manual-required/no-claim states. The retained Windows result records that host skip as blocked evidence; it is not a macOS/Xcode pass.
+
+`scripts/test/child-ios-entitlement-capability-proof.mjs` targets the graph-canonical proof stem `output/child-agent-runtime-distribution-plan-proof/06-child-ios-agent-capability-package/`, records the actual XCTest pass/fail or explicit host skip, and retains `test-results/child-ios-entitlement-capability-proof/proof.json` for the existing proof-matrix contract. Enforcer run `ocentra-parent.child-ios-entitlement-capability-proof-20260902102636-1c1154d5` passed and wrote the exact four-file retained bundle while preserving the Windows host-blocked state.
+
+Reviewed source at `c71becbcfd4f07eb98a118f10dbf261320f6b54e` matches the child route: the checked-in project, target, scheme, app folder/name, product name, bundle identifier, release input, and simulator artifact use `OcentraChildAgent`, `ca.ocentra.child.agent`, and child-owned artifact names. Expected test source and the host-aware retained proof are complete. Apple signing/provisioning, physical-device launch, TestFlight/App Store authority, and a macOS/Xcode execution result remain external/manual-required.
+
+## Required production source outcome
+
+- one canonical child iOS project/product/scheme/bundle/application/release identity;
+- release and smoke inputs that refer to that same child identity;
+- preserved capability-only, no-daemon, no-persistent-service, recovery-not-implemented, provisioning/signing/supervision/device-proof-required boundaries;
+- no reuse of parent-client identity or proof.
+
+WP06 has no implementation dependency. Its bounded capability-only source, test, validation, and retained-proof contract is complete. This does not satisfy Apple authority, physical-device, aggregate WP11, precommit, CI, PR, merge, or child release-readiness gates.
+
+## Expected test-source state
+
+- Present source rejects parent project/product/scheme/bundle/artifact identity at the proof boundary.
+- Present Node/XCTest source builds and launches the canonical child capability app on a suitable macOS/Xcode simulator host; other hosts skip with an explicit manual-required reason.
+- Present assertions retain explicit device launch, provisioning, signing, TestFlight/App Store, supervision, background execution, and recovery limits.
+- Present assertions prove no daemon, hidden control, persistent service, external transport, or parent-client parity claim.
+- Physical-device, signing, provisioning, store, supervision, background, and recovery evidence remains manual/external and open.
 
 ## Failure conditions
 
-- background or persistent-service claims exceed iOS proof
-- provisioning limits are hidden
-- manual-required states are omitted
-- the slice claims more than a capability package
+- marking WP06 complete from the capability contract while the actual app identity is still the parent identity;
+- using simulator or contract proof to claim physical-device, signing, store, supervision, background-service, or recovery parity;
+- changing the identity while weakening any manual-required/no-claim state.
 
-## Execution truth
-
-- The canonical shared WP06 contract/read-model owner is now Rust-first:
-  - `crates/schema/src/child_ios_entitlement_capability_proof.rs`
-  - `crates/schema/src/child_ios_entitlement_capability_proof_ts.rs`
-- The remaining TypeScript surface is generated/thin only:
-  - `packages/schema-domain/src/generated-child-ios-entitlement-capability-proof-contracts.ts`
-  - `packages/schema-domain/src/child-ios-entitlement-capability-proof.ts`
-- Real tests now exist on both sides of the boundary:
-  - `crates/schema/tests/contract/child_ios_entitlement_capability_proof.rs`
-  - `packages/schema-domain/tests/proof/child-ios-entitlement-capability-proof.test.ts`
-- The focused proof runner is `scripts/test/child-ios-entitlement-capability-proof.mjs`.
-- The canonical proof root is `output/child-agent-runtime-distribution-plan-proof/06-ios-entitlement-capability-proof/`.
-- The checked-in generated TS contract now matches the Rust-exported content again, so the focused Rust contract drift guard is green.
-- The last focused validation gate that previously blocked this packet now passes in the current checkout:
-  - `cmd /c npm run type-check --workspace @ocentra-parent/schema-domain`
-- WP06 is therefore complete on the current tree with a real Rust-owned contract, thin/generated TS edge, real tests, a real proof runner, and an honest capability-only/no-daemon boundary.
-
-## Proved states
-
-- capability package only: `service-mode=capability-only`
-- launch availability remains explicit:
-  - `launch-availability=manual-required`
-  - lifecycle phases `simulator-launch=manual-required` and `device-launch=device-proof-required`
-- recovery remains explicit:
-  - `recovery=not-implemented`
-  - lifecycle phase `recovery-behavior=not-implemented`
-- provisioning, supervision, signing, TestFlight, background execution, notifications, and physical-device proof remain explicit manual-required, entitlement-required, signing-required, device-proof-required, or planned states
-- no hidden daemon or parity claim:
-  - `daemon=not-claimed`
-  - `child-agent-parity=not-claimed`
-
-## Validation truth
-
-- `rustfmt crates/schema/src/lib.rs crates/schema/src/child_ios_entitlement_capability_proof.rs crates/schema/src/child_ios_entitlement_capability_proof_ts.rs crates/schema/tests/contract.rs crates/schema/tests/contract/child_ios_entitlement_capability_proof.rs`
-- `cmd /c npm run build --workspace @ocentra-parent/schema-domain`
-- `cmd /c npm exec --workspace @ocentra-parent/schema-domain -- vitest run tests/proof/child-ios-entitlement-capability-proof.test.ts`
-- `cmd /c npm run test:child-ios-entitlement-capability-proof`
-- `cmd /c npm run lint:architecture -- --files packages/schema-domain/src/generated-child-ios-entitlement-capability-proof-contracts.ts packages/schema-domain/src/child-ios-entitlement-capability-proof.ts packages/schema-domain/tests/proof/child-ios-entitlement-capability-proof.test.ts scripts/test/child-ios-entitlement-capability-proof.mjs`
-- `cargo lint-architecture crates/schema/src/lib.rs crates/schema/src/child_ios_entitlement_capability_proof.rs crates/schema/src/child_ios_entitlement_capability_proof_ts.rs crates/schema/tests/contract.rs crates/schema/tests/contract/child_ios_entitlement_capability_proof.rs`
-- `cargo test -p ocentra-schema --test contract child_ios_entitlement_capability` -> pass
-- `cmd /c npm run type-check --workspace @ocentra-parent/schema-domain` -> pass
-
-## No-claim boundary
-
-- No persistent iOS background service, daemon, relaunch/recovery service behavior, Family Controls implementation, supervision parity, signing approval, store approval, physical-device install proof, or parent-client parity is claimed from this packet.
+Historical proof under `output/child-agent-runtime-distribution-plan-proof/06-ios-entitlement-capability-proof/` remains review input only. Current proof is the exact four-file bundle under `output/child-agent-runtime-distribution-plan-proof/06-child-ios-agent-capability-package/`. The legacy `test-results` JSON remains a compatibility artifact, not the canonical plan proof root.

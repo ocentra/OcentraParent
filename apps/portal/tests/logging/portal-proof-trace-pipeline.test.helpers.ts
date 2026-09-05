@@ -4,6 +4,9 @@ import path from 'node:path';
 import type { AddressInfo } from 'node:net';
 import { afterEach, expect, it } from 'vitest';
 import { GeneratedDevLogMessage as DevLogMessage } from '@ocentra-parent/logging-domain/generated/logging-contracts';
+import { Logger } from '@ocentra-parent/logging-domain/core/logger';
+import { createLocalArtifactBridgeQueueStorage } from '@ocentra-parent/logging-domain/core/localArtifactBridgeQueueStorage';
+import { closeLocalArtifactMutationProvider } from '@ocentra-parent/logging-domain/local-artifact-mutation-provider';
 import { appendTestLogEntries } from '@ocentra-parent/logging-domain/test-log/ndjsonWriter';
 import { getTestLogScopeDir, listNdjsonFiles } from '@ocentra-parent/logging-domain/test-log/ndjsonPaths';
 import { TestLogDuckDb } from '@ocentra-parent/logging-domain/test-log/testLogDuckDb';
@@ -13,6 +16,7 @@ import {
   notifyBridgeRunStarted,
 } from '@ocentra-parent/logging-domain/transport/bridgeTransport';
 import { createBridgeServer } from '@ocentra-parent/logging-domain/transport/bridgeServer';
+import type { PortalLoggerRuntime } from '@ocentra-parent/portal-domain/dev-logger';
 import { resolvePortalProofTraceConfig, sendPortalProofTraceLog } from '../../src/dev-logger';
 import { expectQueryProofTraceSurfaces } from './portal-proof-trace-pipeline.query.helpers';
 
@@ -22,6 +26,11 @@ interface PortalProofTracePipelineContext {
   readonly proofId: string;
   readonly staleProofId: string;
   readonly structuredRoot: string;
+  readonly runtime: PortalProofTraceRuntime;
+}
+
+interface PortalProofTraceRuntime extends PortalLoggerRuntime {
+  readonly localStorage: ReturnType<typeof createLocalArtifactBridgeQueueStorage>;
 }
 
 const TestLogScope = {
@@ -71,6 +80,7 @@ export function registerPortalProofTracePipelineSuite(tempDirs: string[]): void 
   const originalStructuredRoot = process.env['OCENTRA_PARENT_LOG_DIR'];
 
   afterEach(async () => {
+    Logger.instance.reset();
     if (originalStructuredRoot == null) {
       delete process.env['OCENTRA_PARENT_LOG_DIR'];
     } else {
@@ -82,7 +92,8 @@ export function registerPortalProofTracePipelineSuite(tempDirs: string[]): void 
     }
 
     for (const tempDir of tempDirs.splice(0, tempDirs.length)) {
-      await removeDirWithRetries(tempDir);
+      await closeLocalArtifactMutationProvider(tempDir);
+      fs.rmSync(tempDir, { force: true, recursive: true });
     }
   });
 
@@ -94,7 +105,7 @@ function portalProofTracePipelineLifecycleTests(tempDirs: string[]): void {
     const context = await createPortalProofTracePipelineContext(tempDirs);
     try {
       await expectBridgeRunStartState(context);
-      await emitPortalProofTracePipeline(context.endpoint, context.proofId);
+      await emitPortalProofTracePipeline(context);
       await expectDuckDbIngest(context.structuredRoot);
       await expectQueryProofTraceSurfaces(context);
     } finally {
@@ -133,6 +144,7 @@ async function createPortalProofTracePipelineContext(tempDirs: string[]): Promis
     proofId: 'wp10-portal-proof-trace',
     staleProofId,
     structuredRoot,
+    runtime: { localStorage: createLocalArtifactBridgeQueueStorage(structuredRoot) },
   };
 }
 
@@ -159,7 +171,8 @@ async function expectBridgeRunStartState(context: PortalProofTracePipelineContex
   expect(listNdjsonFiles(scopeDir)).toHaveLength(0);
 }
 
-async function emitPortalProofTracePipeline(endpoint: string, proofId: string): Promise<void> {
+async function emitPortalProofTracePipeline(context: PortalProofTracePipelineContext): Promise<void> {
+  const { endpoint, proofId, runtime } = context;
   const routeOpened = await sendPortalProofTraceLog(
     DevLogMessage.PortalStarted,
     {
@@ -170,7 +183,8 @@ async function emitPortalProofTracePipeline(endpoint: string, proofId: string): 
       expectedNext: 'portal.action.clicked',
     },
     {},
-    endpoint
+    endpoint,
+    runtime
   );
   const actionClicked = await sendPortalProofTraceLog(
     DevLogMessage.PortalCommandSent,
@@ -185,7 +199,8 @@ async function emitPortalProofTracePipeline(endpoint: string, proofId: string): 
     {
       uiTarget: 'open-dev-panel',
     },
-    endpoint
+    endpoint,
+    runtime
   );
   const uiRendered = await sendPortalProofTraceLog(
     DevLogMessage.PortalEventReceived,
@@ -200,7 +215,8 @@ async function emitPortalProofTracePipeline(endpoint: string, proofId: string): 
     {
       renderState: 'visible',
     },
-    endpoint
+    endpoint,
+    runtime
   );
 
   expect(routeOpened).toBe(true);
@@ -226,24 +242,6 @@ async function expectDuckDbIngest(structuredRoot: string): Promise<void> {
 
 function makeTempDir(prefix: string): string {
   return fs.mkdtempSync(path.join(os.tmpdir(), prefix));
-}
-
-async function removeDirWithRetries(dirPath: string): Promise<void> {
-  for (let attempt = 0; attempt < 40; attempt += 1) {
-    try {
-      fs.rmSync(dirPath, { force: true, recursive: true });
-      return;
-    } catch (error) {
-      const isBusyError = error instanceof Error && 'code' in error && error.code === 'EBUSY';
-      if (!isBusyError) {
-        throw error;
-      }
-      if (attempt === 39) {
-        return;
-      }
-      await new Promise((resolve) => setTimeout(resolve, 125));
-    }
-  }
 }
 
 async function listen(server: ReturnType<typeof createBridgeServer>): Promise<AddressInfo> {

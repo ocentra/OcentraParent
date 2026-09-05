@@ -8,19 +8,19 @@ use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
 
 use crate::network_inventory_hardware::{local_hardware_profile, local_network_identity};
 
-use super::active_refresh::{
-    scan_plan_for_identity, stimulate_bounded_ipv4_neighbors,
-    targeted_arp_refresh_evidence_for_identity,
-};
+use super::active_refresh::scan_plan_for_identity;
 use super::helpers::{
     discovered_child_device_ref, discovery_hint_sources, discovery_state_for_reachability,
 };
 use super::neighbor_support::{discovery_evidence_source_from_scan_source, effective_scan_sources};
 use super::service_identity::{self, AllowedSnmpResponseObserver};
 use super::{
-    LanDiscoveryRefreshMode, LanManualInterfaceSelection, LanNetworkInventoryDevice,
-    LanPassiveRuntimeLocalNetworkIdentity, LanTargetedArpRefreshEvidence,
+    LanDiscoveryRefreshMode, LanManualInterfaceSelection, LanNetworkDiscoveryRequest,
+    LanNetworkInventoryDevice, LanPassiveRuntimeLocalNetworkIdentity,
 };
+
+pub(super) mod cancellation;
+pub(super) mod targeted_arp_refresh;
 
 pub fn discover_lan_network_devices() -> Vec<LanNetworkInventoryDevice> {
     discover_lan_network_devices_with_hints(&[], &[])
@@ -99,40 +99,18 @@ pub fn discover_lan_network_devices_with_hints_refresh_mode_and_scan_and_probe_s
     selected_interface_scope: Option<&str>,
     allowed_snmp_response_observer: AllowedSnmpResponseObserver<'_>,
 ) -> Vec<LanNetworkInventoryDevice> {
-    if refresh_mode == LanDiscoveryRefreshMode::ActiveSubnetRefresh {
-        stimulate_bounded_ipv4_neighbors(active_refresh_suppression_devices, previous_devices);
-    }
     let selected_interface = service_identity_selected_interface_scope(selected_interface_scope);
-    let mut devices = if cfg!(target_os = "windows") {
-        super::windows_neighbors::windows_lan_neighbors(
-            identity_hint_devices,
-            previous_devices,
-            probe_suppression_devices,
-            selected_interface.as_deref(),
-            allowed_snmp_response_observer,
-        )
-    } else if cfg!(any(target_os = "linux", target_os = "android")) {
-        super::linux_neighbors::linux_lan_neighbors(
-            identity_hint_devices,
-            previous_devices,
-            probe_suppression_devices,
-            selected_interface.as_deref(),
-            allowed_snmp_response_observer,
-        )
-    } else if cfg!(target_os = "macos") {
-        super::macos_neighbors::macos_lan_neighbors(
-            identity_hint_devices,
-            previous_devices,
-            probe_suppression_devices,
-            selected_interface.as_deref(),
-            allowed_snmp_response_observer,
-        )
-    } else {
-        Vec::new()
-    };
-    super::mdns_dns_sd::enrich_mdns_dns_sd_devices(&mut devices, selected_interface.as_deref());
-    super::ssdp_upnp::enrich_ssdp_upnp_devices(&mut devices, selected_interface.as_deref());
-    devices
+    cancellation::discover_lan_network_devices_with_cancellation(&LanNetworkDiscoveryRequest {
+        identity_hint_devices,
+        previous_devices,
+        refresh_mode,
+        active_refresh_suppression_devices,
+        probe_suppression_devices,
+        selected_interface_scope: selected_interface.as_deref(),
+        allowed_snmp_response_observer,
+        cancellation: None,
+        deadline: None,
+    })
 }
 
 pub fn service_identity_selected_interface_scope(
@@ -191,22 +169,6 @@ pub fn plan_lan_discovery_scan_with_manual_interface_selection(
         previous_devices,
         refresh_mode,
         active_refresh_suppression_devices,
-    )
-}
-
-pub fn targeted_arp_refresh_evidence_for_scan(
-    previous_devices: &[LanNetworkInventoryDevice],
-    refresh_mode: LanDiscoveryRefreshMode,
-    active_refresh_suppression_devices: &[LanPairingDeviceRef],
-) -> Vec<LanTargetedArpRefreshEvidence> {
-    if refresh_mode != LanDiscoveryRefreshMode::ActiveSubnetRefresh {
-        return Vec::new();
-    }
-    let identity = local_network_identity();
-    targeted_arp_refresh_evidence_for_identity(
-        identity.as_ref(),
-        active_refresh_suppression_devices,
-        previous_devices,
     )
 }
 

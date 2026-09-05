@@ -38,8 +38,8 @@ pub(super) fn lan_pairing_status_get(
 }
 
 pub(super) fn lan_pairing_route_revoke(
-    runtime: LanPairingRuntime,
-    origin: LanPairingOptionalText,
+    runtime: &LanPairingRuntime,
+    origin: &LanPairingOptionalText,
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
     route_revoke::lan_pairing_route_revoke(runtime, origin, command)

@@ -18,7 +18,9 @@ pub(super) async fn build_enforcement_command_report(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
     match command.command.clone() {
-        AgentCommandName::AgentEnforcementExecute => build_enforcement_audit_report(command).await,
+        AgentCommandName::AgentEnforcementExecute => {
+            Box::pin(build_enforcement_audit_report(command)).await
+        }
         AgentCommandName::AgentEnforcementProductControlSpineGet => {
             build_enforcement_product_control_spine_report(command).await
         }

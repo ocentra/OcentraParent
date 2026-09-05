@@ -9,21 +9,20 @@ use super::{
 
 pub(super) fn persisted_scan_result_or_fail(
     runtime: &LanPairingRuntime,
-    devices: Vec<LanNetworkInventoryDevice>,
+    devices: &[LanNetworkInventoryDevice],
     metadata: LanScanHistoryMetadata,
     previous_scan_snapshot: Option<LanScanHistorySnapshot>,
 ) -> LanNetworkDeviceScanResult {
-    if !save_scan_history(runtime, &devices, Some(metadata)) {
+    if !save_scan_history(runtime, devices, Some(metadata)) {
         return failed_persistence_scan_result(previous_scan_snapshot);
     }
-    let current_scan_snapshot = load_scan_history_snapshot(runtime);
+    let Some(current_scan_snapshot) = load_scan_history_snapshot(runtime) else {
+        return failed_persistence_scan_result(previous_scan_snapshot);
+    };
     LanNetworkDeviceScanResult {
-        devices: current_scan_snapshot
-            .as_ref()
-            .map(|snapshot| snapshot.devices.clone())
-            .unwrap_or(devices),
+        devices: current_scan_snapshot.devices.clone(),
         previous_scan_snapshot,
-        current_scan_snapshot,
+        current_scan_snapshot: Some(current_scan_snapshot),
         reused_recent_snapshot: false,
     }
 }
@@ -32,12 +31,12 @@ fn failed_persistence_scan_result(
     previous_scan_snapshot: Option<LanScanHistorySnapshot>,
 ) -> LanNetworkDeviceScanResult {
     LanNetworkDeviceScanResult {
-        devices: previous_scan_snapshot
-            .as_ref()
-            .map(|snapshot| snapshot.devices.clone())
-            .unwrap_or_default(),
+        // A failed persistence operation is not a current physical-LAN result.
+        // Keep the previous snapshot only as bounded continuity context; never
+        // expose it as live household LAN evidence.
+        devices: Vec::new(),
         current_scan_snapshot: None,
         previous_scan_snapshot,
-        reused_recent_snapshot: true,
+        reused_recent_snapshot: false,
     }
 }

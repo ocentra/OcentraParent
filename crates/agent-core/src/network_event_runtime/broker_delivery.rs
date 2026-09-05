@@ -3,13 +3,15 @@ use ocentra_eventing::{
     delivery::validation::EventDeliveryDecisionError,
     delivery::validation::EventDeliveryDecisionInput,
     delivery::validation::EventDeliveryDecisionState, delivery::validation::EventDeliveryRouteKind,
-    delivery::validation::EventDeliverySubscriberFilter, error::EventingError, ids::EventNamespace,
-    ids::EventType, ids::SourceComponent, ids::SubscriberId, ids::TargetHandler,
+    delivery::validation::EventDeliverySubscriberFilter, error::EventingError, ids::EventId,
+    ids::EventNamespace, ids::EventType, ids::SourceComponent, ids::SubscriberId,
+    ids::TargetHandler,
 };
 use ocentra_parent_agent_protocol::activity_capture::{
     ActivityCaptureCapabilityStatus, ActivityNetworkProtocol, ActivityNetworkTcpState,
 };
 use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::network_flow::NetworkRuntimePhase;
 
 use crate::network_capture::NetworkObservation;
 
@@ -55,12 +57,20 @@ pub async fn prove_network_runtime_broker_delivery_semantics(
     )
     .await?;
 
-    let queued_duplicate_rejected =
-        duplicate_idempotency_error_mentions_network_flow(&duplicate_report.queued_duplicate_error);
-    let completed_duplicate_rejected = duplicate_idempotency_error_mentions_network_flow(
-        &duplicate_report.completed_duplicate_error,
+    let expected_flow_event_id = super::helpers::network_fallback_event_id(
+        NetworkRuntimePhase::FlowObserved,
+        &complete_domain_observation(),
+        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+    )?;
+    let queued_duplicate_rejected = deterministic_flow_duplicate_rejected(
+        &duplicate_report.queued_duplicate_error,
+        &expected_flow_event_id,
     );
-    if !queued_duplicate_rejected || !completed_duplicate_rejected {
+    let registry_duplicate_rejected =
+        duplicate_idempotency_key_rejected(&duplicate_report.registry_duplicate_error);
+    let completed_duplicate_rejected =
+        duplicate_idempotency_key_rejected(&duplicate_report.completed_duplicate_error);
+    if !registry_duplicate_rejected || !queued_duplicate_rejected || !completed_duplicate_rejected {
         return Err(NetworkRuntimeBrokerDeliveryProofError::DuplicateIdempotencyNotRejected);
     }
 
@@ -169,7 +179,7 @@ fn decode_payloads(
         .map(|event| {
             let envelope: ocentra_eventing::envelope::EventEnvelope<NetworkRuntimeEventPayload> =
                 event.decode()?;
-            Ok(envelope.payload)
+            Ok(envelope.into_payload())
         })
         .collect()
 }
@@ -184,7 +194,17 @@ fn count_event_type(
         .count()
 }
 
-fn duplicate_idempotency_error_mentions_network_flow(error: &EventingError) -> bool {
+fn deterministic_flow_duplicate_rejected(
+    error: &EventingError,
+    expected_event_id: &EventId,
+) -> bool {
+    matches!(
+        error,
+        EventingError::DuplicateEventId { event_id } if event_id == expected_event_id
+    )
+}
+
+fn duplicate_idempotency_key_rejected(error: &EventingError) -> bool {
     matches!(
         error,
         EventingError::DuplicateIdempotencyKey { idempotency_key }

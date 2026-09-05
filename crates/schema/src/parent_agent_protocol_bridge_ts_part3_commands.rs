@@ -166,6 +166,10 @@ fn command_descriptors_browser_network_runtime() -> Vec<ProtocolLiteralDescripto
             AgentCommandName::AgentActivityTrackingRetentionSettingsWrite,
         ),
         command(
+            "ParentRuntimeIntentIngressPublish",
+            AgentCommandName::AgentParentRuntimeIntentIngressPublish,
+        ),
+        command(
             "BrowserEvidenceRecentGet",
             AgentCommandName::AgentBrowserEvidenceRecentGet,
         ),

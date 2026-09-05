@@ -10,7 +10,6 @@ import { ParentPortalRoute } from './ParentPortalRoute';
 import { PortalAuthDialog } from './PortalAuthDialog';
 import { PortalFrameBackdrop, PortalFrameBoundsOverlay } from './PortalFrameSurface';
 import { PortalFrameTunerRoute } from './PortalFrameTunerRoute';
-import { ScreenSummaryRoutePanel } from './ScreenSummaryRoutePanel';
 import { PortalSidebar } from './PortalSidebar';
 import { PortalUnifiedShell } from './PortalUnifiedChrome';
 import { carouselStyle, frameContentStyle, frameHostClassName, goldenCardStyle } from './portal-frame-layout-style';
@@ -38,7 +37,7 @@ export function PortalApp(props: PortalAppProps): ReactElement {
   });
 
   if (behavior.isFrameTuner) {
-    return <PortalFrameTunerRoute layout={behavior.frameLayout} onLayoutChange={behavior.setFrameLayout} />;
+    return <PortalFrameTunerRouteShell {...props} behavior={behavior} />;
   }
 
   if (behavior.isProductRoute) {
@@ -52,9 +51,29 @@ type PortalProductRouteShellProps = PortalAppProps & {
   readonly behavior: PortalAppBehavior;
 };
 
+type PortalFrameTunerRouteShellProps = PortalAppProps & {
+  readonly behavior: PortalAppBehavior;
+};
+
 type PortalProtocolRouteShellProps = PortalAppProps & {
   readonly behavior: PortalAppBehavior;
 };
+
+function PortalFrameTunerRouteShell({ behavior, onThemeChange, theme }: PortalFrameTunerRouteShellProps): ReactElement {
+  return (
+    <>
+      <PortalUnifiedShell
+        onAuthOpen={behavior.openAuthDialog}
+        onThemeChange={onThemeChange}
+        routeTransitionActive={behavior.headerRouteTransitionActive}
+        theme={theme}
+      >
+        <PortalFrameTunerRoute layout={behavior.frameLayout} onLayoutChange={behavior.setFrameLayout} />
+      </PortalUnifiedShell>
+      <PortalAuthDialogMount open={behavior.authOpen} onClose={behavior.closeAuthDialog} />
+    </>
+  );
+}
 
 function PortalProductRouteShell({
   actions,
@@ -83,9 +102,9 @@ function PortalProductRouteShell({
           lanPairingAutoScanSequence={behavior.lanPairingAutoScanSequence}
           onProductSurfaceReady={onProductSurfaceReady}
           route={route}
+          screenSummaryPanel={behavior.screenSummaryPanel}
           state={state}
         />
-        {route === ParentRoute.ScreenAnalysis ? <ScreenSummaryRoutePanel panel={behavior.screenSummaryPanel} /> : null}
       </PortalUnifiedShell>
       <PortalAuthDialogMount open={behavior.authOpen} onClose={behavior.closeAuthDialog} />
     </>

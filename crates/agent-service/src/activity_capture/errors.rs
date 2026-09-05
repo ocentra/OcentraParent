@@ -10,6 +10,9 @@ use ocentra_parent_agent_core::{
 use ocentra_parent_agent_protocol::constants;
 use std::fmt;
 
+#[path = "errors/persistence.rs"]
+mod persistence;
+
 #[derive(Debug, PartialEq, Eq)]
 pub enum ActivityCaptureError {
     Store,
@@ -17,6 +20,7 @@ pub enum ActivityCaptureError {
     Io,
     InvalidKeyLength,
     AppGameRuntime,
+    ScreenAiEventRuntime,
 }
 
 impl ActivityCaptureError {
@@ -41,6 +45,10 @@ impl ActivityCaptureError {
             (
                 ActivityCaptureError::AppGameRuntime,
                 constants::value::ACTIVITY_CAPTURE_APP_GAME_ERROR,
+            ),
+            (
+                ActivityCaptureError::ScreenAiEventRuntime,
+                constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBER_REJECTS,
             ),
         ];
 

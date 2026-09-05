@@ -542,6 +542,7 @@ impl ChildDomainRefSuffix {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields)]
 pub struct ChildDomainObservedEvent {
     pub event_type: ChildDomainEventType,
     pub domain: ChildRuntimeDomain,
@@ -557,6 +558,7 @@ pub struct ChildDomainObservedEvent {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields)]
 pub struct ChildDomainEvidenceRecordedEvent {
     pub event_type: ChildDomainEventType,
     pub domain: ChildRuntimeDomain,
@@ -572,6 +574,7 @@ pub struct ChildDomainEvidenceRecordedEvent {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields)]
 pub struct ChildDomainAiAnalysisRequestedEvent {
     pub event_type: ChildDomainEventType,
     pub domain: ChildRuntimeDomain,
@@ -587,6 +590,7 @@ pub struct ChildDomainAiAnalysisRequestedEvent {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields)]
 pub struct ChildDomainAiAnalysisCompletedEvent {
     pub event_type: ChildDomainEventType,
     pub domain: ChildRuntimeDomain,
@@ -602,6 +606,7 @@ pub struct ChildDomainAiAnalysisCompletedEvent {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields)]
 pub struct ChildDomainPolicyEvaluationRequestedEvent {
     pub event_type: ChildDomainEventType,
     pub domain: ChildRuntimeDomain,
@@ -615,6 +620,7 @@ pub struct ChildDomainPolicyEvaluationRequestedEvent {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields)]
 pub struct ChildDomainPolicyViolationDetectedEvent {
     pub event_type: ChildDomainEventType,
     pub domain: ChildRuntimeDomain,
@@ -629,6 +635,7 @@ pub struct ChildDomainPolicyViolationDetectedEvent {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields)]
 pub struct ChildDomainNotificationRequestedEvent {
     pub event_type: ChildDomainEventType,
     pub domain: ChildRuntimeDomain,

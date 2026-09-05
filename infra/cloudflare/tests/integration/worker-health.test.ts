@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { Logger } from '@ocentra-parent/logging-domain/core/logger';
 import { createTestHarness, executeRequest, readJson } from '../../src/testing.js';
+
+const log = Logger.instance;
+log.register(import.meta.url);
 
 describe('GET /health', () => {
   it('succeeds through the worker boundary and summarizes binding health', async () => {
@@ -47,5 +51,22 @@ describe('GET /health', () => {
     assert.equal(text.includes('childActivityCustody'), false);
     assert.equal(text.includes('ownerSubject'), false);
     assert.equal(text.includes('BILLING_D1'), false);
+  });
+
+  it('fails closed on missing required environment values without exposing validation details', async () => {
+    const { response } = await executeRequest({
+      path: '/health',
+      envOverrides: {
+        APP_ORIGIN: undefined as unknown as string,
+      },
+    });
+
+    const body = await readJson<{ error: string; status: string }>(response);
+    assert.equal(response.status, 500);
+    assert.deepEqual(body, {
+      error: 'environment-validation-failed',
+      status: 'manual-required',
+    });
+    assert.equal(JSON.stringify(body).includes('APP_ORIGIN'), false);
   });
 });

@@ -2,18 +2,20 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import { appendTestLogEntries } from '../../src/test-log/ndjsonWriter';
+import { appendTestLogEntries, readTestLogEntriesFromFile } from '../../src/test-log/ndjsonWriter';
 import { RunType, TestLogScope } from '../../src/test-log/types';
+import { closeLocalArtifactMutationProvider } from '../../src/local-artifact-mutation-provider';
 
 const ndjsonWriterTempDirs: string[] = [];
 
-afterEach(() => {
+afterEach(async () => {
   for (const tempDir of ndjsonWriterTempDirs.splice(0, ndjsonWriterTempDirs.length)) {
+    await closeLocalArtifactMutationProvider(tempDir);
     fs.rmSync(tempDir, { force: true, recursive: true });
   }
 });
 
-describe('ndjson writer', () => {
+describe.skipIf(process.platform !== 'win32')('ndjson writer', () => {
   it('writes one JSON object per line', () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'logging-domain-ndjson-'));
     ndjsonWriterTempDirs.push(tempDir);
@@ -78,10 +80,10 @@ describe('ndjson writer', () => {
       if (filePath == null) {
         throw new Error('Expected NDJSON file path');
       }
-      const lines = fs.readFileSync(filePath, 'utf8').trim().split(/\r?\n/);
-      expect(lines).toHaveLength(2);
-      expect(JSON.parse(lines[0])).toMatchObject({ message: 'first' });
-      expect(JSON.parse(lines[1])).toMatchObject({ message: 'second' });
+      const entries = readTestLogEntriesFromFile(filePath, tempDir);
+      expect(entries).toHaveLength(2);
+      expect(entries[0]).toMatchObject({ message: 'first' });
+      expect(entries[1]).toMatchObject({ message: 'second' });
     } finally {
       if (previousLogDir == null) {
         delete process.env.OCENTRA_PARENT_LOG_DIR;

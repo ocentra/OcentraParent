@@ -13,9 +13,15 @@ use crate::parent_presence_store_sql_shape::{
     challenge_table_is_canonical, decision_outbox_table_is_canonical, receipt_table_is_canonical,
 };
 
-const CHALLENGE_TABLE: &str = "parent_presence_challenges";
+#[path = "parent_presence_store_schema_runtime.rs"]
+mod runtime;
+#[path = "parent_presence_store_schema_step_up.rs"]
+mod step_up;
+
+pub(crate) const CHALLENGE_TABLE: &str = "parent_presence_challenges";
 const DECISION_OUTBOX_TABLE: &str = "parent_presence_decision_outbox";
 const RECEIPT_TABLE: &str = "parent_presence_receipts";
+pub(crate) const INTENT_TABLE: &str = "parent_step_up_intents";
 const NONCE_IDENTITY_INDEX: &str = "parent_presence_nonce_identity";
 
 const INITIALIZE_PARENT_PRESENCE_STORE: &str = r#"
@@ -53,11 +59,46 @@ CREATE TABLE IF NOT EXISTS parent_presence_decision_outbox (
 
 CREATE UNIQUE INDEX IF NOT EXISTS parent_presence_nonce_identity
 ON parent_presence_challenges(nonce_ref);
+
+CREATE TABLE IF NOT EXISTS parent_step_up_intents (
+    challenge_ref TEXT PRIMARY KEY NOT NULL,
+    nonce_ref TEXT NOT NULL UNIQUE,
+    intent_digest TEXT NOT NULL UNIQUE,
+    family_id TEXT NOT NULL,
+    trust_subject TEXT NOT NULL,
+    parent_account_id TEXT NOT NULL,
+    parent_device_id TEXT NOT NULL,
+    child_device_id TEXT NOT NULL,
+    installation_id TEXT NOT NULL,
+    pairing_id TEXT NOT NULL,
+    route_id TEXT NOT NULL,
+    signer_public_key BLOB NOT NULL CHECK (length(signer_public_key) = 32),
+    lifecycle_generation INTEGER NOT NULL CHECK (lifecycle_generation > 0),
+    installation_binding_generation INTEGER NOT NULL CHECK (installation_binding_generation > 0),
+    authority_generation INTEGER NOT NULL CHECK (authority_generation > 0),
+    correlation_id TEXT NOT NULL,
+    expires_at TEXT NOT NULL,
+    lifecycle_state TEXT NOT NULL CHECK (
+        lifecycle_state IN ('issued', 'consumed')
+    ),
+    registration_state TEXT NOT NULL CHECK (
+        registration_state IN ('pending', 'completed')
+    ),
+    parent_presence_receipt TEXT CHECK (
+        parent_presence_receipt IS NULL OR length(parent_presence_receipt) = 64
+    ),
+    credential_id TEXT CHECK (credential_id IS NULL OR length(credential_id) BETWEEN 1 AND 512),
+    credential_algorithm INTEGER CHECK (credential_algorithm IS NULL OR credential_algorithm = -8),
+    credential_sign_count INTEGER CHECK (credential_sign_count IS NULL OR credential_sign_count >= 0),
+    FOREIGN KEY (challenge_ref)
+        REFERENCES parent_presence_challenges(challenge_ref)
+        ON DELETE RESTRICT
+) STRICT;
 "#;
 
 #[derive(PartialEq, Eq)]
-struct ColumnShape {
-    name: String,
+pub(crate) struct ColumnShape {
+    pub(crate) name: String,
     declared_type: String,
     not_null: bool,
     primary_key_position: i64,
@@ -90,9 +131,28 @@ pub(crate) fn open_initialized_store(
     publish_initialized_store_if_absent(path, initialize_temporary_store)?;
     let file_guard = open_store_file_guard(path)?;
     let connection = open_connection(path)?;
+    // Legacy stores may legitimately omit the step-up intent table, so that
+    // table is migrated on first open.  Validate every pre-existing core
+    // object before that migration, however: malformed stores must be
+    // rejected without receiving a new table or any other recovery write.
+    let intent_object_exists = connection
+        .query_row(
+            "SELECT EXISTS(
+                 SELECT 1 FROM sqlite_schema WHERE name = ?1
+             )",
+            [INTENT_TABLE],
+            |row| row.get::<_, bool>(0),
+        )
+        .map_err(|_error| ParentPresenceStoreError::IntegrityRejected)?;
+    if intent_object_exists {
+        validate_store_schema(&connection)?;
+    } else {
+        validate_core_store_schema(&connection, false)?;
+    }
+    step_up::migrate(&connection)?;
     file_guard.validate_path_identity(path)?;
     validate_store_schema(&connection)?;
-    configure_runtime_durability(&connection)?;
+    runtime::configure_runtime_durability(&connection)?;
     file_guard.validate_path_identity(path)?;
     Ok((connection, file_guard))
 }
@@ -129,25 +189,30 @@ fn open_connection(path: &Path) -> Result<Connection, ParentPresenceStoreError> 
     Ok(connection)
 }
 
-fn configure_runtime_durability(connection: &Connection) -> Result<(), ParentPresenceStoreError> {
-    connection
-        .execute_batch("PRAGMA synchronous = FULL;")
-        .map_err(|_error| ParentPresenceStoreError::Unavailable)
-}
-
 pub(crate) fn validate_store_schema(
     connection: &Connection,
 ) -> Result<(), ParentPresenceStoreError> {
+    validate_core_store_schema(connection, true)?;
+    step_up::validate(connection)?;
+    step_up::validate_rows(connection)?;
+    Ok(())
+}
+
+fn validate_core_store_schema(
+    connection: &Connection,
+    include_intent_table: bool,
+) -> Result<(), ParentPresenceStoreError> {
     validate_foreign_keys_enabled(connection)?;
-    validate_schema_objects(
-        connection,
-        &[
-            ("index", NONCE_IDENTITY_INDEX, CHALLENGE_TABLE),
-            ("table", CHALLENGE_TABLE, CHALLENGE_TABLE),
-            ("table", DECISION_OUTBOX_TABLE, DECISION_OUTBOX_TABLE),
-            ("table", RECEIPT_TABLE, RECEIPT_TABLE),
-        ],
-    )?;
+    let mut expected_objects = vec![
+        ("index", NONCE_IDENTITY_INDEX, CHALLENGE_TABLE),
+        ("table", CHALLENGE_TABLE, CHALLENGE_TABLE),
+        ("table", DECISION_OUTBOX_TABLE, DECISION_OUTBOX_TABLE),
+        ("table", RECEIPT_TABLE, RECEIPT_TABLE),
+    ];
+    if include_intent_table {
+        expected_objects.push(("table", INTENT_TABLE, INTENT_TABLE));
+    }
+    validate_schema_objects(connection, &expected_objects)?;
     validate_challenge_table(connection)?;
     validate_table_properties(connection, DECISION_OUTBOX_TABLE)?;
     require(
@@ -218,7 +283,7 @@ fn validate_receipt_table(connection: &Connection) -> Result<(), ParentPresenceS
     require(receipt_table_is_canonical(&table_sql))
 }
 
-fn validate_table_properties(
+pub(crate) fn validate_table_properties(
     connection: &Connection,
     table_name: &str,
 ) -> Result<(), ParentPresenceStoreError> {
@@ -232,7 +297,7 @@ fn validate_table_properties(
     require(properties == (0, 1))
 }
 
-fn load_columns(
+pub(crate) fn load_columns(
     connection: &Connection,
     table_name: &str,
 ) -> Result<Vec<ColumnShape>, ParentPresenceStoreError> {
@@ -256,7 +321,7 @@ fn load_columns(
         .map_err(|_error| ParentPresenceStoreError::IntegrityRejected)
 }
 
-fn validate_index_signatures(
+pub(crate) fn validate_index_signatures(
     connection: &Connection,
     table_name: &str,
     expected: &[&str],
@@ -389,7 +454,7 @@ fn validate_receipt_foreign_key(connection: &Connection) -> Result<(), ParentPre
     )
 }
 
-fn table_sql(
+pub(crate) fn table_sql(
     connection: &Connection,
     table_name: &str,
 ) -> Result<String, ParentPresenceStoreError> {
@@ -402,7 +467,7 @@ fn table_sql(
         .map_err(|_error| ParentPresenceStoreError::IntegrityRejected)
 }
 
-fn column(
+pub(crate) fn column(
     name: &str,
     declared_type: &str,
     not_null: bool,
@@ -417,7 +482,7 @@ fn column(
     }
 }
 
-fn require(condition: bool) -> Result<(), ParentPresenceStoreError> {
+pub(crate) fn require(condition: bool) -> Result<(), ParentPresenceStoreError> {
     if condition {
         Ok(())
     } else {

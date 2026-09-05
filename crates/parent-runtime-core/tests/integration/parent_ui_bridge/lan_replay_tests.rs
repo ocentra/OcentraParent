@@ -1,5 +1,4 @@
 use std::collections::BTreeMap;
-use std::time::Duration;
 
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
@@ -7,21 +6,22 @@ use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
 };
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogLevel};
 use ocentra_parent_agent_protocol::transport::{
-    AgentEventEnvelope, AgentEventName, AgentPeer, AgentPeerRole,
+    AgentCommandName, AgentEventEnvelope, AgentEventName, AgentPeer, AgentPeerRole, AgentRoute,
 };
 use ocentra_schema::parent_ui_bridge::{ParentRouteId, ParentRoutePeerRole};
 use serde_json::{json, Value};
 
-use ocentra_parent_runtime_core::parent_ui_bridge::lan_replay_rejection_episode::ParentRouteSubscriptionLoadState;
+use ocentra_parent_runtime_core::parent_ui_bridge::{
+    lan_replay_rejection_episode::ParentRouteSubscriptionLoadState,
+    projection::ParentAgentServiceProjection,
+};
 
 use super::common::helpers::{
     require_some, sample_lan_read_model_with_explicit_history,
     sample_lan_read_model_with_history_state, TestContext,
 };
-use super::load_parent_subscription_event;
 use super::tests_support::{
-    lan_event, require_ok, start_local_server_with_capture_responses, with_agent_addr,
-    REQUEST_MESSAGE_ID_CORRELATION,
+    lan_event, projection_response, require_ok, REQUEST_MESSAGE_ID_CORRELATION,
 };
 
 const LAN_REPLAY_REJECTION_EVENT: &str = "lan-runtime-event-chain-replay-rejected";
@@ -31,14 +31,18 @@ fn parent_subscription_event_replays_ordered_lan_stream_rows() {
     let read_model = sample_lan_read_model_with_explicit_history();
     let entries = replay_entries(&read_model.discovery_event_history.rows);
     let stream_event = replay_event(&entries, LanDiscoveryEventHistoryState::Ready, false);
-    let (address, requests) = start_local_server_with_capture_responses(vec![
-        lan_event(AgentEventName::AgentLanPairingStatusReported, &read_model),
-        stream_event,
-    ]);
-
-    let subscription = with_agent_addr(&address, || {
-        load_parent_subscription_event(ParentRouteId::Devices, None)
-    });
+    let mut state = ParentRouteSubscriptionLoadState::default();
+    let subscription = ParentAgentServiceProjection::new(vec![
+        projection_response(
+            AgentCommandName::AgentLanPairingStatusGet,
+            lan_event(AgentEventName::AgentLanPairingStatusReported, &read_model),
+        ),
+        projection_response(
+            AgentCommandName::AgentLanRuntimeEventChainStreamGet,
+            stream_event,
+        ),
+    ])
+    .subscription_event(&mut state, ParentRouteId::Devices);
     let events = subscription.events.unwrap_or_default();
     let event_ids = events
         .iter()
@@ -91,20 +95,18 @@ fn parent_subscription_event_replays_ordered_lan_stream_rows() {
         Some(&json!("lan-history-1"))
     );
 
-    let _status_request = require_ok(
-        requests.recv_timeout(Duration::from_secs(2)),
-        "status request is captured",
-    );
-    let replay_request = require_ok(
-        requests.recv_timeout(Duration::from_secs(2)),
-        "replay request is captured",
-    );
     assert_eq!(
-        replay_request.command["command"],
+        require_ok(
+            serde_json::to_value(AgentCommandName::AgentLanRuntimeEventChainStreamGet),
+            "replay command serializes",
+        ),
         json!(constants::lan_pairing::COMMAND_RUNTIME_EVENT_CHAIN_STREAM_GET)
     );
     assert_eq!(
-        replay_request.command["target"]["route"],
+        require_ok(
+            serde_json::to_value(AgentRoute::LocalNetwork),
+            "replay route serializes",
+        ),
         json!("local-network")
     );
 }
@@ -542,14 +544,18 @@ fn parent_subscription_event_preserves_offline_and_manual_required_lan_states() 
     ] {
         let read_model = sample_lan_read_model_with_history_state(state.clone());
         let stream_event = replay_event(&[], state.clone(), expected_manual_required);
-        let (address, _requests) = start_local_server_with_capture_responses(vec![
-            lan_event(AgentEventName::AgentLanPairingStatusReported, &read_model),
-            stream_event,
-        ]);
-
-        let subscription = with_agent_addr(&address, || {
-            load_parent_subscription_event(ParentRouteId::Devices, None)
-        });
+        let mut state = ParentRouteSubscriptionLoadState::default();
+        let subscription = ParentAgentServiceProjection::new(vec![
+            projection_response(
+                AgentCommandName::AgentLanPairingStatusGet,
+                lan_event(AgentEventName::AgentLanPairingStatusReported, &read_model),
+            ),
+            projection_response(
+                AgentCommandName::AgentLanRuntimeEventChainStreamGet,
+                stream_event,
+            ),
+        ])
+        .subscription_event(&mut state, ParentRouteId::Devices);
         let history_state = subscription
             .snapshot
             .live_activity
@@ -569,17 +575,19 @@ fn subscription_events_for_stream(
 ) -> Vec<ocentra_schema::parent_ui_bridge::ParentRouteEventSnapshot> {
     let mut default_state = ParentRouteSubscriptionLoadState::default();
     let state = state.unwrap_or(&mut default_state);
-    let responses = vec![
-        lan_event(AgentEventName::AgentLanPairingStatusReported, read_model),
-        stream_event,
-    ];
-    let (address, _requests) = start_local_server_with_capture_responses(responses);
-    with_agent_addr(&address, || {
-        state
-            .load(ParentRouteId::Devices, None)
-            .events
-            .unwrap_or_default()
-    })
+    ParentAgentServiceProjection::new(vec![
+        projection_response(
+            AgentCommandName::AgentLanPairingStatusGet,
+            lan_event(AgentEventName::AgentLanPairingStatusReported, read_model),
+        ),
+        projection_response(
+            AgentCommandName::AgentLanRuntimeEventChainStreamGet,
+            stream_event,
+        ),
+    ])
+    .subscription_event(state, ParentRouteId::Devices)
+    .events
+    .unwrap_or_default()
 }
 
 fn assert_replay_rejected(

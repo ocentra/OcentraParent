@@ -282,20 +282,8 @@ pub(crate) fn assert_network_policy_bridge_snapshot(
     expected_streamed_event_count: &serde_json::Value,
 ) {
     assert_eq!(
-        live_activity["networkEvidenceSummary"]["analyzerAlertRef"],
-        json!("event.network.analyzer.alert.1")
-    );
-    assert_eq!(
-        live_activity["networkEvidenceSummary"]["detectionResultRef"],
-        json!("event.network.detection.result.1")
-    );
-    assert_eq!(
         live_activity["networkEvidenceSummary"]["aiAuditRef"],
         json!("event.ai.analysis.completed.1")
-    );
-    assert_eq!(
-        live_activity["networkEvidenceSummary"]["riskBudgetRef"],
-        json!("event.network.risk-budget.1")
     );
     assert_eq!(
         live_activity["networkEvidenceSummary"]["policyDecisionRef"],

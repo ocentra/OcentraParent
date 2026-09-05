@@ -1,4 +1,5 @@
 use axum::extract::ws::{Message, WebSocket};
+use ocentra_family_identity_core::session_lifecycle_custody::authenticated_parent_local_bridge::AuthenticatedParentLocalBridgeSession;
 use ocentra_parent_agent_protocol::{
     constants,
     logging::{LogFieldValue, LogLevel},
@@ -7,15 +8,15 @@ use ocentra_parent_agent_protocol::{
 use std::{future::Future, pin::Pin};
 
 use crate::{
-    browser_policy_runtime::BrowserPolicyRuntime,
     event_builder::{build_event, portal_peer},
     fields::fields_from_pairs,
-    lan_pairing::LanPairingRuntime,
-    screen_settings_runtime::ScreenSettingsRuntime,
     snapshot::build_dev_log_snapshot,
 };
 
-use super::{command_entry::handle_command_text, WebsocketCommandOrigin, WebsocketCommandText};
+use super::{
+    handle_command_text, socket_handshake::authenticate_connection, WebsocketCommandText,
+    WebsocketSocketRuntime,
+};
 
 enum SocketLoopControl {
     Continue,
@@ -24,12 +25,13 @@ enum SocketLoopControl {
 
 pub(super) fn handle_socket(
     mut socket: WebSocket,
-    lan_pairing: LanPairingRuntime,
-    browser_policy: BrowserPolicyRuntime,
-    screen_settings: ScreenSettingsRuntime,
-    origin: WebsocketCommandOrigin,
+    runtime: WebsocketSocketRuntime,
 ) -> Pin<Box<dyn Future<Output = ()> + Send + 'static>> {
     Box::pin(async move {
+        let Some(authenticated) = authenticate_connection(&mut socket, &runtime.admission).await
+        else {
+            return;
+        };
         if send_event(&mut socket, ready_event()).await.is_err() {
             return;
         }
@@ -40,15 +42,7 @@ pub(super) fn handle_socket(
             };
 
             if matches!(
-                handle_socket_message(
-                    &mut socket,
-                    message,
-                    &lan_pairing,
-                    &browser_policy,
-                    &screen_settings,
-                    &origin,
-                )
-                .await,
+                handle_socket_message(&mut socket, message, &runtime, &authenticated,).await,
                 SocketLoopControl::Break
             ) {
                 break;
@@ -67,31 +61,40 @@ async fn receive_message(socket: &mut WebSocket) -> Option<Message> {
 fn handle_socket_message<'a>(
     socket: &'a mut WebSocket,
     message: Message,
-    lan_pairing: &'a LanPairingRuntime,
-    browser_policy: &'a BrowserPolicyRuntime,
-    screen_settings: &'a ScreenSettingsRuntime,
-    origin: &'a WebsocketCommandOrigin,
+    runtime: &'a WebsocketSocketRuntime,
+    authenticated: &'a ocentra_family_identity_core::session_lifecycle_custody::authenticated_parent_local_bridge::AuthenticatedParentLocalBridgeSession,
 ) -> Pin<Box<dyn Future<Output = SocketLoopControl> + Send + 'a>> {
     Box::pin(async move {
         match message {
             Message::Text(text) => {
-                let event = handle_command_text(
+                handle_authenticated_command(
+                    socket,
                     WebsocketCommandText(text.to_string()),
-                    lan_pairing.clone(),
-                    browser_policy.clone(),
-                    screen_settings.clone(),
-                    origin.clone(),
+                    runtime,
+                    authenticated,
                 )
-                .await;
-                send_event(socket, event)
-                    .await
-                    .map_or(SocketLoopControl::Break, |_| SocketLoopControl::Continue)
+                .await
             }
             Message::Ping(bytes) => send_socket_message(socket, Message::Pong(bytes)).await,
             Message::Close(_) => SocketLoopControl::Break,
             _ => SocketLoopControl::Continue,
         }
     })
+}
+
+async fn handle_authenticated_command(
+    socket: &mut WebSocket,
+    command: WebsocketCommandText,
+    runtime: &WebsocketSocketRuntime,
+    authenticated: &AuthenticatedParentLocalBridgeSession,
+) -> SocketLoopControl {
+    if runtime.admission.revalidate(authenticated).is_err() {
+        return SocketLoopControl::Break;
+    }
+    let event = handle_command_text(command, runtime.command.clone()).await;
+    send_event(socket, event)
+        .await
+        .map_or(SocketLoopControl::Break, |_| SocketLoopControl::Continue)
 }
 
 async fn send_socket_message(socket: &mut WebSocket, message: Message) -> SocketLoopControl {

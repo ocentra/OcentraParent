@@ -86,7 +86,7 @@ fn action_intent_status_response_from_payload(
 pub async fn request_browser_runtime_action_intent_status_for_input(
     input: BrowserRuntimeInput,
 ) -> Result<BrowserRuntimeActionIntentStatusReport, EventingError> {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     bus.subscribe::<BrowserRuntimeActionIntentStatusRequest, _, _>(
         EventSubscriber::new(
             SubscriberId::parse(constants::browser::SUBSCRIBER_BROWSER_ACTION_INTENT_STATUS)?,

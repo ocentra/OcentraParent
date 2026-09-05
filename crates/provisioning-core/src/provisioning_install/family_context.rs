@@ -4,7 +4,8 @@ pub(super) fn derive_provisioning_readiness_input_from_family_context(
     input: ProvisioningFamilyContextInput,
 ) -> ProvisioningReadinessInput {
     let authority_decision = authorize_household_action(input.household_authority_input);
-    let session_decision = authorize_session_token_action(input.pairing_session_input);
+    let session_failure_reason =
+        session_token_failure_reason_for_read_model(&input.pairing_session_input);
     let recovery_decision = input.recovery_operation.map(evaluate_recovery_operation);
 
     ProvisioningReadinessInput {
@@ -13,7 +14,7 @@ pub(super) fn derive_provisioning_readiness_input_from_family_context(
             input,
             authority_decision,
             recovery_decision,
-            session_decision.failure_reason,
+            session_failure_reason,
         ),
         parent_app_readiness_state: input.parent_app_readiness_state,
         parent_device_registration_state: input.parent_device_registration_state,
@@ -32,7 +33,7 @@ pub(super) fn derive_provisioning_readiness_input_from_family_context(
         pairing_lifecycle_state: family_pairing::provisioning_pairing_state_from_family_context(
             input,
             authority_decision,
-            session_decision.failure_reason,
+            session_failure_reason,
         ),
         policy_baseline_state: input.policy_baseline_state,
         data_custody_sync_state: family_recovery::provisioning_custody_state_from_family_context(
@@ -42,7 +43,7 @@ pub(super) fn derive_provisioning_readiness_input_from_family_context(
         network_reachability_state: input.network_reachability_state,
         recovery_state: family_recovery::provisioning_recovery_state_from_family_context(
             input,
-            session_decision.failure_reason,
+            session_failure_reason,
         ),
     }
 }

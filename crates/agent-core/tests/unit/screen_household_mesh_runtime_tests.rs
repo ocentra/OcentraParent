@@ -185,7 +185,7 @@ fn decode_payloads(report: &ScreenHouseholdMeshReport) -> Vec<ScreenHouseholdMes
             > = event
                 .decode()
                 .expect_value(constants::screen_flow::ERROR_SCREEN_MESH_PAYLOAD_DECODES);
-            envelope.payload
+            envelope.into_payload()
         })
         .collect()
 }

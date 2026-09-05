@@ -170,6 +170,12 @@ pub fn validate_child_policy_request(request: &ChildPolicyRequest) -> Result<(),
     validation::validate_child_policy_request(request)
 }
 
+pub fn validate_policy_temporary_override(
+    override_record: &PolicyTemporaryOverride,
+) -> Result<(), EventingError> {
+    validation::validate_policy_temporary_override(override_record)
+}
+
 pub fn register_child_policy_request(
     existing: Option<&ChildPolicyRequest>,
     candidate: ChildPolicyRequest,
@@ -190,6 +196,14 @@ pub fn expire_child_policy_request(
     audit_reference_id: PolicyAuditReferenceId,
 ) -> Result<ChildPolicyRequest, EventingError> {
     lifecycle::expire_child_policy_request(request, expired_at, audit_reference_id)
+}
+
+pub fn expire_policy_temporary_override(
+    override_record: &PolicyTemporaryOverride,
+    expired_at: &PolicyRequestTimestamp,
+    audit_reference_id: PolicyAuditReferenceId,
+) -> Result<PolicyTemporaryOverride, EventingError> {
+    lifecycle::expire_policy_temporary_override(override_record, expired_at, audit_reference_id)
 }
 
 pub fn resolve_parent_policy_approval(

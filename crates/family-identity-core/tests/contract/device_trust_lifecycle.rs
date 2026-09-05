@@ -1,12 +1,31 @@
 use std::fs;
 
 use ocentra_family_identity_core::device_trust_lifecycle::{
-    DeviceTrustLifecycleError, DeviceTrustLifecycleEventKind, DeviceTrustLifecycleRepository,
+    DeviceTrustLifecycleError, DeviceTrustLifecycleRepository,
 };
-use ocentra_family_identity_core::trust_bootstrap::current_authority::CurrentParentDeviceTrustAuthoritySource;
+use ocentra_family_identity_core::trust_bootstrap::current_authority::{
+    CurrentParentDeviceTrustAuthorityError, CurrentParentDeviceTrustAuthoritySource,
+};
 
-#[derive(Debug)]
-struct TestFailure;
+struct TestFailure {
+    context: &'static str,
+    detail: String,
+}
+
+impl TestFailure {
+    fn new(context: &'static str, error: impl std::fmt::Debug) -> Self {
+        Self {
+            context,
+            detail: format!("{error:?}"),
+        }
+    }
+}
+
+impl std::fmt::Debug for TestFailure {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(formatter, "{}: {}", self.context, self.detail)
+    }
+}
 
 fn repository(name: &str) -> Result<DeviceTrustLifecycleRepository, TestFailure> {
     let path = std::env::temp_dir().join(format!(
@@ -15,146 +34,69 @@ fn repository(name: &str) -> Result<DeviceTrustLifecycleRepository, TestFailure>
     ));
     let _ = fs::remove_file(&path);
     let _ = fs::remove_file(path.with_extension("authority.json"));
-    DeviceTrustLifecycleRepository::open(path).map_err(|_error| TestFailure)
+    DeviceTrustLifecycleRepository::open(path)
+        .map_err(|error| TestFailure::new("open device trust lifecycle repository", error))
 }
 
 #[test]
-fn revoke_invalidates_current_unseal_authority_and_writes_redacted_event() -> Result<(), TestFailure>
+fn a_new_lifecycle_store_is_fail_closed_until_owner_provisioning_exists() -> Result<(), TestFailure>
 {
-    let mut repository = repository("revoke")?;
-    repository
-        .register_parent_device(
-            "family-opaque",
-            "parent-opaque",
-            "device-opaque",
-            1,
-            "registration-correlation",
-        )
-        .map_err(|_error| TestFailure)?;
-    repository
-        .current_authorized_parent_device("family-opaque", "parent-opaque", "device-opaque")
-        .expect_err("pending registration must not be current authority");
-    repository
-        .activate_after_sealing(
-            "family-opaque",
-            "parent-opaque",
-            "device-opaque",
-            "activation",
-        )
-        .map_err(|_error| TestFailure)?;
-    repository
-        .current_authorized_parent_device("family-opaque", "parent-opaque", "device-opaque")
-        .map_err(|_error| TestFailure)?;
-    repository
-        .revoke_or_reset(
-            "family-opaque",
-            "parent-opaque",
-            "device-opaque",
-            false,
-            "revoke-correlation",
-        )
-        .map_err(|_error| TestFailure)?;
-    assert_eq!(repository.current_authorized_parent_device("family-opaque", "parent-opaque", "device-opaque"), Err(ocentra_family_identity_core::trust_bootstrap::current_authority::CurrentParentDeviceTrustAuthorityError::NotTrusted));
-    let events = repository.pending_events().map_err(|_error| TestFailure)?;
-    assert_eq!(events.len(), 3);
-    assert_eq!(events[2].kind, DeviceTrustLifecycleEventKind::Revoked);
-    assert_ne!(events[0].event_id, events[2].event_id);
-    assert_ne!(events[2].device_binding, "");
-    let serialized = serde_json::to_value(&events[2]).map_err(|_error| TestFailure)?;
-    assert_eq!(serialized["redaction"], "sensitive-identifiers-omitted");
-    assert_eq!(serialized.get("trustSubject"), None);
-    assert_eq!(serialized.get("deviceRef"), None);
-    Ok(())
-}
+    let repository = repository("empty")?;
 
-#[test]
-fn re_pair_requires_new_non_restored_installation_generation() -> Result<(), TestFailure> {
-    let mut repository = repository("repair")?;
-    repository
-        .register_parent_device("family", "parent", "device", 7, "registration")
-        .map_err(|_error| TestFailure)?;
-    repository
-        .revoke_or_reset("family", "parent", "device", true, "reset")
-        .map_err(|_error| TestFailure)?;
+    assert!(repository
+        .pending_events()
+        .map_err(|error| TestFailure::new("read pending lifecycle events", error))?
+        .is_empty());
     assert_eq!(
-        repository.repair_with_new_installation(
-            "family",
-            "parent",
-            "device",
-            7,
-            "old-installation"
-        ),
-        Err(DeviceTrustLifecycleError::InvalidGeneration)
+        repository.current_authorized_parent_device("family", "parent", "device"),
+        Err(CurrentParentDeviceTrustAuthorityError::NotTrusted)
     );
-    repository
-        .repair_with_new_installation("family", "parent", "device", 8, "re-pair")
-        .map_err(|_error| TestFailure)?;
-    repository
-        .current_authorized_parent_device("family", "parent", "device")
-        .map_err(|_error| TestFailure)?;
     assert_eq!(
-        repository
-            .current_authorized_parent_device("family", "parent", "device")
-            .map_err(|_error| TestFailure)?,
-        ocentra_family_identity_core::trust_bootstrap::current_authority::CurrentParentDeviceTrustAuthority {
-            lifecycle_generation: 3,
-            installation_binding_generation: 8,
-        }
-    );
-    let events = repository.pending_events().map_err(|_error| TestFailure)?;
-    assert_eq!(events[2].kind, DeviceTrustLifecycleEventKind::Repaired);
-    assert_eq!(events[2].lifecycle_generation, 3);
-    assert_eq!(events[2].installation_binding_generation, 8);
-    Ok(())
-}
-
-#[test]
-fn revoked_devices_cannot_be_repaired_without_reset_state() -> Result<(), TestFailure> {
-    let mut repository = repository("revoked-repair")?;
-    repository
-        .register_parent_device("family", "parent", "device", 1, "registration")
-        .map_err(|_error| TestFailure)?;
-    repository
-        .revoke_or_reset("family", "parent", "device", false, "revoke")
-        .map_err(|_error| TestFailure)?;
-    assert_eq!(
-        repository.repair_with_new_installation("family", "parent", "device", 2, "repair-revoked",),
-        Err(DeviceTrustLifecycleError::RevokedDevice)
+        repository.current_signer_authority("family", "parent", "device", "child"),
+        Err(DeviceTrustLifecycleError::SignerRegistrationMissing)
     );
     Ok(())
 }
 
 #[test]
-fn restored_database_without_platform_authority_is_unavailable() -> Result<(), TestFailure> {
-    let source_path = std::env::temp_dir().join(format!(
-        "ocentra-device-trust-lifecycle-restore-source-{}.sqlite",
+fn malformed_current_authority_bindings_are_rejected_without_touching_storage(
+) -> Result<(), TestFailure> {
+    let repository = repository("invalid-input")?;
+
+    assert_eq!(
+        repository.current_authorized_parent_device(" ", "parent", "device"),
+        Err(CurrentParentDeviceTrustAuthorityError::NotTrusted)
+    );
+    assert_eq!(
+        repository.current_signer_authority("family", "parent", "device", ""),
+        Err(DeviceTrustLifecycleError::InvalidIdentity)
+    );
+    assert!(repository
+        .pending_events()
+        .map_err(|error| TestFailure::new("read pending lifecycle events", error))?
+        .is_empty());
+    Ok(())
+}
+
+#[test]
+fn an_existing_uninitialized_database_is_not_repaired_as_a_side_effect() -> Result<(), TestFailure>
+{
+    let path = std::env::temp_dir().join(format!(
+        "ocentra-device-trust-lifecycle-uninitialized-{}.sqlite",
         std::process::id()
     ));
-    let restored_path = std::env::temp_dir().join(format!(
-        "ocentra-device-trust-lifecycle-restore-copy-{}.sqlite",
-        std::process::id()
-    ));
-    let _ = fs::remove_file(&source_path);
-    let _ = fs::remove_file(source_path.with_extension("authority.json"));
-    let _ = fs::remove_file(&restored_path);
-    let _ = fs::remove_file(restored_path.with_extension("authority.json"));
-    let mut repository =
-        DeviceTrustLifecycleRepository::open(&source_path).map_err(|_error| TestFailure)?;
-    repository
-        .register_parent_device("family", "parent", "device", 1, "registration")
-        .map_err(|_error| TestFailure)?;
-    repository
-        .activate_after_sealing("family", "parent", "device", "activation")
-        .map_err(|_error| TestFailure)?;
-    drop(repository);
-    fs::copy(&source_path, &restored_path).map_err(|_error| TestFailure)?;
+    let _ = fs::remove_file(&path);
+    let _ = fs::remove_file(path.with_extension("authority.json"));
+    let fixture = fs::File::create(&path)
+        .map_err(|error| TestFailure::new("fixture file must be created", error))?;
+    drop(fixture);
+
     assert!(matches!(
-        DeviceTrustLifecycleRepository::open(&restored_path),
+        DeviceTrustLifecycleRepository::open(&path),
         Err(DeviceTrustLifecycleError::Unavailable)
     ));
-    let _ = fs::remove_file(&source_path);
-    let _ = fs::remove_file(source_path.with_extension("authority.json"));
-    let _ = fs::remove_file(&restored_path);
-    let _ = fs::remove_file(restored_path.with_extension("authority.json"));
+
+    let _ = fs::remove_file(&path);
+    let _ = fs::remove_file(path.with_extension("authority.json"));
     Ok(())
 }

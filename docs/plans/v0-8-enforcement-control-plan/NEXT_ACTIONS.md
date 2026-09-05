@@ -43,11 +43,11 @@ workpack/checklist status and does not replace the assigned workpack.
 
 ### Establish the durable-journal handoff before execution authority
 
-- [11 Audit And Journal Events](workpacks/11-audit-journal-events.md): 5 open of 5 boxes; the generic Eventing prerequisite is locally evidenced, but WP11 must still establish the enforcement-specific durable journal before WP04 can be scheduled for dispatch-ready work.
+- [11 Audit And Journal Events](workpacks/11-audit-journal-events.md): 5 open of 5 boxes; completed-command retry recovery and exact final-report persistence are focused-green and fail closed without adapter reexecution, but approval/denial/expiry/override coverage plus the enforcement-specific durable query/proof handoff remain open before WP04 can be scheduled for dispatch-ready work.
 
 ### Close execution authority first
 
-- [04 Owned-Process Time Limit](workpacks/04-owned-process-time-limit.md): 5 open of 5 boxes; unscheduled/manual-required until WP11's enforcement-specific durable-journal handoff is present, then establish trusted dispatch before advancing execution state. Eventing WP06's generic prerequisite alone does not satisfy WP11 or dispatch-ready proof.
+- [04 Owned-Process Time Limit](workpacks/04-owned-process-time-limit.md): 5 open of 5 boxes; the reachable raw PID/name service path is now fail-closed/manual-required. WP04 remains unscheduled until WP11's enforcement-specific durable-journal handoff and a canonical persisted grant/binding/trusted-issuer composition route the authenticated executor; Eventing WP06's generic prerequisite alone does not satisfy dispatch-ready proof.
 - [05 App And Game Session Handoff](workpacks/05-app-game-session-handoff.md): 5 open of 5 boxes.
 - [06 Managed Browser Session Control](workpacks/06-managed-browser-session-control.md): 5 open of 5 boxes.
 - [08 Network/Domain Report-Only Boundary](workpacks/08-network-domain-report-only-boundary.md): 5 open of 5 boxes.

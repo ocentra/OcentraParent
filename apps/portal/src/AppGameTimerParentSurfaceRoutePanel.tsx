@@ -21,6 +21,7 @@ const EmptyTimerParentSurfacePanel: ParentAppGameTimerParentSurfacePanelSnapshot
   summaryDetails: [{ label: PortalDetails.ProductClaim, value: 'Timer parent surface has not been reported yet.' }],
   parentActionRows: [],
   parentPreferenceSetupRows: [],
+  localHandoffArtifactRows: [],
   rows: [],
   emptyMessage: 'No timer parent surface rows have been reported yet.',
   productClaim: 'Timer runtime, child handoff, and preference setup remain unreported.',
@@ -75,6 +76,9 @@ export function AppGameTimerParentSurfaceRoutePanel({
               key={`${String(row.title)}:parent-preference:${index}`}
               row={row}
             />
+          ))}
+          {resolvedPanel.localHandoffArtifactRows.map((row, index) => (
+            <AppGameTimerParentSurfaceRowCard key={`${String(row.title)}:local-artifact:${index}`} row={row} />
           ))}
           {resolvedPanel.rows.length === 0 ? (
             <AppGameTimerParentSurfaceEmptyCard panel={resolvedPanel} />
@@ -168,7 +172,8 @@ function AppGameTimerParentSurfaceActionRowCard({
       row.actionLabel === undefined ||
       row.actionPayload === null ||
       row.actionPayload === undefined ||
-      actions === undefined ? null : (
+      actions === undefined ||
+      actions.requestAppGameTimerParentPreferenceSetup === undefined ? null : (
         <button
           className={PortalDom.Classes.CommandResultTab}
           disabled={!commandEnabled}

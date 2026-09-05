@@ -5,6 +5,7 @@ import {{ brandedNonEmptyStringSchema }} from './effect';
 export const ReportQueryCustodyContractRuntime = {{
   SchemaVersion: '__REPORT_QUERY_CUSTODY_SCHEMA_VERSION__',
 }} as const;
+export const GeneratedReportQueryCustodyMaxPageSize = __REPORT_QUERY_CUSTODY_MAX_PAGE_SIZE__ as const;
 
 export type GeneratedParentContractSchemaVersion = 'v0.6';
 export const GeneratedParentAccountIdSchema = brandedNonEmptyStringSchema('ParentAccountId');
@@ -16,6 +17,7 @@ export const GeneratedParentActorIdSchema = brandedNonEmptyStringSchema('ParentA
 export const GeneratedParentPolicyVersionSchema = brandedNonEmptyStringSchema('ParentPolicyVersion');
 export const GeneratedParentEvidenceReferenceIdSchema = brandedNonEmptyStringSchema('ParentEvidenceReferenceId');
 export const GeneratedParentActionReferenceIdSchema = brandedNonEmptyStringSchema('ParentActionReferenceId');
+export const GeneratedParentAuthorityReferenceIdSchema = brandedNonEmptyStringSchema('ParentAuthorityReferenceId');
 export const GeneratedParentTimestampSchema = brandedNonEmptyStringSchema('ParentTimestamp');
 export const GeneratedReportQueryCustodyRequestIdSchema = brandedNonEmptyStringSchema('ReportQueryCustodyRequestId');
 export const GeneratedReportQueryCustodyQueryCursorSchema = brandedNonEmptyStringSchema(
@@ -40,6 +42,7 @@ export type GeneratedParentActorId = typeof GeneratedParentActorIdSchema.Type;
 export type GeneratedParentPolicyVersion = typeof GeneratedParentPolicyVersionSchema.Type;
 export type GeneratedParentEvidenceReferenceId = typeof GeneratedParentEvidenceReferenceIdSchema.Type;
 export type GeneratedParentActionReferenceId = typeof GeneratedParentActionReferenceIdSchema.Type;
+export type GeneratedParentAuthorityReferenceId = typeof GeneratedParentAuthorityReferenceIdSchema.Type;
 export type GeneratedParentTimestamp = typeof GeneratedParentTimestampSchema.Type;
 export type GeneratedReportQueryCustodyRequestId = typeof GeneratedReportQueryCustodyRequestIdSchema.Type;
 export type GeneratedReportQueryCustodyQueryCursor = typeof GeneratedReportQueryCustodyQueryCursorSchema.Type;
@@ -170,10 +173,23 @@ export interface GeneratedParentDeviceReference {{
   readonly platform: GeneratedParentPlatform;
 }}
 
+export interface GeneratedReportQueryCustodyParentAuthorityReference {{
+  readonly authorityReferenceId: GeneratedParentAuthorityReferenceId;
+  readonly familyId: GeneratedFamilyId;
+  readonly parentAccountId: GeneratedParentAccountId;
+  readonly deviceId: GeneratedParentDeviceId;
+  readonly childProfileId: GeneratedChildProfileId | null;
+  readonly authorityGeneration: number;
+}}
+
 export interface GeneratedParentEvidenceReference {{
   readonly evidenceReferenceId: GeneratedParentEvidenceReferenceId;
   readonly kind: GeneratedParentEvidenceReferenceKind;
   readonly observedAt: GeneratedParentTimestamp;
+  readonly familyId: GeneratedFamilyId;
+  readonly childProfileId: GeneratedChildProfileId | null;
+  readonly sourceDataClass: GeneratedReportQueryCustodySourceDataClass;
+  readonly sourceReference: GeneratedReportQueryCustodySourceRef;
 }}
 
 export interface GeneratedParentActionReference {{
@@ -197,8 +213,7 @@ export interface GeneratedReportQueryCustodyRequest {{
   readonly sourceCitationRefs: readonly GeneratedParentEvidenceReference[];
   readonly assistantCitationRefs: readonly GeneratedParentEvidenceReference[];
   readonly notificationPayloadBoundary: GeneratedReportQueryCustodyBoundary;
-  readonly parentAuthorized: boolean;
-  readonly parentOwnedSourceRequired: boolean;
+  readonly parentAuthority: GeneratedReportQueryCustodyParentAuthorityReference;
   readonly rawChildEvidenceRequested: boolean;
 }}
 
@@ -226,8 +241,7 @@ export interface GeneratedReportQueryCustodyRow {{
   readonly conflictRef: GeneratedReportQueryCustodyConflictRef | null;
   readonly cursorExpiredAt: GeneratedParentTimestamp | null;
   readonly rateLimitedUntilAt: GeneratedParentTimestamp | null;
-  readonly parentAuthorized: boolean;
-  readonly parentOwnedSourceRequired: boolean;
+  readonly parentAuthority: GeneratedReportQueryCustodyParentAuthorityReference;
   readonly rawChildEvidenceIncluded: boolean;
   readonly reportCacheMutated: boolean;
   readonly secondTruthStoreClaimed: boolean;

@@ -3,10 +3,8 @@ use ocentra_parent_agent_protocol::transport::{AgentCommandEnvelope, AgentEventE
 
 use super::super::runtime_validation::validate_command_target;
 use super::super::{
-    extend_log_fields,
-    runtime_rejection::rejection_event,
-    runtime_validation::{select_pairing_result, validate_selection_intent_result},
-    LanPairingRuntime,
+    authority::validate_write_authority, extend_log_fields, runtime_rejection::rejection_event,
+    runtime_validation::select_pairing_result, LanPairingRuntime,
 };
 use crate::lan_pairing_audit::selected_route_audit_fields;
 use crate::lan_pairing_payload::parse_intent;
@@ -22,11 +20,9 @@ pub(super) fn lan_pairing_route_select(
         Err(reason) => return rejection_event(command, &reason, None, &origin),
     };
     if let Err(reason) = validate_command_target(&runtime, &command, &intent)
-        .and_then(|()| validate_selection_intent_result(&runtime, &origin, &intent))
+        .and_then(|()| validate_write_authority(&intent))
+        .and_then(|()| select_pairing_result(&runtime, &origin, &intent))
     {
-        return rejection_event(command, &reason, Some(&intent), &origin);
-    }
-    if let Err(reason) = select_pairing_result(&runtime, &intent) {
         return rejection_event(command, &reason, Some(&intent), &origin);
     }
     let audit_fields = selected_route_audit_fields(&command, &intent, &origin);

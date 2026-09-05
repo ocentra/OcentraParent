@@ -5,6 +5,7 @@ use std::path::Path;
 use sha2::{Digest, Sha256};
 
 use crate::error::UpdaterError;
+use crate::manifest::require_sha256;
 
 pub fn sha256_file(path: &Path) -> Result<String, UpdaterError> {
     let mut file = File::open(path)?;
@@ -25,6 +26,7 @@ pub fn sha256_file(path: &Path) -> Result<String, UpdaterError> {
 }
 
 pub fn assert_sha256_file(path: &Path, expected: &str) -> Result<(), UpdaterError> {
+    require_sha256(expected)?;
     let actual = sha256_file(path)?;
     if actual != expected.to_uppercase() {
         return Err(UpdaterError::Policy(format!(

@@ -8,12 +8,14 @@ use ocentra_parent_agent_protocol::activity::{
 };
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::journal::ActivityJournalLine;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
 
 use crate::{
     activity_store::ActivityStore,
     journal::ActivityJournal,
     journal_crypto::{JournalKey, JOURNAL_KEY_BYTES},
 };
+use ocentra_parent_agent_core::activity_store_error::ActivityStoreError;
 
 use super::app_game_journal_sqlite_ingest::{
     protocol_rows::{
@@ -130,6 +132,252 @@ fn invalid_protocol_boundary_rows_are_rejected_before_sqlite_ingest() {
         ),
         Err(AppGameJournalSqliteIngestError::ClassifierRequestsAction)
     );
+}
+
+#[test]
+fn invalid_identity_rows_are_rejected_before_sqlite_ingest() {
+    let mut stale = identity();
+    stale.schema_version = APP_GAME_SCHEMA_VERSION.saturating_sub(1);
+    assert_eq!(
+        app_game_identity_journal_event(
+            constants::peer::LOCAL_DEV_AGENT,
+            std::env::consts::OS,
+            APP_GAME_TEST_TIMESTAMP,
+            &stale,
+        ),
+        Err(AppGameJournalSqliteIngestError::SchemaVersionUnsupported)
+    );
+
+    let mut missing_evidence = identity();
+    missing_evidence.evidence.clear();
+    assert_eq!(
+        app_game_identity_journal_event(
+            constants::peer::LOCAL_DEV_AGENT,
+            std::env::consts::OS,
+            APP_GAME_TEST_TIMESTAMP,
+            &missing_evidence,
+        ),
+        Err(AppGameJournalSqliteIngestError::IdentityInvalid)
+    );
+}
+
+#[test]
+fn invalid_ai_classifier_shape_is_rejected_before_sqlite_ingest() {
+    let mut invalid_confidence = classifier_result();
+    invalid_confidence.confidence = 1.01;
+    assert_eq!(
+        app_game_ai_classifier_result_journal_event(
+            constants::peer::LOCAL_DEV_AGENT,
+            std::env::consts::OS,
+            &invalid_confidence,
+        ),
+        Err(AppGameJournalSqliteIngestError::ClassifierInputInvalid)
+    );
+
+    let mut missing_evidence = classifier_result();
+    missing_evidence.source_evidence_refs.clear();
+    assert_eq!(
+        app_game_ai_classifier_result_journal_event(
+            constants::peer::LOCAL_DEV_AGENT,
+            std::env::consts::OS,
+            &missing_evidence,
+        ),
+        Err(AppGameJournalSqliteIngestError::ClassifierInputInvalid)
+    );
+
+    let mut blank_evidence = classifier_result();
+    blank_evidence.source_evidence_refs = vec![" ".to_string()];
+    assert_eq!(
+        app_game_ai_classifier_result_journal_event(
+            constants::peer::LOCAL_DEV_AGENT,
+            std::env::consts::OS,
+            &blank_evidence,
+        ),
+        Err(AppGameJournalSqliteIngestError::ClassifierInputInvalid)
+    );
+
+    let mut duplicate_evidence = classifier_result();
+    duplicate_evidence
+        .source_evidence_refs
+        .push(APP_GAME_TEST_CLASSIFIER_EVIDENCE_REF.to_string());
+    assert_eq!(
+        app_game_ai_classifier_result_journal_event(
+            constants::peer::LOCAL_DEV_AGENT,
+            std::env::consts::OS,
+            &duplicate_evidence,
+        ),
+        Err(AppGameJournalSqliteIngestError::ClassifierInputInvalid)
+    );
+
+    let mut mismatched_candidate = classifier_result();
+    mismatched_candidate.candidate_kind = APP_GAME_AI_CLASSIFIER_CANDIDATE_GAME_CONTEXT.to_string();
+    assert_eq!(
+        app_game_ai_classifier_result_journal_event(
+            constants::peer::LOCAL_DEV_AGENT,
+            std::env::consts::OS,
+            &mismatched_candidate,
+        ),
+        Err(AppGameJournalSqliteIngestError::ClassifierInputInvalid)
+    );
+
+    let mut mismatched_fallback = classifier_result();
+    mismatched_fallback.classifier_state = APP_GAME_AI_CLASSIFIER_STATE_CANDIDATE.to_string();
+    assert_eq!(
+        app_game_ai_classifier_result_journal_event(
+            constants::peer::LOCAL_DEV_AGENT,
+            std::env::consts::OS,
+            &mismatched_fallback,
+        ),
+        Err(AppGameJournalSqliteIngestError::ClassifierInputInvalid)
+    );
+
+    let mut raw_scan = classifier_result();
+    raw_scan.raw_scan_included = true;
+    assert_eq!(
+        app_game_ai_classifier_result_journal_event(
+            constants::peer::LOCAL_DEV_AGENT,
+            std::env::consts::OS,
+            &raw_scan,
+        ),
+        Err(AppGameJournalSqliteIngestError::ClassifierRequestsAction)
+    );
+
+    let mut content_claim = classifier_result();
+    content_claim.content_claim_included = true;
+    assert_eq!(
+        app_game_ai_classifier_result_journal_event(
+            constants::peer::LOCAL_DEV_AGENT,
+            std::env::consts::OS,
+            &content_claim,
+        ),
+        Err(AppGameJournalSqliteIngestError::ClassifierRequestsAction)
+    );
+}
+
+#[test]
+fn replay_rejects_action_shaped_ai_classifier_json() {
+    let mut event = protocol_boundary_events()
+        .pop()
+        .expect_value("classifier event fixture is present");
+    let row_json = event
+        .fields
+        .get(APP_GAME_JOURNAL_FIELD_ROW_JSON)
+        .and_then(|value| match value {
+            LogFieldValue::String(row_json) => Some(row_json),
+            _ => None,
+        })
+        .expect_value("classifier event fixture contains row json");
+    let mut encoded: serde_json::Value =
+        serde_json::from_str(row_json).expect_value("classifier event fixture is valid json");
+    encoded["block"] = serde_json::Value::Bool(true);
+    event.fields.insert(
+        APP_GAME_JOURNAL_FIELD_ROW_JSON.to_string(),
+        LogFieldValue::String(encoded.to_string()),
+    );
+
+    let store =
+        ActivityStore::open_in_memory().expect_value(constants::error::ACTIVITY_STORE_OPENS);
+    store
+        .ingest_events(std::slice::from_ref(&event))
+        .expect_value(constants::error::ACTIVITY_STORE_INGESTS);
+
+    let result = app_game_journal_sqlite_read_model(
+        store.connection_for_test(),
+        constants::activity_store::DEFAULT_RECENT_LIMIT,
+        APP_GAME_TEST_TIMESTAMP,
+    );
+    assert!(matches!(
+        result,
+        Err(ActivityStoreError::InvalidAppGameJournalRow { reason })
+            if reason == "invalid-ai-classifier-result"
+    ));
+}
+
+#[test]
+fn durable_protocol_replay_preserves_manual_required_state_after_restart() {
+    let journal_path = protocol_journal_path("protocol-durable-replay");
+    let store_path = protocol_store_path("protocol-durable-replay");
+    cleanup_journal_files(&journal_path);
+    cleanup_store_files(&store_path);
+    let events = protocol_boundary_events();
+    let key = JournalKey::from_bytes([7; JOURNAL_KEY_BYTES]);
+    let mut journal = ActivityJournal::open(journal_path.clone(), key.clone())
+        .expect_value(constants::error::JOURNAL_OPENS);
+    for event in &events {
+        journal
+            .append(event)
+            .expect_value(constants::error::JOURNAL_APPENDS);
+    }
+    let reader = ActivityJournal::open(journal_path.clone(), key)
+        .expect_value(constants::error::JOURNAL_OPENS);
+
+    {
+        let store =
+            ActivityStore::open(&store_path).expect_value(constants::error::ACTIVITY_STORE_OPENS);
+        let status = store
+            .ingest_journal(&reader)
+            .expect_value(constants::error::ACTIVITY_STORE_INGESTS);
+        assert_eq!(status.events_ingested, events.len() as u64);
+        assert_eq!(status.events_stored, events.len() as u64);
+    }
+
+    let restarted =
+        ActivityStore::open(&store_path).expect_value(constants::error::ACTIVITY_STORE_OPENS);
+    let replay_status = restarted
+        .ingest_journal(&reader)
+        .expect_value(constants::error::ACTIVITY_STORE_INGESTS);
+    let model = app_game_journal_sqlite_read_model(
+        restarted.connection_for_test(),
+        constants::activity_store::DEFAULT_RECENT_LIMIT,
+        APP_GAME_TEST_TIMESTAMP,
+    )
+    .expect_value(constants::error::ACTIVITY_STORE_QUERIES);
+    drop(restarted);
+    cleanup_journal_files(&journal_path);
+    cleanup_store_files(&store_path);
+
+    assert_eq!(replay_status.events_ingested, 0);
+    assert_eq!(replay_status.duplicate_events, events.len() as u64);
+    assert_eq!(replay_status.events_stored, events.len() as u64);
+    assert_eq!(model.approval_authority_rows.len(), 1);
+    assert_eq!(model.approval_action_result_rows.len(), 1);
+    assert_eq!(
+        model.approval_action_result_rows[0].result_status,
+        APP_GAME_CONTROL_ACTION_STATUS_MANUAL_REQUIRED
+    );
+    assert!(model.approval_action_result_rows[0]
+        .enforcement_result
+        .is_none());
+}
+
+#[test]
+fn replay_rejects_semantically_invalid_protocol_rows_from_sqlite() {
+    let mut invalid_claim = evidence_claim();
+    invalid_claim.runtime_state = APP_GAME_RUNTIME_RUNNING.to_string();
+    let invalid_claim_json = serde_json::to_string(&invalid_claim)
+        .expect_value("serialize invalid evidence claim fixture");
+    let mut event = protocol_boundary_events().remove(0);
+    event.fields.insert(
+        APP_GAME_JOURNAL_FIELD_ROW_JSON.to_string(),
+        LogFieldValue::String(invalid_claim_json),
+    );
+    let store =
+        ActivityStore::open_in_memory().expect_value(constants::error::ACTIVITY_STORE_OPENS);
+    store
+        .ingest_events(std::slice::from_ref(&event))
+        .expect_value(constants::error::ACTIVITY_STORE_INGESTS);
+
+    let result = app_game_journal_sqlite_read_model(
+        store.connection_for_test(),
+        constants::activity_store::DEFAULT_RECENT_LIMIT,
+        APP_GAME_TEST_TIMESTAMP,
+    );
+
+    assert!(matches!(
+        result,
+        Err(ActivityStoreError::InvalidAppGameJournalRow { reason })
+            if reason == "invalid-evidence-claim"
+    ));
 }
 
 fn protocol_boundary_events() -> Vec<ActivityEvent> {
@@ -407,12 +655,7 @@ fn source_evidence(evidence_id: impl std::fmt::Display) -> ActivityEvidenceRef {
 }
 
 fn append_and_replay(events: &[ActivityEvent]) -> (ActivityStore, Vec<ActivityJournalLine>) {
-    let mut path = std::env::temp_dir();
-    let mut file_name = constants::journal::TEST_FILE_PREFIX.to_string();
-    file_name.push_str(&std::process::id().to_string());
-    file_name.push_str(constants::journal::TEST_PROTOCOL_ROWS_SUFFIX);
-    path.push(file_name);
-    path.set_extension(constants::journal::FILE_EXTENSION);
+    let path = protocol_journal_path(constants::journal::TEST_PROTOCOL_ROWS_SUFFIX);
     cleanup_journal_files(&path);
     let key = JournalKey::from_bytes([7; JOURNAL_KEY_BYTES]);
     let mut journal = ActivityJournal::open(path.clone(), key.clone())
@@ -439,6 +682,28 @@ fn append_and_replay(events: &[ActivityEvent]) -> (ActivityStore, Vec<ActivityJo
     (store, lines)
 }
 
+fn protocol_journal_path(suffix: impl std::fmt::Display) -> std::path::PathBuf {
+    let mut path = std::env::temp_dir();
+    let mut file_name = constants::journal::TEST_FILE_PREFIX.to_string();
+    file_name.push_str(&std::process::id().to_string());
+    file_name.push(constants::delimiter::HYPHEN);
+    file_name.push_str(&suffix.to_string());
+    path.push(file_name);
+    path.set_extension(constants::journal::FILE_EXTENSION);
+    path
+}
+
+fn protocol_store_path(suffix: impl std::fmt::Display) -> std::path::PathBuf {
+    let mut path = std::env::temp_dir();
+    let mut file_name = constants::activity_store::TEST_FILE_PREFIX.to_string();
+    file_name.push_str(&std::process::id().to_string());
+    file_name.push(constants::delimiter::HYPHEN);
+    file_name.push_str(&suffix.to_string());
+    path.push(file_name);
+    path.set_extension(constants::activity_store::FILE_EXTENSION);
+    path
+}
+
 fn cleanup_journal_files(path: impl AsRef<std::path::Path>) {
     let path = path.as_ref();
     let _ = remove_file(path);
@@ -449,5 +714,18 @@ fn cleanup_journal_files(path: impl AsRef<std::path::Path>) {
         extension.push_str(constants::journal::FILE_EXTENSION);
         rotated_path.set_extension(extension);
         let _ = remove_file(rotated_path);
+    }
+}
+
+fn cleanup_store_files(path: impl AsRef<std::path::Path>) {
+    let path = path.as_ref();
+    let _ = remove_file(path);
+    for extension in [
+        constants::activity_store::WAL_FILE_EXTENSION,
+        constants::activity_store::SHM_FILE_EXTENSION,
+    ] {
+        let mut sidecar = path.to_path_buf();
+        sidecar.set_extension(extension);
+        let _ = remove_file(sidecar);
     }
 }

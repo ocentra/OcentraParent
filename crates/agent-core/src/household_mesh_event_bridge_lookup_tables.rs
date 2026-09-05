@@ -111,7 +111,3 @@ pub(crate) fn lan_message_type_for_ref(local_event_ref: &str) -> Option<&'static
         (lookup.local_event_ref == local_event_ref).then_some(lookup.lan_message_type)
     })
 }
-
-pub(crate) fn is_selected_local_event_ref(local_event_ref: &str) -> bool {
-    lan_message_type_for_ref(local_event_ref).is_some()
-}

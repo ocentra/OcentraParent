@@ -1,4 +1,4 @@
-use crate::support::ResultTestExt as _;
+use crate::support::{OptionTestExt as _, ResultTestExt as _};
 use std::io;
 use std::sync::Mutex;
 
@@ -8,6 +8,7 @@ use ocentra_lan_core::lan_mdns_advertiser::{
     derive_parent_advertisement_id, encode_advertisement_packet, parent_instance, send_goodbye,
     LanMdnsPacketSink,
 };
+use ocentra_lan_core::network_inventory::mdns_dns_sd::discovery_from_single_packet;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::{
     LanChildMdnsAdvertisement, LanChildMdnsAdvertisementInput, LanMdnsAdvertisementLifecycleState,
@@ -175,6 +176,66 @@ fn encoded_packet_contains_service_enumeration_service_type_and_txt_values() {
     ));
     assert!(packet_contains(&packet, b"platform=windows"));
     assert!(packet_contains(&packet, b"agent-version=1.2.3"));
+}
+
+#[test]
+fn encoded_parent_and_child_packets_round_trip_through_mdns_discovery_contracts() {
+    let parent = LanParentMdnsAdvertisement::new(
+        derive_parent_advertisement_id("sha256:family-parent"),
+        constants::lan_pairing::SCHEMA_VERSION_TEXT,
+        "sha256:family-parent",
+        LanPairingTrustState::Paired,
+        LanMdnsAdvertisementLifecycleState::Start,
+        LanMdnsAdvertisementSupportState::Supported,
+    )
+    .value_or_unreachable();
+    let child = LanChildMdnsAdvertisement::new(child_advertisement_input()).value_or_unreachable();
+    let packet =
+        encode_advertisement_packet(&[parent_instance(&parent), child_instance(&child)], 120);
+
+    assert!(packet_contains(
+        &packet,
+        format!(
+            "{}={}",
+            constants::lan_pairing::MDNS_ADVERTISEMENT_ID_FIELD,
+            parent.advertisement_id
+        )
+        .as_bytes()
+    ));
+    assert!(packet_contains(
+        &packet,
+        format!(
+            "{}={}",
+            constants::lan_pairing::MDNS_ADVERTISEMENT_ID_FIELD,
+            child.advertisement_id
+        )
+        .as_bytes()
+    ));
+
+    let discovery = discovery_from_single_packet(&packet).value_or_unreachable();
+    let parsed_parent = discovery
+        .service_instances
+        .iter()
+        .find(|instance| instance.service_type == constants::lan_pairing::MDNS_PARENT_SERVICE_TYPE)
+        .and_then(|instance| instance.parent_advertisement.as_ref())
+        .value_or_unreachable();
+    let parsed_child = discovery
+        .service_instances
+        .iter()
+        .find(|instance| instance.service_type == constants::lan_pairing::MDNS_CHILD_SERVICE_TYPE)
+        .and_then(|instance| instance.child_advertisement.as_ref())
+        .value_or_unreachable();
+
+    assert_eq!(parsed_parent, &parent);
+    assert_eq!(parsed_child, &child);
+    assert_eq!(
+        parsed_parent.confirmation_state,
+        ocentra_parent_agent_protocol::lan_pairing::LanMdnsAdvertisementConfirmationState::HintOnly
+    );
+    assert_eq!(
+        parsed_child.confirmation_state,
+        ocentra_parent_agent_protocol::lan_pairing::LanMdnsAdvertisementConfirmationState::HintOnly
+    );
 }
 
 #[test]

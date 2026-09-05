@@ -4,9 +4,11 @@ import os from 'node:os';
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { runNodeOrThrow } from './check-architecture-scope.mjs';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const enforcerWrapper = path.join(repoRoot, 'scripts', 'enforcer', 'run-ocentra-enforcer.mjs');
+const rustDependencyPolicy = path.join(repoRoot, 'scripts', 'check-rust-dependency-policy.mjs');
 const singleSourceContractsConfig = path.join('scripts', 'check-single-source-contracts.json');
 const ignoredExpansionDirs = new Set([
   '.agents',
@@ -37,6 +39,7 @@ const ignoredExpansionDirs = new Set([
 export function main(rawArgs = process.argv.slice(2)) {
   const files = expandFiles(parseFiles(rawArgs));
   if (files === null) {
+    runRustDependencyPolicy(rawArgs);
     if (hasDiffScope(rawArgs)) {
       runEnforcer(['architecture', 'check', '--scope', 'diff', ...rawArgs]);
       return;
@@ -45,6 +48,11 @@ export function main(rawArgs = process.argv.slice(2)) {
     return;
   }
   if (files.length === 0) return;
+
+  const cargoPolicyFiles = files.filter(isCargoPolicyFile);
+  if (cargoPolicyFiles.length > 0) {
+    runNodeOrThrow(rustDependencyPolicy, ['--files', ...cargoPolicyFiles]);
+  }
 
   const { generatedFiles, generatorFiles, sourceFiles } = classifyArchitectureFiles(files);
   const passthroughArgs = stripFiles(rawArgs);
@@ -65,6 +73,17 @@ export function main(rawArgs = process.argv.slice(2)) {
   if (generatorFiles.length > 0) {
     runEnforcer(['check', 'reexports', ...passthroughArgs, ...filesFromArgs('generator', generatorFiles)]);
   }
+}
+
+function runRustDependencyPolicy(rawArgs) {
+  const hasExplicitOrEnvironmentScope =
+    rawArgs.length > 0 || (process.env.OCENTRA_ARCHITECTURE_BASE && process.env.OCENTRA_ARCHITECTURE_HEAD);
+  runNodeOrThrow(rustDependencyPolicy, hasExplicitOrEnvironmentScope ? rawArgs : ['--all']);
+}
+
+function isCargoPolicyFile(file) {
+  const normalized = file.replace(/\\/gu, '/');
+  return normalized === 'Cargo.toml' || normalized === 'Cargo.lock' || normalized.endsWith('/Cargo.toml');
 }
 
 function hasDiffScope(args) {
@@ -205,6 +224,7 @@ function isGeneratedProducer(file) {
   const normalized = file.replace(/\\/gu, '/').toLowerCase();
   return (
     /^crates\/schema\/src\/[^/]+_ts\.rs$/u.test(normalized) ||
+    normalized === 'crates/ai-contracts/src/ai_contracts_ts.rs' ||
     /^crates\/schema\/src\/bin\/export_[^/]+\.rs$/u.test(normalized) ||
     normalized === 'crates/tracking-core/src/generated_bridge.rs'
   );

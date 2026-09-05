@@ -1,13 +1,15 @@
-use std::io::{Read, Write};
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
 use tungstenite::WebSocket;
 
-pub(super) fn read_agent_event<S: Read + Write>(
-    socket: &mut WebSocket<S>,
+use super::connection::deadline_stream::DeadlineTcpStream;
+
+pub(super) fn read_agent_event(
+    socket: &mut WebSocket<DeadlineTcpStream>,
     phase: &str,
     timeout: Duration,
+    deadline: Instant,
 ) -> Result<AgentEventEnvelope, String> {
-    super::read_impl::read_agent_event(socket, phase, timeout)
+    super::read_impl::read_agent_event(socket, phase, timeout, deadline)
 }

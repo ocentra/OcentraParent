@@ -36,6 +36,26 @@ npm run lint:architecture -- --files packages/screen-domain packages/agent-proto
 
 Run through `npm run agent:run --` when collecting proof if the wrapper is available.
 
+## WP32 Browser Structured Extraction Before Screenshot
+
+Expected test-source roots for the later test-writing phase:
+
+```text
+crates/schema/tests/contract/managed_browser_cdp_capture.rs
+crates/agent-core/tests/unit/browser_bridge_structured_extraction_tests.rs
+crates/agent-service/tests/unit/screen_managed_browser_cdp_runtime_tests.rs
+crates/screen-ai-core/tests/unit/pipeline_decision.rs
+crates/screen-capture-adapter/tests/unit/managed_browser_cdp.rs
+```
+
+The test packet must cover bounded canonical parsing, protected/private/unknown
+fail-closed behavior, DOM overflow, malformed CDP replies, stale or mismatched
+producer binding, preflight/postflight/post-release drift, absence of desktop
+fallback, executable service composition, and screenshot skipping only after an
+opaque browser/policy-owned safe-disclosure authorization. Until then,
+`NoScreenNeeded` must remain unreachable and the workpack remains open. The
+current source-only integration ran no product tests or proof commands.
+
 ## Command ownership notes
 
 - `screen-plan` owns local screen capture/evidence/custody/settings/live-view-boundary proof.

@@ -80,6 +80,103 @@ fn activity_store_reads_enforcement_audit_fields_by_exact_event_id() -> TestResu
 }
 
 #[test]
+fn activity_store_audit_queries_ignore_generic_enforcement_audit_events() -> TestResult {
+    let store = open_in_memory_store();
+    let enforcement_event_id = constants::enforcement::TEST_AUDIT_EVENT_ID;
+    let generic_event_id = "generic-policy-audit";
+    let observed_at = constants::activity_store::TEST_FIRST_OBSERVED_AT;
+    ingest_enforcement_events(
+        &store,
+        &[
+            enforcement_audit_event_at(
+                enforcement_event_id,
+                constants::enforcement::TEST_RESULT_ID,
+                observed_at,
+            ),
+            generic_enforcement_audit_event_at(generic_event_id, observed_at),
+        ],
+    );
+
+    let latest = some(
+        latest_enforcement_audit_fields(&store)?,
+        constants::error::ACTIVITY_STORE_QUERIES,
+    )?;
+    assert_eq!(
+        latest.get(constants::field::ENFORCEMENT_AUDIT_EVENT_ID),
+        Some(&LogFieldValue::String(enforcement_event_id.to_string()))
+    );
+
+    let recent = recent_enforcement_audit_fields(&store, 2)?;
+    assert_eq!(recent.len(), 1);
+    assert_eq!(
+        recent[0].get(constants::field::ENFORCEMENT_AUDIT_EVENT_ID),
+        Some(&LogFieldValue::String(enforcement_event_id.to_string()))
+    );
+    assert_eq!(
+        enforcement_audit_fields_by_event_id(&store, generic_event_id)?,
+        None
+    );
+
+    let replacement = enforcement_fields(
+        enforcement_event_id,
+        constants::enforcement::TEST_TIMER_STATE_ID,
+    );
+    assert!(store
+        .replace_enforcement_audit_fields_by_event_id(generic_event_id, &replacement)
+        .is_err());
+    assert_eq!(
+        enforcement_audit_fields_by_event_id(&store, generic_event_id)?,
+        None
+    );
+
+    Ok(())
+}
+
+#[test]
+fn activity_store_replaces_exact_enforcement_audit_fields() -> TestResult {
+    let store = open_in_memory_store();
+    let event_id = constants::enforcement::TEST_AUDIT_EVENT_ID;
+    ingest_enforcement_events(
+        &store,
+        &[enforcement_audit_event(
+            event_id,
+            constants::enforcement::TEST_RESULT_ID,
+        )],
+    );
+    let mut replacement = enforcement_fields(event_id, constants::enforcement::TEST_TIMER_STATE_ID);
+    replacement.insert(
+        constants::field::EVENTS_STORED.to_string(),
+        LogFieldValue::Number(1.0),
+    );
+
+    activity_store_query(
+        store.replace_enforcement_audit_fields_by_event_id(event_id, &replacement),
+    )?;
+
+    assert_eq!(
+        enforcement_audit_fields_by_event_id(&store, event_id)?,
+        Some(replacement)
+    );
+    Ok(())
+}
+
+#[test]
+fn activity_store_refuses_to_replace_missing_enforcement_audit_fields() {
+    let store = open_in_memory_store();
+    let fields = enforcement_fields(
+        constants::enforcement::TEST_AUDIT_EVENT_ID,
+        constants::enforcement::TEST_RESULT_ID,
+    );
+
+    assert!(store
+        .replace_enforcement_audit_fields_by_event_id(
+            constants::enforcement::TEST_AUDIT_EVENT_ID,
+            &fields,
+        )
+        .is_err());
+}
+
+#[test]
 fn activity_store_reads_most_recent_enforcement_audit_fields_only() -> TestResult {
     let store = open_in_memory_store();
     ingest_enforcement_events(
@@ -244,14 +341,6 @@ fn activity_store_returns_empty_recent_enforcement_audit_history_for_zero_limit(
     Ok(())
 }
 
-#[test]
-fn activity_store_returns_no_enforcement_audit_fields_when_empty() -> TestResult {
-    let store = open_in_memory_store();
-
-    assert_eq!(latest_enforcement_audit_fields(&store)?, None);
-    Ok(())
-}
-
 fn open_in_memory_store() -> ActivityStore {
     activity_store_open(ActivityStore::open_in_memory())
         .expect_value(constants::error::ACTIVITY_STORE_OPENS)
@@ -343,6 +432,38 @@ fn enforcement_audit_event_at(
             display_name: Some(constants::enforcement::MODE_TERMINATE_PROCESS.to_string()),
         },
         fields: enforcement_fields(event_id, result_id),
+        evidence: Vec::new(),
+    }
+}
+
+fn generic_enforcement_audit_event_at(
+    event_id: impl std::fmt::Display,
+    observed_at: impl std::fmt::Display,
+) -> ActivityEvent {
+    let event_id = TestText::from_display(event_id);
+    let observed_at = TestText::from_display(observed_at);
+    let mut fields = LogFields::new();
+    fields.insert(
+        constants::field::POLICY_REQUEST_STATUS.to_string(),
+        LogFieldValue::String("approved".to_string()),
+    );
+    ActivityEvent {
+        schema_version: ACTIVITY_SCHEMA_VERSION,
+        event_id: event_id.to_string(),
+        observed_at: observed_at.to_string(),
+        source: ActivitySource {
+            device_id: constants::enforcement::TEST_CHILD_DEVICE_ID.to_string(),
+            platform: constants::enforcement::PLATFORM_WINDOWS.to_string(),
+            observer: ActivityObserver::AgentService,
+            source_id: constants::enforcement::SOURCE_ID_AGENT_SERVICE.to_string(),
+        },
+        kind: ActivityEventKind::EnforcementAuditRecorded,
+        subject: ActivitySubject {
+            kind: ActivitySubjectKind::Intervention,
+            subject_id: constants::enforcement::TEST_ACTION_ID.to_string(),
+            display_name: None,
+        },
+        fields,
         evidence: Vec::new(),
     }
 }

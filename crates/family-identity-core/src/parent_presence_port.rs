@@ -14,6 +14,9 @@ use crate::parent_presence_store::{
 };
 use crate::trust_bootstrap_validation::parent_presence_verification_failure_reason;
 
+#[path = "parent_presence_port_step_up.rs"]
+mod step_up;
+
 impl ParentPresenceVerificationPort {
     pub fn open(
         store_path: impl Into<PathBuf>,
@@ -84,6 +87,14 @@ impl ParentPresenceVerificationPort {
         &mut self,
         input: ParentPresenceVerificationInput,
     ) -> Result<ParentPresenceVerificationAccepted, ParentPresenceVerificationFailureReason> {
+        self.verify_and_consume_inner(input, None)
+    }
+
+    fn verify_and_consume_inner(
+        &mut self,
+        input: ParentPresenceVerificationInput,
+        verified_credential: Option<(&str, i32, u32)>,
+    ) -> Result<ParentPresenceVerificationAccepted, ParentPresenceVerificationFailureReason> {
         let ParentPresenceVerificationInput {
             correlation_id,
             challenge_ref,
@@ -100,11 +111,14 @@ impl ParentPresenceVerificationPort {
             .prepare(&accepted_artifact, &observed_at)
             .map_err(|_error| ParentPresenceVerificationFailureReason::CustodyUnavailable)?;
         let decision_observed_at = observed_at.clone();
-        let consumed =
-            self.store
-                .consume_challenge(&challenge_ref, &accepted_pending, |challenge| {
-                    parent_presence_verification_failure_reason(challenge, &assertion, &observed_at)
-                });
+        let consumed = self.store.consume_challenge(
+            &challenge_ref,
+            &accepted_pending,
+            |challenge| {
+                parent_presence_verification_failure_reason(challenge, &assertion, &observed_at)
+            },
+            verified_credential,
+        );
 
         let accepted = matches!(&consumed, Ok(ConsumeChallengeResult::Accepted(_)));
         let (artifact, result) = finish_parent_presence_verification(

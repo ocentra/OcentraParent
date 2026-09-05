@@ -112,9 +112,19 @@ export const BillingSubscriptionStatusProofRowSchema = withParser(
   }).pipe(
     Schema.filter(
       (row) =>
-        !['past-due', 'expired', 'unknown', 'unavailable'].includes(row.subscriptionStatus) ||
+        !['past-due', 'expired', 'grace', 'unknown', 'unavailable'].includes(row.subscriptionStatus) ||
         row.failureState !== null ||
         'Expected degraded subscription status rows to carry a parent-visible failure state'
+    ),
+    Schema.filter(
+      (row) =>
+        row.subscriptionStatus !== 'grace' ||
+        (row.parentVisibleState === 'grace' &&
+          row.localSafetyBehavior === 'grace-with-local-safety' &&
+          row.deviceActivationBehavior === 'grace-existing-devices' &&
+          row.failureState?.parentVisibleState === 'grace' &&
+          row.failureState.localSafetyBehavior === 'grace-with-local-safety') ||
+        'Expected grace subscription status to remain parent-visible while preserving existing local safety and blocking new-device activation'
     )
   )
 );
@@ -134,6 +144,20 @@ export const BillingFeatureDecisionSchema = withParser(
         !decision.safetyCritical ||
         (decision.decision !== 'locked' && decision.decision !== 'unavailable') ||
         'Expected safety-critical behavior not to be locked or made unavailable by billing state'
+    ),
+    Schema.filter(
+      (decision) =>
+        !decision.safetyCritical ||
+        decision.decision !== 'grace' ||
+        decision.localSafetyBehavior === 'grace-with-local-safety' ||
+        'Expected safety-critical grace decisions to preserve local safety behavior explicitly'
+    ),
+    Schema.filter(
+      (decision) =>
+        !decision.safetyCritical ||
+        decision.decision !== 'manual-required' ||
+        decision.localSafetyBehavior === 'manual-review-with-local-safety' ||
+        'Expected safety-critical manual review to preserve local safety behavior explicitly'
     )
   )
 );
@@ -147,11 +171,18 @@ export const BillingEntitlementSeatCompositionSchema = withParser(
   }).pipe(
     Schema.filter(
       (composition) =>
-        composition.effectiveChildDeviceLimit ===
+        (Number.isInteger(
+          composition.baseChildDeviceLimit + composition.activeReferralCredits + composition.paidExtraChildDeviceSeats
+        ) &&
           composition.baseChildDeviceLimit +
             composition.activeReferralCredits +
-            composition.paidExtraChildDeviceSeats ||
-        'Expected effective child-device limit to equal base seats plus active referral credits plus paid extra child-device seats'
+            composition.paidExtraChildDeviceSeats <=
+            4_294_967_295 &&
+          composition.effectiveChildDeviceLimit ===
+            composition.baseChildDeviceLimit +
+              composition.activeReferralCredits +
+              composition.paidExtraChildDeviceSeats) ||
+        'Expected effective child-device limit to equal base seats plus active referral credits plus paid extra child-device seats within u32 range'
     )
   )
 );
@@ -254,6 +285,48 @@ export const BillingDeviceLimitDecisionSchema = withParser(
         decision.decision === 'allowed' ||
         decision.existingLocalSafetyBehavior !== 'unchanged' ||
         'Expected non-allowed device-limit decisions to keep existing local safety behavior explicit'
+    ),
+    Schema.filter(
+      (decision) =>
+        decision.reasonCode !== 'limit-exceeded' ||
+        decision.activeDeviceCount >= decision.planDeviceLimit ||
+        'Expected limit-exceeded decisions to reflect an active count at or above the plan limit'
+    ),
+    Schema.filter(
+      (decision) =>
+        decision.reasonCode !== 'limit-exceeded' ||
+        decision.requestedDeviceAlreadyTrusted ||
+        (decision.decision === 'denied' && decision.deviceActivationBehavior === 'deny-new-device') ||
+        'Expected an untrusted device above the plan limit to be denied new-device activation'
+    ),
+    Schema.filter(
+      (decision) =>
+        decision.reasonCode !== 'limit-exceeded' ||
+        !decision.requestedDeviceAlreadyTrusted ||
+        (decision.decision === 'grace' &&
+          decision.deviceActivationBehavior === 'grace-existing-devices' &&
+          decision.existingLocalSafetyBehavior === 'grace-with-local-safety') ||
+        'Expected a trusted existing device above the plan limit to enter safety-preserving grace'
+    ),
+    Schema.filter(
+      (decision) =>
+        decision.decision !== 'grace' ||
+        (decision.requestedDeviceAlreadyTrusted &&
+          decision.deviceActivationBehavior === 'grace-existing-devices' &&
+          decision.existingLocalSafetyBehavior === 'grace-with-local-safety') ||
+        'Expected device-limit grace to apply only to trusted existing devices while preserving local safety'
+    ),
+    Schema.filter(
+      (decision) =>
+        decision.decision !== 'denied' ||
+        decision.deviceActivationBehavior === 'deny-new-device' ||
+        'Expected denied device-limit decisions to deny new-device activation'
+    ),
+    Schema.filter(
+      (decision) =>
+        decision.decision !== 'manual-review' ||
+        decision.deviceActivationBehavior === 'manual-review-required' ||
+        'Expected manual-review device-limit decisions to require manual review'
     )
   )
 );

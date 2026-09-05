@@ -10,6 +10,10 @@ Native app inventory can detect app presence and changes once implemented, but
 install, uninstall, purchase, store, MDM, package-manager, and entitlement flows
 belong to adjacent approval/platform features unless explicitly assigned.
 
+Current audit (2026-08-29): no modern production install/uninstall approval-
+handoff owner or caller is mapped in the current tree. Historical parent-domain
+handoff evidence is not a substitute for an implementation owner.
+
 ## Where We Want To Be
 
 The app plan hands install/uninstall approval work to the correct source docs

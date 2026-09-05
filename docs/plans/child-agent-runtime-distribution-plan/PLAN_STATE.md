@@ -1,103 +1,100 @@
 # Child Agent Runtime Distribution Plan State
 
-Status: canonical child runtime distribution scope documented; WP01 child agent scope and route boundary, WP03 child macOS service package, WP04 child Linux service package, WP05 child Android package, WP06 child iOS capability package, WP07 child managed service respawn, WP08 child parent-authorized uninstall contract/proof, WP09 child signing/store/device-owner matrix, WP10 setup device trust handoff, and WP11 proof CI release gate are complete; WP02 child Windows service package is now blocked / proof-present on exact local lifecycle blockers, and remaining workpacks remain open.
+Status: live-code review complete; production source is partial and no workpack is release-complete. Package shells, durable child-runtime custody, bounded in-process ingress, Android JNI composition, removal state, the Windows updater, typed setup/device-trust handoff projection, and canonical iOS child source/test/retained capability proof exist. Shipped startup authority, authenticated external ingress, externally reachable health, platform lifecycle completion, removal callbacks, live handoff/update composition, Apple signing/device/store authority, and the executable aggregate release gate remain missing or manual-required.
 
-Research status: aligned against the current repo child-service/runtime surface, the existing package scripts for Windows/macOS/Linux/Android/iOS distribution, and the separated parent-client runtime distribution route. The parent client plan now owns the parent artifact boundary; this plan owns the child artifact boundary.
+Program phase: source, test, and proof consolidation. WP01 route proof and WP06 capability-boundary proof are current; broader builds, platform/device proof, precommit, CI, PR, and release-completion claims remain deferred.
 
-## Current ownership interpretation
+Reviewed iOS source packet: `c71becbcfd4f07eb98a118f10dbf261320f6b54e`, integrated into the source consolidation branch before the expected-test wave.
+
+## Code-backed workpack state
+
+| Workpack | Committed production source | Production source still required | Expected test source still required | Runtime/caller reachability | Source order |
+| --- | --- | --- | --- | --- | --- |
+| WP01 | Route and ownership boundary only; no product source is expected. | Keep route ownership aligned with the executable graph. | Route/index consistency checks only. | Not a runtime workpack. | First, route-only. |
+| WP02 | Windows builder, MSI authoring, WinSW definitions, child service binary, and child artifact/service values exist. | Canonical child-owned source identities plus trusted startup, authenticated ingress, and external health composition are not shipped. | Child startup/readiness tests and child-labelled elevated install/start/stop/restart/uninstall/respawn tests are missing. | Installed binary starts without a trust-binding source and has no production command or health client. | After WP10 implementation source. |
+| WP03 | macOS builder and launchd payload target the child binary and child runtime paths. | Canonical child-owned plist/source identity, signing/notarization inputs, trusted startup, health, and lifecycle completion remain missing. | Real-host launchd, signing/notarization, restart, disable, uninstall, and health tests are missing; existing smoke inputs remain legacy-labelled. | Launchd can start the binary, but the binary remains trust-manual-required and externally unreachable. | After WP10; may run beside WP02/WP04/WP05. |
+| WP04 | Linux builder, child `.deb` values, child systemd unit contents, and child service paths exist. | Canonical child-owned unit/source identity, fail-closed service lifecycle, trusted startup, external health, signing/feed ownership, and cleanup completion remain missing. | Child-labelled package smoke plus real-host service health, crash/restart, disable/remove, distro, and cleanup tests are missing. | systemd can start the binary, but no trusted binding, command transport, or health endpoint is composed. | After WP10; may run beside WP02/WP03/WP05. |
+| WP05 | `ca.ocentra.child.agent`, the foreground composition service, JNI bridge, app-private custody, and native staging hook exist. | JNI startup does not supply Device Trust authority; authenticated ingress, usable external health, device-owner/managed-profile authority, and platform removal integration remain missing. | Bridge tests must cover manual-required-without-trust and current-trust startup; Android instrumentation/lifecycle/ingress/removal tests are missing. | Binder health is local and transport is explicitly `NOT_IMPLEMENTED`; the bridge currently starts without a trust source. | After WP10. |
+| WP06 | Rust capability/limit contracts, canonical `OcentraChildAgent` identity, real Node/XCTest source, proof-runner behavior tests, and the exact retained host-aware capability proof exist. | Apple signing/provisioning, physical-device launch, TestFlight/App Store authority, and a macOS/Xcode execution result remain external/manual-required. Core Location remains Tracking WP11/WP12 scope after trusted owners; WP06 stays capability-only. | No expected test-source gap. The retained Windows XCTest result is explicitly host-blocked, not passed. | Capability-only; no daemon, persistent service, tracking handoff, or runtime parity exists. | Bounded source/test/proof contract complete; aggregate release remains open. |
+| WP07 | Windows/macOS/Linux manager declarations contain restart policy for the child binary. | A live cross-platform lifecycle state boundary, health-aware supervision, bounded restart/backoff truth, deliberate-stop handling, and platform callbacks are missing. | Per-platform kill/reboot/manager-restart/disable/teardown/loop-guard tests are missing. | Static manager declarations exist; no production observer consumes service health or proves respawn. | After WP02-WP06 and WP10 implementation source. |
+| WP08 | Durable removal state, current-authority token construction, identity checks, revocation/reauthorization, tamper evidence, and readiness gating exist. | No production authority caller invokes the removal API; platform package/device cleanup callbacks and durable cleanup receipts are missing. | Authority mismatch/replay/restart tests and real platform cleanup callback/idempotency tests are missing. | Public removal APIs have no production caller outside `child-runtime`; platforms remain manual-required. | After Account WP08 authority source, WP10, and WP07. |
+| WP09 | Windows manifest/signature/hash/installer source and a typed platform matrix exist. | Updater scheduling/production handoff composition is absent and macOS/Linux/Android/iOS signing/store/update owners remain manual or missing. | Updater install/update/handoff/restart tests and platform-specific signing/store/device-owner tests are missing; current updater coverage is only partial. | The updater CLI can execute the Windows update path, but it never consumes WP10's handoff projection. | After WP02-WP06 and WP10 implementation source. |
+| WP10 | Shared request/response schema and a pure updater outcome projection exist. | No setup producer, durable delivery/replay owner, live updater consumer, trusted child startup source, authenticated ingress adapter, or external health endpoint is composed. | Trust-source/currentness, startup recovery, authenticated ingress, health, handoff replay/expiry, updater callback, and crash/restart integration tests are missing. | `consume_setup_device_trust_handoff` has no production caller; desktop and Android startup construct paths with no trust source. | First runtime source packet, gated by reviewed Device Trust WP01 implementation; never depend back on Setup WP07. |
+| WP11 | Documentation/proof aggregation exists. | No executable child-plan aggregate source gate joins canonical identity, startup, lifecycle, removal, updater/handoff, and platform truth. | Aggregate negative-fixture and release-blocker tests are missing. | No production or release workflow consumes a single executable WP11 result. | Last, after WP01-WP10 implementation source. |
+
+The compact plan/workpack routing counts are routing state only. Mapped files, contracts, proof folders, or checked boxes do not mean the production intent is complete.
+
+## Dependency and ownership interpretation
 
 ```text
-crates/schema or the owning Rust crate:
-  Canonical shared child package, child runtime, platform capability, device-owner, managed-profile, supervision, artifact, signing, setup-trust-handoff, and release-gate shapes when they cross package, crate, app, or plan boundaries.
+Device Trust WP01
+  -> Child WP10 trusted startup / authenticated ingress / health / handoff consumption
+     -> Child WP02, WP03, WP04, WP05 platform packages
+        -> Child WP07 lifecycle supervision
+           -> Child WP08 platform removal callbacks
 
-schema-domain:
-  Temporary thin/generated validation and edge-decoder surface only where TypeScript still consumes Rust-owned contracts during migration.
+Child WP06 canonical iOS child identity
+  -> Child WP07 and WP09
+  -> Tracking WP11/WP12 only after Child WP10 and Tracking WP40
 
-child-runtime-domain:
-  Child runtime package-boundary metadata/helper surface. Shared child runtime contracts live in Rust-owned schema surfaces.
+Account WP08 current household authority
+  -> Child WP08 production removal caller
 
-scripts/release:
-  Artifact build/checksum/signing-package proof only for the selected platform.
+Child WP02-WP06 + WP10
+  -> Child WP09 updater/signing/store/device-owner completion
 
-agent-protocol and agent-service:
-  Runtime/protocol proof only when the selected workpack names child runtime, service health, package lifecycle protocol, or service-manager proof.
-
-setup-install-provisioning-plan:
-  Setup journey owner. This plan consumes typed setup-to-child-install handoff state only.
-
-device-trust-bootstrap-plan:
-  Trusted-device bootstrap, local sealed trust, and device trust material owner.
-
-parent-client-runtime-distribution-plan:
-  Parent client artifact/distribution owner. Parent proof cannot close child artifact rows.
-
-Policy, enforcement, AI, portal, notification, LAN, remote, account, payment, and data-custody plans:
-  Adjacent sibling owners or handoff consumers. They must not re-own child package/distribution truth.
+Child WP01-WP10
+  -> Child WP11 executable aggregate gate
 ```
+
+- `setup-install-provisioning-plan` owns the setup producer and UI journey. Its WP07 already consumes Child WP10, so Child WP10 must not add a reverse hard dependency and create a cycle.
+- `device-trust-bootstrap-plan` WP01 owns current child-device trust material. Child WP10 owns the shipped adapter that consumes that authority at child startup.
+- `account-identity-family-plan` WP08 owns current verified household authority. Child WP08 consumes it and must not mint or infer parent authorization.
+- This plan owns child artifacts and installed child runtime distribution. Parent-client proof cannot close any child package or runtime row.
+- Child WP06 owns the iOS package identity and capability-only boundary, not
+  Core Location semantics. Tracking WP11/WP12 may touch their routed Swift
+  adapter roots only after Child WP10 and Tracking WP40 provide a real trusted
+  ingress; no dead local handoff is permitted.
+
+## First coherent source packets
+
+1. WP06: capability-only source/test/retained-proof contract completed with canonical child identity and explicit Apple/manual-required limits.
+2. WP10: compose the current Device Trust source into child startup, provide authenticated ingress and external health ownership, and connect typed setup/update handoff consumption without taking Setup ownership.
+3. WP02-WP05: finish each platform package against the WP10 runtime edge; keep platform work disjoint.
+4. WP07, then WP08 and WP09: add lifecycle observation/callback ownership, authorized removal cleanup, and updater/platform completion.
+5. WP11: add the executable aggregate gate only after every preceding production source packet exists.
+
+Normal graph `READY`/`DONE` remains strict. An implementation-only edge may authorize a later source packet only after its dependency's reviewed implementation roots exist; it does not satisfy tests, proof, checklist, CI, review, or merge gates.
 
 ## Current coupling risks
 
-```text
-- Package scripts exist, but package-script presence is not install/runtime/readiness proof.
-- Android debug APK proof remains package-local proof unless real device-owner, managed-profile, runtime, transport, or store artifacts are produced.
-- iOS simulator/provisioning proof remains capability/provisioning proof unless real supervision/background-service limits are proven.
-- Setup-device-trust handoff is not setup journey completion and cannot close package rows alone.
-- Parent client proof cannot close child package, child runtime, child service, respawn, or uninstall/revocation rows.
-- Stale legacy proof paths still conflict with the current output proof-root route and must not be used for status bumps.
-```
+- Static package scripts and manager declarations are not installed runtime reachability.
+- `ChildAgentService::initialize()` and the Android bridge both construct paths without a trust-binding source, so readiness stays fail-closed/manual-required.
+- `ChildAgentIngress` is an in-process queue, not an authenticated product transport.
+- Health is a Rust/Android local API, not a shipped external health endpoint.
+- Removal authority types are sound only at the boundary; no production caller or OS cleanup callback currently consumes them.
+- The setup/device-trust projection is pure and unused by the updater CLI.
+- WP06 retained proof records a Windows host skip for the real XCTest; it cannot upgrade macOS/Xcode, physical-device, Apple signing/provisioning, store, supervision, background, or recovery gaps.
 
-## Current proof interpretation
+## Proof interpretation
 
 ```text
 Package build is not install readiness.
-Install proof is not service health.
-Service health is not respawn proof.
-Respawn proof is not uninstall/revocation proof.
-Uninstall resistance is not hidden persistence.
-Checksum/signing/SBOM proof is not store approval or platform lifecycle proof.
-Setup handoff proof is not setup journey completion.
-Device-owner, managed-profile, supervision, and privileged mobile states remain manual-required until platform artifacts prove them.
-WP11 can aggregate only proof roots with structured artifacts and no-claim boundaries.
+Install proof is not trusted startup or service health.
+Service health is not authenticated ingress.
+Manager restart declarations are not respawn proof.
+Revocation state is not platform cleanup.
+Updater manifest validation is not live setup/device-trust handoff consumption.
+Capability contracts are not a canonical child application identity.
+WP11 documentation is not an executable aggregate release gate.
 ```
-
-Evidence from the repo:
-
-- `release:package:windows`, `release:package:linux`, `release:package:macos`, `release:package:android`, and `release:package:ios` already exist as child distribution anchors.
-- `test:child-android-protocol-package-lifecycle-proof` already exists as a child proof anchor.
-- `test:child-managed-service-respawn-proof` now proves Windows/macOS/Linux service-manager respawn support, Android manual-required state, and iOS unsupported state under the child proof root.
-- `docs/features/child-agent-local-service.md` describes the child runtime/service boundary that distribution must package honestly.
-- The repo already differentiates child-service/runtime ownership from parent-client packaging, but the plan naming still needs the child route.
-
-Current child direction:
-
-- Windows rows now have a real MSI/package proof pack plus an explicit `admin-required` blocked lifecycle proof state; elevated-host install/start/stop/restart/uninstall execution remains open.
-- macOS now has a real proof pack for the launchd package boundary, explicit `unsigned` signing state, and manual-required install/runtime/notarization/uninstall states.
-- Linux now has a real proof pack for the direct `.deb` + `systemd` package boundary, explicit checksum and distro-baseline state, a real Ubuntu 22.04 baseline `.deb` build, and smoke-proved `dpkg` install/remove/purge cleanup; signed distribution, generic distro support, steady-state service health, and crash recovery remain explicit manual-required boundaries.
-- Android rows now prove package state, explicit `debug-apk-sideload` mode, and manual-required install/launch/removal plus device-owner/managed-profile gaps honestly; real device/runtime/store artifacts remain open.
-- WP09 now has a real Rust-owned shared contract under `crates/schema/src/child_signing_store_device_owner_matrix.rs`, a checked-in generated TS contract under `packages/schema-domain/src/generated/child-signing-store-device-owner-matrix-contracts.ts`, and a thin schema-domain adapter/proof pack under `output/child-agent-runtime-distribution-plan-proof/09-child-signing-store-device-owner-matrix/`.
-- WP06 now has a real Rust-owned shared contract under `crates/schema/src/child_ios_entitlement_capability_proof.rs`, a checked-in generated TS contract under `packages/schema-domain/src/generated-child-ios-entitlement-capability-proof-contracts.ts`, a thin schema-domain adapter at `packages/schema-domain/src/child-ios-entitlement-capability-proof.ts`, and a real proof pack under `output/child-agent-runtime-distribution-plan-proof/06-ios-entitlement-capability-proof/`; its focused Rust contract/build/proof/runner/architecture/type-check validations are now green while keeping capability-only, provisioning-limit, supervision-limit, and no-daemon/no-parity boundaries explicit.
-- Managed respawn now has its own platform-specific proof: Windows WinSW, macOS launchd, and Linux systemd claim kill/reboot/service-manager restart support; deliberate stop stays explicit/manual-required; Android remains manual-required; iOS remains unsupported.
-- Parent-authorized uninstall now has its own contract/read-model proof slice with explicit parent-authorization, revocation-audit, teardown, and residual-state boundaries; unsupported or manual-required platform uninstall control remains visible rather than implied.
-- Setup-device-trust handoff now has a real Rust-owned contract proof pack under `output/child-agent-runtime-distribution-plan-proof/10-setup-device-trust-handoff/`, with explicit request/response refs, external artifact pointer, route-sync rows, and no-claim boundaries that keep setup/trust/package/runtime states separate.
-- WP01 now has a real scope-and-route proof pack under `output/child-agent-runtime-distribution-plan-proof/01-child-agent-scope-and-route-boundary/`, with explicit Rust-first ownership, historical parent-client compatibility note, and no-claim boundaries between package build, install, runtime health, respawn, uninstall/revocation, setup trust, and release readiness.
-- WP11 now has a real aggregate proof gate under `output/child-agent-runtime-distribution-plan-proof/11-proof-ci-release-gate/`, and it intentionally records that the child plan is not PR-ready or release-ready while WP02 remains blocked on exact local lifecycle proof gaps.
-
-Open gaps:
-
-- WP02 now has a real proof pack under `output/child-agent-runtime-distribution-plan-proof/02-child-windows-service-package/`, and the latest rerun at `test-results/windows-package-lifecycle-proof/2026-06-28T20-18-36-351Z/proof.json` kept install/start/stop/restart/uninstall/respawn execution honestly blocked and manual-required on a non-elevated host.
-- WP04 now has a real proof pack under `output/child-agent-runtime-distribution-plan-proof/04-child-linux-service-package/`, and it intentionally limits claims to the unsigned direct `.deb` + `systemd` package boundary plus Ubuntu 22.04 smoke-proved install/remove/purge cleanup; signed distribution, generic distro support, steady-state service health, and crash recovery remain manual-required.
-- WP03 now has a real proof pack under `output/child-agent-runtime-distribution-plan-proof/03-child-macos-service-package/`, and it intentionally limits claims to the launchd package boundary plus manual-required install/runtime/restart/notarization/uninstall truth.
-- WP08 now has a real proof pack under `output/child-agent-runtime-distribution-plan-proof/08-child-parent-authorized-uninstall/`, and it intentionally limits claims to contract/read-model truth plus explicit no-claim boundaries rather than platform uninstall-control parity.
-- WP05 now has a real proof pack under `output/child-agent-runtime-distribution-plan-proof/05-child-android-agent-package/`, but it intentionally stops at package-only proof and manual-required device/runtime/authority states.
-- WP07 now has a real proof pack under `output/child-agent-runtime-distribution-plan-proof/07-child-managed-service-respawn/`, and it intentionally limits desktop claims to service-manager configuration proof rather than live installed runtime health.
-- Proof docs still disagree between the `output/child-agent-runtime-distribution-plan-proof/...` route and stale legacy proof-path references.
 
 ## HID execution guard
 
 - Follow `PLAN_EXECUTION_BLUEPRINT.md`, then `WORKPACK_INDEX.md`, then `NEXT_ACTIONS.md`.
-- Do not mark this plan complete from checklist deltas alone.
-- Before any checked update, attach a real test run log or explicit blocker under the selected `output/child-agent-runtime-distribution-plan-proof/<workpack-file-stem>/` root.
-- Failure rule: no PR-ready claim until package lifecycle, tamper/uninstall, and setup-device-trust handoff proofs are present for the assigned slice.
+- Select only a graph-legal source packet and claim its exact files before editing.
+- Do not mark any workpack complete from mapped files, checklist deltas, or historical proof.
+- After the source wave, add the expected test source, then run focused validation, then regenerate proof, then run precommit/CI/PR gates.
 
 ## HID execution blueprint
 

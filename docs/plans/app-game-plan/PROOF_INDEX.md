@@ -55,7 +55,7 @@ For new proof artifacts and new command-log entries, include structured metadata
 ```text
 plan: app-game-plan
 workpack: <workpack id and name>
-owner: schema-domain | app-game-domain | app-game-core | agent-protocol | agent-service | portal-domain | apps/portal | policy/enforcement-handoff | notification-handoff | platform-proof | docs-only
+owner: agent-protocol | agent-core | app-game-core | agent-service | parent-runtime-core | apps/portal | schema-domain-generated-edge | android-agent | policy/enforcement-handoff | notification-handoff | platform-proof | docs-only
 run_id: <wrapper run id or n/a>
 command_id: <wrapper command id or n/a>
 correlation_id: <runtime/proof/evidence/session/action correlation id or n/a>

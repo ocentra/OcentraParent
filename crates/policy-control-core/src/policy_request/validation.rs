@@ -1,17 +1,34 @@
 #![forbid(unsafe_code)]
 
+mod bonus_time;
+
 use ocentra_eventing::error::EventingError;
 use ocentra_parent_agent_protocol::activity::policy_preview::PolicyRequestStatus;
 use ocentra_parent_agent_protocol::constants::policy_control;
 
 use super::{
     origin::assert_request_origin_shape, status::policy_request_status_name, ChildPolicyRequest,
-    PolicyRequestKind, PolicyRequestScope,
+    PolicyRequestScope, PolicyTemporaryOverride,
 };
+use crate::policy_source::assert_policy_utc_timestamp;
 
 pub(crate) fn validate_child_policy_request(
     request: &ChildPolicyRequest,
 ) -> Result<(), EventingError> {
+    assert_policy_utc_timestamp(
+        policy_control::request::FIELD_TIMESTAMP,
+        request.requested_at.as_str(),
+    )?;
+    assert_policy_utc_timestamp(
+        policy_control::request::FIELD_TIMESTAMP,
+        request.expires_at.as_str(),
+    )?;
+    if request.requested_at.as_str() >= request.expires_at.as_str() {
+        return Err(EventingError::InvalidValue {
+            field: policy_control::request::FIELD_TIMESTAMP,
+            value: "expires-at-must-be-after-requested-at".to_string(),
+        });
+    }
     assert_non_empty_audit_refs(
         &request.audit_reference_ids,
         policy_control::request::FIELD_AUDIT_REFERENCE_IDS,
@@ -21,6 +38,32 @@ pub(crate) fn validate_child_policy_request(
     assert_request_origin_shape(request)?;
     assert_request_resolution_shape(request)?;
     Ok(())
+}
+
+pub(crate) fn validate_policy_temporary_override(
+    override_record: &PolicyTemporaryOverride,
+) -> Result<(), EventingError> {
+    assert_policy_utc_timestamp(
+        policy_control::request::FIELD_TIMESTAMP,
+        override_record.effective_at.as_str(),
+    )?;
+    assert_policy_utc_timestamp(
+        policy_control::request::FIELD_TIMESTAMP,
+        override_record.expires_at.as_str(),
+    )?;
+    if override_record.effective_at.as_str() >= override_record.expires_at.as_str() {
+        return Err(EventingError::InvalidValue {
+            field: policy_control::request::FIELD_TIMESTAMP,
+            value: "override-expires-at-must-be-after-effective-at".to_string(),
+        });
+    }
+    if override_record.audit_reference_ids.is_empty() {
+        return Err(EventingError::InvalidValue {
+            field: policy_control::request::FIELD_AUDIT_REFERENCE_IDS,
+            value: policy_control::request::VALUE_MISSING_AUDIT_REFERENCE.to_string(),
+        });
+    }
+    bonus_time::validate_override(override_record)
 }
 
 pub(crate) fn child_requests_match(left: &ChildPolicyRequest, right: &ChildPolicyRequest) -> bool {
@@ -63,14 +106,7 @@ pub(crate) fn assert_request_resolution_shape(
 }
 
 fn assert_request_scope(scope: &PolicyRequestScope) -> Result<(), EventingError> {
-    if scope.request_kind == PolicyRequestKind::BonusTime && scope.requested_bonus_minutes.is_none()
-    {
-        return Err(EventingError::InvalidValue {
-            field: policy_control::request::FIELD_REQUESTED_BONUS_MINUTES,
-            value: policy_control::request::VALUE_BONUS_TIME_REQUEST_REQUIRES_MINUTES.to_string(),
-        });
-    }
-    Ok(())
+    bonus_time::validate_request_scope(scope)
 }
 
 fn assert_request_status_supported(status: PolicyRequestStatus) -> Result<(), EventingError> {

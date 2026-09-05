@@ -1,9 +1,12 @@
-import type { ReactElement } from 'react';
+import { useState, type ReactElement } from 'react';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/portal-domain/display-text';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
 import {
   isParentPolicyPreviewRoute,
+  ParentRoute,
+  ParentRouteTitle,
+  ParentUiActionPayloadField,
   type ParentPolicyPreviewPanelCardSnapshot,
   type ParentPolicyPreviewPanelDetailSnapshot,
   type ParentPolicyPreviewPanelSnapshot,
@@ -19,14 +22,17 @@ export function PolicyPreviewRoutePanel({
   actions,
   commandEnabled,
   panel,
+  route,
 }: {
   readonly actions: PortalRenderActions;
   readonly commandEnabled: boolean;
   readonly panel: ParentPolicyPreviewPanelSnapshot | null;
+  readonly route: ParentRouteId;
 }): ReactElement {
   if (panel === null) {
-    return <></>;
+    return route === ParentRoute.Schedules ? <></> : <PolicyPreviewUnavailable actions={actions} route={route} />;
   }
+  const routeAction = policyPreviewRouteAction(actions, commandEnabled);
   return (
     <section
       aria-label={resolvePortalDevText(PortalDevTextToken.PolicyPreview)}
@@ -39,13 +45,17 @@ export function PolicyPreviewRoutePanel({
           <p>{panel.body}</p>
           <button
             className={PortalDom.Classes.CommandResultTab}
-            disabled={!commandEnabled}
             type={PortalDom.ButtonType.Button}
-            onClick={() => void actions.refreshRouteSnapshot?.()}
+            onClick={routeAction.run}
           >
-            {resolvePortalDevText(PortalDevTextToken.GetPolicyPreviewReadModel)}
+            {routeAction.label}
           </button>
         </header>
+        <PolicyPreviewAuthoringSurface
+          actions={actions}
+          commandEnabled={commandEnabled}
+          authoring={route === ParentRoute.PolicyNetwork ? panel.authoring : null}
+        />
         <div
           className={[PortalDom.Classes.ProductDashboard, PortalDom.Classes.TrackingStatusOverlayGrid].join(
             PortalDom.Classes.ClassNameSeparator
@@ -60,6 +70,203 @@ export function PolicyPreviewRoutePanel({
         </div>
       </div>
     </section>
+  );
+}
+
+function PolicyPreviewUnavailable({
+  actions,
+  route,
+}: {
+  readonly actions: PortalRenderActions;
+  readonly route: ParentRouteId;
+}): ReactElement {
+  const routeTitle = ParentRouteTitle[route];
+  return (
+    <section
+      aria-label={`${routeTitle} status unavailable`}
+      className={PortalDom.Classes.TrackingStatusOverlay}
+      data-ocentra-policy-preview-state="unavailable"
+    >
+      <div className={PortalDom.Classes.TrackingStatusOverlayContent}>
+        <header className={PortalDom.Classes.TrackingStatusOverlayHeader}>
+          <div className={PortalDom.Classes.PolicyPreviewUnavailableCopy}>
+            <p className={PortalDom.Classes.ProductEyebrow}>Current policy status</p>
+            <h2>{routeTitle} status unavailable</h2>
+            <p>
+              The local service has not reported current rules, approvals, or enforcement state. Nothing is inferred or
+              presented as active.
+            </p>
+          </div>
+          <button
+            className={PortalDom.Classes.CommandResultTab}
+            onClick={actions.reconnect}
+            type={PortalDom.ButtonType.Button}
+          >
+            {resolvePortalDevText(PortalDevTextToken.RetryStatus)}
+          </button>
+        </header>
+        <PolicyPreviewUnavailableDetails routeTitle={routeTitle} />
+      </div>
+    </section>
+  );
+}
+
+function PolicyPreviewUnavailableDetails({ routeTitle }: { readonly routeTitle: string }): ReactElement {
+  return (
+    <div
+      aria-label={`${routeTitle} unavailable details`}
+      className={[PortalDom.Classes.ProductDashboard, PortalDom.Classes.TrackingStatusOverlayGrid].join(
+        PortalDom.Classes.ClassNameSeparator
+      )}
+      role="list"
+    >
+      <PolicyPreviewUnavailableCard
+        body={`No current or effective ${routeTitle.toLowerCase()} snapshot has been received from the local service.`}
+        label="Current state"
+        value="Not reported"
+      />
+      <PolicyPreviewUnavailableCard
+        body="No owner-backed editing authority is available, so this route cannot create, approve, or save changes."
+        label="Editing authority"
+        value="Manual required"
+      />
+      <PolicyPreviewUnavailableCard
+        body="Retry status to request a fresh policy snapshot. No local draft or command is created here."
+        label="Safe next step"
+        value="Retry status"
+      />
+    </div>
+  );
+}
+
+function PolicyPreviewUnavailableCard({
+  body,
+  label,
+  value,
+}: {
+  readonly body: string;
+  readonly label: string;
+  readonly value: string;
+}): ReactElement {
+  return (
+    <article className={policyPreviewCardClassName()} role="listitem">
+      <p className={PortalDom.Classes.ProductEyebrow}>{label}</p>
+      <h3>{value}</h3>
+      <p>{body}</p>
+    </article>
+  );
+}
+
+function policyPreviewRouteAction(
+  actions: PortalRenderActions,
+  commandEnabled: boolean
+): { readonly label: string; readonly run: () => void } {
+  if (!commandEnabled || actions.refreshRouteSnapshot === undefined) {
+    return { label: resolvePortalDevText(PortalDevTextToken.RetryStatus), run: actions.reconnect };
+  }
+  return {
+    label: resolvePortalDevText(PortalDevTextToken.GetPolicyPreviewReadModel),
+    run: () => {
+      void actions.refreshRouteSnapshot?.();
+    },
+  };
+}
+
+function PolicyPreviewAuthoringSurface({
+  actions,
+  authoring,
+  commandEnabled,
+}: {
+  readonly actions: PortalRenderActions;
+  readonly authoring: ParentPolicyPreviewPanelSnapshot['authoring'];
+  readonly commandEnabled: boolean;
+}): ReactElement | null {
+  if (authoring === null || authoring === undefined) {
+    return null;
+  }
+
+  return <PolicyPreviewAuthoringForm actions={actions} authoring={authoring} commandEnabled={commandEnabled} />;
+}
+
+function PolicyPreviewAuthoringForm({
+  actions,
+  authoring,
+  commandEnabled,
+}: {
+  readonly actions: PortalRenderActions;
+  readonly authoring: NonNullable<ParentPolicyPreviewPanelSnapshot['authoring']>;
+  readonly commandEnabled: boolean;
+}): ReactElement {
+  const [targetValue, setTargetValue] = useState(authoring.targetValue);
+  const [requestedAction, setRequestedAction] = useState(authoring.requestedAction);
+
+  const cancelDraft = (): void => {
+    setTargetValue(authoring.targetValue);
+    setRequestedAction(authoring.requestedAction);
+    void actions.cancelPolicyPreviewAuthoringDraft?.(authoring.cancelAction.payload ?? {});
+  };
+
+  const stageDraft = (): void => {
+    void actions.stagePolicyPreviewAuthoringDraft?.({
+      [ParentUiActionPayloadField.PolicyPreviewAuthoringDraft]: JSON.stringify({
+        targetValue,
+        requestedAction,
+      }),
+    });
+  };
+
+  const confirmDraft = (): void => {
+    if (!authoring.confirmAction || targetValue.trim().length === 0) {
+      return;
+    }
+    void actions.requestPolicyRequestAssistantPreviewConfirm?.({
+      ...(authoring.confirmAction.payload ?? {}),
+    });
+  };
+
+  return (
+    <form
+      aria-label={authoring.confirmAction?.label ?? authoring.cancelAction.label}
+      className={PortalDom.Classes.ProductDashboard}
+      onSubmit={(event) => {
+        event.preventDefault();
+        stageDraft();
+      }}
+    >
+      <label>
+        {PortalDetails.TargetValue}
+        <input
+          disabled={!commandEnabled}
+          value={targetValue}
+          onChange={(event) => setTargetValue(event.currentTarget.value)}
+        />
+      </label>
+      <label>
+        {PortalDetails.NetworkRequestedPolicyAction}
+        <input
+          disabled={!commandEnabled}
+          value={requestedAction}
+          onChange={(event) => setRequestedAction(event.currentTarget.value)}
+        />
+      </label>
+      <div>
+        <button disabled={!commandEnabled || targetValue.trim().length === 0} type={PortalDom.ButtonType.Submit}>
+          {authoring.stageAction.label}
+        </button>
+        {authoring.confirmAction ? (
+          <button
+            disabled={!commandEnabled || targetValue.trim().length === 0}
+            type={PortalDom.ButtonType.Button}
+            onClick={confirmDraft}
+          >
+            {authoring.confirmAction.label}
+          </button>
+        ) : null}
+        <button disabled={!commandEnabled} type={PortalDom.ButtonType.Button} onClick={cancelDraft}>
+          {authoring.cancelAction.label}
+        </button>
+      </div>
+    </form>
   );
 }
 

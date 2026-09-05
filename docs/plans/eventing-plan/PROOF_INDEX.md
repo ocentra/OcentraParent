@@ -20,9 +20,8 @@
 output/eventing-plan-proof/<workpack-file-stem>/
 ```
 
-`docs/proof/eventing-plan/` is accepted for the current WP12 route-proof bundle
-and the hand-authored WP06 durable manifest. Historical references still do not
-close runtime work by themselves.
+`docs/proof/eventing-plan/` contains the hand-authored WP06 durable manifest.
+It is not a substitute for the absent WP12 generated route-proof bundle.
 
 ## WP06 prerequisite durable manifest
 
@@ -46,15 +45,14 @@ open and is not satisfied by this bundle.
 docs/proof/eventing-plan/slice-01-envelope-version.md
 docs/proof/eventing-plan/slice-02-ordering-replay.md
 docs/proof/eventing-plan/slice-03-consumer-boundary.md
-output/eventing-plan-proof/rollout-proof/proof-summary.json
-test-results/eventing-rollout-proof/proof.json
-output/eventing-plan-proof/rollout-proof/pr-done-report.md
-output/eventing-plan-proof/rollout-proof/command-logs/
+output/eventing-plan-proof/12-rollout-proof-and-pr-gate/proof-summary.json
+output/eventing-plan-proof/12-rollout-proof-and-pr-gate/pr-done-report.md
+output/eventing-plan-proof/12-rollout-proof-and-pr-gate/command-logs/
 ```
 
 If any path above is missing, keep WP12 open and record the blocker in `PLAN_STATE.md` and `NEXT_ACTIONS.md`. Historical doc references do not prove route closure by themselves.
 
-## Current WP11 local proof roots
+## WP11 expected proof roots (not current retained proof)
 
 ```text
 output/eventing-plan-proof/63-type-safety-source-gate/proof-summary.json
@@ -63,6 +61,12 @@ output/eventing-plan-proof/66-76-source-safety/proof-summary.json
 output/eventing-plan-proof/67-lock-await/proof-summary.json
 output/eventing-plan-proof/68-fixture-parity/proof-summary.json
 ```
+
+WP11 remains open until these roots are regenerated and the envelope,
+aggregate-key, idempotency-key, payload-mutation, and lock/await negatives are
+retained. WP10's canonical proof root is
+`output/eventing-plan-proof/10-lan-household-mesh-consumer/`; WP13's canonical
+root is `output/eventing-plan-proof/13-test-folder-layout-regression-audit/`.
 
 ## Command log format
 

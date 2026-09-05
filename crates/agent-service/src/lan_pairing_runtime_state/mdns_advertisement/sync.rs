@@ -92,8 +92,9 @@ fn stop_advertisement(
     current: &mut Option<LanMdnsAdvertisementInstance>,
     sink: &dyn LanMdnsPacketSink,
 ) -> io::Result<()> {
-    if let Some(instance) = current.take() {
-        send_goodbye(std::slice::from_ref(&instance), sink)?;
+    if let Some(instance) = current.as_ref() {
+        send_goodbye(std::slice::from_ref(instance), sink)?;
+        *current = None;
     }
     Ok(())
 }

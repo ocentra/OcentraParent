@@ -54,6 +54,12 @@ macro_rules! timestamp {
     };
 }
 
+macro_rules! household_ref {
+    ($value:expr $(,)?) => {
+        contracts::ParentStorageHouseholdRef::parse($value).assume_ok()
+    };
+}
+
 #[test]
 fn parent_storage_settings_mode_card_keeps_explicit_mode_labels_and_manual_required_visible() {
     let card = derive_parent_storage_mode_card(ParentStorageModeCardInput {
@@ -95,7 +101,6 @@ fn parent_storage_settings_restore_preview_stays_preview_before_apply() {
         &preview,
         ParentStorageApplyDecisionInput {
             apply_id: apply_id!("apply-confirmation"),
-            apply_state: contracts::ParentStorageApplyState::ApplyRequiresConfirmation,
             will_change: vec![sync_contracts::ParentOwnedSyncExportDataClass::GeneratedSummary],
             will_not_change: vec![
                 sync_contracts::ParentOwnedSyncExportDataClass::NotificationHistory,
@@ -104,7 +109,6 @@ fn parent_storage_settings_restore_preview_stays_preview_before_apply() {
                 sync_contracts::ParentOwnedSyncExportDataClass::NotificationHistory,
             ],
             manual_review_required: vec!["notification-history tombstone conflict".to_string()],
-            rollback_available: false,
             manual_required_note: None,
         },
     )
@@ -138,12 +142,10 @@ fn parent_storage_settings_disconnect_and_delete_stay_separate() {
         ),
         ParentStorageApplyDecisionInput {
             apply_id: apply_id!("apply-pending"),
-            apply_state: contracts::ParentStorageApplyState::ApplyRequiresConfirmation,
             will_change: vec![sync_contracts::ParentOwnedSyncExportDataClass::GeneratedSummary],
             will_not_change: vec![],
             preserved_tombstones: vec![],
             manual_review_required: vec![],
-            rollback_available: false,
             manual_required_note: None,
         },
         delete_inputs(),
@@ -210,7 +212,6 @@ fn parent_storage_settings_manual_required_and_disconnect_rows_require_explicit_
         .assume_ok(),
         ParentStorageApplyDecisionInput {
             apply_id: apply_id!("apply-blocked"),
-            apply_state: contracts::ParentStorageApplyState::BlockedManualRequired,
             will_change: vec![],
             will_not_change: vec![
                 sync_contracts::ParentOwnedSyncExportDataClass::NotificationHistory,
@@ -219,7 +220,6 @@ fn parent_storage_settings_manual_required_and_disconnect_rows_require_explicit_
                 sync_contracts::ParentOwnedSyncExportDataClass::NotificationHistory,
             ],
             manual_review_required: vec!["provider re-auth required".to_string()],
-            rollback_available: false,
             manual_required_note: Some("Provider re-auth must complete first.".to_string()),
         },
     )
@@ -238,6 +238,7 @@ fn preview_input(
 ) -> ParentStorageRestorePreviewInput {
     ParentStorageRestorePreviewInput {
         preview_id: preview_id!("preview"),
+        household_ref: household_ref!("household"),
         preview_state,
         created_at: timestamp!("2026-06-28T19:14:00.000Z"),
         product_version: "2026.06.28".to_string(),

@@ -1,6 +1,20 @@
 import type {
   ParentActivityNetworkFlowReadModelSnapshot,
   ParentActivityTrackingReadModelResultSnapshot,
+  ParentAgentActivityHistoricalReportList,
+  ParentAgentActivityReportDocument,
+  ParentRouteEventSnapshot,
+} from '../../generated/parent-ui-bridge';
+import {
+  ParentAgentActivityReadModelState,
+  ParentAgentActivityReportCustodyLabel,
+  ParentAgentActivityReportFrequency,
+  ParentAgentActivityReportSectionKind,
+  ParentAgentActivityReportSourceLabel,
+  ParentAgentActivitySavedReportState,
+  ParentAgentActivitySurfaceScopeKind,
+  ParentAgentEvent,
+  ParentAgentProtocolField,
 } from '../../generated/parent-ui-bridge';
 
 const NoClaimBoundary = {
@@ -132,5 +146,128 @@ export function activityTrackingReadModelResultSnapshot(
         },
       ],
     },
+  };
+}
+
+export function activityReportDocumentSnapshot(): ParentAgentActivityReportDocument {
+  return {
+    schemaVersion: 1,
+    reportId: 'activity-report-1',
+    frequency: ParentAgentActivityReportFrequency.Daily,
+    scope: {
+      scopeKind: ParentAgentActivitySurfaceScopeKind.Family,
+      familyId: 'family-1',
+      deviceId: null,
+    },
+    requestedAt: '2026-06-23T00:00:00Z',
+    rangeStart: '2026-06-22T00:00:00Z',
+    rangeEnd: '2026-06-23T00:00:00Z',
+    generatedAt: '2026-06-23T00:00:01Z',
+    savedMetadata: {
+      reportId: 'activity-report-1',
+      fileName: 'activity-report-1.json',
+      savedState: ParentAgentActivitySavedReportState.Saved,
+      savedAt: '2026-06-23T00:00:02Z',
+      storageReason: null,
+      custodyLabel: ParentAgentActivityReportCustodyLabel.ParentDeviceLocalReportJson,
+      sourceLabel: ParentAgentActivityReportSourceLabel.SavedReportJson,
+      rawChildEvidenceIncluded: false,
+    },
+    sourceStates: [],
+    sections: [
+      {
+        sectionKind: ParentAgentActivityReportSectionKind.Summary,
+        title: 'Daily activity summary',
+        state: ParentAgentActivityReadModelState.Ready,
+        summary: 'The local service generated this report.',
+        itemCount: 0,
+        evidence: [],
+      },
+    ],
+  };
+}
+
+export function activityReportHistorySnapshot(
+  report = activityReportDocumentSnapshot()
+): ParentAgentActivityHistoricalReportList {
+  return {
+    schemaVersion: 1,
+    request: {
+      schemaVersion: 1,
+      scope: report.scope,
+      requestedAt: '2026-06-23T00:00:03Z',
+      rangeStart: report.rangeStart,
+      rangeEnd: report.rangeEnd,
+    },
+    state: ParentAgentActivityReadModelState.Ready,
+    storageState: ParentAgentActivitySavedReportState.Saved,
+    storageReason: null,
+    reports: [
+      {
+        schemaVersion: 1,
+        reportId: report.reportId,
+        fileName: 'activity-report-1.json',
+        reportDate: '2026-06-23',
+        rangeStart: report.rangeStart,
+        rangeEnd: report.rangeEnd,
+        summary: 'The local service generated this report.',
+        savedState: ParentAgentActivitySavedReportState.Saved,
+        savedAt: '2026-06-23T00:00:02Z',
+        sourceStateSummary: {
+          totalSources: 0,
+          readySources: 0,
+          offlineSources: 0,
+          staleSources: 0,
+          unavailableSources: 0,
+          unreachableSources: 0,
+          errorSources: 0,
+        },
+        parsedReport: report,
+        custodyLabel: ParentAgentActivityReportCustodyLabel.ParentDeviceLocalHistory,
+        sourceLabel: ParentAgentActivityReportSourceLabel.SavedReportHistory,
+        rawChildEvidenceIncluded: false,
+      },
+    ],
+  };
+}
+
+export function activityReportEventSnapshots(): readonly ParentRouteEventSnapshot[] {
+  const report = activityReportDocumentSnapshot();
+  const history = activityReportHistorySnapshot(report);
+  return [
+    activityReportRouteEvent(ParentAgentEvent.ActivityReportSaved, 'evt-activity-report-saved', {
+      [ParentAgentProtocolField.ActivitySurfaceState]: ParentAgentActivityReadModelState.Ready,
+      [ParentAgentProtocolField.ActivityReportDocument]: JSON.stringify(report),
+    }),
+    activityReportRouteEvent(ParentAgentEvent.ActivityReportHistoryReported, 'evt-activity-report-history', {
+      [ParentAgentProtocolField.ActivitySurfaceState]: ParentAgentActivityReadModelState.Ready,
+      [ParentAgentProtocolField.ActivityReports]: JSON.stringify(history),
+    }),
+  ];
+}
+
+export function malformedActivityReportEventSnapshot(): ParentRouteEventSnapshot {
+  return activityReportRouteEvent(ParentAgentEvent.ActivityReportGenerated, 'evt-activity-report-malformed', {
+    [ParentAgentProtocolField.ActivitySurfaceState]: ParentAgentActivityReadModelState.Ready,
+    [ParentAgentProtocolField.ActivityReportDocument]: '{',
+  });
+}
+
+function activityReportRouteEvent(
+  event: string,
+  eventId: string,
+  payload: Readonly<Record<string, string>>
+): ParentRouteEventSnapshot {
+  return {
+    event,
+    eventId,
+    correlationId: `correlation-${eventId}`,
+    sentAt: '2026-06-23T00:00:04Z',
+    sourcePeerId: 'local-dev-agent',
+    sourceRole: 'agent-service',
+    targetPeerId: 'portal-dev',
+    targetRole: 'portal',
+    severity: 'info',
+    payload,
   };
 }

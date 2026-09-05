@@ -18,10 +18,7 @@ export type NetworkEvidenceDrawerSummary = {
   readonly browserRef: PortalDetailValue;
   readonly domainEvidenceRef: PortalDetailValue;
   readonly byteSummary: PortalDetailValue;
-  readonly analyzerAlertRef: PortalDetailValue;
-  readonly detectionResultRef: PortalDetailValue;
   readonly aiAuditRef: PortalDetailValue;
-  readonly riskBudgetRef: PortalDetailValue;
   readonly policyDecisionRef: PortalDetailValue;
   readonly interventionResultRef: PortalDetailValue;
   readonly eventHistoryRef: PortalDetailValue;
@@ -43,10 +40,7 @@ interface NetworkEvidenceDrawerSummaryContext {
 }
 
 type NetworkEvidenceDrawerEvidenceSummary = {
-  readonly analyzerAlertRef?: string | null;
-  readonly detectionResultRef?: string | null;
   readonly aiAuditRef?: string | null;
-  readonly riskBudgetRef?: string | null;
   readonly policyDecisionRef?: string | null;
   readonly networkEvidenceGrade?: string | null;
   readonly interventionResultRef?: string | null;
@@ -123,10 +117,7 @@ export function networkEvidenceDrawerSummary(
     browserRef: decodePortalDetailValue(template.browserRef),
     domainEvidenceRef: decodePortalDetailValue(template.domainEvidenceRef),
     byteSummary: decodePortalDetailValue(template.byteSummary),
-    analyzerAlertRef: decodePortalDetailValue(template.analyzerAlertRef),
-    detectionResultRef: decodePortalDetailValue(template.detectionResultRef),
     aiAuditRef: decodePortalDetailValue(template.aiAuditRef),
-    riskBudgetRef: decodePortalDetailValue(template.riskBudgetRef),
     policyDecisionRef: decodePortalDetailValue(template.policyDecisionRef),
     interventionResultRef: decodePortalDetailValue(template.interventionResultRef),
     eventHistoryRef: decodePortalDetailValue(template.eventHistoryRef),

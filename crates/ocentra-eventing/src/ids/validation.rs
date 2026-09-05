@@ -2,9 +2,9 @@ use crate::EventingError;
 
 use super::{
     EventNamespace, CAUSATION_ID_LABEL, CORRELATION_ID_LABEL, EVENT_ID_LABEL,
-    EVENT_NAMESPACE_LABEL, EVENT_TYPE_LABEL, JOURNAL_HASH_LABEL, REQUEST_ID_LABEL,
-    RUNTIME_INSTANCE_ID_LABEL, SOURCE_COMPONENT_LABEL, SOURCE_SERVICE_LABEL, SUBSCRIBER_ID_LABEL,
-    TARGET_HANDLER_LABEL,
+    EVENT_NAMESPACE_LABEL, EVENT_TYPE_LABEL, JOURNAL_HASH_LABEL, RECORDED_AT_LABEL,
+    REQUEST_ID_LABEL, RUNTIME_INSTANCE_ID_LABEL, SOURCE_COMPONENT_LABEL, SOURCE_SERVICE_LABEL,
+    SUBSCRIBER_ID_LABEL, TARGET_HANDLER_LABEL,
 };
 
 pub(super) fn event_namespace_from_event_type(
@@ -45,9 +45,18 @@ pub(super) fn validate_text(field: &'static str, value: String) -> Result<String
         | SOURCE_COMPONENT_LABEL
         | RUNTIME_INSTANCE_ID_LABEL
         | TARGET_HANDLER_LABEL => validate_identifier_without_whitespace(field, &value)?,
+        RECORDED_AT_LABEL => validate_recorded_at(&value)?,
         _ => {}
     }
     Ok(value)
+}
+
+fn validate_recorded_at(value: &str) -> Result<(), EventingError> {
+    chrono::DateTime::parse_from_rfc3339(value)
+        .map(|_timestamp| ())
+        .map_err(|_error| {
+            EventingError::invalid_value(RECORDED_AT_LABEL, "[redacted invalid timestamp]")
+        })
 }
 
 fn validate_event_taxonomy(field: &'static str, value: &str) -> Result<(), EventingError> {

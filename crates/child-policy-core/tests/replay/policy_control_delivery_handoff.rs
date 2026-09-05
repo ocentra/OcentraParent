@@ -156,7 +156,7 @@ fn approved_policy_request() -> ChildPolicyRequest {
                 reference_id: PolicyTargetReferenceId::parse("category-gaming")
                     .expect_value("target reference"),
             },
-            requested_action: PolicyRuleAction::Block,
+            requested_action: PolicyRuleAction::Allow,
             rule_id: Some(
                 PolicyRuleId::parse("rule-school-night-block").expect_value("policy rule id"),
             ),

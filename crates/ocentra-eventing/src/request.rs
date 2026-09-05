@@ -1,4 +1,5 @@
 use std::{
+    any::TypeId,
     collections::{BTreeMap, VecDeque},
     sync::{Arc, Mutex},
     time::Duration,
@@ -13,6 +14,7 @@ use crate::{DomainEvent, EventingError, ExpectValue, PublishReport, RequestId};
 mod request_helpers;
 
 const TERMINAL_REQUEST_RETENTION_LIMIT: usize = 4096;
+const CANCELLATION_REPORT_RETENTION_LIMIT: usize = 4096;
 
 pub trait EventResponseContract:
     Clone + Send + Sync + Serialize + DeserializeOwned + 'static
@@ -54,6 +56,7 @@ pub enum RequestCompletionOutcome {
     Completed,
     Duplicate,
     Late,
+    Cancelled,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -79,10 +82,13 @@ pub(crate) struct RequestRegistry {
 }
 
 impl RequestRegistry {
-    pub(crate) fn register(
+    pub(crate) fn register<E>(
         &self,
         request_id: RequestId,
-    ) -> Result<oneshot::Receiver<RequestPayload>, EventingError> {
+    ) -> Result<oneshot::Receiver<RequestCompletionSignal>, EventingError>
+    where
+        E: RequestEvent,
+    {
         let (sender, receiver) = oneshot::channel();
         let mut state = self.state.lock().expect_value("request registry lock");
         if state.entries.contains_key(&request_id) {
@@ -90,19 +96,19 @@ impl RequestRegistry {
         }
         state
             .entries
-            .insert(request_id, RequestEntry::pending(sender));
+            .insert(request_id, RequestEntry::pending::<E>(sender));
         Ok(receiver)
     }
 
-    pub(crate) fn complete<R>(
+    pub(crate) fn complete<E>(
         &self,
         request_id: RequestId,
-        response: R,
+        response: E::Response,
     ) -> Result<RequestCompletionReport, EventingError>
     where
-        R: EventResponseContract,
+        E: RequestEvent,
     {
-        let payload = RequestPayload::from_response(&request_id, response)?;
+        let payload = RequestPayload::from_response::<E>(&request_id, response)?;
         let mut state = self.state.lock().expect_value("request registry lock");
         let Some(entry) = state.entries.get_mut(&request_id) else {
             return Ok(completion_report(
@@ -110,6 +116,9 @@ impl RequestRegistry {
                 RequestCompletionOutcome::Late,
             ));
         };
+        if entry.request_type != TypeId::of::<E>() {
+            return Err(EventingError::RequestTypeMismatch { request_id });
+        }
         match entry.state {
             RequestState::Pending => {
                 request_helpers::complete_pending_request(&mut state, request_id, payload)
@@ -127,25 +136,49 @@ impl RequestRegistry {
 
     pub(crate) fn timeout(&self, request_id: &RequestId) {
         let mut state = self.state.lock().expect_value("request registry lock");
-        if let Some(entry) = state.entries.get_mut(request_id) {
-            if entry.state == RequestState::Pending {
-                entry.state = RequestState::TimedOut;
-                entry.sender.take();
-                request_helpers::mark_terminal(&mut state, request_id);
-            }
+        let Some(entry) = state.entries.get_mut(request_id) else {
+            request_helpers::trim_terminal_requests(&mut state);
+            return;
+        };
+        if entry.state != RequestState::Pending {
+            request_helpers::trim_terminal_requests(&mut state);
+            return;
         }
+        entry.state = RequestState::TimedOut;
+        if let Some(sender) = entry.sender.take() {
+            let _ = sender.send(RequestCompletionSignal::TimedOut);
+        }
+        request_helpers::mark_terminal(&mut state, request_id);
         request_helpers::trim_terminal_requests(&mut state);
     }
 
     pub(crate) fn cancel(&self, request_id: &RequestId) -> bool {
         let mut state = self.state.lock().expect_value("request registry lock");
         let removed = state.entries.remove(request_id).is_some();
-        if removed {
-            state
-                .terminal_order
-                .retain(|terminal_id| terminal_id != request_id);
-        }
+        state
+            .terminal_order
+            .retain(|terminal_id| terminal_id != request_id);
         removed
+    }
+
+    pub(crate) fn cancel_pending(&self, request_id: &RequestId) -> Option<RequestCompletionReport> {
+        let mut state = self.state.lock().expect_value("request registry lock");
+        let is_pending = matches!(
+            state.entries.get(request_id),
+            Some(entry) if entry.state == RequestState::Pending
+        );
+        if !is_pending {
+            return None;
+        }
+        state.entries.remove(request_id)?;
+        let report = completion_report(request_id.clone(), RequestCompletionOutcome::Cancelled);
+        request_helpers::record_cancellation_report(&mut state, report.clone());
+        Some(report)
+    }
+
+    pub(crate) fn take_cancellation_reports(&self) -> Vec<RequestCompletionReport> {
+        let mut state = self.state.lock().expect_value("request registry lock");
+        state.cancellation_reports.drain(..).collect()
     }
 
     pub(crate) fn metrics(&self) -> EventRequestMetrics {
@@ -174,15 +207,32 @@ impl RequestRegistry {
     }
 
     pub(crate) fn cancel_for_shutdown(&self) -> RequestRegistryClearReport {
-        self.clear_entries()
+        let mut state = self.state.lock().expect_value("request registry lock");
+        let report = request_helpers::request_registry_report(&state);
+        let cancelled_request_reports = request_helpers::cancel_pending_requests(&mut state);
+        state.entries.clear();
+        state.terminal_order.clear();
+        RequestRegistryClearReport {
+            pending_request_count: report.pending_request_count,
+            completed_request_count: report.completed_request_count,
+            timed_out_request_count: report.timed_out_request_count,
+            cancelled_request_reports,
+        }
     }
 
     fn clear_entries(&self) -> RequestRegistryClearReport {
         let mut state = self.state.lock().expect_value("request registry lock");
         let report = request_helpers::request_registry_report(&state);
+        let cancelled_request_reports = request_helpers::cancel_pending_requests(&mut state);
         state.entries.clear();
         state.terminal_order.clear();
-        report
+        state.cancellation_reports.clear();
+        RequestRegistryClearReport {
+            pending_request_count: report.pending_request_count,
+            completed_request_count: report.completed_request_count,
+            timed_out_request_count: report.timed_out_request_count,
+            cancelled_request_reports,
+        }
     }
 }
 
@@ -190,26 +240,39 @@ impl RequestRegistry {
 struct RequestRegistryState {
     entries: BTreeMap<RequestId, RequestEntry>,
     terminal_order: VecDeque<RequestId>,
+    cancellation_reports: VecDeque<RequestCompletionReport>,
 }
 
 pub(crate) struct RequestRegistryClearReport {
     pub(crate) pending_request_count: usize,
     pub(crate) completed_request_count: usize,
     pub(crate) timed_out_request_count: usize,
+    pub(crate) cancelled_request_reports: Vec<RequestCompletionReport>,
 }
 
 struct RequestEntry {
     state: RequestState,
-    sender: Option<oneshot::Sender<RequestPayload>>,
+    request_type: TypeId,
+    sender: Option<oneshot::Sender<RequestCompletionSignal>>,
 }
 
 impl RequestEntry {
-    fn pending(sender: oneshot::Sender<RequestPayload>) -> Self {
+    fn pending<E>(sender: oneshot::Sender<RequestCompletionSignal>) -> Self
+    where
+        E: RequestEvent,
+    {
         Self {
             state: RequestState::Pending,
+            request_type: TypeId::of::<E>(),
             sender: Some(sender),
         }
     }
+}
+
+pub(crate) enum RequestCompletionSignal {
+    Response(RequestPayload),
+    TimedOut,
+    Cancelled,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -224,9 +287,12 @@ pub(crate) struct RequestPayload {
 }
 
 impl RequestPayload {
-    fn from_response<R>(request_id: &RequestId, response: R) -> Result<Self, EventingError>
+    fn from_response<E>(
+        request_id: &RequestId,
+        response: E::Response,
+    ) -> Result<Self, EventingError>
     where
-        R: EventResponseContract,
+        E: RequestEvent,
     {
         response.validate()?;
         let value = serde_json::to_value(response).map_err(|error| {

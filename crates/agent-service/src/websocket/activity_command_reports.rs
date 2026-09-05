@@ -1,18 +1,21 @@
 use ocentra_parent_agent_protocol::transport::{
     AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope,
 };
-use std::{future::Future, pin::Pin};
+use std::{future::Future, pin::Pin, sync::Arc};
 
 use super::{
     activity_app_game_command_reports::build_activity_app_game_command_report,
     activity_social_reports::build_activity_social_report,
     activity_summary_reports::build_activity_summary_report,
     activity_surface_command_reports::build_activity_surface_report,
-    basic_reports::build_log_snapshot_report,
+    basic_reports::build_log_snapshot_report, WebsocketPeerProvenance,
+    WebsocketPlatformProbeDispatcher,
 };
 
 pub(super) fn build_activity_command_report(
     command: AgentCommandEnvelope,
+    probe_dispatcher: Arc<WebsocketPlatformProbeDispatcher>,
+    provenance: WebsocketPeerProvenance,
 ) -> Pin<Box<dyn Future<Output = AgentEventEnvelope> + Send + 'static>> {
     Box::pin(async move {
         match command.command.clone() {
@@ -32,7 +35,8 @@ pub(super) fn build_activity_command_report(
             | AgentCommandName::AgentActivityGamesReadModelGet
             | AgentCommandName::AgentActivityNetworkReadModelGet
             | AgentCommandName::AgentActivityTrackingReadModelGet
-            | AgentCommandName::AgentActivityTrackingRetentionSettingsWrite => {
+            | AgentCommandName::AgentActivityTrackingRetentionSettingsWrite
+            | AgentCommandName::AgentParentRuntimeIntentIngressPublish => {
                 build_activity_surface_report(command).await
             }
             AgentCommandName::AgentActivityAppGameBoundaryReadModelGet
@@ -46,7 +50,7 @@ pub(super) fn build_activity_command_report(
             | AgentCommandName::AgentActivityAppGameAdapterDispatchExecute
             | AgentCommandName::AgentActivityAppGameTimerParentSurfaceReadModelGet
             | AgentCommandName::AgentActivityAppGameTimerParentPreferenceSetupRequest => {
-                build_activity_app_game_command_report(command).await
+                build_activity_app_game_command_report(command, probe_dispatcher, provenance).await
             }
             AgentCommandName::AgentBrowserSocialDashboardReadModelGet
             | AgentCommandName::AgentBrowserSocialAuditExplanationReadModelGet

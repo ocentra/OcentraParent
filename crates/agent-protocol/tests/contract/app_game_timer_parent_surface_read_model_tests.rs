@@ -7,6 +7,7 @@ use super::{
     APP_GAME_TIMER_PARENT_SURFACE_STATE_READY_FOR_PARENT_SURFACE,
     APP_GAME_TIMER_PARENT_SURFACE_STATUS_PARTIAL, APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_GAME,
 };
+use crate::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
 use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
@@ -86,6 +87,38 @@ fn app_game_timer_parent_surface_read_model_serializes_no_runtime_claims() {
         serialized["rows"][0]["timerSurfaceState"],
         APP_GAME_TIMER_PARENT_SURFACE_STATE_READY_FOR_PARENT_SURFACE
     );
+
+    let decoded = serde_json::from_value::<AppGameTimerParentSurfaceReadModel>(serialized)
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
+    assert_eq!(decoded, app_game_timer_parent_surface_read_model());
+}
+
+#[test]
+fn app_game_timer_parent_surface_read_model_rejects_unknown_fields() {
+    let serialized = serde_json::to_value(app_game_timer_parent_surface_read_model())
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
+
+    let mut unknown_top_level_field = serialized.clone();
+    unknown_top_level_field["unexpectedField"] = serde_json::Value::Bool(true);
+
+    let mut unknown_row_field = serialized.clone();
+    unknown_row_field["rows"][0]["unexpectedField"] = serde_json::Value::Bool(true);
+
+    let mut unknown_child_record_field = serialized;
+    unknown_child_record_field["childUxLocalHandoffArtifactRecords"][0]["unexpectedField"] =
+        serde_json::Value::Bool(true);
+
+    for candidate in [
+        unknown_top_level_field,
+        unknown_row_field,
+        unknown_child_record_field,
+    ] {
+        let parsed = serde_json::from_value::<AppGameTimerParentSurfaceReadModel>(candidate);
+        assert_eq!(
+            parsed.err().map(|error| error.classify()),
+            Some(serde_json::error::Category::Data)
+        );
+    }
 }
 
 fn app_game_timer_parent_surface_read_model() -> AppGameTimerParentSurfaceReadModel {
@@ -162,7 +195,13 @@ fn app_game_timer_parent_surface_read_model() -> AppGameTimerParentSurfaceReadMo
             evidence_reference_ids: vec![
                 constants::activity_store::TEST_TRACKING_RETENTION_DELETE_EVENT_ID.to_string(),
             ],
-            evidence: Vec::new(),
+            evidence: vec![ActivityEvidenceRef {
+                evidence_id: constants::activity_store::TEST_TRACKING_RETENTION_DELETE_EVENT_ID
+                    .to_string(),
+                kind: ActivityEvidenceKind::LocalDbRow,
+                digest: None,
+                uri: None,
+            }],
         }],
     }
 }

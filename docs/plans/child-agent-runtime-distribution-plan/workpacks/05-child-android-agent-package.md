@@ -33,21 +33,29 @@ Purpose: define the child Android package, install proof, and device-owner gap p
 - Android gaps are hidden behind generic mobile wording
 - parent-client distribution claims leak into this slice
 
-## Execution truth
+## Live source truth
 
-Status: complete for the Android contract/proof boundary; real device/runtime/authority evidence remains manual-required.
+Status: source partial; implementation correction and all test/validation/proof gates remain open.
 
-## Checklist truth
+The Android app uses `ca.ocentra.child.agent`, a child activity, a foreground composition service, app-private durable paths, a Rust JNI bridge, and a cargo-ndk staging hook. These are real package/runtime source boundaries.
 
-- [x] Debug APK plus checksum prove the child-agent artifact state as `debug-apk-built`.
-- [x] The chosen Android mode is explicit as `debug-apk-sideload`.
-- [x] Install truth is explicit as `manual-install-proof-required`.
-- [x] Launch truth is explicit as `manual-launch-proof-required`.
-- [x] Removal truth is explicit as `manual-removal-proof-required`.
-- [x] Device-owner authority truth is explicit as `manual-required`.
-- [x] Managed-profile authority truth is explicit as `manual-required`.
-- [x] Device-owner claims are rejected without enrollment evidence.
-- [x] Managed-profile claims are rejected without enrollment evidence.
-- [x] Package-local Android proof cannot claim LAN/WebSocket transport or enforcement parity.
-- [x] The device gate requires separate install, launch, and removal artifacts before readiness can rise.
-- [x] Real proof-root artifacts exist under `output/child-agent-runtime-distribution-plan-proof/05-child-android-agent-package/`.
+The JNI bridge calls `ChildAgentService::initialize_with_paths(ChildAgentServicePaths::from_root(...))`, which supplies no `ChildAgentTrustBindingSource`. Startup therefore remains fail-closed/manual-required. Java exposes local Binder health only and `ChildAgentComposition` reports transport as `NOT_IMPLEMENTED`; no authenticated product ingress exists. Device Owner, managed profile, store authority, and platform removal integration are also absent.
+
+## Required production source outcome
+
+- consume WP10's reviewed current-trust startup and authenticated ingress/health boundary through JNI without copying or minting trust;
+- keep foreground lifecycle, native load/ABI failures, and restart/stop states observable;
+- own Android device-owner/managed-profile/manual-required state and removal callback boundaries explicitly;
+- preserve app-private custody and canonical child identity.
+
+Implementation dependency: Child WP10 reviewed implementation. Normal READY/DONE remains strict.
+
+## Expected test-source gap
+
+- correct the existing bridge test that expects `Ready` without a trust source;
+- prove missing/stale/revoked trust stays non-ready and current trust can reach ready;
+- cover JNI load/start/query/stop, foreground restart, authenticated ingress, and health;
+- cover ABI packaging, install/launch/remove, device-owner/managed-profile, store, and manual-required states on appropriate targets;
+- reject parent identity and fake transport/device authority.
+
+Historical Android protocol/capability proof and debug APK artifacts do not establish trusted startup, transport, Device Owner, managed profile, store, removal, or release completion.

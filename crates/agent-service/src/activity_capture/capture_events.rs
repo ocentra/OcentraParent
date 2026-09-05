@@ -1,19 +1,27 @@
+use crate::activity_capture_network_observation::NetworkCaptureObservation;
 use ocentra_parent_agent_core::{
-    network_capture_event::network_snapshot_events, process_capture::process_snapshot_events,
-    window_capture_event::foreground_window_event,
+    network_capture_event::network_snapshot_capture_results,
+    process_capture::{live_process_snapshot_system, process_snapshot_events_from_system},
+    window_capture_event::foreground_window_event_from_system,
 };
 use ocentra_parent_agent_protocol::activity::ActivityEvent;
 use ocentra_parent_agent_protocol::constants;
 
-pub(super) use super::app_game::{CaptureLimit, ObservedAtText};
+use super::app_game::{CaptureLimit, ObservedAtText};
 
 use super::{app_game, ActivityCaptureError};
 
-pub(super) fn activity_capture_events(
-    observed_at: ObservedAtText,
+#[derive(Clone, Debug)]
+pub(super) struct ActivityCaptureBatch {
+    pub(super) events: Vec<ActivityEvent>,
+    pub(super) network_observations: Vec<NetworkCaptureObservation>,
+}
+
+pub(super) fn activity_capture_batch(
+    observed_at: ObservedAtText<'_>,
     process_limit: CaptureLimit,
     network_limit: CaptureLimit,
-) -> Result<Vec<ActivityEvent>, ActivityCaptureError> {
+) -> Result<ActivityCaptureBatch, ActivityCaptureError> {
     let inventory_events = app_game::live_inventory_events(
         observed_at,
         CaptureLimit(constants::activity_capture::APP_GAME_INVENTORY_SNAPSHOT_LIMIT),
@@ -26,7 +34,7 @@ pub(super) fn activity_capture_events(
         observed_at,
         CaptureLimit(constants::activity_capture::APP_GAME_INVENTORY_SNAPSHOT_LIMIT),
     )?;
-    activity_capture_events_with_inventory(
+    activity_capture_batch_with_inventory(
         observed_at,
         process_limit,
         network_limit,
@@ -36,15 +44,15 @@ pub(super) fn activity_capture_events(
     )
 }
 
-fn activity_capture_events_with_inventory(
-    observed_at: ObservedAtText,
+fn activity_capture_batch_with_inventory(
+    observed_at: ObservedAtText<'_>,
     process_limit: CaptureLimit,
     network_limit: CaptureLimit,
     inventory_events: Vec<ActivityEvent>,
     store_package_events: Vec<ActivityEvent>,
     registry_inventory_events: Vec<ActivityEvent>,
-) -> Result<Vec<ActivityEvent>, ActivityCaptureError> {
-    activity_capture_events_with_inventory_sources(
+) -> Result<ActivityCaptureBatch, ActivityCaptureError> {
+    activity_capture_batch_with_inventory_sources(
         observed_at,
         process_limit,
         network_limit,
@@ -54,23 +62,47 @@ fn activity_capture_events_with_inventory(
     )
 }
 
-fn activity_capture_events_with_inventory_sources(
-    observed_at: ObservedAtText,
+fn activity_capture_batch_with_inventory_sources(
+    observed_at: ObservedAtText<'_>,
     process_limit: CaptureLimit,
     network_limit: CaptureLimit,
     inventory_events: Vec<ActivityEvent>,
     store_package_events: Vec<ActivityEvent>,
     registry_inventory_events: Vec<ActivityEvent>,
-) -> Result<Vec<ActivityEvent>, ActivityCaptureError> {
-    let mut events = process_snapshot_events(observed_at.0, process_limit.0);
-    events.push(foreground_window_event(observed_at.0));
-    events.extend(network_snapshot_events(observed_at.0, network_limit.0));
-    events.extend(app_game::live_process_events(observed_at, process_limit)?);
+) -> Result<ActivityCaptureBatch, ActivityCaptureError> {
+    let process_system = live_process_snapshot_system();
+    let mut events =
+        process_snapshot_events_from_system(observed_at.0, process_limit.0, &process_system);
+    events.push(foreground_window_event_from_system(
+        observed_at.0,
+        &process_system,
+    ));
+    let mut network_observations = Vec::new();
+    let mut network_events = Vec::new();
+    for capture in network_snapshot_capture_results(observed_at.0, network_limit.0) {
+        let (observation, event) = capture.into_parts();
+        network_observations.push(NetworkCaptureObservation {
+            source_event_id: event.event_id.clone(),
+            observed_at: observed_at.0.to_string(),
+            observation,
+        });
+        network_events.push(event);
+    }
+    events.extend(network_events);
+    events.extend(app_game::live_process_and_launcher_events_from_system(
+        observed_at,
+        process_limit,
+        &process_system,
+    )?);
     events.extend(inventory_events);
     events.extend(store_package_events);
     events.extend(registry_inventory_events);
-    if let Some(event) = app_game::live_foreground_event(observed_at)? {
+    if let Some(event) = app_game::live_foreground_event_from_system(observed_at, &process_system)?
+    {
         events.push(event);
     }
-    Ok(events)
+    Ok(ActivityCaptureBatch {
+        events,
+        network_observations,
+    })
 }

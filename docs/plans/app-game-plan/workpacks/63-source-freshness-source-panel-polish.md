@@ -61,3 +61,30 @@ output/app-game-plan-proof/63-source-freshness-source-panel-polish
 Feature docs and plan checklists are updated because the source panel data seam
 now exists. `docs/product-capability-checklist.md` is not updated in this slice
 because the dedicated source panel is not yet a rendered parent-visible surface.
+
+## Live Code/Test Re-Audit - 2026-08-24
+
+- `app-game-source-panel-intent.ts` is tracked and production-reachable from the
+  dashboard intent. It groups App use/Game rows and computes fresh,
+  manual-required, evidence, capability, and last-observed presentation state.
+- `ParentPortalSvgSurface.tsx` now renders those source-panel metrics in the
+  mounted App/Game Sessions dashboard; the old "not yet rendered" wording is
+  stale.
+- Canonical `ca8c1ae76` adds the named real
+  `apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts`. It drives
+  the exported dashboard/source-panel intent and covers fresh/manual,
+  unavailable, stale, degraded, hostile-metadata, evidence, and redaction
+  behavior without inspecting source text or minting backend authority.
+- Production and expected test source are present. Focused execution, proof,
+  checklist acceptance, READY, and DONE remain open.
+
+## Graph ownership correction — 2026-08-25
+
+WP63 owns only
+`vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-source-panel-intent.ts`.
+It consumes WP48's dashboard source-row seam and the single-owner focused test
+through the reviewed `WP63 -> WP48` dependency. WP63 does not claim
+the dashboard intent, bridge, live-activity state, SVG surface, portal surface,
+route, or route-scaffold roots. The graph maps WP48's shared focused test as
+WP63's expected executable coverage without transferring ownership. This
+metadata correction does not claim test execution, proof, READY, or DONE.

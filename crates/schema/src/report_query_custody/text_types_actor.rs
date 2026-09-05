@@ -69,6 +69,22 @@ impl Display for ParentActionReferenceId {
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 #[serde(transparent)]
+pub struct ParentAuthorityReferenceId(String);
+
+impl ParentAuthorityReferenceId {
+    pub fn parse(value: impl Into<String>) -> Option<Self> {
+        parse_text_identifier(value).map(Self)
+    }
+}
+
+impl Display for ParentAuthorityReferenceId {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
+        formatter.write_str(&self.0)
+    }
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
+#[serde(transparent)]
 pub struct ParentTimestamp(String);
 
 impl ParentTimestamp {

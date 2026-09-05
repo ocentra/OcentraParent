@@ -43,6 +43,34 @@ fn evaluate_and_plan(
     )
 }
 
+type FailClosedReadinessCase = (
+    ProvisioningReadinessInput,
+    ProvisioningBlockerReason,
+    ProvisioningRecoveryAction,
+    ProvisioningOverallState,
+);
+
+fn assert_fail_closed_readiness_cases(cases: impl IntoIterator<Item = FailClosedReadinessCase>) {
+    for (input, blocker_reason, recovery_action, overall_state) in cases {
+        let (decision, plan) = evaluate_and_plan(input);
+        assert_eq!(decision.blocker_reason, Some(blocker_reason));
+        assert_eq!(decision.overall_state, overall_state);
+        assert_eq!(
+            decision.child_runtime_readiness_state,
+            ChildRuntimeReadinessState::NotReady
+        );
+        assert_eq!(
+            decision.manual_step_state,
+            ProvisioningManualStepState::Required
+        );
+        assert_eq!(
+            plan.child_runtime_start_action,
+            ProvisioningChildRuntimeStartAction::DoNotStart
+        );
+        assert_eq!(plan.recovery_action, recovery_action);
+    }
+}
+
 #[test]
 fn provisioning_blocks_installed_child_until_service_starts() {
     let (decision, plan) = evaluate_and_plan(ProvisioningReadinessInput {
@@ -299,6 +327,108 @@ fn provisioning_requires_direct_entry_when_lan_discovery_is_unavailable() {
         plan.recovery_action,
         ProvisioningRecoveryAction::EnterDirectChildAddress
     );
+}
+
+#[test]
+fn provisioning_readiness_keeps_account_and_device_owner_inputs_fail_closed() {
+    assert_fail_closed_readiness_cases([
+        (
+            ProvisioningReadinessInput {
+                membership_state: HouseholdMembershipState::Pending,
+                ..ready_input()
+            },
+            ProvisioningBlockerReason::HouseholdMemberRequired,
+            ProvisioningRecoveryAction::CompleteHouseholdMembership,
+            ProvisioningOverallState::Blocked,
+        ),
+        (
+            ProvisioningReadinessInput {
+                account_readiness_state: AccountReadinessState::RecoveryRequired,
+                ..ready_input()
+            },
+            ProvisioningBlockerReason::AccountRecoveryRequired,
+            ProvisioningRecoveryAction::RestoreParentSession,
+            ProvisioningOverallState::Blocked,
+        ),
+        (
+            ProvisioningReadinessInput {
+                parent_app_readiness_state: ParentAppReadinessState::Stale,
+                ..ready_input()
+            },
+            ProvisioningBlockerReason::ParentAppStale,
+            ProvisioningRecoveryAction::RepairParentApp,
+            ProvisioningOverallState::Blocked,
+        ),
+        (
+            ProvisioningReadinessInput {
+                parent_device_registration_state: ParentDeviceRegistrationState::Missing,
+                ..ready_input()
+            },
+            ProvisioningBlockerReason::ParentDeviceRegistrationRequired,
+            ProvisioningRecoveryAction::ReRegisterParentDevice,
+            ProvisioningOverallState::Blocked,
+        ),
+        (
+            ProvisioningReadinessInput {
+                child_device_ownership_scope: DeviceOwnershipScope::OtherDevice,
+                ..ready_input()
+            },
+            ProvisioningBlockerReason::ChildDeviceScopeRequired,
+            ProvisioningRecoveryAction::RePairChildDevice,
+            ProvisioningOverallState::Blocked,
+        ),
+    ]);
+}
+
+#[test]
+fn provisioning_readiness_keeps_runtime_owner_inputs_fail_closed() {
+    assert_fail_closed_readiness_cases([
+        (
+            ProvisioningReadinessInput {
+                permission_readiness_state: PermissionReadinessState::Missing,
+                ..ready_input()
+            },
+            ProvisioningBlockerReason::PermissionMissing,
+            ProvisioningRecoveryAction::RequestMissingPermissions,
+            ProvisioningOverallState::Blocked,
+        ),
+        (
+            ProvisioningReadinessInput {
+                pairing_lifecycle_state: PairingLifecycleState::Expired,
+                ..ready_input()
+            },
+            ProvisioningBlockerReason::PairingExpired,
+            ProvisioningRecoveryAction::ReissuePairingCode,
+            ProvisioningOverallState::Blocked,
+        ),
+        (
+            ProvisioningReadinessInput {
+                policy_baseline_state: PolicyBaselineState::Missing,
+                ..ready_input()
+            },
+            ProvisioningBlockerReason::PolicyBaselineMissing,
+            ProvisioningRecoveryAction::ApplyPolicyBaseline,
+            ProvisioningOverallState::Blocked,
+        ),
+        (
+            ProvisioningReadinessInput {
+                data_custody_sync_state: DataCustodySyncState::Blocked,
+                ..ready_input()
+            },
+            ProvisioningBlockerReason::DataCustodySyncBlocked,
+            ProvisioningRecoveryAction::RepairCustodySync,
+            ProvisioningOverallState::Blocked,
+        ),
+        (
+            ProvisioningReadinessInput {
+                recovery_state: RecoveryState::LostParentDevice,
+                ..ready_input()
+            },
+            ProvisioningBlockerReason::LostParentDeviceRecovery,
+            ProvisioningRecoveryAction::RestoreParentSession,
+            ProvisioningOverallState::Blocked,
+        ),
+    ]);
 }
 
 #[test]

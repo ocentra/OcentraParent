@@ -1,5 +1,10 @@
 # WP196 App/game Apple CI platform proof preflight
 
+> **Current status (2026-08-29):** bounded Rust/service/parent/portal status
+> source and real behavior tests are present. Apple execution remains an
+> external CI/device/provisioning proof boundary; no macOS or iOS enforcement
+> adapter is claimed.
+
 <!-- agent-capsule -->
 
 > Agent Capsule
@@ -37,6 +42,12 @@ from manual-required to implemented.
   or child-device delivery claim.
 
 ## Files
+
+The historical `packages/parent-domain` and `scripts/test/app-game-*` paths
+below are retired. Current ownership is the Rust platform-proof contract,
+agent-service host-capability/status payloads, parent-runtime bridge, portal
+status panel, and their checked-in Rust/TypeScript behavior tests. Those files
+represent fail-closed Apple rows; they do not perform Apple runtime work.
 
 - `packages/parent-domain/src/app-game-apple-ci-platform-proof-preflight.ts`
 - `packages/parent-domain/tests/app-game-apple-ci-platform-proof-preflight.test.ts`

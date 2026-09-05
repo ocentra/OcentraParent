@@ -1,55 +1,98 @@
 use std::{
     collections::BTreeMap,
-    fs,
     path::{Path, PathBuf},
 };
 
+use rusqlite::Connection;
 use sha2::{Digest, Sha256};
 
-use rusqlite::OptionalExtension;
-
 use crate::{
-    device_trust_lifecycle::{DeviceTrustLifecycleError, DeviceTrustLifecycleRepository},
-    trust_bootstrap::current_authority::{
-        CurrentParentDeviceTrustAuthority, CurrentParentDeviceTrustAuthorityError,
-        CurrentParentDeviceTrustAuthoritySource,
-    },
+    device_trust_lifecycle::DeviceTrustLifecycleError,
+    device_trust_lifecycle_authority_fence::{self, AuthorityTransition},
+    device_trust_lifecycle_authority_intent,
+    device_trust_lifecycle_authority_lock::{self},
+    device_trust_lifecycle_authority_reconciliation,
+    device_trust_lifecycle_authority_store::{load_values, open_lock, persist_values},
 };
 
 pub(crate) struct ExternalLifecycleAuthority {
     path: PathBuf,
+    intent_path: PathBuf,
+    lock_path: PathBuf,
     values: BTreeMap<String, u64>,
 }
 
 impl ExternalLifecycleAuthority {
     pub(crate) fn open(database_path: &Path) -> Result<Self, DeviceTrustLifecycleError> {
         let path = database_path.with_extension("authority.json");
-        let values = if path.exists() {
-            let json = fs::read_to_string(&path)
-                .map_err(|_error| DeviceTrustLifecycleError::Unavailable)?;
-            serde_json::from_str(&json).map_err(|_error| DeviceTrustLifecycleError::Unavailable)?
-        } else if database_path.exists() {
-            return Err(DeviceTrustLifecycleError::Unavailable);
-        } else {
-            BTreeMap::new()
+        let intent_path = database_path.with_extension("authority-intent.json");
+        let lock_path = database_path.with_extension("authority.lock");
+        let lock = open_lock(&lock_path)?;
+        device_trust_lifecycle_authority_lock::lock_exclusive_bounded(&lock)?;
+        let values = load_values(&path, database_path.exists()).and_then(|values| {
+            device_trust_lifecycle_authority_intent::load(&intent_path)?;
+            Ok(values)
+        });
+        let values = match values {
+            Ok(values) => values,
+            Err(error) => {
+                let _unlock_result = fs2::FileExt::unlock(&lock);
+                return Err(error);
+            }
         };
-        let authority = Self { path, values };
+        let authority = Self {
+            path,
+            intent_path,
+            lock_path,
+            values,
+        };
         if !authority.path.exists() {
-            authority.persist()?;
+            if let Err(error) = authority.persist() {
+                let _unlock_result = fs2::FileExt::unlock(&lock);
+                return Err(error);
+            }
         }
+        fs2::FileExt::unlock(&lock).map_err(|_error| DeviceTrustLifecycleError::Unavailable)?;
         Ok(authority)
     }
 
-    pub(crate) fn set(
+    pub(crate) fn begin_transition(
         &mut self,
+        connection: &Connection,
         family_id: &str,
         trust_subject: &str,
         device_ref: &str,
-        generation: u64,
+        expected_generation: Option<u64>,
+        target_generation: u64,
+    ) -> Result<AuthorityTransition, DeviceTrustLifecycleError> {
+        let (transition, values) = device_trust_lifecycle_authority_fence::begin(
+            connection,
+            &self.path,
+            &self.intent_path,
+            &self.lock_path,
+            authority_key(family_id, trust_subject, device_ref),
+            expected_generation,
+            target_generation,
+        )?;
+        self.values = values;
+        Ok(transition)
+    }
+
+    pub(crate) fn reconcile(
+        &mut self,
+        connection: &Connection,
     ) -> Result<(), DeviceTrustLifecycleError> {
-        self.values
-            .insert(Self::key(family_id, trust_subject, device_ref), generation);
-        self.persist()
+        self.values = device_trust_lifecycle_authority_reconciliation::reconcile(
+            connection,
+            &self.path,
+            &self.intent_path,
+            &self.lock_path,
+        )?;
+        Ok(())
+    }
+
+    pub(crate) fn replace_values(&mut self, values: BTreeMap<String, u64>) {
+        self.values = values;
     }
 
     pub(crate) fn matches(
@@ -59,40 +102,24 @@ impl ExternalLifecycleAuthority {
         device_ref: &str,
         generation: u64,
     ) -> bool {
-        self.read_values().and_then(|values| {
-            values
-                .get(&Self::key(family_id, trust_subject, device_ref))
-                .copied()
-        }) == Some(generation)
-    }
-
-    fn read_values(&self) -> Option<BTreeMap<String, u64>> {
-        fs::read_to_string(&self.path)
-            .ok()
-            .and_then(|json| serde_json::from_str(&json).ok())
+        device_trust_lifecycle_authority_fence::matches(
+            &self.path,
+            &self.intent_path,
+            &self.lock_path,
+            &authority_key(family_id, trust_subject, device_ref),
+            generation,
+        )
+        .unwrap_or_default()
     }
 
     fn persist(&self) -> Result<(), DeviceTrustLifecycleError> {
-        let json = serde_json::to_vec(&self.values)
-            .map_err(|_error| DeviceTrustLifecycleError::Unavailable)?;
-        fs::write(&self.path, json).map_err(|_error| DeviceTrustLifecycleError::Unavailable)
-    }
-
-    fn key(family_id: &str, trust_subject: &str, device_ref: &str) -> String {
-        let mut hasher = Sha256::new();
-        hasher.update(b"ocentra-device-trust-lifecycle-authority-v2\0");
-        hasher.update(family_id.as_bytes());
-        hasher.update([0]);
-        hasher.update(trust_subject.as_bytes());
-        hasher.update([0]);
-        hasher.update(device_ref.as_bytes());
-        hex_encode(&hasher.finalize())
+        persist_values(&self.path, &self.values)
     }
 }
 
-pub(crate) fn redacted_binding(family_id: &str, trust_subject: &str, device_ref: &str) -> String {
+pub(crate) fn authority_key(family_id: &str, trust_subject: &str, device_ref: &str) -> String {
     let mut hasher = Sha256::new();
-    hasher.update(b"ocentra-device-trust-lifecycle-binding-v2\0");
+    hasher.update(b"ocentra-device-trust-lifecycle-authority-v2\0");
     hasher.update(family_id.as_bytes());
     hasher.update([0]);
     hasher.update(trust_subject.as_bytes());
@@ -101,7 +128,7 @@ pub(crate) fn redacted_binding(family_id: &str, trust_subject: &str, device_ref:
     hex_encode(&hasher.finalize())
 }
 
-fn hex_encode(bytes: &[u8]) -> String {
+pub(crate) fn hex_encode(bytes: &[u8]) -> String {
     const HEX: &[u8; 16] = b"0123456789abcdef";
     let mut encoded = String::with_capacity(bytes.len() * 2);
     for byte in bytes {
@@ -109,55 +136,4 @@ fn hex_encode(bytes: &[u8]) -> String {
         encoded.push(char::from(HEX[usize::from(byte & 0x0f)]));
     }
     encoded
-}
-
-impl CurrentParentDeviceTrustAuthoritySource for DeviceTrustLifecycleRepository {
-    fn current_authorized_parent_device(
-        &self,
-        family_id: &str,
-        trust_subject: &str,
-        device_ref: &str,
-    ) -> Result<CurrentParentDeviceTrustAuthority, CurrentParentDeviceTrustAuthorityError> {
-        let row = self
-            .connection
-            .query_row(
-                "SELECT lifecycle_state, lifecycle_generation, installation_binding_generation, authority_generation FROM device_trust_lifecycle WHERE family_id = ?1 AND trust_subject = ?2 AND device_ref = ?3",
-                rusqlite::params![family_id, trust_subject, device_ref],
-                |row| {
-                    Ok((
-                        row.get::<_, String>(0)?,
-                        row.get::<_, i64>(1)?,
-                        row.get::<_, i64>(2)?,
-                        row.get::<_, i64>(3)?,
-                    ))
-                },
-            )
-            .optional()
-            .ok()
-            .flatten();
-        let Some((state, lifecycle_generation, installation_generation, authority_generation)) =
-            row
-        else {
-            return Err(CurrentParentDeviceTrustAuthorityError::NotTrusted);
-        };
-        if state != "trusted" {
-            return Err(CurrentParentDeviceTrustAuthorityError::NotTrusted);
-        }
-        let authority_generation = u64::try_from(authority_generation)
-            .map_err(|_error| CurrentParentDeviceTrustAuthorityError::NotTrusted)?;
-        if !self.external_authority.matches(
-            family_id,
-            trust_subject,
-            device_ref,
-            authority_generation,
-        ) {
-            return Err(CurrentParentDeviceTrustAuthorityError::NotTrusted);
-        }
-        Ok(CurrentParentDeviceTrustAuthority {
-            lifecycle_generation: u64::try_from(lifecycle_generation)
-                .map_err(|_error| CurrentParentDeviceTrustAuthorityError::NotTrusted)?,
-            installation_binding_generation: u64::try_from(installation_generation)
-                .map_err(|_error| CurrentParentDeviceTrustAuthorityError::NotTrusted)?,
-        })
-    }
 }

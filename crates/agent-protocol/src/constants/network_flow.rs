@@ -34,6 +34,22 @@ pub const EVENT_ENFORCEMENT_COMMAND_ISSUED: &str = "enforcement.command.issued";
 pub const EVENT_ENFORCEMENT_RESULT_OBSERVED: &str = "enforcement.result.observed";
 pub const EVENT_AUDIT_ENTRY_COMMITTED: &str = "audit.entry.committed";
 pub const EVENT_PORTAL_READ_MODEL_UPDATED: &str = "portal.read_model.updated";
+pub const NETWORK_RUNTIME_CAPTURE_PUBLISH_FIELD: &str = "network_runtime_capture_publish";
+pub const NETWORK_RUNTIME_ACTIVITY_STORE_FIELD: &str = "network_runtime_activity_store";
+pub const NETWORK_RUNTIME_ACTIVITY_STORE_READ_MODEL_FIELD: &str =
+    "network_runtime_activity_store_read_model";
+pub const NETWORK_RUNTIME_ACTIVITY_STORE_JOIN_FIELD: &str = "network_runtime_activity_store_join";
+pub const NETWORK_RUNTIME_SPINE_FIELD: &str = "network_runtime_spine";
+pub const NETWORK_RUNTIME_SPINE_INIT_FAILURE: &str = "failed_to_initialize_once_cell";
+pub const NETWORK_RUNTIME_SPINE_JOURNAL_PATH_MISMATCH: &str =
+    "network_runtime_spine_journal_path_mismatch";
+pub const NETWORK_RUNTIME_SPINE_NOT_INITIALIZED: &str = "durable_spine_not_initialized";
+pub const NETWORK_RUNTIME_STARTUP_SPINE_INIT_FAILURE: &str =
+    "network_runtime_spine_initialization_failed";
+pub const NETWORK_RUNTIME_STARTUP_SPINE_PATH_MISMATCH: &str =
+    "network_runtime_spine_journal_path_mismatch";
+pub const NETWORK_RUNTIME_STARTUP_RECONCILIATION_FAILURE: &str =
+    "network_runtime_retained_reconciliation_failed";
 
 pub const TEST_DEVICE_REF: &str = "device.child.windows-1";
 pub const TEST_FLOW_EVENT_REF: &str = "event.network.flow.observed.1";
@@ -479,49 +495,6 @@ pub const TARGET_ENFORCEMENT_DRY_RUN: &str = "network-enforcement-dry-run";
 pub const TARGET_AUDIT_WRITER: &str = "network-audit-writer";
 pub const TARGET_PORTAL_READ_MODEL: &str = "network-portal-read-model";
 
-pub const PRODUCT_PATH_ACTION_RESULT_REF_PREFIX: &str = "network.product-path.action-result.";
-pub const PRODUCT_PATH_ADAPTER_APPLY_REF_PREFIX: &str = "network.product-path.adapter-apply.";
-pub const PRODUCT_PATH_ADAPTER_AUTHORIZATION_REF_PREFIX: &str =
-    "network.product-path.adapter-authorization.";
-pub const PRODUCT_PATH_ADAPTER_CAPABILITY_REF_PREFIX: &str =
-    "network.product-path.adapter-capability.";
-pub const PRODUCT_PATH_ADAPTER_RESULT_REF_PREFIX: &str = "network.product-path.adapter-result.";
-pub const PRODUCT_PATH_AI_AUDIT_REF_PREFIX: &str = "network.product-path.ai-audit.";
-pub const PRODUCT_PATH_AI_BASELINE_REF: &str = "network.product-path.ai-baseline.v1";
-pub const PRODUCT_PATH_AI_DETECTION_REF_PREFIX: &str = "network.product-path.ai-detection.";
-pub const PRODUCT_PATH_AI_EVALUATION_RUN_REF_PREFIX: &str = "network.product-path.ai-evaluation.";
-pub const PRODUCT_PATH_AI_FIXTURE_REF_PREFIX: &str = "network.product-path.ai-fixture.";
-pub const PRODUCT_PATH_AI_FIXTURE_SET_REF: &str = "network.product-path.ai-fixture-set.v1";
-pub const PRODUCT_PATH_AI_MODEL_CARD_REF: &str = "network.product-path.ai-model-card.v1";
-pub const PRODUCT_PATH_AI_MODEL_VERSION_REF: &str = "network.product-path.ai-model-version.v1";
-pub const PRODUCT_PATH_ANALYZER_ALERT_REF_PREFIX: &str = "network.product-path.analyzer-alert.";
-pub const PRODUCT_PATH_AUDIT_EVENT_REF_PREFIX: &str = "network.product-path.audit.";
-pub const PRODUCT_PATH_CAPTURE_REF_PREFIX: &str = "network.product-path.capture.";
-pub const PRODUCT_PATH_CASCADE_REF_PREFIX: &str = "network.product-path.cascade.";
-pub const PRODUCT_PATH_CHILD_PROFILE_REF: &str = "network.product-path.child-profile.local";
-pub const PRODUCT_PATH_DELETION_REF_PREFIX: &str = "network.product-path.delete.";
-pub const PRODUCT_PATH_DNS_ADAPTER_PLAN_REF_PREFIX: &str = "network.product-path.dns-adapter-plan.";
-pub const PRODUCT_PATH_EXPORT_REF_PREFIX: &str = "network.product-path.export.";
-pub const PRODUCT_PATH_HOUSEHOLD_POLICY_REF: &str = "network.product-path.household-policy.local";
-pub const PRODUCT_PATH_INGEST_REF_PREFIX: &str = "network.product-path.ingest.";
-pub const PRODUCT_PATH_MODEL_RUNTIME_REF: &str = "network.product-path.local-model-runtime";
-pub const PRODUCT_PATH_NARRATIVE_TEMPLATE_REF: &str = "network.product-path.narrative-template.v1";
-pub const PRODUCT_PATH_PARENT_RULE_REF: &str = "network.product-path.parent-rule.network-domain";
-pub const PRODUCT_PATH_POLICY_CONTEXT_REF_PREFIX: &str = "network.product-path.policy-context.";
-pub const PRODUCT_PATH_POLICY_DECISION_REF_PREFIX: &str = "network.product-path.policy-decision.";
-pub const PRODUCT_PATH_PORTAL_READ_MODEL_REF_PREFIX: &str =
-    "network.product-path.portal-read-model.";
-pub const PRODUCT_PATH_QUEUE_JOB_REF_PREFIX: &str = "network.product-path.local-ai-job.";
-pub const PRODUCT_PATH_QUEUE_REF: &str = "network.product-path.local-ai-queue";
-pub const PRODUCT_PATH_RETENTION_REF_PREFIX: &str = "network.product-path.retention.";
-pub const PRODUCT_PATH_RISK_BUDGET_REF: &str = "network.product-path.risk-budget.local";
-pub const PRODUCT_PATH_RISK_EVALUATION_REF_PREFIX: &str = "network.product-path.risk-evaluation.";
-pub const PRODUCT_PATH_ROLLBACK_REF_PREFIX: &str = "network.product-path.rollback.";
-pub const PRODUCT_PATH_SUMMARY_REF_PREFIX: &str = "network.product-path.summary.";
-pub const PRODUCT_PATH_TOMBSTONE_REF_PREFIX: &str = "network.product-path.tombstone.";
-pub const PRODUCT_PATH_TRIGGER_REF_PREFIX: &str = "network.product-path.trigger.";
-pub const PRODUCT_PATH_TYPED_EVENT_REF_PREFIX: &str = "network.product-path.typed-event.";
-
 pub const SUBSCRIBER_NETWORK_OBSERVER: &str = "network-runtime-observer-subscriber";
 pub const SUBSCRIBER_DOMAIN_OBSERVER: &str = "network-runtime-domain-subscriber";
 pub const SUBSCRIBER_ACTIVITY_CLASSIFIER: &str = "network-runtime-classifier-subscriber";
@@ -540,6 +513,9 @@ pub const RUNTIME_INSTANCE_LOCAL_CHILD_AGENT: &str = "local-child-agent";
 pub const AGGREGATE_NETWORK_FLOW_PREFIX: &str = "network-flow-";
 pub const CORRELATION_NETWORK_RUNTIME_PREFIX: &str = "network-runtime-correlation-";
 pub const IDEMPOTENCY_NETWORK_RUNTIME_PREFIX: &str = "network-runtime-idempotency-";
+pub const NETWORK_RUNTIME_EVENT_ID_PREFIX: &str = "network-runtime-event-sha256-";
+pub const NETWORK_RUNTIME_JOURNAL_STATE_UNAVAILABLE_MANUAL_REQUIRED: &str =
+    "unavailable-manual-required";
 pub const IDEMPOTENCY_NETWORK_REVIEW_PREFIX: &str = "network-review-idempotency-";
 pub const REQUEST_NETWORK_REVIEW_PREFIX: &str = "network-review-request-";
 pub const REQUEST_NETWORK_REVIEW_TIMEOUT_MS: u64 = 50;

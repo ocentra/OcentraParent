@@ -99,7 +99,7 @@ impl EventResponseContract for AwaitableResponseEvent {}
 
 #[tokio::test]
 async fn publish_and_wait_dispatches_typed_fire_and_forget_event() {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     let observed_payload = Arc::new(Mutex::new(None));
     let captured_payload = Arc::clone(&observed_payload);
 
@@ -135,7 +135,7 @@ async fn publish_and_wait_dispatches_typed_fire_and_forget_event() {
 
 #[tokio::test]
 async fn publish_request_waits_for_typed_subscriber_response() {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
 
     bus.subscribe::<AwaitableRequestEvent, _, _>(request_subscriber(), |context| async move {
         context.complete_request(awaitable_response_event()).await?;

@@ -240,10 +240,12 @@ async fn manual_clock_stops_retry_when_deadline_expires_between_attempts() {
 }
 
 #[tokio::test]
-async fn manual_clock_drives_request_timeout_and_late_completion_without_wall_clock_sleep() {
+async fn manual_clock_rejects_spawned_late_request_completion_after_timeout() {
     let clock = ManualEventClock::new();
     let bus = EventBus::with_clock(clock.shared());
-    let outcomes = Arc::new(Mutex::new(Vec::new()));
+    let outcomes = Arc::new(Mutex::new(Vec::<
+        Result<RequestCompletionOutcome, EventingError>,
+    >::new()));
     let late_sleep_registered = Arc::new(Notify::new());
     let handler_clock = clock.clone();
     let handler_outcomes = Arc::clone(&outcomes);
@@ -263,14 +265,11 @@ async fn manual_clock_drives_request_timeout_and_late_completion_without_wall_cl
                     let sleep = handler_clock.sleep(Duration::from_millis(20));
                     handler_late_sleep_registered.notify_one();
                     sleep.await;
-                    let completion = context
-                        .complete_request(ClockResponse::approved())
-                        .await
-                        .expect_value("late completion reports");
+                    let completion = context.complete_request(ClockResponse::approved()).await;
                     handler_outcomes
                         .lock()
                         .expect_value("outcomes lock")
-                        .push(completion.outcome);
+                        .push(completion.map(|report| report.outcome));
                 });
                 Ok(())
             }
@@ -298,10 +297,10 @@ async fn manual_clock_drives_request_timeout_and_late_completion_without_wall_cl
 
     clock.advance(Duration::from_millis(20));
     yield_until(|| !outcomes.lock().expect_value("outcomes lock").is_empty()).await;
-    assert_eq!(
-        outcomes.lock().expect_value("outcomes lock").as_slice(),
-        &[RequestCompletionOutcome::Late]
-    );
+    assert!(matches!(
+        outcomes.lock().expect_value("outcomes lock").first(),
+        Some(Err(EventingError::CausalPublicationOutsideHandlerTask))
+    ));
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

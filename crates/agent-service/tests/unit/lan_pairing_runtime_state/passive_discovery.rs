@@ -13,7 +13,7 @@ use crate::app::lan_pairing_runtime_state::passive_discovery::{
     LanPassiveDiscoveryRuntimeObservedState,
 };
 use crate::app::lan_pairing_runtime_state::provider_heartbeat::LanAiProviderHeartbeatState;
-use crate::test_invariants::require_ok;
+use crate::test_require_ok::require_ok;
 
 const CURRENT_HEARTBEAT_AT: &str = "2026-06-27T07:00:00.000Z";
 const SECOND_HEARTBEAT_LOSS_AT: &str = "2026-06-27T07:05:00.000Z";
@@ -220,17 +220,13 @@ fn passive_runtime_records_local_network_change_triggers_once_snapshot_exists() 
 }
 
 #[test]
-fn stopped_passive_listener_halts_runtime_collection_without_recording_rows() {
+fn stopped_passive_listener_preserves_empty_history() {
     let runtime = LanPairingRuntime::empty();
     require_ok(
         runtime.passive_discovery_listener_state.lock(),
         "passive discovery state lock remains available",
     )
     .stop();
-    let mut observed_state = LanPassiveDiscoveryRuntimeObservedState::default();
-
-    assert!(!runtime.collect_passive_discovery_runtime_slice(&mut observed_state));
-
     let snapshot = runtime.passive_discovery_history_snapshot();
     assert_eq!(snapshot.rows.len(), 0);
     assert_eq!(

@@ -1,9 +1,16 @@
 use ocentra_eventing::bus::reports::dead_letter::DeadLetter;
 use ocentra_eventing::bus::reports::handler::PublishReport;
 use ocentra_eventing::{
-    bus::subscriber::EventSubscriber, bus::EventBus, error::EventingError, ids::EventType,
-    ids::SubscriberId, ids::TargetHandler, journal::ndjson::NdjsonEventJournal,
-    journal::policy::JournalPolicy, journal::policy::JournalSelector,
+    bus::publisher::{EventPublisher, RootEventPublisher},
+    bus::subscriber::EventSubscriber,
+    bus::EventBus,
+    error::EventingError,
+    ids::EventType,
+    ids::SubscriberId,
+    ids::TargetHandler,
+    journal::ndjson::NdjsonEventJournal,
+    journal::policy::JournalPolicy,
+    journal::policy::JournalSelector,
 };
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::screen_evidence::{
@@ -46,15 +53,15 @@ impl ScreenRuntimeReport {
                 .decode::<ScreenRuntimeEventPayload>()
                 .map(|envelope| {
                     envelope
-                        .payload
+                        .payload()
                         .claim_boundary
                         .raw_image_available_to_ai_provider
                         || envelope
-                            .payload
+                            .payload()
                             .claim_boundary
                             .raw_image_available_to_policy
                         || envelope
-                            .payload
+                            .payload()
                             .claim_boundary
                             .raw_image_available_to_portal
                 })
@@ -142,6 +149,13 @@ fn screen_runtime_event_payload_from_deletion_input(
         observed_at,
     );
     payload.previous_phase_ref = Some(constants::screen_flow::SCREEN_QUEUE_EVENT_REF.to_string());
+    payload.ai_request_ref = None;
+    payload.ai_result_ref = None;
+    payload.summary_ref = None;
+    payload.policy_decision_ref = None;
+    payload.policy_action = None;
+    payload.parent_rule_ref = None;
+    payload.action_ref = None;
     payload.deletion_proof_ref = Some(input.deletion_proof_ref.clone());
     payload.ai_audit_state = ScreenAiAuditState::NotRequested;
     payload.policy_state = ScreenPolicyState::NotReady;
@@ -162,14 +176,24 @@ fn screen_runtime_event_payload_from_degraded_input(
         screen_runtime_event_payload_from_capture_input(phase, &capture_input, observed_at);
     if matches!(
         phase,
-        ScreenRuntimePhase::AiAnalysisCompleted
-            | ScreenRuntimePhase::DeletionCommitted
-            | ScreenRuntimePhase::PortalReadModelUpdated
+        ScreenRuntimePhase::DeletionCommitted | ScreenRuntimePhase::PortalReadModelUpdated
     ) {
+        payload.ai_request_ref = None;
+        payload.ai_result_ref = None;
+        payload.summary_ref = None;
+        payload.previous_phase_ref = Some(
+            if phase == ScreenRuntimePhase::DeletionCommitted {
+                constants::screen_flow::SCREEN_QUEUE_EVENT_REF
+            } else {
+                constants::screen_flow::SCREEN_DELETION_EVENT_REF
+            }
+            .to_string(),
+        );
         payload.deletion_proof_ref = Some(input.deletion_proof_ref.clone());
         payload.evidence_scope = ScreenEvidenceScope::DeletedQueryStoreSummary;
         payload.custody_state = constants::eventing_source::CUSTODY_LOCAL_JOURNAL.to_string();
         payload.deletion_state = ScreenDeletionState::Committed;
+        payload.ai_audit_state = ScreenAiAuditState::NotRequested;
     }
     if phase == ScreenRuntimePhase::PortalReadModelUpdated {
         payload.portal_read_model_ref = Some(input.portal_read_model_ref.clone());
@@ -185,18 +209,25 @@ fn screen_runtime_event_payload_from_degraded_input(
 }
 
 pub async fn publish_screen_runtime_chain_for_input(
+    publisher: &EventPublisher,
+    target_bus: &EventBus,
     input: ScreenRuntimeInput,
     observed_at: &str,
 ) -> Result<ScreenRuntimeReport, EventingError> {
-    let spine = ScreenRuntimeSpine::with_default_handlers().await?;
-    spine.publish_input_chain(input, observed_at).await
+    let mut reports = Vec::new();
+    for phase in ScreenRuntimePhase::ordered_chain() {
+        let payload = screen_runtime_event_payload_from_input(*phase, &input, observed_at);
+        let metadata = screen_event_metadata(*phase, &input, observed_at)?;
+        reports.push(publisher.publish_on(target_bus, payload, metadata).await?);
+    }
+    causal_screen_runtime_report(target_bus, reports).await
 }
 
 pub async fn publish_screen_capture_queue_events_for_input(
     input: ScreenRuntimeCaptureInput,
     observed_at: &str,
 ) -> Result<ScreenRuntimeReport, EventingError> {
-    let spine = ScreenRuntimeSpine::with_default_handlers().await?;
+    let spine = ScreenRuntimeSpine::without_owner_handlers();
     spine.publish_capture_queue_events(input, observed_at).await
 }
 
@@ -204,37 +235,70 @@ pub async fn publish_screen_deletion_event_for_input(
     input: ScreenRuntimeDeletionInput,
     observed_at: &str,
 ) -> Result<ScreenRuntimeReport, EventingError> {
-    let spine = ScreenRuntimeSpine::with_default_handlers().await?;
+    let spine = ScreenRuntimeSpine::without_owner_handlers();
     spine.publish_deletion_event(input, observed_at).await
 }
 
 pub async fn publish_screen_degraded_event_chain_for_input(
+    publisher: &EventPublisher,
+    target_bus: &EventBus,
     input: ScreenRuntimeDegradedInput,
     observed_at: &str,
 ) -> Result<ScreenRuntimeReport, EventingError> {
-    let spine = ScreenRuntimeSpine::with_default_handlers().await?;
-    spine.publish_degraded_event_chain(input, observed_at).await
+    let mut reports = Vec::new();
+    for phase in [
+        ScreenRuntimePhase::CaptureObserved,
+        ScreenRuntimePhase::QueueEncrypted,
+        ScreenRuntimePhase::DeletionCommitted,
+        ScreenRuntimePhase::PortalReadModelUpdated,
+    ] {
+        let payload = screen_runtime_event_payload_from_degraded_input(phase, &input, observed_at);
+        let metadata = screen_capture_event_metadata(
+            phase,
+            &ScreenRuntimeCaptureInput::from(&input),
+            observed_at,
+        )?;
+        reports.push(publisher.publish_on(target_bus, payload, metadata).await?);
+    }
+    causal_screen_runtime_report(target_bus, reports).await
+}
+
+async fn causal_screen_runtime_report(
+    target_bus: &EventBus,
+    publish_reports: Vec<PublishReport>,
+) -> Result<ScreenRuntimeReport, EventingError> {
+    let published_event_ids = publish_reports
+        .iter()
+        .map(|report| report.event_id.clone())
+        .collect::<Vec<_>>();
+    let stored_events = target_bus
+        .journal()
+        .await
+        .into_iter()
+        .filter(|event| published_event_ids.contains(&event.event_id))
+        .collect();
+    let dead_letters = target_bus
+        .dead_letters()
+        .await
+        .into_iter()
+        .filter(|dead_letter| published_event_ids.contains(&dead_letter.envelope.event_id))
+        .collect();
+    Ok(ScreenRuntimeReport {
+        publish_reports,
+        stored_events,
+        dead_letters,
+    })
 }
 
 pub struct ScreenRuntimeSpine {
-    bus: EventBus,
+    bus: RootEventPublisher,
 }
 
 impl ScreenRuntimeSpine {
-    pub async fn with_default_handlers() -> Result<Self, EventingError> {
-        let bus = EventBus::new();
-        for phase in ScreenRuntimePhase::ordered_chain() {
-            bus.subscribe::<ScreenRuntimeEventPayload, _, _>(
-                EventSubscriber::new(
-                    SubscriberId::parse(phase.subscriber_id())?,
-                    EventType::parse(phase.event_type())?,
-                    TargetHandler::parse(phase.target_handler())?,
-                ),
-                |_| async { Ok(()) },
-            )
-            .await?;
+    fn without_owner_handlers() -> Self {
+        Self {
+            bus: EventBus::root(),
         }
-        Ok(Self { bus })
     }
 
     pub async fn with_durable_deletion_handler(
@@ -258,24 +322,6 @@ impl ScreenRuntimeSpine {
         )
         .await?;
         Ok(Self { bus })
-    }
-
-    async fn publish_input_chain(
-        &self,
-        input: ScreenRuntimeInput,
-        observed_at: &str,
-    ) -> Result<ScreenRuntimeReport, EventingError> {
-        let mut reports = Vec::new();
-        for phase in ScreenRuntimePhase::ordered_chain() {
-            let payload = screen_runtime_event_payload_from_input(*phase, &input, observed_at);
-            let metadata = screen_event_metadata(*phase, &input, observed_at)?;
-            reports.push(self.bus.publish(payload, metadata).await?);
-        }
-        Ok(ScreenRuntimeReport {
-            publish_reports: reports,
-            stored_events: self.bus.journal().await,
-            dead_letters: self.bus.dead_letters().await,
-        })
     }
 
     async fn publish_capture_queue_events(
@@ -332,36 +378,6 @@ impl ScreenRuntimeSpine {
 
     pub async fn retained_event_count(&self) -> usize {
         self.bus.journal().await.len()
-    }
-
-    async fn publish_degraded_event_chain(
-        &self,
-        input: ScreenRuntimeDegradedInput,
-        observed_at: &str,
-    ) -> Result<ScreenRuntimeReport, EventingError> {
-        let mut reports = Vec::new();
-        for phase in [
-            ScreenRuntimePhase::CaptureObserved,
-            ScreenRuntimePhase::QueueEncrypted,
-            ScreenRuntimePhase::AiAnalysisRequested,
-            ScreenRuntimePhase::AiAnalysisCompleted,
-            ScreenRuntimePhase::DeletionCommitted,
-            ScreenRuntimePhase::PortalReadModelUpdated,
-        ] {
-            let payload =
-                screen_runtime_event_payload_from_degraded_input(phase, &input, observed_at);
-            let metadata = screen_capture_event_metadata(
-                phase,
-                &ScreenRuntimeCaptureInput::from(&input),
-                observed_at,
-            )?;
-            reports.push(self.bus.publish(payload, metadata).await?);
-        }
-        Ok(ScreenRuntimeReport {
-            publish_reports: reports,
-            stored_events: self.bus.journal().await,
-            dead_letters: self.bus.dead_letters().await,
-        })
     }
 }
 

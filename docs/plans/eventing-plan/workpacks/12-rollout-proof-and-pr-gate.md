@@ -32,18 +32,17 @@ Expected tests/proof:
 
 Expected proof artifacts:
 
-- `output/eventing-plan-proof/rollout-proof/proof-summary.json`
-- `test-results/eventing-rollout-proof/proof.json`
-- `output/eventing-plan-proof/rollout-proof/pr-done-report.md`
-- `output/eventing-plan-proof/rollout-proof/command-logs/`
+- `output/eventing-plan-proof/12-rollout-proof-and-pr-gate/proof-summary.json`
+- `output/eventing-plan-proof/12-rollout-proof-and-pr-gate/pr-done-report.md`
+- `output/eventing-plan-proof/12-rollout-proof-and-pr-gate/command-logs/`
 
-These paths are the required local route-proof bundle for WP12. In this
-checkout they document current reconciled truth only: WP12 and WP13 are locally
-proved, WP11 is now locally proved as well, and WP10 remains open.
+These paths are the required local route-proof bundle for WP12. They are absent
+in this checkout, so WP12 remains open. WP10 is blocked on LAN WP26; WP11 is
+implementation-ready/open; WP13 is code-complete but validation/proof-open.
 
 Validation commands:
 
-- `node scripts/test/eventing-rollout-proof.mjs`
+- `node scripts/test/eventing-rollout-proof.mjs` (currently absent)
 - `git diff --check -- docs/proof/eventing-plan docs/plans/eventing-plan`
 
 Failure conditions:

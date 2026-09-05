@@ -10,7 +10,7 @@ describe('portal live activity surface adapter state', () => {
 
 function registerNetworkEvidenceDrawerRouteTests(): void {
   it('mounts the network evidence drawer on canonical network product routes only', () => {
-    expect(shouldRenderNetworkEvidenceDrawerRoute(ParentRoute.Activity)).toBe(true);
+    expect(shouldRenderNetworkEvidenceDrawerRoute(ParentRoute.Activity)).toBe(false);
     expect(shouldRenderNetworkEvidenceDrawerRoute(ParentRoute.NetworkActivity)).toBe(true);
     expect(shouldRenderNetworkEvidenceDrawerRoute(ParentRoute.Commands)).toBe(false);
     expect(shouldRenderNetworkEvidenceDrawerRoute(ParentRoute.Overview)).toBe(false);

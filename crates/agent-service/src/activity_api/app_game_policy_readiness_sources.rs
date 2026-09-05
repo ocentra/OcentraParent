@@ -1,6 +1,7 @@
 #[path = "app_game_policy_readiness_sources/classification_refs.rs"]
 mod classification_refs;
 
+use ocentra_app_game_core::app_game_risk_candidate_detection::detect_app_game_risk_candidate;
 use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
 use ocentra_parent_agent_protocol::app_game::AppGameServiceReadModel;
 
@@ -65,6 +66,28 @@ pub(super) fn category_candidate_refs(model: &AppGameServiceReadModel) -> Vec<Ac
 
 pub(super) fn category_candidate_row_count(model: &AppGameServiceReadModel) -> u64 {
     classification_refs::category_candidate_row_count(model)
+}
+
+pub(super) fn category_risk_routing(
+    model: &AppGameServiceReadModel,
+) -> (u64, Vec<ActivityEvidenceRef>) {
+    let mut candidate_count = 0;
+    let mut evidence = Vec::new();
+    for row in &model.inventory_rows {
+        if detect_app_game_risk_candidate(row).candidate.is_none() {
+            continue;
+        }
+        candidate_count += 1;
+        push_evidence(&mut evidence, row.evidence.clone());
+        push_local_db_row_evidence(
+            &mut evidence,
+            LocalDbRowEvidenceIdRef(&row.inventory_entry_id),
+        );
+        for category in &row.category_candidates {
+            push_evidence(&mut evidence, category.evidence.clone());
+        }
+    }
+    (candidate_count, evidence)
 }
 
 pub(super) fn unknown_review_refs(model: &AppGameServiceReadModel) -> Vec<ActivityEvidenceRef> {

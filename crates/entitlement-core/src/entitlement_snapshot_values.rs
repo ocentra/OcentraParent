@@ -19,6 +19,8 @@ pub enum EntitlementSnapshotSignatureState {
 pub enum EntitlementSnapshotFreshnessState {
     #[serde(rename = "fresh")]
     Fresh,
+    #[serde(rename = "grace")]
+    Grace,
     #[serde(rename = "stale")]
     Stale,
     #[serde(rename = "expired")]
@@ -65,6 +67,15 @@ pub enum EntitlementSnapshotPlanTier {
     Starter,
     #[serde(rename = "paid")]
     Paid,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum EntitlementSnapshotReleaseChannel {
+    Stable,
+    Beta,
+    Preview,
+    Development,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

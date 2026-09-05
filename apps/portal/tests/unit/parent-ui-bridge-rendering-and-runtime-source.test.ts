@@ -15,28 +15,6 @@ const SnapshotOnlyPanelBindings = [
   'activityState.appGameAdapterDispatchPanel ?? null',
   'activityState.appGameTimerParentSurfacePanel ?? null',
 ];
-const SocialProofPanelBindings = [
-  'BrowserParentExplanationRoutePanel',
-  'SocialAuditExplanationRoutePanel',
-  'SocialDashboardRoutePanel',
-  'SocialAlertReportRoutePanel',
-  'browserParentExplanationPanel',
-  'socialAuditExplanationPanel',
-  'socialDashboardPanel',
-  'socialAlertReportPanel',
-  'browserActionIntentStreamStatusPanel',
-];
-const ForbiddenSocialReadModels = [
-  'appGameNotificationParentSurfaceIntentReadModel',
-  'appGamePolicyReadinessReadModel',
-  'appGamePlatformProofStatusReadModel',
-  'appGameChildRuntimeTransportReceiptReadModel',
-  'appGameAdapterExecutionReadinessReadModel',
-  'appGameAdapterDispatchPreflightReadModel',
-  'appGameAdapterDispatchResultReadModel',
-  'appGameAdapterDispatchExecutedResult',
-  'appGameTimerParentSurfaceReadModel',
-];
 const AppGamePanelBindings = [
   'AppGameNotificationParentSurfaceRoutePanel',
   'AppGamePolicyReadinessRoutePanel',
@@ -62,24 +40,18 @@ const ForbiddenAppGameIntentBuilders = [
   'createAppGameTimerParentPreferenceSetupRequestPayload',
 ];
 
-it('product bridge guard: product route rendering keeps the route shell snapshot-only', () => {
+it('product bridge guard: live activity stays snapshot-only while Assistant uses its typed event projector', () => {
   const parentPortalRouteSource = readFileSync(resolve(TestDirectory, '..', 'src/ParentPortalRoute.tsx'), 'utf8');
-  const proofPanelsSocialSource = readFileSync(
-    resolve(TestDirectory, '..', 'src/portal-proof-panels-social-renderers.tsx'),
-    'utf8'
-  );
   const proofPanelsAppGameSource = readFileSync(
     resolve(TestDirectory, '..', 'src/portal-proof-panels-app-game-renderers.tsx'),
     'utf8'
   );
 
   expect(parentPortalRouteSource).toContain('const routeLiveActivity = state.routeSnapshot?.liveActivity ?? null;');
-  expect(parentPortalRouteSource).toContain('resolveSnapshotLiveActivityState(routeLiveActivity)');
+  expect(parentPortalRouteSource).toContain('resolveSnapshotLiveActivityState(routeLiveActivity, state.events)');
   expect(parentPortalRouteSource).not.toContain('resolveLiveActivityState(');
-  expect(parentPortalRouteSource).not.toContain('state.events');
+  expect(parentPortalRouteSource).toContain('latestParentAssistantResponse(state.events)');
   expectContainsAll(parentPortalRouteSource, SnapshotOnlyPanelBindings);
-  expectContainsAll(proofPanelsSocialSource, SocialProofPanelBindings);
-  expectNotContainsAll(proofPanelsSocialSource, ForbiddenSocialReadModels);
   expectContainsAll(proofPanelsAppGameSource, AppGamePanelBindings);
   expectNotContainsAll(proofPanelsAppGameSource, ForbiddenAppGameIntentBuilders);
 });

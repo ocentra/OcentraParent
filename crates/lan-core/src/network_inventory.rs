@@ -12,7 +12,7 @@ pub mod service_identity;
 pub mod ssdp_upnp;
 pub mod windows_neighbors;
 
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::atomic::AtomicBool, time::Instant};
 
 use ocentra_parent_agent_protocol::lan_pairing::{
     LanPairingDeviceReachability, LanPairingDeviceRef,
@@ -26,6 +26,18 @@ use self::helpers::{normalized_lookup_key, trimmed_non_empty};
 use self::service_identity::trusted_device_matches_network_identity;
 use self::service_identity::AllowedSnmpResponseObserver;
 use crate::network_inventory_hardware::LocalNetworkIdentity;
+
+pub struct LanNetworkDiscoveryRequest<'a> {
+    pub identity_hint_devices: &'a [LanPairingDeviceRef],
+    pub previous_devices: &'a [LanNetworkInventoryDevice],
+    pub refresh_mode: LanDiscoveryRefreshMode,
+    pub active_refresh_suppression_devices: &'a [LanPairingDeviceRef],
+    pub probe_suppression_devices: &'a [LanPairingDeviceRef],
+    pub selected_interface_scope: Option<&'a str>,
+    pub allowed_snmp_response_observer: AllowedSnmpResponseObserver<'a>,
+    pub cancellation: Option<&'a AtomicBool>,
+    pub deadline: Option<Instant>,
+}
 
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct LanPreviousNetworkInventory {
@@ -265,6 +277,12 @@ pub fn discover_lan_network_devices_with_hints_refresh_mode_and_scan_and_probe_s
     )
 }
 
+pub fn discover_lan_network_devices_with_hints_refresh_mode_and_scan_and_probe_suppression_and_allowed_snmp_observer_with_cancellation(
+    request: &LanNetworkDiscoveryRequest<'_>,
+) -> Vec<LanNetworkInventoryDevice> {
+    api::cancellation::discover_lan_network_devices_with_cancellation(request)
+}
+
 pub fn plan_lan_discovery_scan_with_active_refresh_suppression(
     identity_hint_devices: &[LanPairingDeviceRef],
     previous_devices: &[LanNetworkInventoryDevice],
@@ -279,15 +297,49 @@ pub fn plan_lan_discovery_scan_with_active_refresh_suppression(
     )
 }
 
+pub fn plan_lan_discovery_scan_until(
+    identity_hint_devices: &[LanPairingDeviceRef],
+    previous_devices: &[LanNetworkInventoryDevice],
+    refresh_mode: LanDiscoveryRefreshMode,
+    active_refresh_suppression_devices: &[LanPairingDeviceRef],
+    deadline: Instant,
+    cancellation: &AtomicBool,
+) -> LanDiscoveryScanPlan {
+    api::cancellation::plan_lan_discovery_scan_until(
+        identity_hint_devices,
+        previous_devices,
+        refresh_mode,
+        active_refresh_suppression_devices,
+        deadline,
+        cancellation,
+    )
+}
+
 pub fn targeted_arp_refresh_evidence_for_scan(
     previous_devices: &[LanNetworkInventoryDevice],
     refresh_mode: LanDiscoveryRefreshMode,
     active_refresh_suppression_devices: &[LanPairingDeviceRef],
 ) -> Vec<LanTargetedArpRefreshEvidence> {
-    api::targeted_arp_refresh_evidence_for_scan(
+    api::targeted_arp_refresh::targeted_arp_refresh_evidence_for_scan(
         previous_devices,
         refresh_mode,
         active_refresh_suppression_devices,
+    )
+}
+
+pub fn targeted_arp_refresh_evidence_for_scan_plan_until(
+    scan_plan: &LanDiscoveryScanPlan,
+    previous_devices: &[LanNetworkInventoryDevice],
+    active_refresh_suppression_devices: &[LanPairingDeviceRef],
+    cancellation: Option<&AtomicBool>,
+    outer_deadline: Option<Instant>,
+) -> Vec<LanTargetedArpRefreshEvidence> {
+    api::targeted_arp_refresh::targeted_arp_refresh_evidence_for_scan_plan_until(
+        scan_plan,
+        previous_devices,
+        active_refresh_suppression_devices,
+        cancellation,
+        outer_deadline,
     )
 }
 

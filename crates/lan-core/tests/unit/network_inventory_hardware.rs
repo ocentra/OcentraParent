@@ -25,6 +25,7 @@ fn windows_prefers_default_gateway_interface_and_skips_virtual_candidates() {
             "InterfaceAlias": "Ethernet 2",
             "MacAddress": "54-27-1e-97-c3-31",
             "DefaultGateway": "192.168.2.1",
+            "Status": "Up",
             "DnsServers": ["192.168.2.1", "1.1.1.1"],
             "DhcpServer": "192.168.2.1",
             "Ipv6Prefixes": ["2001:db8::42/64", "fe80::42/64"]
@@ -33,7 +34,8 @@ fn windows_prefers_default_gateway_interface_and_skips_virtual_candidates() {
             "IPAddress": "192.168.2.77",
             "PrefixLength": 24,
             "InterfaceAlias": "Wi-Fi",
-            "MacAddress": "aa-bb-cc-dd-ee-ff"
+            "MacAddress": "aa-bb-cc-dd-ee-ff",
+            "Status": "Up"
         }),
     ]);
 
@@ -99,6 +101,7 @@ fn linux_prefers_default_route_interface_and_captures_gateway_and_cidr() {
             json!({
                 "ifname": "docker0",
                 "address": "02:42:0a:9d:00:01",
+                "operstate": "UP",
                 "addr_info": [{
                     "family": "inet",
                     "local": "10.157.0.1",
@@ -109,6 +112,7 @@ fn linux_prefers_default_route_interface_and_captures_gateway_and_cidr() {
             json!({
                 "ifname": "eth0",
                 "address": "10:20:30:40:50:60",
+                "operstate": "UP",
                 "addr_info": [{
                     "family": "inet",
                     "local": "192.168.2.24",
@@ -119,6 +123,7 @@ fn linux_prefers_default_route_interface_and_captures_gateway_and_cidr() {
             json!({
                 "ifname": "wlp0s20f3",
                 "address": "54:27:1e:97:c3:31",
+                "operstate": "UP",
                 "addr_info": [
                     {
                         "family": "inet",
@@ -175,6 +180,7 @@ fn linux_skips_link_local_only_and_falls_back_to_first_viable_interface() {
             json!({
                 "ifname": "enp0s31f6",
                 "address": "10:20:30:40:50:60",
+                "operstate": "UP",
                 "addr_info": [{
                     "family": "inet",
                     "local": "169.254.10.20",
@@ -185,6 +191,7 @@ fn linux_skips_link_local_only_and_falls_back_to_first_viable_interface() {
             json!({
                 "ifname": "wlp0s20f3",
                 "address": "54:27:1e:97:c3:31",
+                "operstate": "UP",
                 "addr_info": [{
                     "family": "inet",
                     "local": "192.168.2.88",
@@ -305,6 +312,7 @@ fn windows_identity_keeps_wifi_ssid_only_for_wireless_aliases() {
         "PrefixLength": 24,
         "InterfaceAlias": "Wi-Fi",
         "MacAddress": "aa-bb-cc-dd-ee-ff",
+        "Status": "Up",
         "WifiSsid": "Home-Wifi"
     })]);
 
@@ -320,6 +328,7 @@ fn windows_identity_keeps_wifi_ssid_only_for_wireless_aliases() {
         "PrefixLength": 24,
         "InterfaceAlias": "Ethernet 2",
         "MacAddress": "54-27-1e-97-c3-31",
+        "Status": "Up",
         "WifiSsid": "Should-Not-Survive"
     })]);
 
@@ -329,4 +338,123 @@ fn windows_identity_keeps_wifi_ssid_only_for_wireless_aliases() {
             .map(|identity| identity.wifi_ssid.as_deref()),
         Some(None)
     );
+}
+
+#[test]
+fn windows_rejects_ambiguous_best_interface_candidates() {
+    let identity = preferred_windows_local_network_identity(&[
+        json!({
+            "IPAddress": "192.168.2.42",
+            "PrefixLength": 24,
+            "InterfaceAlias": "Ethernet 2",
+            "DefaultGateway": "192.168.2.1",
+            "Status": "Up"
+        }),
+        json!({
+            "IPAddress": "192.168.2.43",
+            "PrefixLength": 24,
+            "InterfaceAlias": "Wi-Fi",
+            "DefaultGateway": "192.168.2.1",
+            "Status": "Up"
+        }),
+    ]);
+
+    assert_eq!(identity, None);
+}
+
+#[test]
+fn linux_rejects_ambiguous_default_routes() {
+    let identity = preferred_linux_local_network_identity(
+        &[
+            json!({
+                "dst": "default",
+                "gateway": "192.168.2.1",
+                "dev": "eth0"
+            }),
+            json!({
+                "dst": "default",
+                "gateway": "192.168.2.254",
+                "dev": "wlp0s20f3"
+            }),
+        ],
+        &[
+            json!({
+                "ifname": "eth0",
+                "operstate": "UP",
+                "addr_info": [{
+                    "family": "inet",
+                    "local": "192.168.2.42",
+                    "prefixlen": 24,
+                    "scope": "global"
+                }]
+            }),
+            json!({
+                "ifname": "wlp0s20f3",
+                "operstate": "UP",
+                "addr_info": [{
+                    "family": "inet",
+                    "local": "192.168.2.43",
+                    "prefixlen": 24,
+                    "scope": "global"
+                }]
+            }),
+        ],
+        &[],
+    );
+
+    assert_eq!(identity, None);
+}
+
+#[test]
+fn linux_does_not_fallback_when_default_route_interface_is_unusable() {
+    let identity = preferred_linux_local_network_identity(
+        &[json!({
+            "dst": "default",
+            "gateway": "192.168.2.1",
+            "dev": "wlp0s20f3"
+        })],
+        &[json!({
+            "ifname": "eth0",
+            "addr_info": [{
+                "family": "inet",
+                "local": "192.168.2.42",
+                "prefixlen": 24,
+                "scope": "global"
+            }]
+        })],
+        &[],
+    );
+
+    assert_eq!(identity, None);
+}
+
+#[test]
+fn ipv4_prefix_lengths_above_32_are_rejected() {
+    let identity = preferred_linux_local_network_identity(
+        &[],
+        &[json!({
+            "ifname": "eth0",
+            "addr_info": [{
+                "family": "inet",
+                "local": "192.168.2.42",
+                "prefixlen": 33,
+                "scope": "global"
+            }]
+        })],
+        &[],
+    );
+
+    assert_eq!(identity, None);
+}
+
+#[test]
+fn windows_ipv4_prefix_lengths_above_32_are_rejected() {
+    let identity = preferred_windows_local_network_identity(&[json!({
+        "IPAddress": "192.168.2.42",
+        "PrefixLength": 33,
+        "InterfaceAlias": "Ethernet 2",
+        "DefaultGateway": "192.168.2.1"
+    })]);
+
+    assert_eq!(identity, None);
 }

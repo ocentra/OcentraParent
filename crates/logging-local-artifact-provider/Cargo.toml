@@ -1,0 +1,29 @@
+[package]
+name = "ocentra-logging-local-artifact-provider"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[lints]
+workspace = true
+
+[[bin]]
+name = "ocentra-logging-local-artifact-provider"
+path = "src/main.rs"
+
+[[test]]
+name = "integration_local_artifact_provider"
+path = "tests/integration/local_artifact_provider.rs"
+
+[dependencies]
+base64 = "0.22.1"
+getrandom = "0.3.4"
+ocentra-parent-logging-core = { path = "../logging-core" }
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.145"
+sha2 = "0.10.9"
+
+[target.'cfg(windows)'.dependencies]
+interprocess = "2.4.3"
+ocentra-logging-local-artifact-windows-ffi = { package = "ocentra-parent-logging-local-artifact-windows-ffi", path = "../logging-local-artifact-windows-ffi" }

@@ -1,6 +1,12 @@
 mod gpu;
+mod interface_map;
 pub mod linux_identity;
 pub mod network_identity_support;
+
+use std::{
+    sync::atomic::{AtomicBool, Ordering},
+    time::{Duration, Instant},
+};
 
 use self::gpu::{
     cpu_core_summary, gpu_drivers, gpu_memory, gpu_names, memory_summary, nvidia_smi_gpus,
@@ -13,9 +19,11 @@ use self::linux_identity::{
 
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceHardwareProfile;
+use serde::{Deserialize, Serialize};
 
 use crate::network_inventory_command::{
-    command_json_records, command_json_single, record_text, record_u64,
+    command_json_records, command_json_records_with_timeout_and_cancellation, command_json_single,
+    record_text, record_u64,
 };
 
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
@@ -60,6 +68,75 @@ pub struct LocalNetworkIdentity {
     pub dhcp_server: Option<String>,
     pub broadcast_address: Option<String>,
     pub ipv6_prefixes: Vec<String>,
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum LocalNetworkInterfaceClassification {
+    Physical,
+    Virtual,
+    VpnOrTunnel,
+    Container,
+    Wsl,
+    Loopback,
+    LinkLocalOnly,
+    #[default]
+    Unknown,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LocalNetworkInterfaceMap {
+    pub interfaces: Vec<LocalNetworkInterface>,
+    #[serde(default)]
+    pub recommended_interface_id: Option<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LocalNetworkInterface {
+    pub id: String,
+    pub name: String,
+    #[serde(default)]
+    pub description: Option<String>,
+    #[serde(default)]
+    pub index: Option<u32>,
+    #[serde(default)]
+    pub mac_address: Option<String>,
+    #[serde(default)]
+    pub ip_addresses: Vec<String>,
+    #[serde(default)]
+    pub default_gateway: Option<String>,
+    #[serde(default)]
+    pub dns_servers: Vec<String>,
+    #[serde(default)]
+    pub dhcp_server: Option<String>,
+    #[serde(default)]
+    pub broadcast_address: Option<String>,
+    #[serde(default)]
+    pub ipv4_cidr: Option<String>,
+    #[serde(default)]
+    pub ipv6_prefixes: Vec<String>,
+    #[serde(default)]
+    pub is_up: bool,
+    #[serde(default)]
+    pub is_connected: bool,
+    #[serde(default)]
+    pub state_observed: bool,
+    #[serde(default)]
+    pub is_loopback: bool,
+    #[serde(default)]
+    pub classification: LocalNetworkInterfaceClassification,
+    #[serde(default)]
+    pub ignored_reason: Option<network_identity_support::LocalNetworkInterfaceIgnoreReason>,
+    #[serde(default)]
+    pub is_link_local_only: bool,
+    #[serde(default)]
+    pub wifi_ssid: Option<String>,
+    #[serde(default)]
+    pub wifi_signal_percent: Option<u8>,
+    #[serde(default)]
+    pub has_default_route: bool,
 }
 
 pub(crate) fn local_hardware_profile() -> LocalHardwareProfile {
@@ -117,6 +194,96 @@ pub(crate) fn local_network_identity() -> Option<LocalNetworkIdentity> {
         );
     }
     None
+}
+
+pub(crate) fn local_network_identity_with_timeout(
+    timeout: Duration,
+) -> Option<LocalNetworkIdentity> {
+    if timeout.is_zero() {
+        return None;
+    }
+    let started_at = Instant::now();
+    if cfg!(target_os = "windows") {
+        return preferred_windows_local_network_identity(&command_json_records_with_budget(
+            constants::lan_pairing::POWERSHELL_EXE,
+            &local_network_identity_args(),
+            timeout,
+        ));
+    }
+    if cfg!(any(target_os = "linux", target_os = "android")) {
+        let dns_servers = linux_dns_servers_from_resolv_conf();
+        let route_records = command_json_records_with_budget(
+            constants::lan_pairing::IP_EXE,
+            &linux_route_args(),
+            timeout,
+        );
+        let remaining = timeout.saturating_sub(started_at.elapsed());
+        let address_records = command_json_records_with_budget(
+            constants::lan_pairing::IP_EXE,
+            &linux_address_args(),
+            remaining,
+        );
+        return preferred_linux_local_network_identity(
+            &route_records,
+            &address_records,
+            &dns_servers,
+        );
+    }
+    None
+}
+
+pub(crate) fn local_network_identity_until(
+    deadline: Instant,
+    cancellation: &AtomicBool,
+) -> Option<LocalNetworkIdentity> {
+    let first_budget = identity_budget(deadline, cancellation)?;
+    if cfg!(target_os = "windows") {
+        return preferred_windows_local_network_identity(
+            &command_json_records_with_timeout_and_cancellation(
+                constants::lan_pairing::POWERSHELL_EXE,
+                &local_network_identity_args(),
+                first_budget,
+                cancellation,
+            ),
+        );
+    }
+    if cfg!(any(target_os = "linux", target_os = "android")) {
+        let dns_servers = linux_dns_servers_from_resolv_conf();
+        let route_records = command_json_records_with_timeout_and_cancellation(
+            constants::lan_pairing::IP_EXE,
+            &linux_route_args(),
+            first_budget,
+            cancellation,
+        );
+        let address_records = command_json_records_with_timeout_and_cancellation(
+            constants::lan_pairing::IP_EXE,
+            &linux_address_args(),
+            identity_budget(deadline, cancellation)?,
+            cancellation,
+        );
+        return preferred_linux_local_network_identity(
+            &route_records,
+            &address_records,
+            &dns_servers,
+        );
+    }
+    None
+}
+
+fn identity_budget(deadline: Instant, cancellation: &AtomicBool) -> Option<Duration> {
+    if cancellation.load(Ordering::Acquire) {
+        return None;
+    }
+    let remaining = deadline.saturating_duration_since(Instant::now());
+    (!remaining.is_zero()).then_some(remaining)
+}
+
+fn command_json_records_with_budget(
+    program: &str,
+    args: &[&str],
+    timeout: Duration,
+) -> Vec<serde_json::Value> {
+    crate::network_inventory_command::command_json_records_with_timeout(program, args, timeout)
 }
 
 fn computer_system_args() -> [&'static str; 5] {

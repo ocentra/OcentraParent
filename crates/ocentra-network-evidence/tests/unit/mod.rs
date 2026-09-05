@@ -26,7 +26,6 @@ mod managed_browser;
 mod notification;
 mod parser_policy;
 mod performance;
-mod pipeline;
 mod platform_claims;
 mod policy;
 mod process;

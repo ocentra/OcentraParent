@@ -20,7 +20,9 @@ fn assert_schedule_time_budget_carryover_mode(
             assert_discard_unused_carryover(max_minutes)
         }
         PolicyScheduleBudgetCarryoverMode::CapCarryover => assert_cap_carryover(max_minutes),
-        PolicyScheduleBudgetCarryoverMode::CarryForward => Ok(()),
+        PolicyScheduleBudgetCarryoverMode::CarryForward => {
+            assert_carry_forward_carryover(max_minutes)
+        }
     }
 }
 
@@ -43,5 +45,16 @@ fn assert_cap_carryover(max_minutes: Option<u16>) -> Result<(), EventingError> {
     Err(EventingError::InvalidValue {
         field: policy_control::source::FIELD_SCHEDULE_CARRYOVER_MAX_MINUTES,
         value: "cap-carryover".to_string(),
+    })
+}
+
+fn assert_carry_forward_carryover(max_minutes: Option<u16>) -> Result<(), EventingError> {
+    if max_minutes.is_none_or(|value| value > 0) {
+        return Ok(());
+    }
+
+    Err(EventingError::InvalidValue {
+        field: policy_control::source::FIELD_SCHEDULE_CARRYOVER_MAX_MINUTES,
+        value: "carry-forward".to_string(),
     })
 }

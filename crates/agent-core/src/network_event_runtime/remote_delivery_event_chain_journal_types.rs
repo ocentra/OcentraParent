@@ -12,6 +12,7 @@ pub enum NetworkRuntimeRemoteEventChainJournalError {
     Eventing(EventingError),
     EmptyJournal,
     ReplayMismatch,
+    RuntimeOwnerUnavailable,
     UnsupportedClaim,
 }
 

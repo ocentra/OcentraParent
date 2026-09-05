@@ -36,6 +36,9 @@ describe('redaction helpers', () => {
       recoveryBundlePath: 'E:\\OcentraParent\\recovery-bundle\\bundle.zip',
       childActivityCustody: 'child-activity-present',
       childDeviceId: 'child-device-001',
+      childName: 'child-name-001',
+      policyText: 'private policy text',
+      rawWebhookBody: '{"childId":"child-001"}',
       localDeviceSecretMarker: 'local-device-secret-123',
       stripeWebhookSecret: 'whsec_123',
       nested: {
@@ -55,6 +58,9 @@ describe('redaction helpers', () => {
       recoveryBundlePath: '[redacted]',
       childActivityCustody: '[redacted]',
       childDeviceId: '[redacted]',
+      childName: '[redacted]',
+      policyText: '[redacted]',
+      rawWebhookBody: '[redacted]',
       localDeviceSecretMarker: '[redacted]',
       stripeWebhookSecret: '[redacted]',
       nested: {

@@ -1,5 +1,8 @@
 use ocentra_eventing::bus::reports::handler::EventMetricsSnapshot;
-use ocentra_eventing::{bus::subscriber::SubscriptionReport, bus::EventBus, error::EventingError};
+use ocentra_eventing::{
+    bus::publisher::RootEventPublisher, bus::subscriber::SubscriptionReport, bus::EventBus,
+    error::EventingError,
+};
 use ocentra_lan_core::lan_pairing;
 use ocentra_network_core::network_runtime;
 use ocentra_parent_agent_protocol::child_domain_runtime::{
@@ -12,8 +15,8 @@ use routing::{child_domain_runtime_metadata, ChildDomainRuntimeHop};
 use state::ChildDomainRuntimeFlowState;
 use subscriptions::{
     subscribe_child_domain_ai, subscribe_child_domain_ai_policy_bridge,
-    subscribe_child_domain_notification, subscribe_child_domain_observer,
-    subscribe_child_domain_policy,
+    subscribe_child_domain_evidence, subscribe_child_domain_notification,
+    subscribe_child_domain_observer, subscribe_child_domain_policy,
 };
 
 mod routing;
@@ -37,7 +40,7 @@ pub struct ChildDomainRuntimeFlowReport {
 }
 
 pub struct ChildDomainRuntimeEventFlow {
-    bus: EventBus,
+    bus: RootEventPublisher,
     domain: ChildRuntimeDomain,
     observer_subscription_report: SubscriptionReport,
     ai_subscription_report: SubscriptionReport,
@@ -48,22 +51,23 @@ pub struct ChildDomainRuntimeEventFlow {
 }
 
 impl ChildDomainRuntimeEventFlow {
-    pub async fn for_event(event: &ChildDomainObservedEvent) -> Result<Self, EventingError> {
-        let bus = EventBus::new();
+    pub async fn for_domain(domain: ChildRuntimeDomain) -> Result<Self, EventingError> {
+        let bus = EventBus::root();
         let state = ChildDomainRuntimeFlowState::default();
-        let observer_subscription_report =
-            subscribe_child_domain_observer(&bus, event, state.clone()).await?;
-        let ai_subscription_report = subscribe_child_domain_ai(&bus, event, state.clone()).await?;
+        let observer_subscription_report = subscribe_child_domain_observer(&bus, domain).await?;
+        let _evidence_subscription_report =
+            subscribe_child_domain_evidence(&bus, domain, state.clone()).await?;
+        let ai_subscription_report = subscribe_child_domain_ai(&bus, domain, state.clone()).await?;
         let ai_policy_subscription_report =
             subscribe_child_domain_ai_policy_bridge(&bus, state.clone()).await?;
         let policy_subscription_report =
-            subscribe_child_domain_policy(&bus, event, state.clone()).await?;
+            subscribe_child_domain_policy(&bus, domain, state.clone()).await?;
         let notification_subscription_report =
             subscribe_child_domain_notification(&bus, state.clone()).await?;
 
         Ok(Self {
             bus,
-            domain: event.domain,
+            domain,
             observer_subscription_report,
             ai_subscription_report,
             ai_policy_subscription_report,
@@ -71,6 +75,14 @@ impl ChildDomainRuntimeEventFlow {
             notification_subscription_report,
             state,
         })
+    }
+
+    pub async fn for_event(event: &ChildDomainObservedEvent) -> Result<Self, EventingError> {
+        Self::for_domain(event.domain).await
+    }
+
+    pub fn domain(&self) -> ChildRuntimeDomain {
+        self.domain
     }
 
     pub async fn publish_observed(

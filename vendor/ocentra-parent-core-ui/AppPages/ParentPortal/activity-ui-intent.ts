@@ -849,13 +849,18 @@ function upsertLanDeviceSlot(
     hasCanonicalLanPhysicalSlotValue(existing.value) &&
     !incomingHasAgentFacet &&
     input.preferState !== true;
-  const state = preserveCanonicalState
-    ? stringValue(existing.badge) || input.state
-    : input.preferState ||
-        !existing ||
-        activityDeviceStateRank(input.state) >= activityDeviceStateRank(stringValue(existing.badge))
-      ? input.state
-      : stringValue(existing.badge);
+  const preserveExistingRevokedState =
+    !!existing && existing.value === slotValue && stringValue(existing.badge) === 'revoked';
+  const state =
+    input.state === 'revoked' || preserveExistingRevokedState
+      ? 'revoked'
+      : preserveCanonicalState
+        ? stringValue(existing.badge) || input.state
+        : input.preferState ||
+            !existing ||
+            activityDeviceStateRank(input.state) >= activityDeviceStateRank(stringValue(existing.badge))
+          ? input.state
+          : stringValue(existing.badge);
   const status = activityDeviceChoiceStatus(state);
   const inferredDeviceType = inferLanDeviceKind(input);
   const parentDeviceKind = input.parentDeviceKind ?? existing?.device?.parentDeviceKind;
@@ -1302,17 +1307,21 @@ function activityReportFiles(
   reportDocument: Record<string, unknown> | null,
   reportHistory: Record<string, unknown> | null
 ): readonly ParentPortalActivityReportFile[] {
-  const currentReport = reportDocument ? [activityReportFileFromDocument(reportDocument, null)] : [];
+  const currentReport = reportDocument
+    ? [activityReportFileFromDocument(reportDocument, recordValue(reportDocument['savedMetadata']))]
+    : [];
   const reports = reportHistory?.['reports'];
   if (!Array.isArray(reports)) return currentReport;
-  return currentReport.concat(
-    reports.flatMap((item) => {
-      if (!isRecord(item)) return [];
-      const report = recordValue(item['parsedReport']);
-      if (!report) return [];
-      return [activityReportFileFromDocument(report, item)];
-    })
-  );
+  return currentReport
+    .concat(
+      reports.flatMap((item) => {
+        if (!isRecord(item)) return [];
+        const report = recordValue(item['parsedReport']);
+        if (!report) return [];
+        return [activityReportFileFromDocument(report, item)];
+      })
+    )
+    .filter((item, index, items) => items.findIndex((candidate) => candidate.id === item.id) === index);
 }
 
 function activityReportFileFromDocument(

@@ -1,33 +1,25 @@
 use std::{fs, path::Path};
 
-use super::{
-    active_record,
-    record::{binding, Record},
-    Error,
-};
+use super::Error;
+
+#[path = "windows_device_trust_custody_active_record_scan/entry.rs"]
+mod entry;
+
+// Recovery inspection is fail-closed and bounded so a hostile custody root cannot
+// turn startup into an unbounded directory walk or allocation.
+const MAX_ACTIVE_RECORD_SCAN_ENTRIES: usize = 1024;
+const MAX_ACTIVE_RECORD_BYTES: u64 = 1024 * 1024;
 
 pub(super) fn any_present(root: &Path, generation: &str) -> Result<bool, Error> {
     let entries = fs::read_dir(root).map_err(|_error| Error::Io)?;
+    let mut scanned_entries = 0_usize;
     for entry in entries {
-        let entry = entry.map_err(|_error| Error::Io)?;
-        let path = entry.path();
-        if path
-            .extension()
-            .is_none_or(|extension| extension != "sealed")
-        {
-            continue;
+        scanned_entries = scanned_entries.checked_add(1).ok_or(Error::Platform)?;
+        if scanned_entries > MAX_ACTIVE_RECORD_SCAN_ENTRIES {
+            return Err(Error::Platform);
         }
-        let encoded = match fs::read(&path) {
-            Ok(encoded) => encoded,
-            Err(error) if error.kind() == std::io::ErrorKind::NotFound => continue,
-            Err(_error) => return Err(Error::Io),
-        };
-        let record = match serde_json::from_slice::<Record>(&encoded) {
-            Ok(record) => record,
-            Err(_error) => continue,
-        };
-        let binding = binding([&record.family, &record.account, &record.device, generation])?;
-        if active_record::record_is_active(&record, &binding)? {
+        let path = entry.map_err(|_error| Error::Io)?.path();
+        if entry::is_active(&path, generation)? {
             return Ok(true);
         }
     }

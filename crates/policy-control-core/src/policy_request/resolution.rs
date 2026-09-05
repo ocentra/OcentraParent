@@ -11,7 +11,7 @@ use super::{
     decision::policy_request_status_for_approval,
     policy_request_schema_version,
     status::{policy_override_id_value, policy_request_status_name},
-    validation::validate_child_policy_request,
+    validation::{validate_child_policy_request, validate_policy_temporary_override},
     ChildPolicyRequest, ParentPolicyApproval, PolicyApprovalDecision, PolicyOverrideId,
     PolicyOverrideState, PolicyRequestKind, PolicyRequestResolution, PolicyTemporaryOverride,
 };
@@ -63,6 +63,7 @@ fn resolve_replayed_parent_policy_approval(
             value: policy_control::request::VALUE_MISSING_OVERRIDE_FOR_RESOLVED_APPROVAL_REPLAY
                 .to_string(),
         })?;
+        validate_policy_temporary_override(replay_override)?;
         assert_override_matches(request, approval, replay_override)?;
         Some(replay_override.clone())
     } else {
@@ -135,7 +136,7 @@ fn build_policy_temporary_override(
         });
     }
 
-    Ok(PolicyTemporaryOverride {
+    let temporary_override = PolicyTemporaryOverride {
         schema_version: policy_request_schema_version()?,
         override_id: PolicyOverrideId::parse(policy_override_id_value(&approval.approval_id))?,
         source_request_id: request.request_id.clone(),
@@ -156,7 +157,9 @@ fn build_policy_temporary_override(
             .unwrap_or_else(|| request.expires_at.clone()),
         state: PolicyOverrideState::Active,
         audit_reference_ids: vec![approval.audit_reference_id.clone()],
-    })
+    };
+    validate_policy_temporary_override(&temporary_override)?;
+    Ok(temporary_override)
 }
 
 fn assert_override_matches(
@@ -164,6 +167,7 @@ fn assert_override_matches(
     approval: &ParentPolicyApproval,
     existing_override: &PolicyTemporaryOverride,
 ) -> Result<(), EventingError> {
+    validate_policy_temporary_override(existing_override)?;
     let expected_action = approval
         .approved_action
         .unwrap_or(request.scope.requested_action);

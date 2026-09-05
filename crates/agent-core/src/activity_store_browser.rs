@@ -135,9 +135,9 @@ fn browser_read_row_from_store(row: BrowserStoreRow) -> Option<BrowserReadRow> {
         degraded_reason: string_field(fields, constants::field::DEGRADED_REASON)
             .or_else(|| string_field(fields, constants::field::REASON)),
         stale_at,
-        custody_label: custody_label_field(fields).unwrap_or(BrowserCustodyLabel::ChildDeviceLocal),
+        custody_label: custody_label_field(fields).unwrap_or(BrowserCustodyLabel::Unavailable),
         query_visibility: query_visibility_field(fields)
-            .unwrap_or(BrowserQueryVisibilityLabel::LiveLocal),
+            .unwrap_or(BrowserQueryVisibilityLabel::Unavailable),
     };
 
     Some(BrowserReadRow {

@@ -1,6 +1,6 @@
 # Decisions
 
-This plan has eight canonical decisions. Each decision is owned by one detailed doc and one workpack.
+This plan has nine canonical decisions. Each decision is owned by one detailed doc and one workpack.
 
 | ID | Decision | Canonical doc | Workpack | Why it matters |
 | --- | -------- | ------------- | -------- | -------------- |
@@ -12,6 +12,7 @@ This plan has eight canonical decisions. Each decision is owned by one detailed 
 | AIF-006 | Security proof and route gate | [PROOF_AND_TEST_INVENTORY.md](PROOF_AND_TEST_INVENTORY.md) | [06-security-proof-and-route-gate](workpacks/06-security-proof-and-route-gate.md) | Prevents PR-ready claims without negative proof and route sync. |
 | AIF-007 | Parent family setup UI expectations | [UI_EXPECTATIONS.md](UI_EXPECTATIONS.md) | [07-parent-account-family-setup-ui](workpacks/07-parent-account-family-setup-ui.md) | Keeps the first-run UI honest about source, custody, and trust. |
 | AIF-008 | Research anchors and UI guidance | [RESEARCH_AND_UI_GUIDANCE.md](RESEARCH_AND_UI_GUIDANCE.md) | [07-parent-account-family-setup-ui](workpacks/07-parent-account-family-setup-ui.md) | Pins the UI and provider choices to official references instead of guesses. |
+| AIF-009 | Multi-owner effect fencing and recovery | [MULTI_OWNER_EFFECT_FENCING_DECISION.md](MULTI_OWNER_EFFECT_FENCING_DECISION.md) | [05-runtime-effect-fencing-coordinator](workpacks/05-runtime-effect-fencing-coordinator.md) | Prevents an Account-local snapshot ledger from pretending to atomically own Device Trust, step-up, capability, or lease truth. |
 
 Execution summary:
 

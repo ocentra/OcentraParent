@@ -62,6 +62,7 @@ describe('app/game notification parent surface panel', () => {
     expect(html).toContain('scheduler-entry-app-game-time-limit, outbox-record-app-game-time-limit');
     expect(html).toContain('app-game-notification-parent-surface-unavailable');
     expect(html).toContain('unavailable-visible');
+    expect((html.match(/<dt>Status<\/dt>/g) ?? []).length).toBe(2);
   });
 
   it('keeps the Rust-owned empty state explicit when the panel snapshot is absent', () => {
@@ -71,8 +72,56 @@ describe('app/game notification parent surface panel', () => {
     expect(html).toContain('service event not reported');
   });
 
+  it('finds the runtime reference by label instead of metric position', () => {
+    const panel: ParentAppGameNotificationParentSurfacePanelSnapshot = {
+      ...NotificationParentSurfacePanel,
+      metrics: [
+        { label: 'Runtime reference', value: 'runtime-ref-reordered' },
+        { label: 'Status', value: 'manual-required' },
+        { label: 'Rows returned', value: '0' },
+      ],
+      rows: [],
+    };
+
+    const html = renderToStaticMarkup(createElement(AppGameNotificationParentSurfaceRoutePanel, { panel }));
+
+    expect(html).toContain('runtime-ref-reordered');
+    expect((html.match(/<dt>Status<\/dt>/g) ?? []).length).toBe(1);
+  });
+
   it('mounts only on the App/Game Sessions route', () => {
     expect(shouldRenderAppGameNotificationParentSurfaceRoute(ParentRoute.AppGameSessions)).toBe(true);
     expect(shouldRenderAppGameNotificationParentSurfaceRoute(ParentRoute.Notifications)).toBe(false);
+  });
+
+  it('keeps long and hostile Rust-owned row metadata text-visible and escaped', () => {
+    const hostile = '<img src=x onerror=alert(1)> & <script>alert(2)</script>';
+    const unavailableRow = NotificationParentSurfacePanel.rows[1];
+    if (unavailableRow === undefined) {
+      throw new Error('Expected the unavailable notification row to be present.');
+    }
+    const panel: ParentAppGameNotificationParentSurfacePanelSnapshot = {
+      ...NotificationParentSurfacePanel,
+      rows: [
+        {
+          key: 'hostile-row',
+          title: `${hostile} ${'long-'.repeat(80)}`,
+          details: [
+            { label: 'Status', value: hostile },
+            { label: 'Manual proof', value: `${hostile} provider-adapter-required` },
+          ],
+        },
+        unavailableRow,
+      ],
+    };
+
+    const html = renderToStaticMarkup(createElement(AppGameNotificationParentSurfaceRoutePanel, { panel }));
+
+    expect(html).toContain('long-'.repeat(80));
+    expect(html).toContain('&lt;img src=x onerror=alert(1)&gt;');
+    expect(html).toContain('&lt;script&gt;alert(2)&lt;/script&gt;');
+    expect(html).not.toContain('<img src=x onerror=alert(1)>');
+    expect(html).not.toContain('<script>alert(2)</script>');
+    expect((html.match(/product-status-card/g) ?? []).length).toBe(3);
   });
 });

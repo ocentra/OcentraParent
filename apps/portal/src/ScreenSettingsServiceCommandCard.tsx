@@ -25,42 +25,42 @@ export function ScreenSettingsServiceCommandCard({
   readonly response: ScreenSettingsServiceResponse;
   readonly serviceStatus: ReactNode;
 }): ReactElement {
+  const requestId = response?.requestId ?? pendingRequestId;
+  const settingVersion = response?.setting?.settingVersion;
+  const auditEventId = response?.auditEventId;
+  const reason = response?.message ?? response?.rejectionReason;
+
   return (
     <article className={screenSettingsWritableCardClassName()}>
       <h2>{proof.serviceCommandHeading}</h2>
-      <div className={PortalDom.Classes.RouteTabs}>
-        <button
-          className={PortalDom.Classes.ThemeToggleButton}
-          disabled={!commandEnabled}
-          onClick={onSave}
-          type={PortalDom.ButtonType.Button}
-        >
-          {proof.serviceApplyActionLabel}
-        </button>
-        <button
-          className={PortalDom.Classes.ThemeToggleButton}
-          disabled={!commandEnabled}
-          onClick={onRefresh}
-          type={PortalDom.ButtonType.Button}
-        >
-          {proof.serviceRefreshActionLabel}
-        </button>
-      </div>
+      {commandEnabled ? (
+        <div className={PortalDom.Classes.RouteTabs}>
+          <button className={PortalDom.Classes.ThemeToggleButton} onClick={onSave} type={PortalDom.ButtonType.Button}>
+            {proof.serviceApplyActionLabel}
+          </button>
+          <button
+            className={PortalDom.Classes.ThemeToggleButton}
+            onClick={onRefresh}
+            type={PortalDom.ButtonType.Button}
+          >
+            {proof.serviceRefreshActionLabel}
+          </button>
+        </div>
+      ) : null}
       <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
         <ScreenSettingsServiceCommandDetail label={PortalDetails.Status} value={serviceStatus} />
-        <ScreenSettingsServiceCommandDetail
-          label={PortalDetails.RequestId}
-          value={response?.requestId ?? pendingRequestId ?? proof.serviceNoResponseStatus}
-        />
-        <ScreenSettingsServiceCommandDetail
-          label={PortalDetails.Version}
-          value={response?.setting?.settingVersion ?? null}
-        />
-        <ScreenSettingsServiceCommandDetail label={PortalDetails.EventId} value={response?.auditEventId ?? null} />
-        <ScreenSettingsServiceCommandDetail
-          label={PortalDetails.Reason}
-          value={response?.message ?? response?.rejectionReason}
-        />
+        {requestId === null ? null : (
+          <ScreenSettingsServiceCommandDetail label={PortalDetails.RequestId} value={requestId} />
+        )}
+        {settingVersion === undefined ? null : (
+          <ScreenSettingsServiceCommandDetail label={PortalDetails.Version} value={settingVersion} />
+        )}
+        {auditEventId === undefined ? null : (
+          <ScreenSettingsServiceCommandDetail label={PortalDetails.EventId} value={auditEventId} />
+        )}
+        {reason === undefined ? null : (
+          <ScreenSettingsServiceCommandDetail label={PortalDetails.Reason} value={reason} />
+        )}
       </dl>
     </article>
   );

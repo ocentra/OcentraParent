@@ -2,7 +2,8 @@ use ocentra_parent_screen_capture_adapter::trigger_scheduler::ScreenCaptureSched
 
 use crate::activity_capture::ActivityCaptureError;
 use crate::screen_ai_foreground_runtime::{
-    ScreenAiForegroundKey, ScreenAiForegroundTickClock, ScreenAiForegroundTickOutcome,
+    types::{ScreenAiForegroundKey, ScreenAiForegroundTickClock},
+    ScreenAiForegroundTickOutcome,
 };
 use crate::screen_ai_foreground_runtime_config::ScreenAiForegroundRuntimeConfig;
 

@@ -73,3 +73,32 @@ has parent-visible portal source freshness rendering proof. The capability
 remains in progress because policy consumption, live provider quality, runtime
 evaluation, production notifications, broad blocking, and cross-platform proof
 remain open.
+
+## Live Code/Test Re-Audit - 2026-08-24
+
+- The production path now exists: service-backed `sourceStatusRows` flow through
+  `app-game-dashboard-intent.ts`, the split source-panel intent, and the mounted
+  `ParentPortalSvgSurface.tsx` into the App/Game Sessions route.
+- The rendered surface exposes source row/fresh counts plus capability,
+  timestamp, and evidence summaries. It does not mint policy or source
+  authority.
+- Canonical `ca8c1ae76` adds the named real
+  `apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts`. It drives
+  the exported dashboard/source-panel intent and covers fresh/manual,
+  unavailable, stale, degraded, hostile-metadata, evidence, and redaction
+  behavior without inspecting source text or minting backend authority.
+- Production and expected test source are present. Focused execution, proof,
+  checklist acceptance, READY, and DONE remain open.
+
+## Graph ownership correction — 2026-08-25
+
+WP48 owns the dashboard source-row seam in
+`vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-dashboard-intent.ts`
+and the shared focused test packet
+`apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts`. WP63 is a
+consumer of that seam (`WP63 -> WP48`) and owns only the source-panel intent.
+The bridge, live-activity state, activity intent, SVG surface, portal surface,
+route, and route-scaffold roots are not WP48/WP63 implementation claims; the
+broader mounted surface remains with the existing App/Game dashboard owner.
+This is graph/docs routing only. The shared focused test source is present but
+unexecuted; proof and the remaining completion gates stay open.

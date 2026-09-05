@@ -26,6 +26,10 @@ const APP_GAME_POLICY_KIND_LABELS: &[(&str, &str)] = &[
         "Category candidate",
     ),
     (
+        app_game_policy_readiness::APP_GAME_POLICY_READINESS_KIND_CATEGORY_RISK_ROUTING,
+        "Category/risk routing",
+    ),
+    (
         app_game_policy_readiness::APP_GAME_POLICY_READINESS_KIND_UNKNOWN_REVIEW,
         "Unknown review",
     ),

@@ -1,0 +1,183 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
+  <Package
+    Name="Ocentra Parent Protected Capability Custody"
+    Manufacturer="Ocentra"
+    Version="$(var.ProductVersion)"
+    ProductCode="$(var.ProductCode)"
+    UpgradeCode="A1BA5AA2-F5DB-4B97-9889-4BB4DBF52B3C"
+    Scope="perMachine"
+    InstallerVersion="500"
+  >
+    <SummaryInformation Description="Ocentra Parent protected broker and owner-bound provisioner package" />
+    <!--
+      The package never authors Enrollment\authority-v1. That value and its
+      owner/DACL are established by the external WP02 owner ceremony. The
+      checked, zero-argument provisioner is therefore the only protected
+      lifecycle handoff in this package and its manual-required result is
+      intentionally fatal to MSI execution.
+    -->
+    <MajorUpgrade
+      AllowSameVersionUpgrades="no"
+      DowngradeErrorMessage="A newer Ocentra Parent protected custody package is already installed."
+      Schedule="afterInstallValidate"
+    />
+    <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
+
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="OcentraProgramFilesFolder" Name="Ocentra">
+        <Directory Id="INSTALLFOLDER" Name="OcentraParent" />
+      </Directory>
+    </StandardDirectory>
+
+    <StandardDirectory Id="CommonAppDataFolder">
+      <Directory Id="OcentraProgramDataFolder" Name="Ocentra">
+        <Directory Id="PARENTDATAROOT" Name="OcentraParent">
+          <Directory Id="CUSTODYDATAFOLDER" Name="protected-capability-custody" />
+        </Directory>
+      </Directory>
+    </StandardDirectory>
+
+    <Feature Id="ProtectedCustodyFeature" Title="Ocentra Parent protected custody" Level="1">
+      <ComponentGroupRef Id="ProtectedCustodyProgramFiles" />
+      <ComponentRef Id="ProtectedInstallDirectory" />
+      <ComponentRef Id="ProtectedCustodyDataDirectory" />
+      <ComponentRef Id="ProtectedRegistryRoot" />
+      <ComponentRef Id="ProtectedRegistryIdentity" />
+    </Feature>
+
+    <!-- No command-line/property data is accepted. FileRef supplies the
+         fixed BIN-only provisioner and an empty ExeCommand is deliberate. -->
+    <CustomAction
+      Id="RunProtectedProvisioner"
+      FileRef="ProtectedProvisionerFile"
+      ExeCommand=""
+      Execute="deferred"
+      Impersonate="no"
+      Return="check"
+      HideTarget="yes"
+    />
+    <InstallExecuteSequence>
+      <!-- InstallServices has materialized the fixed SCM identity; the
+           provisioner runs as LocalSystem before StartServices. REMOVE=ALL
+           is excluded so uninstall never attempts deprovisioning implicitly. -->
+      <Custom
+        Action="RunProtectedProvisioner"
+        Before="StartServices"
+        Condition='NOT REMOVE~="ALL"'
+      />
+    </InstallExecuteSequence>
+  </Package>
+
+  <Fragment>
+    <ComponentGroup Id="ProtectedCustodyProgramFiles" Directory="INSTALLFOLDER">
+      <Component Id="ProtectedBrokerService" Guid="65D9B85B-1DBA-4B42-86F1-DB8F20BD4F51">
+        <File
+          Id="ProtectedBrokerFile"
+          Source="$(var.BrokerBinaryPath)"
+          Name="ocentra-protected-capability-custody-broker.exe"
+          KeyPath="yes"
+        />
+        <ServiceInstall
+          Id="ProtectedBrokerServiceInstall"
+          Type="ownProcess"
+          Name="OcentraProtectedCapabilityCustodyBroker"
+          DisplayName="Ocentra Protected Capability Custody Broker"
+          Description="Local protected custody broker for Ocentra Parent."
+          Start="auto"
+          ErrorControl="critical"
+          Account="LocalSystem"
+          Vital="yes"
+        >
+          <!--
+            MSI MsiServiceConfig ServiceSid is deliberately not authored:
+            WiX reports WIX1149 for this deprecated/unreliable mechanism.
+            Protected WP02 owns the external SCM ceremony that establishes
+            SERVICE_SID_TYPE_UNRESTRICTED and the expected service identity.
+            The zero-argument provisioner observes and revalidates that state
+            before StartServices and fails closed when it is absent or wrong.
+            This package never authors or overwrites the service SID or
+            Enrollment\\authority-v1. The supported util:ServiceConfig below
+            contains failure actions only.
+          -->
+          <util:ServiceConfig
+            FirstFailureActionType="restart"
+            SecondFailureActionType="restart"
+            ThirdFailureActionType="restart"
+            ResetPeriodInDays="1"
+            RestartServiceDelayInSeconds="10"
+          />
+          <PermissionEx
+            Sddl="O:S-1-5-18G:S-1-5-18D:P(A;;CCDCLCSWRPWPDTLOCRRC;;;S-1-5-18)"
+          />
+        </ServiceInstall>
+        <ServiceControl
+          Id="ProtectedBrokerServiceControl"
+          Name="OcentraProtectedCapabilityCustodyBroker"
+          Start="install"
+          Stop="both"
+          Remove="uninstall"
+          Wait="yes"
+        />
+      </Component>
+
+      <Component Id="ProtectedProvisioner" Guid="87B06C30-3A3A-44B3-B6B8-F1F6F0A4DFA2">
+        <File
+          Id="ProtectedProvisionerFile"
+          Source="$(var.ProvisionerBinaryPath)"
+          Name="ocentra-protected-capability-custody-provisioner.exe"
+          KeyPath="yes"
+        />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+
+  <Fragment>
+    <Component Id="ProtectedInstallDirectory" Directory="INSTALLFOLDER" Guid="2B86B79F-72B4-4C7A-9B5E-14A3FC1EF1B6" Permanent="yes">
+      <CreateFolder>
+        <PermissionEx
+          Sddl="O:S-1-5-80-956008885-3418522649-1831038044-1853292631-2271478464G:S-1-5-80-956008885-3418522649-1831038044-1853292631-2271478464D:P(A;;FA;;;S-1-5-18)(A;;FA;;;S-1-5-80-956008885-3418522649-1831038044-1853292631-2271478464)"
+        />
+      </CreateFolder>
+    </Component>
+
+    <Component Id="ProtectedCustodyDataDirectory" Directory="CUSTODYDATAFOLDER" Guid="A2D4CEFE-44C4-4E33-B96C-6C3AE5BAA6A9" Permanent="yes">
+      <CreateFolder>
+        <PermissionEx
+          Sddl="O:S-1-5-18G:S-1-5-18D:P(A;;FA;;;S-1-5-18)"
+        />
+      </CreateFolder>
+    </Component>
+  </Fragment>
+
+  <Fragment>
+    <!-- These first three private paths match the immutable WP02 enrollment
+         chain. The package creates/seals only the root and fixed identity;
+         the Enrollment child remains entirely owner-ceremony controlled. -->
+    <Component Id="ProtectedRegistryRoot" Directory="INSTALLFOLDER" Guid="C7393427-4FD2-46A8-8A19-CF6ABF4E48A2" Permanent="yes">
+      <RegistryKey
+        Root="HKLM"
+        Key="Software\Ocentra\ProtectedCapabilityCustody"
+        ForceCreateOnInstall="yes"
+      >
+        <PermissionEx
+          Sddl="O:S-1-5-80-956008885-3418522649-1831038044-1853292631-2271478464G:S-1-5-80-956008885-3418522649-1831038044-1853292631-2271478464D:P(A;;0x20019;;;S-1-5-18)(A;;0xF003F;;;S-1-5-80-956008885-3418522649-1831038044-1853292631-2271478464)"
+        />
+        <RegistryValue Name="package-boundary" Type="string" Value="parent-protected-custody-v1" KeyPath="yes" />
+      </RegistryKey>
+    </Component>
+
+    <Component Id="ProtectedRegistryIdentity" Directory="INSTALLFOLDER" Guid="6D51662C-3D41-4694-8FEF-2548B0DE9DCE" Permanent="yes">
+      <RegistryKey
+        Root="HKLM"
+        Key="Software\Ocentra\ProtectedCapabilityCustody\$(var.RegistryId)"
+        ForceCreateOnInstall="yes"
+      >
+        <PermissionEx
+          Sddl="O:S-1-5-80-956008885-3418522649-1831038044-1853292631-2271478464G:S-1-5-80-956008885-3418522649-1831038044-1853292631-2271478464D:P(A;;0x20019;;;S-1-5-18)(A;;0xF003F;;;S-1-5-80-956008885-3418522649-1831038044-1853292631-2271478464)"
+        />
+        <RegistryValue Name="package-boundary" Type="string" Value="parent-protected-custody-v1" KeyPath="yes" />
+      </RegistryKey>
+    </Component>
+
+  </Fragment>
+</Wix>

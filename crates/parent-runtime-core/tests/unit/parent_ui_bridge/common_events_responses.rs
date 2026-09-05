@@ -1,5 +1,7 @@
 use super::super::super::*;
 
+use super::activity::{app_use_read_model_response_event, games_read_model_response_event};
+
 const SCREEN_SETTINGS_STATUS_ACCEPTED: &str = "accepted";
 
 pub(crate) struct PayloadText(pub(crate) String);
@@ -457,6 +459,8 @@ pub(crate) fn policy_request_parent_resolution_resolved_response_event() -> Agen
 
 pub(crate) fn app_game_route_load_response_events() -> Vec<AgentEventEnvelope> {
     vec![
+        app_use_read_model_response_event(),
+        games_read_model_response_event(),
         app_game_notification_readiness_response_event(),
         app_game_policy_readiness_response_event(),
         app_game_platform_proof_status_response_event(),
@@ -582,6 +586,8 @@ pub(crate) fn app_game_platform_proof_status_response_event() -> AgentEventEnvel
             host_capability_state: "host-visible".to_string(),
             host_capability_evidence_refs: vec!["event.platform.windows.host-visible".to_string()],
             host_capability_probe_refs: vec!["probe.platform.windows".to_string()],
+            linux_docker_host_preflight: None,
+            windows_local_policy_evidence: None,
             product_meanings: vec!["native-app".to_string()],
             proof_refs: vec!["event.platform.windows.proof.1".to_string()],
             open_gaps: vec!["broad-installed-app-blocking-not-proved".to_string()],

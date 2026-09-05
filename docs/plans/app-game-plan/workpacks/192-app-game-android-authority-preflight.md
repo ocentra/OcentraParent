@@ -26,38 +26,41 @@ current physical phone because Device Owner/Profile Owner proof is absent.
 
 ## Implementation
 
-- Added `packages/parent-domain/src/app-game-android-authority-preflight.ts`.
-- Added focused tests for the current not-enrolled physical device,
-  `not-proved` owner-state handling, and rejection of raw data, dispatch, and
-  enforcement overclaims.
-- Added `scripts/test/app-game-android-authority-preflight-proof.mjs`.
+The source phase adds
+`platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidAuthorityPreflight.java`
+and composes it from the manifest-declared child service. It queries the real
+`DevicePolicyManager` for this APK's device/profile-owner state and blocks
+action rows before adapter dispatch when owner authority is absent. It records
+that owner provisioning and a `DeviceAdminReceiver` are not wired; no caller
+can mint owner authority. The launcher activity binds to the child service
+and renders the redacted authority preflight state without creating authority.
+Canonical `50c9964e0` adds real Robolectric behavior coverage for null context,
+the default unprovisioned `DevicePolicyManager`, all five blocked actions,
+redacted gaps, and non-claims.
 
 ## Validation
 
-Focused validation for this workpack:
-
-```powershell
-cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-android-authority-preflight
-cmd /c node scripts/test/app-game-android-authority-preflight-proof.mjs
-```
+The focused Java test source is written but was not executed in this
+code/test-source phase. No physical-device or retained proof was produced.
 
 ## Proof
 
-- `test-results/app-game-android-authority-preflight-proof/proof.json`
-- `output/app-game-plan-proof/192-app-game-android-authority-preflight/proof.json`
+No proof artifact exists in this source phase. The graph remains planned and
+the required tests/proof/checklist evidence remain open.
 
 ## Boundaries
 
-Proved:
+Source packet semantics:
 
-- Android package policy actions have explicit authority preflight rows.
-- The current physical Android target remains blocked before adapter dispatch
-  because Device Owner/Profile Owner proof is absent.
-- `not-proved` policy states do not count as owner proof.
+- Android policy actions have explicit Device/Profile Owner preflight rows and
+  fail closed before adapter dispatch when the live manager reports no owner.
+- Owner state is read from `DevicePolicyManager`; it is never accepted from a
+  caller-provided bundle.
 
 Not proved:
 
-- Device Owner/Profile Owner enrollment.
+- Device Owner/Profile Owner enrollment or physical-device proof.
+- DeviceAdminReceiver declaration and provisioning workflow.
 - Android hide, suspend, uninstall block, lock task, or managed configuration
   execution.
 - Adapter dispatch, platform enforcement, provider delivery, child-device

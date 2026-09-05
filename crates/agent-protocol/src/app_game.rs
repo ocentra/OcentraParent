@@ -1,11 +1,21 @@
+use serde::de::{Deserializer, Error as DeError};
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    ActivityEvidenceRef, AppGameAiClassifierResult, AppGameControlActionResult,
-    AppGameControlApprovalAuthority, AppGamePlatformAuthorityMatrix,
+    activity::ActivityEvidenceKind, ActivityEvidenceRef, AppGameAiClassifierResult,
+    AppGameControlActionResult, AppGameControlApprovalAuthority, AppGamePlatformAuthorityMatrix,
 };
 
+#[path = "app_game_evidence_claim_validation.rs"]
+mod app_game_evidence_claim_validation;
+#[path = "app_game_identity_merge_validation.rs"]
+mod app_game_identity_merge_validation;
+#[path = "app_game_identity_validation.rs"]
+mod app_game_identity_validation;
+
 pub const APP_GAME_SCHEMA_VERSION: u16 = 1;
+pub const APP_GAME_TIMER_PARENT_SURFACE_SERIALIZATION_ERROR: &str =
+    "app-game timer parent surface read model serialization failed";
 pub const APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS: &str = "unknownProcess";
 pub const APP_GAME_CLASSIFICATION_KNOWN_APP: &str = "knownApp";
 pub const APP_GAME_CLASSIFICATION_KNOWN_GAME: &str = "knownGame";
@@ -104,7 +114,34 @@ pub const APP_GAME_SESSION_END_REASON_DEVICE_SHUTDOWN: &str = "deviceShutdown";
 pub const APP_GAME_SESSION_END_REASON_AGENT_RESTART: &str = "agentRestart";
 pub const APP_GAME_SESSION_END_REASON_UNKNOWN: &str = "unknown";
 pub const APP_GAME_LAUNCHER_KIND_STEAM: &str = "steam";
+pub const APP_GAME_LAUNCHER_KIND_EPIC: &str = "epic";
+pub const APP_GAME_LAUNCHER_KIND_XBOX: &str = "xbox";
+pub const APP_GAME_LAUNCHER_KIND_RIOT: &str = "riot";
+pub const APP_GAME_LAUNCHER_KIND_BATTLE_NET: &str = "battleNet";
+pub const APP_GAME_LAUNCHER_KIND_EA: &str = "ea";
+pub const APP_GAME_LAUNCHER_KIND_UBISOFT: &str = "ubisoft";
+pub const APP_GAME_LAUNCHER_KIND_GOG: &str = "gog";
+pub const APP_GAME_LAUNCHER_KIND_ROBLOX: &str = "roblox";
+pub const APP_GAME_LAUNCHER_KIND_MINECRAFT: &str = "minecraft";
+pub const APP_GAME_LAUNCHER_KIND_ITCH_IO: &str = "itchIo";
 pub const APP_GAME_LAUNCHER_KIND_UNKNOWN: &str = "unknownLauncher";
+pub const APP_GAME_LAUNCHER_PROCESS_NAME_STEAM: &str = "steam";
+pub const APP_GAME_LAUNCHER_PROCESS_NAME_EPIC: &str = "epicgameslauncher";
+pub const APP_GAME_LAUNCHER_PROCESS_NAME_XBOX: &str = "xboxapp";
+pub const APP_GAME_LAUNCHER_PROCESS_NAME_GAMING_SERVICES: &str = "gamingservices";
+pub const APP_GAME_LAUNCHER_PROCESS_NAME_RIOT: &str = "riotclientservices";
+pub const APP_GAME_LAUNCHER_PROCESS_NAME_RIOT_UI: &str = "riotclientux";
+pub const APP_GAME_LAUNCHER_PROCESS_NAME_BATTLE_NET: &str = "battle.net";
+pub const APP_GAME_LAUNCHER_PROCESS_NAME_EA_DESKTOP: &str = "eadesktop";
+pub const APP_GAME_LAUNCHER_PROCESS_NAME_ORIGIN: &str = "origin";
+pub const APP_GAME_LAUNCHER_PROCESS_NAME_UBISOFT: &str = "upc";
+pub const APP_GAME_LAUNCHER_PROCESS_NAME_UBISOFT_CONNECT: &str = "ubisoftconnect";
+pub const APP_GAME_LAUNCHER_PROCESS_NAME_GALAXY: &str = "galaxyclient";
+pub const APP_GAME_LAUNCHER_PROCESS_NAME_ROBLOX: &str = "robloxplayerbeta";
+pub const APP_GAME_LAUNCHER_PROCESS_NAME_ROBLOX_PLAYER: &str = "robloxplayer";
+pub const APP_GAME_LAUNCHER_PROCESS_NAME_MINECRAFT: &str = "minecraftlauncher";
+pub const APP_GAME_LAUNCHER_PROCESS_NAME_ITCH: &str = "itch";
+pub const APP_GAME_LAUNCHER_PROCESS_NAME_ITCH_IO: &str = "itchio";
 pub const APP_GAME_LAUNCHER_PROOF_LAUNCHER_ONLY: &str = "launcherOnly";
 pub const APP_GAME_LAUNCHER_PROOF_MANIFEST_CANDIDATE: &str = "launcherManifestCandidate";
 pub const APP_GAME_LAUNCHER_PROOF_CHILD_PROCESS_CANDIDATE: &str = "childProcessCandidate";
@@ -145,6 +182,8 @@ pub const APP_GAME_SESSION_ID_PREFIX: &str = "app-game-session-";
 pub const APP_GAME_INVENTORY_ENTRY_ID_PREFIX: &str = "inventory-source-ref-sha256-";
 pub const APP_GAME_RUNTIME_EVIDENCE_ID_PREFIX: &str = "runtime-evidence-process-";
 pub const APP_GAME_FOREGROUND_EVIDENCE_ID_PREFIX: &str = "foreground-evidence-window-";
+pub const APP_GAME_LAUNCHER_EVIDENCE_ID_PREFIX: &str = "launcher-evidence-process-";
+pub const APP_GAME_LAUNCHER_REF_PREFIX: &str = "launcher-ref-sha256-";
 pub const APP_GAME_DESKTOP_ENTRY_ID_PREFIX: &str = "desktop-entry-ref-sha256-";
 pub const APP_GAME_EXECUTABLE_PATH_REF_PREFIX: &str = "path-ref-sha256-";
 pub const APP_GAME_WINDOW_REF_PREFIX: &str = "window-ref-sha256-";
@@ -301,7 +340,7 @@ pub const APP_GAME_TEST_PERMISSION_PROCESS_NAME: &str = "private-process.exe";
 pub const APP_GAME_TEST_PUBLISHER_SIGNATURE_REF: &str = "signature-ref-ocentra-fixture";
 pub const APP_GAME_TEST_FILE_HASH_REF: &str = "hash-ref-ocentra-fixture";
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AppGameIdentity {
     pub schema_version: u16,
@@ -328,7 +367,7 @@ pub struct AppGameIdentity {
     pub evidence: Vec<ActivityEvidenceRef>,
 }
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AppGameIdentityMergeProof {
     pub schema_version: u16,
@@ -343,7 +382,203 @@ pub struct AppGameIdentityMergeProof {
     pub evidence: Vec<ActivityEvidenceRef>,
 }
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+struct AppGameEvidenceRefWire {
+    evidence_id: String,
+    kind: ActivityEvidenceKind,
+    digest: Option<String>,
+    uri: Option<String>,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+struct AppGameIdentityWire {
+    schema_version: u16,
+    identity_id: String,
+    product_kind: String,
+    display_label: String,
+    parent_label: Option<String>,
+    confidence: String,
+    classification_state: String,
+    package_id: Option<String>,
+    bundle_id: Option<String>,
+    app_user_model_id: Option<String>,
+    desktop_entry_id: Option<String>,
+    application_token_ref: Option<String>,
+    executable_path_ref: Option<String>,
+    publisher_signature_ref: Option<String>,
+    file_hash_ref: Option<String>,
+    launcher_ref: Option<String>,
+    launcher_app_id: Option<String>,
+    launcher_manifest_id: Option<String>,
+    store_id: Option<String>,
+    catalog_ref: Option<String>,
+    child_game_evidence_claim_id: Option<String>,
+    evidence: Vec<AppGameEvidenceRefWire>,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+struct AppGameIdentityMergeProofWire {
+    schema_version: u16,
+    merge_id: String,
+    target_identity: AppGameIdentity,
+    source_identity_ids: Vec<String>,
+    merge_confidence: f64,
+    display_label_matched: bool,
+    parent_label_changed: bool,
+    conflicting_file_hash_refs: bool,
+    shared_deterministic_refs: Vec<String>,
+    evidence: Vec<AppGameEvidenceRefWire>,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+struct AppGameEvidenceClaimWire {
+    schema_version: u16,
+    claim_id: String,
+    observed_at: String,
+    claim_kind: String,
+    observation_mode: String,
+    display_name: String,
+    identity_strength: String,
+    classification_state: String,
+    catalog_ready_state: String,
+    runtime_state: String,
+    foreground_state: String,
+    inventory_entry_id: Option<String>,
+    process_identity: Option<String>,
+    launcher_ref: Option<String>,
+    catalog_ref: Option<String>,
+    confidence: f64,
+    evidence: Vec<AppGameEvidenceRefWire>,
+}
+
+impl<'de> Deserialize<'de> for AppGameIdentity {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let wire = AppGameIdentityWire::deserialize(deserializer)?;
+        let identity: Self = wire.into();
+        identity.validate().map_err(D::Error::custom)?;
+        Ok(identity)
+    }
+}
+
+impl<'de> Deserialize<'de> for AppGameIdentityMergeProof {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let wire = AppGameIdentityMergeProofWire::deserialize(deserializer)?;
+        let merge = Self {
+            schema_version: wire.schema_version,
+            merge_id: wire.merge_id,
+            target_identity: wire.target_identity,
+            source_identity_ids: wire.source_identity_ids,
+            merge_confidence: wire.merge_confidence,
+            display_label_matched: wire.display_label_matched,
+            parent_label_changed: wire.parent_label_changed,
+            conflicting_file_hash_refs: wire.conflicting_file_hash_refs,
+            shared_deterministic_refs: wire.shared_deterministic_refs,
+            evidence: wire.evidence.into_iter().map(Into::into).collect(),
+        };
+        merge.validate().map_err(D::Error::custom)?;
+        Ok(merge)
+    }
+}
+
+impl<'de> Deserialize<'de> for AppGameEvidenceClaim {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let wire = AppGameEvidenceClaimWire::deserialize(deserializer)?;
+        let claim = Self {
+            schema_version: wire.schema_version,
+            claim_id: wire.claim_id,
+            observed_at: wire.observed_at,
+            claim_kind: wire.claim_kind,
+            observation_mode: wire.observation_mode,
+            display_name: wire.display_name,
+            identity_strength: wire.identity_strength,
+            classification_state: wire.classification_state,
+            catalog_ready_state: wire.catalog_ready_state,
+            runtime_state: wire.runtime_state,
+            foreground_state: wire.foreground_state,
+            inventory_entry_id: wire.inventory_entry_id,
+            process_identity: wire.process_identity,
+            launcher_ref: wire.launcher_ref,
+            catalog_ref: wire.catalog_ref,
+            confidence: wire.confidence,
+            evidence: wire.evidence.into_iter().map(Into::into).collect(),
+        };
+        claim.validate().map_err(D::Error::custom)?;
+        Ok(claim)
+    }
+}
+
+impl AppGameIdentity {
+    fn validate(&self) -> Result<(), &'static str> {
+        app_game_identity_validation::validate(self)
+    }
+}
+
+impl AppGameIdentityMergeProof {
+    fn validate(&self) -> Result<(), &'static str> {
+        app_game_identity_merge_validation::validate(self)
+    }
+}
+
+impl AppGameEvidenceClaim {
+    fn validate(&self) -> Result<(), &'static str> {
+        app_game_evidence_claim_validation::validate(self)
+    }
+}
+
+impl From<AppGameIdentityWire> for AppGameIdentity {
+    fn from(wire: AppGameIdentityWire) -> Self {
+        Self {
+            schema_version: wire.schema_version,
+            identity_id: wire.identity_id,
+            product_kind: wire.product_kind,
+            display_label: wire.display_label,
+            parent_label: wire.parent_label,
+            confidence: wire.confidence,
+            classification_state: wire.classification_state,
+            package_id: wire.package_id,
+            bundle_id: wire.bundle_id,
+            app_user_model_id: wire.app_user_model_id,
+            desktop_entry_id: wire.desktop_entry_id,
+            application_token_ref: wire.application_token_ref,
+            executable_path_ref: wire.executable_path_ref,
+            publisher_signature_ref: wire.publisher_signature_ref,
+            file_hash_ref: wire.file_hash_ref,
+            launcher_ref: wire.launcher_ref,
+            launcher_app_id: wire.launcher_app_id,
+            launcher_manifest_id: wire.launcher_manifest_id,
+            store_id: wire.store_id,
+            catalog_ref: wire.catalog_ref,
+            child_game_evidence_claim_id: wire.child_game_evidence_claim_id,
+            evidence: wire.evidence.into_iter().map(Into::into).collect(),
+        }
+    }
+}
+
+impl From<AppGameEvidenceRefWire> for ActivityEvidenceRef {
+    fn from(wire: AppGameEvidenceRefWire) -> Self {
+        Self {
+            evidence_id: wire.evidence_id,
+            kind: wire.kind,
+            digest: wire.digest,
+            uri: wire.uri,
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AppGameEvidenceClaim {
     pub schema_version: u16,
@@ -601,6 +836,34 @@ pub struct AppGameInventoryCategoryCandidate {
     pub confidence: f64,
     pub catalog_ref: Option<String>,
     pub evidence: Vec<ActivityEvidenceRef>,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum AppGameRiskCategoryKind {
+    VpnProxy,
+    RemoteDesktop,
+    DownloadTorrent,
+    InstallerUpdater,
+    AiChatbot,
+    SocialVideoMessaging,
+    UnknownRisk,
+}
+
+impl AppGameRiskCategoryKind {
+    pub fn parse(value: &str) -> Option<Self> {
+        [
+            ("vpnProxy", Self::VpnProxy),
+            ("remoteDesktop", Self::RemoteDesktop),
+            ("downloadTorrent", Self::DownloadTorrent),
+            ("installerUpdater", Self::InstallerUpdater),
+            ("aiChatbot", Self::AiChatbot),
+            ("socialVideoMessaging", Self::SocialVideoMessaging),
+            ("unknownRisk", Self::UnknownRisk),
+        ]
+        .into_iter()
+        .find_map(|(candidate, category)| (value == candidate).then_some(category))
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

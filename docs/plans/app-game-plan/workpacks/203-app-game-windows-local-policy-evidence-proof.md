@@ -1,5 +1,14 @@
 # WP203 App/Game Windows Local Policy Evidence Proof
 
+> **Current status (2026-09-02): DONE FOR BOUNDED WINDOWS OBSERVER AND
+> CONTRACT PROOF / SERVICE INTEGRATION OPEN.**
+> The dedicated Rust Windows owner boundary samples AppIDSvc, AppLocker, and
+> Device Guard/App Control into reduced booleans and bounded counts. The typed
+> protocol carries that optional evidence on the Windows status row. The real
+> no-argument Windows observer, strict parser negatives, and protocol non-claim
+> contract passed with retained proof. Agent Service composition, runtime
+> delivery, and broader blocking authority remain open.
+
 <!-- agent-capsule -->
 
 > Agent Capsule
@@ -27,25 +36,50 @@ paths, publisher rules, or private policy details.
 
 ## Implementation
 
-- Added
-  `packages/parent-domain/src/app-game-windows-local-policy-evidence-proof.ts`.
-- Added
-  `packages/parent-domain/tests/app-game-windows-local-policy-evidence-proof.test.ts`.
-- Added `scripts/test/app-game-windows-local-policy-evidence-proof.mjs`.
+Current production truth:
+
+- `crates/app-game-windows-local-policy-ffi` owns the no-argument Windows
+  observation. It anchors to the System32 Windows PowerShell binary, retains
+  verified non-reparse handles, checks path identity and unprivileged write
+  access, uses fixed arguments and environment, and enforces a five-second
+  deadline plus a 4 KiB strict JSON boundary.
+- `AppGameWindowsLocalPolicyEvidence` is an optional nested protocol value on
+  Windows platform proof rows. It rejects unknown fields, non-redacted values,
+  impossible state/count relationships, malformed opaque references, and any
+  dispatch, enforcement, rollback, audit, provider, child, or private-data
+  claim.
+- Unit and Windows integration tests cover the strict parser, malformed and
+  oversized output, count/state relationships, non-Windows unsupported
+  behavior, and the real no-argument Windows observation.
+- Agent Service does not consume the observer yet. Existing status-row
+  constructors set the optional evidence to `None`; no readiness or host
+  capability signal is inferred from this foundation.
 
 ## Validation
 
 Focused validation for this workpack:
 
 ```powershell
-cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-windows-local-policy-evidence-proof
-cmd /c node scripts/test/app-game-windows-local-policy-evidence-proof.mjs
+cargo test -p ocentra-app-game-windows-local-policy-ffi --all-targets
+cargo test -p ocentra-parent-agent-protocol --test contract app_game_platform_proof_status
 ```
+
+Both commands passed on Windows `10.0.26200 x64` on 2026-09-02 through the
+local evidence wrapper. The FFI command ran one real no-argument Windows
+observation and four parser/negative tests. The protocol command ran four
+focused contract tests for stable names, impossible counts/platforms, unknown
+fields, invalid non-claims, and serialization without enforcement claims.
 
 ## Proof
 
-- `test-results/app-game-windows-local-policy-evidence-proof/proof.json`
-- `output/app-game-plan-proof/203-app-game-windows-local-policy-evidence-proof/proof.json`
+- `output/app-game-plan-proof/203-app-game-windows-local-policy-evidence-proof/00-scope-summary.md`
+- `output/app-game-plan-proof/203-app-game-windows-local-policy-evidence-proof/01-negative-case-proof.md`
+- `output/app-game-plan-proof/203-app-game-windows-local-policy-evidence-proof/02-no-claim-boundary.md`
+- `output/app-game-plan-proof/203-app-game-windows-local-policy-evidence-proof/16-validation-commands.log`
+
+This retained bundle closes the bounded Windows observer and protocol-contract
+proof only. Agent Service runtime composition remains open and therefore no
+service readiness, adapter execution, enforcement, or delivery claim is made.
 
 ## Boundaries
 
@@ -53,6 +87,8 @@ Proved:
 
 - Windows local AppLocker/App Control policy state can be sampled as
   parent-safe counts and booleans.
+- The real no-argument Windows observer and strict output boundary execute on
+  the current Windows host.
 - Raw AppLocker policy XML, executable paths, publisher rules, and private
   policy details are not stored.
 - Broad app/game blocking remains blocked until enforce proof, system-app

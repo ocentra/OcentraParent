@@ -17,6 +17,9 @@ use ocentra_policy_control_core::policy_source::{
     PolicySourceActorState, PolicyTargetKind, PolicyTargetReferenceId, PolicyVersion,
 };
 
+#[path = "policy_request/boundaries.rs"]
+mod boundaries;
+
 const REQUESTED_AT: &str = "2026-06-13T20:00:00Z";
 const EXPIRES_AT: &str = "2026-06-13T22:00:00Z";
 const MODIFIED_EXPIRES_AT: &str = "2026-06-13T21:00:00Z";

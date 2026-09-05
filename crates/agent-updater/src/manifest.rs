@@ -1,6 +1,9 @@
 use serde::{Deserialize, Serialize};
 
-use crate::constants::{ED25519_ALGORITHM, MSI_INSTALLER_TYPE, WINDOWS_X64_TARGET};
+use crate::constants::{
+    CHILD_PACKAGE, CHILD_PRODUCT, CHILD_SERVICE_ID, CHILD_UPDATER_ID, ED25519_ALGORITHM,
+    MSI_INSTALLER_TYPE, WINDOWS_X64_TARGET,
+};
 use crate::crypto::{sign_bytes, verify_bytes};
 use crate::error::UpdaterError;
 
@@ -120,12 +123,48 @@ fn validate_payload_policy(payload: &UpdateManifestPayload) -> Result<(), Update
             payload.target
         )));
     }
+    require_field(&payload.product, CHILD_PRODUCT, "child product")?;
+    require_field(&payload.package, CHILD_PACKAGE, "child package")?;
+    require_field(&payload.channel, "stable", "update channel")?;
     if payload.installer.r#type != MSI_INSTALLER_TYPE {
         return Err(UpdaterError::Policy(format!(
             "unsupported update installer type: {}",
             payload.installer.r#type
         )));
     }
+    require_field(&payload.installer.scope, "per-machine", "installer scope")?;
+    require_field(
+        &payload.installer.silent_args,
+        "/qn /norestart",
+        "silent installer arguments",
+    )?;
+    require_field(
+        &payload.installer.passive_args,
+        "/passive /norestart",
+        "passive installer arguments",
+    )?;
+    require_field(&payload.service.id, CHILD_SERVICE_ID, "child service id")?;
+    require_field(
+        &payload.service.updater_id,
+        CHILD_UPDATER_ID,
+        "child updater id",
+    )?;
+    require_field(
+        &payload.service.name,
+        CHILD_PRODUCT,
+        "child service display name",
+    )?;
+    require_field(
+        &payload.service.updater_name,
+        "Ocentra Child Updater",
+        "child updater display name",
+    )?;
+    require_non_empty(&payload.service.wrapper, "service wrapper")?;
+    require_non_empty(&payload.service.wrapper_version, "service wrapper version")?;
+    require_non_empty(&payload.version, "manifest version")?;
+    require_non_empty(&payload.generated_at, "manifest generatedAt")?;
+    require_artifact_name(&payload.artifact.name)?;
+    require_sha256(&payload.artifact.sha256)?;
     if !payload
         .artifact
         .download_url
@@ -133,6 +172,46 @@ fn validate_payload_policy(payload: &UpdateManifestPayload) -> Result<(), Update
     {
         return Err(UpdaterError::Policy(
             "artifact download URL must use GitHub HTTPS releases".to_owned(),
+        ));
+    }
+    Ok(())
+}
+
+fn require_field(actual: &str, expected: &str, field: &str) -> Result<(), UpdaterError> {
+    if actual != expected {
+        return Err(UpdaterError::Policy(format!(
+            "{field} must be {expected}, found {actual}"
+        )));
+    }
+    Ok(())
+}
+
+fn require_non_empty(value: &str, field: &str) -> Result<(), UpdaterError> {
+    if value.trim().is_empty() {
+        return Err(UpdaterError::Policy(format!("{field} must not be empty")));
+    }
+    Ok(())
+}
+
+fn require_artifact_name(value: &str) -> Result<(), UpdaterError> {
+    require_non_empty(value, "artifact name")?;
+    if value.contains('/') || value.contains('\\') || value == "." || value == ".." {
+        return Err(UpdaterError::Policy(
+            "artifact name must be a single safe file name".to_owned(),
+        ));
+    }
+    if !value.ends_with(".msi") {
+        return Err(UpdaterError::Policy(
+            "Windows child update artifact must be an .msi file".to_owned(),
+        ));
+    }
+    Ok(())
+}
+
+pub fn require_sha256(value: &str) -> Result<(), UpdaterError> {
+    if value.len() != 64 || !value.bytes().all(|byte| byte.is_ascii_hexdigit()) {
+        return Err(UpdaterError::Policy(
+            "artifact sha256 must be exactly 64 hexadecimal characters".to_owned(),
         ));
     }
     Ok(())

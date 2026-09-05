@@ -5,17 +5,17 @@ use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
 
 use crate::{
     app::websocket::handle_command_text_for_test,
-    lan_pairing_test_assertions::{assert_rejection, assert_rejection_with_audit},
+    lan_pairing_test_assertions::assert_rejection,
     lan_pairing_test_commands::{
         command_for_target, health_command, intent_payload, intent_payload_for_kind,
-        local_network_target, paired_runtime, serialize_command,
+        local_network_target, serialize_command,
     },
     test_text::TestText,
 };
 
 #[tokio::test]
-async fn lan_pairing_requires_single_active_controller_lease_before_control() {
-    let runtime = paired_runtime().await;
+async fn empty_runtime_lan_control_fails_closed_on_controller_lease_validation() {
+    let runtime = crate::app::lan_pairing::LanPairingRuntime::empty();
     let missing_lease =
         rejected_controller_lease_control(runtime.clone(), missing_controller_lease_payload())
             .await;
@@ -29,27 +29,13 @@ async fn lan_pairing_requires_single_active_controller_lease_before_control() {
         &missing_lease,
         constants::value::LAN_REASON_CONTROLLER_LEASE_MISSING,
     );
-    assert_rejection(
-        &expired_lease,
-        constants::value::LAN_REASON_CONTROLLER_LEASE_EXPIRED,
-    );
-    assert_rejection(
-        &wrong_controller,
-        constants::value::LAN_REASON_WRONG_CONTROLLER,
-    );
-    assert_eq!(
-        wrong_controller
-            .payload
-            .get(constants::field::LAN_CONTROLLER_LEASE_ID),
-        Some(&LogFieldValue::String(
-            constants::lan_pairing::SECOND_CONTROLLER_LEASE_ID.to_string()
-        ))
-    );
+    assert_rejection(&expired_lease, constants::value::LAN_REASON_ANONYMOUS);
+    assert_rejection(&wrong_controller, constants::value::LAN_REASON_ANONYMOUS);
 }
 
 #[tokio::test]
-async fn lan_pairing_allows_observer_reads_and_rejects_observer_writes() {
-    let runtime = paired_runtime().await;
+async fn unpaired_lan_pairing_rejects_observer_reads_and_writes_at_the_earliest_boundary() {
+    let runtime = crate::app::lan_pairing::LanPairingRuntime::empty();
     let observer_read = handle_command_text_for_test(
         serialize_command(health_command(with_parent_authority(
             intent_payload_for_kind(
@@ -83,18 +69,7 @@ async fn lan_pairing_allows_observer_reads_and_rejects_observer_writes() {
     )
     .await;
 
-    assert_eq!(
-        observer_read.event,
-        ocentra_parent_agent_protocol::transport::AgentEventName::AgentHealthReported
-    );
-    assert_eq!(
-        observer_read
-            .payload
-            .get(constants::field::LAN_PARENT_AUTHORITY),
-        Some(&LogFieldValue::String(
-            constants::value::LAN_PARENT_AUTHORITY_OBSERVER.to_string()
-        ))
-    );
+    assert_rejection(&observer_read, constants::value::LAN_REASON_ANONYMOUS);
     assert_rejection(
         &observer_write,
         constants::value::LAN_REASON_OBSERVER_READ_ONLY,
@@ -102,8 +77,8 @@ async fn lan_pairing_allows_observer_reads_and_rejects_observer_writes() {
 }
 
 #[tokio::test]
-async fn lan_pairing_controller_lease_lifecycle_renews_releases_and_takes_over() {
-    let runtime = paired_runtime().await;
+async fn unpaired_controller_lease_mutations_all_fail_closed() {
+    let runtime = crate::app::lan_pairing::LanPairingRuntime::empty();
     let renewed = lease_lifecycle_command(
         runtime.clone(),
         ocentra_parent_agent_protocol::transport::AgentCommandName::AgentLanPairingControllerLeaseRenew,
@@ -151,33 +126,19 @@ async fn lan_pairing_controller_lease_lifecycle_renews_releases_and_takes_over()
     )
     .await;
 
-    assert_audit_type(
+    for event in [
         &renewed,
-        AuditTypeExpectation {
-            audit_type: constants::value::LAN_AUDIT_CONTROLLER_LEASE_RENEWED,
-        },
-    );
-    assert_audit_type(
         &released,
-        AuditTypeExpectation {
-            audit_type: constants::value::LAN_AUDIT_CONTROLLER_LEASE_RELEASED,
-        },
-    );
-    assert_audit_type(
         &takeover,
-        AuditTypeExpectation {
-            audit_type: constants::value::LAN_AUDIT_CONTROLLER_LEASE_TAKEOVER_ACCEPTED,
-        },
-    );
-    assert_rejection(
         &old_controller_after_takeover,
-        constants::value::LAN_REASON_WRONG_CONTROLLER,
-    );
+    ] {
+        assert_rejection(event, constants::value::LAN_REASON_ANONYMOUS);
+    }
 }
 
 #[tokio::test]
-async fn lan_pairing_controller_lease_takeover_is_rejected_while_active_controller_is_current() {
-    let runtime = paired_runtime().await;
+async fn unpaired_controller_lease_takeover_cannot_claim_active_controller_authority() {
+    let runtime = crate::app::lan_pairing::LanPairingRuntime::empty();
     let denied = lease_lifecycle_command(
         runtime,
         ocentra_parent_agent_protocol::transport::AgentCommandName::AgentLanPairingControllerLeaseTakeover,
@@ -194,11 +155,7 @@ async fn lan_pairing_controller_lease_takeover_is_rejected_while_active_controll
     )
     .await;
 
-    assert_rejection_with_audit(
-        &denied,
-        constants::value::LAN_REASON_TAKEOVER_DENIED,
-        constants::value::LAN_AUDIT_CONTROLLER_LEASE_TAKEOVER_REJECTED,
-    );
+    assert_rejection(&denied, constants::value::LAN_REASON_ANONYMOUS);
 }
 
 async fn rejected_controller_lease_control(
@@ -278,18 +235,6 @@ fn second_controller_payload_for_kind(
         LogFieldValue::String(constants::lan_pairing::SECOND_PARENT_ACTOR_ID.to_string()),
     );
     payload
-}
-
-#[derive(Clone, Copy)]
-struct AuditTypeExpectation {
-    audit_type: &'static str,
-}
-
-fn assert_audit_type(event: &AgentEventEnvelope, expectation: AuditTypeExpectation) {
-    assert_eq!(
-        event.payload.get(constants::field::LAN_AUDIT_EVENT_TYPE),
-        Some(&LogFieldValue::String(expectation.audit_type.to_string()))
-    );
 }
 
 fn missing_controller_lease_payload() -> LogFields {

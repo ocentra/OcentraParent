@@ -23,9 +23,37 @@ use self::query_view::{
     command_enabled_for_route_impl, connection_state_for_route_impl, data_source_for_route_impl,
 };
 use self::route_flags::{
-    is_dev_tools_route_impl, is_lan_surface_route_impl, requires_lan_read_model,
+    is_dev_tools_route_impl, is_lan_command_route_impl, is_lan_surface_route_impl,
+    requires_lan_read_model_for_action, requires_lan_read_model_for_load,
 };
 pub(super) type LanRouteQuery = route_state::LanRouteQuery;
+
+#[derive(Clone, Copy)]
+pub(super) enum LanReadModelUnavailableReason {
+    AgentServiceOperationFailed,
+}
+
+pub(super) enum LanReadModelState<'a> {
+    NotRequested,
+    Available(&'a LanBrowserAddDeviceReadModel),
+    Unavailable {
+        reason: LanReadModelUnavailableReason,
+        detail: &'a str,
+    },
+}
+
+impl LanRouteQuery {
+    pub(super) fn read_model_state(&self) -> LanReadModelState<'_> {
+        match self {
+            Self::NotRequired => LanReadModelState::NotRequested,
+            Self::Available(snapshot) => LanReadModelState::Available(&snapshot.read_model),
+            Self::Unavailable(detail) => LanReadModelState::Unavailable {
+                reason: LanReadModelUnavailableReason::AgentServiceOperationFailed,
+                detail,
+            },
+        }
+    }
+}
 
 pub(super) fn data_source_for_route(
     route: &ParentRouteId,
@@ -54,6 +82,10 @@ pub(super) fn is_dev_tools_route(route: &ParentRouteId) -> bool {
 
 pub(super) fn is_lan_surface_route(route: &ParentRouteId) -> bool {
     is_lan_surface_route_impl(route)
+}
+
+pub(super) fn is_lan_command_route(route: &ParentRouteId) -> bool {
+    is_lan_command_route_impl(route)
 }
 
 pub(super) fn lan_route_query_for_load(

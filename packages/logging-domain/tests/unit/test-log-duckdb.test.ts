@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { appendTestLogEntries } from '../../src/test-log/ndjsonWriter';
 import { TestLogDuckDb } from '../../src/test-log/testLogDuckDb';
 import { RunType, TestLogScope } from '../../src/test-log/types';
+import { closeLocalArtifactMutationProvider } from '../../src/local-artifact-mutation-provider';
 
 async function removeDirWithRetries(dirPath: string): Promise<void> {
   for (let attempt = 0; attempt < 40; attempt += 1) {
@@ -55,11 +56,12 @@ function appendRunLog(tempDir: string, runId: string, message: string, level: 'i
   appendTestLogEntries([createStoredLog(runId, message, level)], tempDir);
 }
 
-describe('test-log duckdb ingest', () => {
+describe.skipIf(process.platform !== 'win32')('test-log duckdb ingest', () => {
   const tempDirs: string[] = [];
 
   afterEach(async () => {
     for (const tempDir of tempDirs.splice(0, tempDirs.length)) {
+      await closeLocalArtifactMutationProvider(tempDir);
       await removeDirWithRetries(tempDir);
     }
   });

@@ -1,8 +1,16 @@
 # Next Actions
 
+## WP04 source integration checkpoint — 2026-08-25
+
+WP04 route/model source is integrated through the current canonical tree. The
+next bounded action is to repair the stale route-manifest tests against the
+current model, restore the missing Cloudflare dependency tree, and then run the
+complete unit/property/contract/integration set together. No proof, deployment,
+runtime-dispatch, READY, or DONE claim is permitted from the source packet.
+
 ## Current slice
 
-- Current slice: `CFCP-A truth-sync and proof-root canonicalization`; #608 local-proof hardening merged, but WP01 now owns the prerequisite `infra/cloudflare/package.json` Wrangler/Workers-types dependency reconciliation before the proof-only WP07 successor. Account authority follows the separate route Account WP08 Rust contract -> Cloudflare WP06 D1/DO/KV binding/migration -> Cloudflare WP08 runner/integration proof -> Account WP06 aggregate gate. #604 is closed without merge as superseded/conflicting and its branch/evidence are preserved only for audit.
+- Current slice: `Protected WP05 owner admission -> Account WP09 family composition -> Cloudflare WP06 current-v2 consumer/tests`. Cloudflare already has the P-256 v2 verifier/producer contract, caller/runtime, D1 store/writer, migration 0008, and one real negative test. It does not have an owner-authenticated delivery/current-key record; the internal shared-secret route is not Account authority. After upstream review, complete the existing v2 hosts and the remaining eight tests together. Migration execution, test runs, proof, deployment, and runtime-ready claims remain deferred. Normal WP06 is blocked and is not `DONE`. #604 stays closed without merge.
 - Current owner: `cloudflare-control-plane-plan`
 - Current status: `in_progress`
 - Final-tree scoped validation (2026-08-04): PR #608 merged to `main` as `5af4a1a92` after fresh full CI passed its product, security, and platform jobs. The merged local commands `npm --prefix infra/cloudflare run test:local-dev-workflow` (12 focused tests), `npm --prefix infra/cloudflare run lint`, `npm --prefix infra/cloudflare run proof:local-dev`, and `npm run lint:architecture -- --files infra/cloudflare/scripts/local-dev-proof.ts infra/cloudflare/tests/integration/local-dev-seeding-workflow.test.ts` pass. The proof command retains its result only through the canonical redacted NDJSON artifact under `output/cloudflare-control-plane-plan-proof/07-local-dev-seeding-and-fixtures/runs/<generated-run-id>`; it does not retain a raw stdout summary. This is local WP07 validation evidence only, not workpack closure. The successor is proof-only from current source after the real Wrangler/Workers-types dependency-resolution gap is cleared; it must not reuse or rebase PR #604.
@@ -11,11 +19,14 @@
 
 | Order | Slice | Status | First-touch surface | Next action | Exit gate |
 | --- | --- | --- | --- | --- | --- |
-| 01 | WP01 module dependency reconciliation | blocked / package-scope prerequisite | `infra/cloudflare/package.json` and the resolved module dependency graph | Reconcile the declared Wrangler and `@cloudflare/workers-types` versions/peer requirements in WP01's package scope. Record the selected resolution and restore the module's focused local validation environment before touching WP07 proof. | The WP01 package dependency graph is resolvable and its focused module validation can run; this is not payment/runtime/deployment closure. |
-| 06 | WP06 account-identity storage binding/migration | blocked on Account WP08 contract, account D1/DO/KV declarations, isolated account migration mapping, and WP01 environment | `infra/cloudflare/src/env.ts`, `wrangler.toml`, and selected D1 migration/adapter surfaces | Consume the Account WP08 canonical Rust handoff; define the account D1/DO/KV boundary, adapter, and binding-specific `migrations_dir` (or equivalent mapping) without re-owning account authority or borrowing `BILLING_D1`. Use `cd infra/cloudflare && npm exec -c "wrangler d1 migrations apply <account-identity-d1-database> --local"` only after that configuration exists. | The exact binding/migration proof identifies the selected account binding and migration directory/mapping, or retains an exact blocker, for Cloudflare WP08 and Account WP06; no account/runtime/deployment closure. |
+| 01 | WP01 module scaffold | validation / bounded scaffold source accepted | `infra/cloudflare/package.json`, Wrangler configs, Worker entrypoint, env and route surfaces | Preserve the reviewed scaffold boundary. Do not reopen source unless WP06 exposes a concrete missing seam. Tests/proof remain a later phase. | Implementation-phase input only; no runtime, deployment, provider, or DONE claim. |
+| 02 | WP02 Wrangler env bindings | code-and-test-source complete / execution and proof deferred | `infra/cloudflare/src/env.ts`, Wrangler configs, `.dev.vars.example`, `tests/unit/env-bindings.test.ts` | Preserve accepted non-throwing production-origin validation and the complete real malformed-origin/wildcard/environment matrix at `4ddb47353`; run it only in the later execution phase. | Test results, retained proof, real binding provisioning, deployment/rollback, and `EntitlementSnapshotDO` composition remain open. |
+| 03 | WP03 Worker entrypoint runtime guards | code-and-test-source complete / execution and proof deferred | `infra/cloudflare/src/index.ts`, `src/env.ts`, `src/security/redaction.ts`, and seven mapped real test roots | Preserve the reviewed fail-fast environment, CORS-before-OPTIONS, framing/size, route, kill-switch, auth-boundary, safe-error, scheduled reconciliation, and redaction source at `61c98efa8`. Run its complete mapped test packet only in the later execution phase. | Test results, scheduled-runtime behavior, retained proof, deployment, consumer runtime, CI, READY, and DONE remain open. |
+| 05 | WP05 Firebase/provider webhook boundary | implementation-phase review accepted / proof deferred | `infra/cloudflare/src/providers/firebase-auth.ts`, `src/env.ts`, `src/auth/verifier.ts`, `src/auth/provider-webhook.ts`, `src/index.ts`, Wrangler config and local env example | Keep Firebase subject verification and provider webhook verification separate. Stripe may use the real timestamped HMAC path; non-Stripe providers remain explicit manual-required/unavailable. Return provider identity or webhook verification only; never create caller-selected family/device/admin/support authority. | Source-only packet; tests, proof, deployment secrets, runtime reachability, binding context, and DONE remain open. |
+| 06 | WP06 current-v2 Account delivery/current-key/D1 consumer | blocked on Protected WP05 -> Account WP09; one negative test present, eight tests open | existing issuer-v2, producer-v2 contract/transport, caller/runtime, D1 issuer-v2/store/writer, migration 0008 | After authenticated upstream delivery exists, complete these v2 hosts and write/register all nine migration, CAS, revoke, restart, currentness, key-rotation, and reachability tests together. Retire the old unversioned missing file names. | Mutation readiness remains manual-required. No shared-secret/header/provider/D1/caller-scalar route may substitute for Account authority. Migration execution, proof, deployment, and DONE remain later gates. |
 | 08 | WP08 account-identity runner/integration proof | blocked on Cloudflare WP06 and the WP01 module dependency environment | `infra/cloudflare/scripts/test-runner.ts`, `src/generated/billing-contracts.ts`, and selected integration surface | After WP06 proof and a non-empty `npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types` result, use the module script `npm --prefix infra/cloudflare run test:integration` to retain the storage-facing runner/proof result or a new exact blocker. Do not revive obsolete `packages/billing-domain/src/*` imports. | Cloudflare WP08 maps the WP06 storage assertions and command result to retained proof for Account WP06; no account-contract ownership or runtime-ready claim. |
-| 07 | WP07 local dev/seed proof-only successor | blocked on WP01 prerequisite | current `infra/cloudflare` WP07 source and proof root | After WP01 dependency reconciliation, run the proof-only successor from current source and retain the focused bundle. Do not revive PR #604 or the stale private billing-domain import blocker. | The selected workpack has reproducible focused results, retained positive/negative/teardown evidence, and an explicit no-claim boundary. |
-| 00-12 except WP01/WP06/WP07/WP08 | Selected Cloudflare workpack | source-present / retained-proof-absent | selected workpack's first-touch surface | Install and reconcile the selected workpack's declared dependencies, then rerun its focused validation and retain the resulting bundle. | The selected workpack has reproducible focused results, retained positive/negative/teardown evidence, and an explicit no-claim boundary. |
+| 07 | WP07 local dev/seed proof-only successor | proof phase deferred | current `infra/cloudflare` WP07 source and proof root | Run only after the current source-completion chain reaches its test/proof phase. Do not revive PR #604 or the stale private billing-domain import blocker. | The selected workpack has reproducible focused results, retained positive/negative/teardown evidence, and an explicit no-claim boundary. |
+| 00-12 except WP01/WP02/WP06/WP07/WP08 | Selected Cloudflare workpack | source-present / retained-proof-absent | selected workpack's first-touch surface | Reconcile its actual production source first, then write the complete expected-test source before focused execution and proof. | The selected workpack has real bounded source, complete expected tests, reproducible focused results, and an explicit no-claim boundary. |
 
 ## Working rules
 
@@ -25,3 +36,34 @@
 - Do not invent, shrink, or merge away test scope outside
   `REQUIRED_TEST_ASSERTION_MATRIX.md`.
 - Keep `PLAN_EXECUTION_SCORECARD.md` aligned with real module and proof state.
+
+## 2026-08-18 source-map refresh
+
+The graph now maps the provider-webhook verifier separately from Firebase
+account authentication. Stripe verification is source-present; other
+providers and admin/support authority remain manual-required. No test, proof,
+deployment, runtime-readiness, or DONE claim changed.
+
+## 2026-08-19 WP06 producer-consumer routing
+
+Account WP08's Rust producer transport is now source-present, but its issuance
+is crate-private and typed unavailable without Account signer/key custody and
+an authenticated producer adapter. WP06 remains a safe verified-provider
+read/manual boundary. The next legal Cloudflare packet is the bounded private
+service-binding adapter/verifier at the existing Account caller/runtime seam,
+using an Account-owned durable public-key registry, followed by a same-
+transaction D1 currentness/revocation/CAS recheck before any writer mutation
+is mounted. Missing/untrusted key distribution remains manual-required; do not
+invent a public route, Firebase authority, env/request/fixture key, request-
+selected scalar, or arbitrary module. Expected subject, signature/time,
+currentness, migration, reachability, restart, key rotation, replay, and
+concurrency tests remain open.
+
+The private decoder/inner-wire verifier source is accepted at canonical
+`da84e6ee3`. Do not rewrite it into a public route or caller-provided key seam.
+Protected WP05 must first preserve the broker transcript and authorize the
+Account owner; Account WP09 then composes its current-v2 family lifecycle.
+Cloudflare's existing v2 verifier/transport/store/migration hosts remain
+manual-required until that one-shot delivery and current-key record arrive.
+Complete the eight missing tests and register the existing root v2 negative
+test together; do not run piecemeal CI during the source wave.

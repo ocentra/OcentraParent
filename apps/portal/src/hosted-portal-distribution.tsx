@@ -102,23 +102,17 @@ const BADGE_STYLE: CSSProperties = {
   textTransform: 'uppercase',
 };
 
-const PRIMARY_ACTION_STYLE: CSSProperties = {
-  background: 'linear-gradient(135deg, rgba(119, 212, 172, 0.96), rgba(95, 174, 255, 0.92))',
-  border: 'none',
-  borderRadius: '999px',
-  color: '#071421',
-  cursor: 'pointer',
+const ACTION_STATUS_STYLE: CSSProperties = {
+  background: 'rgba(86, 110, 139, 0.22)',
+  border: '1px solid rgba(160, 197, 255, 0.28)',
+  borderRadius: '0.75rem',
+  color: 'rgba(226, 235, 247, 0.88)',
   fontSize: '1rem',
   fontWeight: 700,
-  minWidth: '15rem',
+  lineHeight: 1.5,
+  margin: 0,
+  maxWidth: '42rem',
   padding: '0.8rem 1.2rem',
-};
-
-const DISABLED_ACTION_STYLE: CSSProperties = {
-  ...PRIMARY_ACTION_STYLE,
-  background: 'rgba(86, 110, 139, 0.42)',
-  color: 'rgba(226, 235, 247, 0.88)',
-  cursor: 'not-allowed',
 };
 
 export function resolveHostedPortalDistributionState(
@@ -141,7 +135,7 @@ export function HostedPortalDistribution({ state }: { readonly state: HostedPort
       </section>
 
       <HostedPortalReleaseCard environment={state.environment} requestedRelease={state.requestedRelease} />
-      <HostedPortalActionCard controlsEnabled={state.controlsEnabled} openActionLabel={state.openActionLabel} />
+      <HostedPortalActionCard hostedRouteReady={state.controlsEnabled} openActionLabel={state.openActionLabel} />
     </main>
   );
 }
@@ -277,27 +271,33 @@ function HostedPortalReleaseCard({
 }
 
 function HostedPortalActionCard({
-  controlsEnabled,
+  hostedRouteReady,
   openActionLabel,
 }: {
-  readonly controlsEnabled: boolean;
+  readonly hostedRouteReady: boolean;
   readonly openActionLabel: string;
 }): ReactElement {
+  const actionState = hostedRouteReady ? 'runtime-owner-unavailable' : 'blocked';
+  const actionStatus = hostedRouteReady
+    ? `${openActionLabel} is unavailable until an authenticated hosted runtime owner is connected.`
+    : 'Parent release action blocked';
+
   return (
     <section data-testid="hosted-action-card" style={CARD_STYLE}>
-      <h2 style={CARD_HEADING_STYLE}>Parent portal action state</h2>
+      <h2 style={CARD_HEADING_STYLE}>Parent portal runtime availability</h2>
       <p style={ACTION_COPY_STYLE}>
         This action only covers the hosted parent web portal. Setup handoff, child runtime control, desktop package
         launch, and mobile package support remain manual-required outside this workpack.
       </p>
-      <button
-        aria-disabled={!controlsEnabled}
-        data-testid="hosted-primary-action"
-        style={controlsEnabled ? PRIMARY_ACTION_STYLE : DISABLED_ACTION_STYLE}
-        type="button"
+      <p
+        aria-live="polite"
+        data-hosted-action-state={actionState}
+        data-testid="hosted-action-status"
+        role="status"
+        style={ACTION_STATUS_STYLE}
       >
-        {controlsEnabled ? openActionLabel : 'Parent release action blocked'}
-      </button>
+        {actionStatus}
+      </p>
     </section>
   );
 }

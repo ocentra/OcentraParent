@@ -3,6 +3,9 @@ main = "src/index.ts"
 compatibility_date = "2026-06-14"
 workers_dev = false
 
+[triggers]
+crons = ["*/5 * * * *"]
+
 [vars]
 ENVIRONMENT = "production"
 APP_ORIGIN = "https://parent.ocentra.com"
@@ -10,17 +13,22 @@ CORS_ALLOWED_ORIGINS = "https://parent.ocentra.com"
 REQUEST_MAX_BYTES = "1048576"
 BILLING_ROUTE_KILL_SWITCH = "false"
 AUTH_ADAPTER_MODE = "account-auth-adapter-manual-required"
+FIREBASE_CLOCK_SKEW_SECONDS = "60"
+FIREBASE_JWKS_CACHE_SECONDS = "300"
+STRIPE_WEBHOOK_TOLERANCE_SECONDS = "300"
 ENTITLEMENT_SIGNING_KEY_REF = "manual-required-production-ref"
 
 [[d1_databases]]
 binding = "BILLING_D1"
 database_name = "ocentra-parent-billing"
 database_id = "REPLACE_WITH_PRODUCTION_D1_ID"
+migrations_dir = "migrations/billing"
 
 [[d1_databases]]
 binding = "ACCOUNT_IDENTITY_D1"
 database_name = "ocentra-parent-account-identity"
 database_id = "REPLACE_WITH_PRODUCTION_ACCOUNT_IDENTITY_D1_ID"
+migrations_dir = "migrations/account-identity"
 
 [[kv_namespaces]]
 binding = "BILLING_RATE_LIMIT_KV"
@@ -37,6 +45,13 @@ queue = "ocentra-parent-billing-reconciliation"
 [[queues.producers]]
 binding = "BILLING_DEAD_LETTER_QUEUE"
 queue = "ocentra-parent-billing-dead-letter"
+
+[[queues.consumers]]
+queue = "ocentra-parent-billing-reconciliation"
+max_batch_size = 10
+max_batch_timeout = 30
+max_retries = 5
+dead_letter_queue = "ocentra-parent-billing-dead-letter"
 
 [[r2_buckets]]
 binding = "BILLING_AUDIT_R2"

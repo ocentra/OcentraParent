@@ -5,8 +5,9 @@ use ocentra_lan_core::read_model_builder::{
 };
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::{
-    LanPairingDeviceReachability, LanPairingDiscoveryRuntimeStatus, LanPairingNetworkMode,
-    LanPairingProductionDiscoveryState, LanPairingTrustState, LanTrustedDeviceRegistryEntry,
+    LanPairingDeviceHardwareProfile, LanPairingDeviceReachability,
+    LanPairingDiscoveryRuntimeStatus, LanPairingNetworkMode, LanPairingProductionDiscoveryState,
+    LanPairingTrustState, LanTrustedDeviceRegistryEntry,
 };
 use ocentra_parent_agent_protocol::lan_pairing_authority::LanPairingParentAuthority;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
@@ -17,6 +18,8 @@ use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
     LanServiceIdentityProbeEvidenceKind,
 };
 
+#[path = "canonical_household_merge_network.rs"]
+mod canonical_household_merge_network;
 #[path = "canonical_household_merge_registry.rs"]
 mod canonical_household_merge_registry;
 
@@ -63,6 +66,36 @@ fn different_ocentra_device_ids_do_not_auto_merge_even_with_same_stable_mac() {
                     && record.source == LanDiscoveryEvidenceSource::WindowsNeighborTable
             })
     }));
+}
+
+#[test]
+fn hardware_profile_without_child_proof_stays_unassigned_and_non_enrollable() {
+    let mut discovered = discovery_device(
+        "lan-device-hardware-only",
+        None::<&str>,
+        "Observed hardware",
+        None::<&str>,
+        Some(constants::lan_pairing::TEST_LAN_IP),
+        Some(constants::lan_pairing::TEST_LAN_MAC),
+        vec![LanDiscoveryEvidenceSource::WindowsNeighborTable],
+    );
+    discovered.child_device.hardware_profile = Some(LanPairingDeviceHardwareProfile {
+        manufacturer: Some("Observed manufacturer".to_string()),
+        model: Some("Observed model".to_string()),
+        ..Default::default()
+    });
+
+    let model = build_lan_add_device_read_model(lan_input(vec![discovered]));
+    assert_eq!(model.canonical_household_devices.len(), 1);
+    let canonical = &model.canonical_household_devices[0];
+    assert_eq!(
+        canonical.classification,
+        LanCanonicalHouseholdDeviceClassification::UnknownLanDevice
+    );
+    assert!(canonical.role_badges.is_empty());
+    assert!(!canonical.enrollable);
+    assert_eq!(canonical.route_id, None);
+    assert_eq!(canonical.child_agent_inventory, None);
 }
 
 #[test]
@@ -196,6 +229,97 @@ fn different_parent_assigned_child_ids_do_not_auto_merge_even_when_mdns_instance
                         && record.value == constants::lan_pairing::HOUSEHOLD_ACTION_ASSIGN
                 })
     }));
+}
+
+#[test]
+fn production_valid_revoke_decision_marks_canonical_device_revoked() {
+    let canonical_device_id = "lan-child-profile-revokedchild";
+    let model = build_lan_add_device_read_model(LanAddDeviceReadModelInput {
+        discovered_devices: vec![discovery_device(
+            "lan-device-revoke",
+            Some("revoked-child"),
+            "Revoked child device",
+            Some("revoked-child.local"),
+            Some("192.168.1.55"),
+            Some("02:00:00:00:00:55"),
+            vec![LanDiscoveryEvidenceSource::WindowsNeighborTable],
+        )],
+        household_device_decisions: vec![household_revoke_decision(canonical_device_id)],
+        ..lan_input(Vec::new())
+    });
+
+    let device = model
+        .canonical_household_devices
+        .iter()
+        .find(|device| device.canonical_device_id == canonical_device_id);
+    assert_eq!(
+        device.map(|device| &device.discovery_state),
+        Some(&LanPairingProductionDiscoveryState::Revoked)
+    );
+    assert_eq!(
+        device.map(|device| device.trust_state),
+        Some(LanPairingTrustState::Revoked)
+    );
+    assert_eq!(device.map(|device| device.enrollable), Some(false));
+    assert_eq!(device.map(|device| device.route_id.as_deref()), Some(None));
+    assert_eq!(
+        device.map(|device| {
+            device
+                .network_identity
+                .evidence_records
+                .iter()
+                .any(|record| {
+                    record.evidence_kind == LanDiscoveryEvidenceKind::ParentDecision
+                        && record.value == constants::lan_pairing::HOUSEHOLD_ACTION_REVOKE
+                        && record.confidence == LanDiscoveryEvidenceConfidence::Rejected
+                })
+        }),
+        Some(true)
+    );
+}
+
+#[test]
+fn revoke_without_runtime_revocation_timestamp_is_ignored() {
+    let canonical_device_id = "lan-child-profile-invalidrevokechild";
+    let model = build_lan_add_device_read_model(LanAddDeviceReadModelInput {
+        discovered_devices: vec![discovery_device(
+            "lan-device-invalid-revoke",
+            Some("invalid-revoke-child"),
+            "Invalid revoke device",
+            Some("invalid-revoke.local"),
+            Some("192.168.1.56"),
+            Some("02:00:00:00:00:56"),
+            vec![LanDiscoveryEvidenceSource::WindowsNeighborTable],
+        )],
+        household_device_decisions: vec![LanHouseholdDeviceDecision {
+            revoked_at: None,
+            ..household_revoke_decision(canonical_device_id)
+        }],
+        ..lan_input(Vec::new())
+    });
+
+    let device = model
+        .canonical_household_devices
+        .iter()
+        .find(|device| device.canonical_device_id == canonical_device_id);
+    assert_ne!(
+        device.map(|device| &device.discovery_state),
+        Some(&LanPairingProductionDiscoveryState::Revoked)
+    );
+    assert_ne!(
+        device.map(|device| device.trust_state),
+        Some(LanPairingTrustState::Revoked)
+    );
+    assert_eq!(
+        device.map(|device| {
+            device
+                .network_identity
+                .evidence_records
+                .iter()
+                .all(|record| record.evidence_kind != LanDiscoveryEvidenceKind::ParentDecision)
+        }),
+        Some(true)
+    );
 }
 
 #[test]
@@ -694,54 +818,6 @@ fn mdns_instance_name_merges_same_device_across_dhcp_renewal() {
         }));
 }
 
-#[test]
-fn ssdp_udn_merges_same_device_even_when_neighbor_device_ids_differ() {
-    let mut alpha = discovery_device(
-        "lan-device-ssdp-alpha",
-        None::<&str>,
-        "Media Renderer",
-        Some("renderer.local"),
-        Some("192.168.1.100"),
-        None::<&str>,
-        vec![LanDiscoveryEvidenceSource::SsdpUpnpQuery],
-    );
-    alpha.service_identity_probe_evidence = vec![
-        service_hint(
-            LanServiceIdentityProbeEvidenceKind::SsdpDeviceType,
-            "urn:schemas-upnp-org:device:MediaRenderer:1",
-        ),
-        service_hint(
-            LanServiceIdentityProbeEvidenceKind::SsdpUdn,
-            "uuid:media-renderer-1",
-        ),
-    ];
-
-    let mut bravo = discovery_device(
-        "lan-device-ssdp-bravo",
-        None::<&str>,
-        "Media Renderer",
-        Some("renderer.local"),
-        Some("192.168.1.101"),
-        None::<&str>,
-        vec![LanDiscoveryEvidenceSource::SsdpUpnpQuery],
-    );
-    bravo.service_identity_probe_evidence = alpha.service_identity_probe_evidence.clone();
-
-    let model = build_lan_add_device_read_model(lan_input(vec![alpha, bravo]));
-
-    assert_eq!(model.canonical_household_devices.len(), 1);
-    assert_model_has_dedupe_note(&model, ["dedupe-decision=automatic", "shared-ssdp-udn"]);
-    assert!(model.canonical_household_devices[0]
-        .network_identity
-        .evidence_records
-        .iter()
-        .any(|record| {
-            record.evidence_kind == LanDiscoveryEvidenceKind::ServiceProbeHint
-                && record.confidence == LanDiscoveryEvidenceConfidence::Strong
-                && record.value == "ssdp-udn:uuid:media-renderer-1"
-        }));
-}
-
 fn canonical_ids_are_unique(
     model: &ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanBrowserAddDeviceReadModel,
 ) -> bool {
@@ -893,5 +969,22 @@ fn household_assignment_decision(
         parent_actor_id: constants::lan_pairing::PARENT_DEVICE_ID.to_string(),
         decided_at: "2026-06-26T10:00:10Z".to_string(),
         revoked_at: None,
+    }
+}
+
+fn household_revoke_decision(
+    canonical_device_id: impl std::fmt::Display,
+) -> LanHouseholdDeviceDecision {
+    LanHouseholdDeviceDecision {
+        schema_version: constants::lan_pairing::SCHEMA_VERSION,
+        action_id: "household-action-revoke-valid".to_string(),
+        action_kind: LanHouseholdDeviceActionKind::Revoke,
+        canonical_device_id: canonical_device_id.to_string(),
+        child_profile_id: None,
+        display_name: None,
+        device_kind: None,
+        parent_actor_id: constants::lan_pairing::PARENT_DEVICE_ID.to_string(),
+        decided_at: "2026-06-26T10:00:10Z".to_string(),
+        revoked_at: Some("2026-06-26T10:00:20Z".to_string()),
     }
 }

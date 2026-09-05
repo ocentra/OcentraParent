@@ -14,6 +14,29 @@
 
 <!-- /agent-capsule -->
 
+## Truth reconciliation checkpoint - 2026-08-29
+
+Canonical `f5aa596eb` reconciles 220 imported rows to 181 bounded
+source/test-complete, 20 no-code/reference, and 19 concrete gaps. WP10, WP58,
+WP60/WP62, WP64/WP65, and WP189/WP191 are source/test-complete; WP16 partial
+state-matrix depth remains blocked on a service-backed hostile-row Playwright
+fixture, WP27 on an honest scale harness owner, WP159 on shared renderer/service
+metadata ownership, and WP204 on three FD/process-custody test roots. No tests,
+proof, or DONE claims follow.
+
+WP120, WP150, WP163/WP164, and WP165-WP220 have source-review dispositions in
+`CODE_AUDIT.md`; these are not broad DONE/proof claims. WP203's bounded Windows
+observer/protocol proof is retained under
+`output/app-game-plan-proof/203-app-game-windows-local-policy-evidence-proof/`;
+Agent Service composition and enforcement authority remain open. Other open
+blockers are WP167 -> WP168 supersession, the WP193 Windows authority preflight,
+WP195/WP205 proof refs, WP204 OS-custody/test ownership, and
+WP207/WP211/WP216/WP217/WP220
+authenticated child writer/transport/ingress. Physical Android/WSL/Apple proof
+remains open. Canonical `101995347c8` also integrates WP130/WP132 mounted
+behavior coverage and WP156/WP158/WP217 test-source coverage; execution and
+proof remain open.
+
 This file is the short resume list for the next worker. It is derived from open workpack/checklist status and does not replace the assigned workpack.
 
 ## How to use
@@ -25,12 +48,61 @@ This file is the short resume list for the next worker. It is derived from open 
 5. Open that workpack and exact checklist rows only.
 6. Do not claim `DONE` unless the assigned workpack's acceptance/proof rows are updated and validation is listed.
 
-## Highest-open workpacks by route dependency
+## Highest-open Phase 1 work by dependency impact
 
-1. Use `WORKPACK_INDEX.md` to pick the exact assigned app/game control row.
-2. If the task names app control capability/schema/settings, open only that app reference workpack.
-3. If the task names game control capability/schema/settings, open only that game reference workpack.
-4. If the task is implementation or proof, route from the selected reference row into the owning implementation workpack/checklist row before making claims.
+### WP197 source checkpoint — 2026-08-25
+
+WP197 production source is integrated through `5bfb2f6f3` (source packet
+`23c08da016`), and canonical `6eb1785c3` adds the six expected Rust test roots
+for preflight, path security, parser/output, cleanup, cache, and route
+admission. Their execution and proof remain later phases. Do not revive the
+stale `packages/parent-domain` test paths or call checked-in source runtime
+completion.
+
+The 2026-08-15 code audit mapped all 220 workpacks and recorded 28 source/test
+writing gaps. The 2026-08-29 source-first review has since confirmed bounded
+production and real behavioral test source through WP49, except WP27's scale
+harnesses and WP24's owner-blocked live classifier/provider producer. Work from
+[CODE_AUDIT.md](CODE_AUDIT.md) plus the newer checkpoints, in this order:
+
+1. WP10 source and its six mapped real test roots are written at canonical
+   `51d9819a9`. Do not add more source-phase churn. Its later validation phase
+   must execute those tests and retain proof; live launcher manifest/catalog
+   crawling and the external publisher/classifier proof owner remain open.
+2. WP62-WP65: preference owners and receipt-backed status. WP59's scheduler
+   bridge, WP60's metadata-only audit-history bridge, WP61's persisted
+   provider-preflight bridge, and WP62's preference-preflight source plus real
+   tests are reviewed. WP64/WP65 service composition is also reviewed, but
+   exact service-level tests remain blocked on a crate-private process-global
+   activity path with no owner-approved injectable store seam. Production
+   history persistence, real preference/status owners, retry/quiet-hours
+   workers, provider delivery, execution, and proof remain later boundaries.
+3. WP16 and WP159: remaining cohesive dashboard/source UI and hostile/large
+   metadata tests. WP48/WP63's shared focused source is already canonical and
+   awaits execution/proof only.
+4. WP188 is owner-blocked on typed Android-to-Rust/parent ingress. WP190,
+   WP192, WP194, WP198, WP200, WP201, and WP202 have bounded real source/test
+   coverage integrated or reviewed but unexecuted. Continue with the
+   WP191-dependent WP204 Linux test packet; do not revive retired
+   parent-domain/proof-runner ownership.
+5. Android child-runtime source order is now explicit: WP207 durable
+   authenticated writer -> WP208 typed transport/receipt boundary -> WP209
+   service ingestion -> WP210 parent surface -> WP211/WP212/WP214/WP215
+   receipt proof -> WP216 intake -> WP217 durable queue -> WP220-WP222
+   notification/action/request queue. WP212 and WP214 focused package-local
+   tests are canonical, but no downstream marker helper is runtime completion.
+6. WP74-WP86 and WP88-WP110 use the current Rust-first
+   projection/service/parent-runtime/portal owners and checked-in real tests;
+   WP102 is a reviewed no-code supersession by WP103. Do not restore their
+   retired `packages/parent-domain` paths. Their next honest work is a real
+   production scheduler/runtime/provider owner, not another proof DTO. WP87
+   remains open: `bd448a2d1` was rejected because its new read model had only a
+   test caller and could not feed WP88 without manual reconstruction.
+7. WP27 load/performance harnesses; WP102's no-code supersession decision is
+   already recorded, so do not recreate its retired intermediate.
+
+Do not schedule a no-code/proof packet as implementation work, and do not
+recreate the removed legacy TypeScript owners named in old workpacks.
 
 ## PR readiness guard
 

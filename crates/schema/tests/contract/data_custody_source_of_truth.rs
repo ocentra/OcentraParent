@@ -1,7 +1,12 @@
+use std::collections::HashSet;
+
 use crate::support::{extract_typescript_block, ValueOrUnreachable as _};
 use ocentra_schema::data_custody_source_of_truth as contracts;
 use ocentra_schema::data_custody_source_of_truth_ts::data_custody_source_of_truth_contracts_typescript;
 use serde_json::json;
+
+#[path = "data_custody_source_of_truth_expected.rs"]
+mod expected;
 
 #[test]
 fn data_custody_source_of_truth_round_trips_through_rust_owned_shape() {
@@ -30,6 +35,276 @@ fn data_custody_source_of_truth_round_trips_through_rust_owned_shape() {
     let decoded: contracts::DataCustodySourceOfTruthContractProof = serde_json::from_value(encoded)
         .value_or_unreachable(crate::assert_context!("proof deserializes"));
     assert_eq!(decoded, proof);
+}
+
+#[test]
+fn data_custody_source_of_truth_has_the_exact_active_class_inventory() {
+    use contracts::DataCustodyClassId::*;
+
+    let proof = contracts::sample_data_custody_source_of_truth_contract_proof();
+    let expected_classes = vec![
+        AccountIdentityMetadata,
+        SubscriptionEntitlementMetadata,
+        BillingProviderIdentityReference,
+        LicenseDownloadUpdateMetadata,
+        HouseholdDeviceRegistry,
+        DeviceRegistrationPairingRouteMetadata,
+        SetupStateAndPairingDraft,
+        MinimalNotificationRoutingMetadata,
+        ShortLivedReportCompilerStatus,
+        SupportCaseMetadata,
+        PublicWebsiteReleaseStatus,
+        ChildProfile,
+        ParentRulesAndApprovalHistory,
+        AuditLog,
+        EvidenceJournalSegments,
+        SqliteEvidenceReadModelDatabase,
+        ScreenshotsAndScreenAnalysisImages,
+        BrowserUrlHistory,
+        NetworkAppGameEvidence,
+        LocationTrackingEvidence,
+        LocalAiAndPolicyDecisions,
+        GeneratedLongTermReports,
+        ParentNotificationHistoryCache,
+        AssistantChildEvidenceContext,
+        ParentOwnedStorageContents,
+        ProviderSyncPayloads,
+        SupportBundlesContainingRawChildActivity,
+        UniversalDecryptKeys,
+    ];
+    let actual_classes: Vec<_> = proof.rows.iter().map(|row| row.class_id).collect();
+    let unique_row_ids: HashSet<_> = proof.rows.iter().map(|row| row.row_id.as_str()).collect();
+    let unique_class_ids: HashSet<_> = proof
+        .rows
+        .iter()
+        .map(|row| class_id_key(&row.class_id))
+        .collect();
+
+    assert_eq!(proof.rows.len(), 28);
+    assert_eq!(actual_classes, expected_classes);
+    assert_eq!(unique_row_ids.len(), proof.rows.len());
+    assert_eq!(unique_class_ids.len(), proof.rows.len());
+}
+
+#[test]
+fn derived_rows_reference_only_known_source_classes_and_never_become_truth() {
+    let proof = contracts::sample_data_custody_source_of_truth_contract_proof();
+    let known_classes: HashSet<_> = proof
+        .rows
+        .iter()
+        .map(|row| class_id_key(&row.class_id))
+        .collect();
+    let referenced_classes: HashSet<_> = proof
+        .rows
+        .iter()
+        .flat_map(|row| row.source_of_truth.source_class_ids.iter())
+        .map(class_id_key)
+        .collect();
+
+    assert_eq!(
+        referenced_classes.intersection(&known_classes).count(),
+        referenced_classes.len()
+    );
+
+    for row in &proof.rows {
+        assert_source_of_truth_row(row);
+    }
+}
+
+fn assert_source_of_truth_row(row: &contracts::DataCustodySourceOfTruthRow) {
+    match row.source_of_truth.kind {
+        contracts::DataCustodySourceOfTruthKind::Self_ => {
+            assert!(row.source_of_truth.source_class_ids.is_empty());
+            assert!(!row.derived_use_only);
+        }
+        contracts::DataCustodySourceOfTruthKind::DerivedFromDataClasses => {
+            let expected_sources = expected::expected_derived_source_classes(row.class_id);
+            assert_eq!(
+                row.source_of_truth.source_class_ids.len(),
+                expected_sources.len()
+            );
+            assert_eq!(
+                row.source_of_truth.source_class_ids.as_slice(),
+                expected_sources
+            );
+            assert!(row.derived_use_only);
+            for source_class in &row.source_of_truth.source_class_ids {
+                assert_ne!(*source_class, row.class_id);
+            }
+        }
+    }
+}
+
+#[test]
+fn hosting_modes_and_default_hosting_lists_match_the_declared_matrix() {
+    let proof = contracts::sample_data_custody_source_of_truth_contract_proof();
+    let hosted_rows: Vec<_> = proof
+        .rows
+        .iter()
+        .filter(|row| row.ocentra_hosted_by_default)
+        .map(|row| row.class_id)
+        .collect();
+    let never_hosted_rows: Vec<_> = proof
+        .rows
+        .iter()
+        .filter(|row| row.must_never_be_hosted_by_default)
+        .map(|row| row.class_id)
+        .collect();
+    let forbidden = proof
+        .rows
+        .iter()
+        .filter(|row| {
+            row.hosting_policy.ocentra_hosting_mode
+                == contracts::DataCustodyOcentraHostingMode::Forbidden
+        })
+        .count();
+    let allowed_metadata_only = proof
+        .rows
+        .iter()
+        .filter(|row| {
+            row.hosting_policy.ocentra_hosting_mode
+                == contracts::DataCustodyOcentraHostingMode::AllowedMetadataOnly
+        })
+        .count();
+    let short_lived_status_only = proof
+        .rows
+        .iter()
+        .filter(|row| {
+            row.hosting_policy.ocentra_hosting_mode
+                == contracts::DataCustodyOcentraHostingMode::ShortLivedStatusOnly
+        })
+        .count();
+    let public_release_only = proof
+        .rows
+        .iter()
+        .filter(|row| {
+            row.hosting_policy.ocentra_hosting_mode
+                == contracts::DataCustodyOcentraHostingMode::PublicReleaseOnly
+        })
+        .count();
+
+    assert_eq!(proof.allowed_ocentra_hosted_metadata.len(), 8);
+    assert_eq!(proof.must_never_be_hosted_by_default.len(), 13);
+    assert_eq!(hosted_rows, proof.allowed_ocentra_hosted_metadata);
+    assert_eq!(never_hosted_rows, proof.must_never_be_hosted_by_default);
+    assert_eq!(
+        (
+            forbidden,
+            allowed_metadata_only,
+            short_lived_status_only,
+            public_release_only,
+        ),
+        (20, 6, 1, 1)
+    );
+
+    for row in &proof.rows {
+        assert!(!(row.ocentra_hosted_by_default && row.must_never_be_hosted_by_default));
+        if row.must_never_be_hosted_by_default {
+            assert_eq!(
+                row.hosting_policy.ocentra_hosting_mode,
+                contracts::DataCustodyOcentraHostingMode::Forbidden
+            );
+        }
+    }
+}
+
+#[test]
+fn sensitive_raw_child_evidence_never_becomes_notification_or_default_hosting_data() {
+    let proof = contracts::sample_data_custody_source_of_truth_contract_proof();
+    let raw_child_rows: Vec<_> = proof
+        .rows
+        .iter()
+        .filter(|row| row.raw_child_evidence_allowed)
+        .collect();
+
+    use contracts::DataCustodyClassId::*;
+    let raw_child_classes: Vec<_> = raw_child_rows.iter().map(|row| row.class_id).collect();
+    assert_eq!(
+        raw_child_classes,
+        vec![
+            EvidenceJournalSegments,
+            ScreenshotsAndScreenAnalysisImages,
+            BrowserUrlHistory,
+            NetworkAppGameEvidence,
+            LocationTrackingEvidence,
+            SupportBundlesContainingRawChildActivity,
+        ]
+    );
+    for row in raw_child_rows {
+        assert!(row.sensitive);
+        assert!(row.encrypted_before_upload);
+        assert!(!row.ocentra_hosted_by_default);
+        assert!(!row.may_appear_in_notifications);
+        assert_eq!(
+            row.notification_exposure,
+            contracts::DataCustodyExposure::None
+        );
+        assert!(matches!(
+            row.report_exposure,
+            contracts::DataCustodyExposure::None
+                | contracts::DataCustodyExposure::AllowedReferencesOnly
+        ));
+    }
+
+    for row in &proof.rows {
+        if !row.may_appear_in_notifications {
+            assert_eq!(
+                row.notification_exposure,
+                contracts::DataCustodyExposure::None
+            );
+        }
+    }
+}
+
+#[test]
+fn custody_contract_keeps_every_no_claim_flag_fail_closed() {
+    use contracts::DataCustodyNonClaim::*;
+
+    let proof = contracts::sample_data_custody_source_of_truth_contract_proof();
+
+    assert_eq!(
+        proof.non_claims,
+        vec![
+            NoDefaultOcentraChildActivityStore,
+            NoSqliteTruthLayer,
+            NoProviderAutoApply,
+            NoSupportDecryptDefault,
+            NoOcentraOwnedParentRules,
+            NoRawChildEvidenceInNotifications,
+            NoLongLivedHostedReports,
+        ]
+    );
+    assert_eq!(
+        (
+            proof.ocentra_is_default_child_data_store,
+            proof.provider_auto_apply_claimed,
+            proof.support_decrypt_by_default_claimed,
+            proof.sqlite_as_truth_layer_claimed,
+            proof.raw_child_activity_hosted_by_default_claimed,
+        ),
+        (false, false, false, false, false)
+    );
+    assert!(proof.account_control_plane_separated);
+    assert!(proof.provider_owned_billing_identity_separated);
+}
+
+#[test]
+fn custody_identifiers_reject_blank_values_without_normalizing_identity() {
+    assert!(contracts::DataCustodySourceOfTruthRowId::parse("   ").is_none());
+    assert!(contracts::DataCustodySourceOfTruthMatrixId::parse("\t").is_none());
+
+    let row_id = contracts::DataCustodySourceOfTruthRowId::parse("custody-row-exact")
+        .value_or_unreachable(crate::assert_context!("nonblank row id parses"));
+    let matrix_id = contracts::DataCustodySourceOfTruthMatrixId::parse("custody-matrix-exact")
+        .value_or_unreachable(crate::assert_context!("nonblank matrix id parses"));
+
+    assert_eq!(row_id.as_str(), "custody-row-exact");
+    assert_eq!(matrix_id.as_str(), "custody-matrix-exact");
+}
+
+fn class_id_key(class_id: &contracts::DataCustodyClassId) -> String {
+    serde_json::to_string(class_id)
+        .value_or_unreachable(crate::assert_context!("class id serializes"))
 }
 
 #[test]

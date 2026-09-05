@@ -1,5 +1,10 @@
 # WP212 App/Game Android Child Runtime Local Receipt Proof
 
+> **Current status (2026-08-29): package-local behavior covered; runtime
+> receipt BLOCKED.** Canonical `0505bdd61` adds real Robolectric filesystem,
+> receiver-action, tamper, and failure coverage. These tests deliberately do
+> not treat same-app files or broadcasts as authenticated service receipts.
+
 <!-- agent-capsule -->
 
 > Agent Capsule
@@ -26,6 +31,11 @@ not claiming service ingestion, provider delivery, platform delivery channel
 execution, adapter dispatch, or platform enforcement.
 
 ## Implementation
+
+Current Java behavior is package-local proof only. The legacy
+`packages/parent-domain` files and proof runner below are retired, and
+`MainActivity` is not the launched child runtime. WP211's authenticated receipt
+ingress remains the implementation dependency.
 
 - Extended
   `platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeTransportReceiptProof.java`

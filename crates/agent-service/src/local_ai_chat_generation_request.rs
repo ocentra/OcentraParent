@@ -9,20 +9,13 @@ mod numeric;
 mod prompt;
 
 use crate::{
+    local_ai_chat_generation_request_input::LocalAiChatGenerationRequest,
     local_ai_runtime_config::LocalAiRuntimeConfigSnapshot,
     local_ai_runtime_config_values::LocalAiUnavailableReason,
 };
 use model_id::requested_model_id;
 use numeric::{numeric_field_u32, numeric_field_u64};
 use prompt::prompt_from_command;
-
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub(crate) struct LocalAiChatGenerationRequest {
-    pub(crate) model_id: String,
-    pub(crate) prompt: String,
-    pub(crate) max_output_tokens: u32,
-    pub(crate) timeout_ms: u64,
-}
 
 pub(crate) fn parse_generation_request(
     command: &AgentCommandEnvelope,

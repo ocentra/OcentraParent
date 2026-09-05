@@ -6,7 +6,14 @@ Keep the repo-local `infra/cloudflare/` module shape honest without overclaiming
 
 ## Current status
 
-`source-present / focused-validation-recorded / no-production-claim`
+`validation / bounded scaffold source accepted / no-production-claim`
+
+Independent source review accepts the existing module/package, Wrangler,
+environment validation, route-manifest, Worker guard/dispatch, auth-adapter,
+and module-runner surfaces as implementation-phase scaffold evidence. The
+review does not claim deployed bindings, provider verification, account
+authority, production storage, runtime readiness, proof freshness, or DONE.
+Placeholder subdirectories remain placeholders.
 
 ## First-touch surface
 

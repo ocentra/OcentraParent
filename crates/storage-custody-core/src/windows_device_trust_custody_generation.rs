@@ -35,7 +35,7 @@ pub(super) fn mark_sealed(root: &Path, generation: &str, binding: &[u8]) -> Resu
         &root_key,
         &format!(
             "{identity}|{generation}|{INSTALL_GENERATION_SEALED}|{}",
-            hex(binding)
+            hex(Sha256::digest(binding))
         ),
     )
     .map_err(|_error| Error::Platform)
@@ -71,12 +71,18 @@ fn anchor_generation<'a>(
     }
     match (state, binding_hex, generation) {
         (Some(INSTALL_GENERATION_EMPTY), None, Some(generation)) => Ok(Some(generation)),
-        (Some(INSTALL_GENERATION_SEALED), Some(_binding_hex), Some(generation)) => {
+        (Some(INSTALL_GENERATION_SEALED), Some(binding_hex), Some(generation))
+            if valid_binding_hex(binding_hex) =>
+        {
             active_record_scan::any_present(root, generation)
                 .map(|present| present.then_some(generation))
         }
         _ => Ok(None),
     }
+}
+
+fn valid_binding_hex(binding_hex: &str) -> bool {
+    binding_hex.len() == 64 && binding_hex.bytes().all(|byte| byte.is_ascii_hexdigit())
 }
 
 fn rotate(key: &RegKey, root_key: &str, identity: &str) -> Result<String, Error> {

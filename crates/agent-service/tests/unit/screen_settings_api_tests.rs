@@ -27,8 +27,9 @@ use ocentra_parent_agent_protocol::SCREEN_EVIDENCE_SCHEMA_VERSION;
 
 use crate::{
     screen_settings_api::build_screen_settings_event,
-    screen_settings_runtime::ScreenSettingsRuntime,
-    test_invariants::{require_json_decode, require_log_string_field, serialize_test_json},
+    screen_settings_runtime::ScreenSettingsRuntime, test_require_json_decode::require_json_decode,
+    test_require_log_string_field::require_log_string_field,
+    test_serialize_json::serialize_test_json,
 };
 
 #[tokio::test]

@@ -32,6 +32,41 @@
 - [ ] Define setup handoff inputs and outputs.
 - [ ] Define the proof matrix and external artifact root.
 
+## WP12 protected broker provisioner route
+
+- [ ] Define the parent-side MSI/WiX artifact, elevated custom-action/provisioner
+  invocation, and build/release wiring under
+  `scripts/release/windows/parent-protected-custody/`, with the manifest at
+  `scripts/release/windows/parent-protected-custody.wxs` and the package build
+  entry at `scripts/release/windows/build-parent-protected-custody-package.ps1`.
+- [ ] Invoke and package Protected WP02's owner-approved BIN-only provisioner
+  binary. The Cargo manifest, `src/main.rs`, and private `src/provisioning/`
+  source are WP02-owned; WP12 owns no library/public API and accepts no
+  caller/MSI-provided path, TPM index/policy, `authValue`, identity, generation,
+  lease, capability, or success input.
+- [ ] Use WP01's neutral private core/FFI foundation and the WP02/WP03 owner
+  boundaries without
+  exposing or accepting raw `authValue`, TPM index/policy, SID, path, image,
+  generation, lease, capability, or caller-supplied success.
+- [ ] Keep WP02 as the owner of the provisioner source and fixed
+  Enrollment/SCM/TPM transaction, WP03 as the owner of monotonic/anti-rollback
+  currentness, and WP01 as the neutral foundation; WP12 owns only binary
+  invocation and install/repair/upgrade/rollback/uninstall lifecycle. Protected
+  WP04 later consumes the packaged broker boundary for client anchor/transport;
+  WP12 does not consume WP04 source or add a reverse dependency.
+- [ ] Define real install/repair/upgrade/rollback/uninstall and explicit
+  deprovisioning outcomes; preserve TPM generation and fail closed on missing
+  or contradictory enrollment.
+- [ ] Add the package/lifecycle tests and retained proof under the WP12 roots;
+  no package success, signing/checksum, or service registration may claim
+  protected authority or runtime readiness.
+- [ ] Author the bounded WP12 package/invocation source against the accepted
+  WP01 foundation, WP03 monotonic/package boundary, and Parent WP03 package
+  identity contract. WP12 produces the installed broker/provisioner artifact
+  that WP04 later consumes; it does not consume or use WP04 source. Keep normal
+  completion blocked until real package invocation/lifecycle implementation,
+  expected tests, focused execution, and proof exist.
+
 ## WP01 closeout
 
 - WP01 is complete. The canonical scope, Rust-first route-bridge boundary, setup handoff separation, child-runtime exclusion, portal UX handoff, and compatibility-only historical folder path are now proved under `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/`.
@@ -42,15 +77,16 @@
 - The first Playwright attempt hit a foreign process on default port `4490`; the focused hosted spec passed on explicit free ports `4590`-`4592`, and the proof log records that reroute.
 - WP02 does not claim production publishing, setup readiness, desktop/mobile package readiness, or child runtime authority.
 
-## WP06 closeout
+## WP06 authenticated source repair before tests
 
-- WP06 is complete. The Rust-owned `ParentRouteSnapshot` contract, Devices-route local-service load/degrade behavior, and setup-separation boundary are now proved under `output/parent-client-runtime-distribution-plan-proof/06-parent-local-service-route-bridge/`.
-- Focused cargo tests passed for Devices-route unavailable, timeout, passive-local-target, and setup-first-run separation behavior, and the schema contract test passed for the canonical route bridge shape and generated thin TS artifacts.
+- WP06 is blocked in the production-source phase. The existing response identity, freshness, deadline, dependency/LAN failure, and no-stale-connected handling is useful, but it runs over an unauthenticated WebSocket session: missing `Origin` is accepted, connection readiness precedes authentication, health can report `Ready` with `Unauthenticated`, and the parent supplies its own `ws://` origin.
+- First decompose Account WP03's provider-independent parent-local authority slice from its downstream Cloudflare/Protected/Parent dependency cycle, then implement its opaque owner-issued current/revocable capability and owner-bound handshake. Compose that into agent-service admission, readiness, health, route reads, and action dispatch before writing the full WP06 expected-test family.
+- Earlier focused cargo/schema passes cover route degradation and contract shape only. They neither authenticate the live transport nor accept the current source or historical proof.
 - WP06 does not claim setup readiness, child runtime distribution ownership, desktop/mobile/web package readiness, or portal UX ownership.
 
-## WP03 closeout
+## WP03 source acceptance and open test wave
 
-- WP03 is complete. The desktop shell/package packet now has a real Tauri package proof under `output/parent-client-runtime-distribution-plan-proof/03-parent-desktop-shell-package/`, with MSI and NSIS artifacts, explicit dry-run launch anchors, local artifact hash evidence, and ready/degraded Rust service-bridge proof.
+- WP03 retains its real Tauri package artifacts and historical proof, while the refreshed all-command response binding and hard transport deadline source is independently accepted. Desktop-shell/bridge tests and proof must be refreshed before closure.
 - WP03 does not claim signed release readiness, production update or rollback readiness, setup completion, child runtime authority, or Android/iOS parity.
 
 ## WP04 closeout
@@ -66,3 +102,20 @@
 - WP09 does not claim setup completion, child runtime ownership, desktop/mobile parity, or product readiness from smoke alone.
 
 - Next smallest open workpack is WP05 parent iOS package.
+
+## WP12 installer-only refresh — 2026-08-25
+
+WP12 is planned/source-authorable for the bounded package/invocation source
+under
+`scripts/release/windows/parent-protected-custody/`,
+`scripts/release/windows/parent-protected-custody.wxs`, and
+`scripts/release/windows/build-parent-protected-custody-package.ps1`.
+Exercise the package test directory plus
+`tests/repo-tooling/parent-protected-custody-package.test.mjs` remains expected
+and absent. Protected WP01 remains the neutral foundation, while WP02/WP03
+remain the enrollment and monotonic owners; WP12 packages the fixed
+owner-approved binary and produces the package boundary that WP04 later
+consumes for client transport. WP12 cannot mint authority or infer readiness
+from MSI success. The zero-argument provisioner remains
+`ExternalProvisioningRequired`/manual-required, with no service-start claim.
+Normal completion, tests, proof, signing, and runtime evidence remain open.

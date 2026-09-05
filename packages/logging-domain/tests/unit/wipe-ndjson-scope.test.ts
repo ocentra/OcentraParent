@@ -6,15 +6,24 @@ import { appendTestLogEntries, readTestLogEntriesFromFile } from '../../src/test
 import { getRunNdjsonFilePath, getTestLogScopeDir, listNdjsonFiles } from '../../src/test-log/ndjsonPaths';
 import { RunType, TestLogScope, TestSuiteType, TestLogSchemaVersion } from '../../src/test-log/types';
 import { wipeNdjsonScope } from '../../src/test-log/wipeNdjsonScope';
+import { closeLocalArtifactMutationProvider } from '../../src/local-artifact-mutation-provider';
 
-function makeEntry(runId: string, filePath: string) {
+function makeEntry(
+  runId: string,
+  filePath: string,
+  options: {
+    readonly scope?: TestLogScope;
+    readonly runType?: RunType;
+    readonly suiteType?: TestSuiteType;
+  } = {}
+) {
   return {
     schemaVersion: TestLogSchemaVersion,
     type: 'log' as const,
-    scope: TestLogScope.ParentTest,
+    scope: options.scope ?? TestLogScope.ParentTest,
     runId,
-    runType: RunType.Single,
-    suiteType: TestSuiteType.Unit,
+    runType: options.runType ?? RunType.Single,
+    suiteType: options.suiteType ?? TestSuiteType.Unit,
     testName: `${runId}-test`,
     timestamp: 1,
     level: 'info' as const,
@@ -34,11 +43,12 @@ function makeEntry(runId: string, filePath: string) {
   };
 }
 
-describe('wipe ndjson scope', () => {
+describe.skipIf(process.platform !== 'win32')('wipe ndjson scope', () => {
   const tempDirs: string[] = [];
 
-  afterEach(() => {
+  afterEach(async () => {
     for (const tempDir of tempDirs.splice(0, tempDirs.length)) {
+      await closeLocalArtifactMutationProvider(tempDir);
       fs.rmSync(tempDir, { force: true, recursive: true });
     }
   });
@@ -93,5 +103,33 @@ describe('wipe ndjson scope', () => {
     const files = listNdjsonFiles(getTestLogScopeDir(TestLogScope.ParentTest, tempDir));
     expect(files).toHaveLength(1);
     expect(files[0]).toContain('run-b.ndjson');
+  });
+
+  it('does not cross scope, run-type, or suite boundaries', () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'logging-domain-wipe-'));
+    tempDirs.push(tempDir);
+
+    appendTestLogEntries(
+      [
+        makeEntry('matching-run', 'apps/portal/src/dev-logger.ts'),
+        makeEntry('other-suite', 'apps/portal/src/dev-logger.ts', { suiteType: TestSuiteType.Integration }),
+        makeEntry('other-run-type', 'apps/portal/src/dev-logger.ts', { runType: RunType.Full }),
+        makeEntry('other-scope', 'apps/portal/src/dev-logger.ts', { scope: TestLogScope.ParentCodex }),
+      ],
+      tempDir
+    );
+
+    const result = wipeNdjsonScope({
+      scope: TestLogScope.ParentTest,
+      runType: RunType.Single,
+      suiteType: TestSuiteType.Unit,
+      rootDir: tempDir,
+    });
+
+    expect(result.deletedEntries).toBe(1);
+    const remaining = listNdjsonFiles(path.join(tempDir, 'test-logs')).flatMap((filePath) =>
+      readTestLogEntriesFromFile(filePath, tempDir)
+    );
+    expect(remaining.map((entry) => entry.runId).sort()).toEqual(['other-run-type', 'other-scope', 'other-suite']);
   });
 });

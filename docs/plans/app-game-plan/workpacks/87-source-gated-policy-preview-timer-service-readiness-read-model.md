@@ -50,6 +50,22 @@ keep service-readiness and service read-API proof refs visible; source and
 compiler blockers remain blocked before any service runtime, protocol command,
 read API implementation, or portal UI claim.
 
+## Current Rust-first source decision — 2026-08-29
+
+This workpack is still a real source/composition gap. The historical
+`packages/parent-domain` files below are retired and are not current owners.
+A proposed Rust packet at `bd448a2d1` was reviewed and rejected: its new
+read-model type and builder had only a contract-test caller, while WP88 still
+accepted a separate manually reconstructed input type. There was no production
+consumer and no conversion that let the new output enter the existing chain.
+
+Do not integrate or reproduce that dead DTO. The smallest honest successor
+must make the existing Rust owner chain consume one canonical WP87 output
+directly in WP88 and must have a real production composition caller. Until
+that owner/caller exists, checked boxes and legacy evidence paths are not
+implementation completion. Test execution, proof, CI, and DONE also remain
+open.
+
 ## Evidence
 
 - `packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-read-model.ts`

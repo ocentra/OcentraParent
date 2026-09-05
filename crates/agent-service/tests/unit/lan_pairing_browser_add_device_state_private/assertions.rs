@@ -13,7 +13,7 @@ pub(super) fn discovery_row<'a>(
     evidence_id: Option<&TestText>,
     context: &'static TestStr,
 ) -> &'a LanDiscoveryEventRow {
-    crate::test_invariants::require_some(
+    crate::test_require_some::require_some(
         rows.iter().find(|row| {
             row.event_kind == *event_kind
                 && row.affected_device_id.as_ref() == affected_device_id

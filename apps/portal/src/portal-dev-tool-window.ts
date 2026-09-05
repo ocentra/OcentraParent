@@ -1,25 +1,33 @@
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/portal-domain/display-text';
-import { PortalDevToolWindow, portalDevToolUrl } from '@ocentra-parent/portal-domain/routes';
+import {
+  PortalDevToolWindow,
+  portalFrameTunerUrl,
+  type PortalDevToolWindowLabel,
+} from '@ocentra-parent/portal-domain/routes';
 import { WebviewWindow, getAllWebviewWindows } from '@tauri-apps/api/webviewWindow';
-import { ParentHostBridgeRuntime, ParentRoute } from '../generated/parent-ui-bridge';
+import { isParentTauriRuntime } from './tauri-runtime';
 
-export async function openPortalFrameTunerWindow(): Promise<void> {
-  const url = portalDevToolUrl(window.location.origin, window.location.pathname, ParentRoute.FrameTuner);
-  if (!isTauriRuntime()) {
-    openBrowserFrameTunerWindow(url);
+export async function openPortalFrameTunerWindow(
+  routePath: unknown = PortalDevToolWindow.FrameTunerHash
+): Promise<void> {
+  const backgroundOnly = routePath === PortalDevToolWindow.BackgroundFrameTunerHash;
+  const windowLabel = backgroundOnly
+    ? PortalDevToolWindow.BackgroundFrameTunerLabel
+    : PortalDevToolWindow.FrameTunerLabel;
+  const url = portalFrameTunerUrl(window.location.origin, window.location.pathname, backgroundOnly);
+  if (!isParentTauriRuntime()) {
+    openBrowserFrameTunerWindow(url, windowLabel, backgroundOnly);
     return;
   }
   try {
-    const existingWindow = (await getAllWebviewWindows()).find(
-      (webviewWindow) => webviewWindow.label === PortalDevToolWindow.FrameTunerLabel
-    );
+    const existingWindow = (await getAllWebviewWindows()).find((webviewWindow) => webviewWindow.label === windowLabel);
     if (existingWindow !== undefined) {
       await existingWindow.show();
       await existingWindow.unminimize();
       await existingWindow.setFocus();
       return;
     }
-    const webview = new WebviewWindow(PortalDevToolWindow.FrameTunerLabel, {
+    const webview = new WebviewWindow(windowLabel, {
       decorations: true,
       height: PortalDevToolWindow.FrameTunerHeight,
       resizable: true,
@@ -28,24 +36,23 @@ export async function openPortalFrameTunerWindow(): Promise<void> {
       width: PortalDevToolWindow.FrameTunerWidth,
     });
     webview.once(PortalDevToolWindow.TauriErrorEvent, () => {
-      openBrowserFrameTunerWindow(url);
+      openBrowserFrameTunerWindow(url, windowLabel, backgroundOnly);
     });
   } catch {
-    openBrowserFrameTunerWindow(url);
+    openBrowserFrameTunerWindow(url, windowLabel, backgroundOnly);
   }
 }
 
-function isTauriRuntime(): boolean {
-  return (
-    typeof window !== ParentHostBridgeRuntime.TypeofUndefined &&
-    ParentHostBridgeRuntime.TauriInternalWindowKey in window
-  );
-}
-
-function openBrowserFrameTunerWindow(url: ReturnType<typeof portalDevToolUrl>): void {
-  const popup = window.open(url, PortalDevToolWindow.FrameTunerLabel, PortalDevToolWindow.PopupFeatures);
+function openBrowserFrameTunerWindow(
+  url: ReturnType<typeof portalFrameTunerUrl>,
+  windowLabel: PortalDevToolWindowLabel,
+  backgroundOnly: boolean
+): void {
+  const popup = window.open(url, windowLabel, PortalDevToolWindow.PopupFeatures);
   if (popup === null) {
-    window.location.hash = PortalDevToolWindow.FrameTunerHash;
+    window.location.hash = backgroundOnly
+      ? PortalDevToolWindow.BackgroundFrameTunerHash
+      : PortalDevToolWindow.FrameTunerHash;
     return;
   }
   popup.focus();

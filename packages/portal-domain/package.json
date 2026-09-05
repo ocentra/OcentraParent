@@ -13,6 +13,10 @@
       "import": "./dist/browser-child-intervention-page.js",
       "types": "./dist/browser-child-intervention-page.d.ts"
     },
+    "./capability-status-route-model": {
+      "import": "./dist/capability-status-route-model.js",
+      "types": "./dist/capability-status-route-model.d.ts"
+    },
     "./command-results": {
       "import": "./dist/command-results.js",
       "types": "./dist/command-results.d.ts"
@@ -57,6 +61,30 @@
       "import": "./dist/live-activity-state.js",
       "types": "./dist/live-activity-state.d.ts"
     },
+    "./route-live-activity-app-game-extension-decoder": {
+      "import": "./dist/route-live-activity-app-game-extension-decoder.js",
+      "types": "./dist/route-live-activity-app-game-extension-decoder.d.ts"
+    },
+    "./route-live-activity-network-decoder": {
+      "import": "./dist/route-live-activity-network-decoder.js",
+      "types": "./dist/route-live-activity-network-decoder.d.ts"
+    },
+    "./route-live-activity-route-event-decoder": {
+      "import": "./dist/route-live-activity-route-event-decoder.js",
+      "types": "./dist/route-live-activity-route-event-decoder.d.ts"
+    },
+    "./route-live-activity-summary-decoders": {
+      "import": "./dist/route-live-activity-summary-decoders.js",
+      "types": "./dist/route-live-activity-summary-decoders.d.ts"
+    },
+    "./route-live-activity-surface-decoders": {
+      "import": "./dist/route-live-activity-surface-decoders.js",
+      "types": "./dist/route-live-activity-surface-decoders.d.ts"
+    },
+    "./route-live-activity-tracking-decoder": {
+      "import": "./dist/route-live-activity-tracking-decoder.js",
+      "types": "./dist/route-live-activity-tracking-decoder.d.ts"
+    },
     "./local-ai-runtime-panel": {
       "import": "./dist/local-ai-runtime-panel.js",
       "types": "./dist/local-ai-runtime-panel.d.ts"
@@ -96,6 +124,10 @@
     "./parent-portal-service-state": {
       "import": "./dist/parent-portal-service-state.js",
       "types": "./dist/parent-portal-service-state.d.ts"
+    },
+    "./portal-host-bridge-runtime": {
+      "import": "./dist/portal-host-bridge-runtime.js",
+      "types": "./dist/portal-host-bridge-runtime.d.ts"
     },
     "./portal-background": {
       "import": "./dist/portal-background.js",

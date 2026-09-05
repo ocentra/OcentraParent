@@ -22,8 +22,8 @@ boundary rows without claiming delivery.
 
 ## Scope
 
-- Add a parent-domain bridge from WP123 child UX provider-preflight rows to the
-  existing V0.8 notification provider-status boundary.
+- Add a Rust-owned App/Game bridge from WP123 child UX provider-preflight rows
+  to the existing V0.8 notification provider-status boundary.
 - Convert provider-adapter-required and manual-required preflight rows into
   manual-required provider-status entries.
 - Convert unavailable preflight rows into unavailable provider-status entries.
@@ -50,7 +50,25 @@ boundary rows without claiming delivery.
 
 ## Validation
 
-- Parent-domain build.
-- Focused parent-domain test for the child UX provider-status handoff.
+- Rust App/Game crate build and Clippy.
+- Focused Rust tests for WP123 status conversion, V0.8 boundary parity, and
+  delivery-claim rejection.
 - Formatting, source-shape, no-test-doubles, `git diff --check`, lane guard, and
   hub guard before commit.
+
+## Current Status - Phase 1/2 Complete; Phase 3 Open
+
+Commit `dc99eb608` adds the Rust-owned provider-status handoff in
+`ocentra-app-game-core`. It maps honest WP123 provider-adapter-required rows to
+identity-bound V0.8 manual-required entries and unavailable rows to V0.8
+unavailable entries. The handoff preserves scheduler, outbox, provider-channel,
+readiness, manual-proof, preference, policy, evidence, and audit references while
+keeping provider receipts empty and every delivery/runtime/credential/UI/child/
+adapter/enforcement claim false.
+
+Three contract cases cover manual-required mapping, unavailable mapping, and
+fail-closed claimed/missing-context inputs. The complete App/Game contract suite
+(92 tests), unit suite (10 tests), crate Clippy, focused Enforcer checks,
+formatting, diff hygiene, hub guard, and pre-commit passed. Provider execution,
+receipts, credentials, production retry and quiet-hours workers, parent UI,
+child delivery, retained Phase 3 proof, and whole-plan gates remain open.

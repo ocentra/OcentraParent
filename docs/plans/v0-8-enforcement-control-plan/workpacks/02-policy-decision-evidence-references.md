@@ -65,3 +65,14 @@ product-checklist text change was required for this closure.
 
 This workpack should move with policy/evidence contract updates. Portal surfaces
 consume the chain but do not create it.
+
+## Authenticated Service-Command Boundary Addendum — 2026-08-27
+
+The retained protocol, core, and service read-model tests cover direct
+validation and projection invariants. PR #709 withdrew the unauthenticated
+dispatcher invocation that was previously used as service/WebSocket evidence.
+They do not prove
+`run_agent_service` -> `ParentLocalBridgeAdmission` -> `/dev_ws`
+authenticated handshake/revalidation -> `command_entry`; that coverage is
+**manual-required**. No dispatch-ready or release claim may be inferred from
+the retained direct tests.

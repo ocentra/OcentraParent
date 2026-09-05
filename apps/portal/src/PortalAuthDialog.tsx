@@ -14,10 +14,6 @@ function unavailableResult(): Promise<LoginDialogActionResult> {
   });
 }
 
-function unavailableSignUp(): Promise<LoginDialogActionResult> {
-  return unavailableResult();
-}
-
 export function PortalAuthDialog({ onClose }: PortalAuthDialogProps): ReactElement {
   return (
     <LoginDialog
@@ -26,14 +22,14 @@ export function PortalAuthDialog({ onClose }: PortalAuthDialogProps): ReactEleme
       contextDescription={resolvePortalDevText(PortalDevTextToken.AuthBody)}
       contextEyebrow={resolvePortalDevText(PortalDevTextToken.AuthEyebrow)}
       contextTitle={resolvePortalDevText(PortalDevTextToken.AuthTitle)}
+      disableCredentials
       layoutControls={AUTH_PAGE_LAYOUT_CONTROLS}
       onClose={onClose}
-      onFacebookLogin={unavailableResult}
-      onGoogleLogin={unavailableResult}
-      onGuestLogin={unavailableResult}
       onLogin={unavailableResult}
-      onSendPasswordReset={unavailableResult}
-      onSignUp={unavailableSignUp}
+      statusMessage={{
+        kind: 'info',
+        text: resolvePortalDevText(PortalDevTextToken.AuthUnavailable),
+      }}
     />
   );
 }

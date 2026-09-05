@@ -135,3 +135,42 @@ fn bootstrap_audit_events_omit_raw_pairing_session_fields() -> Result<(), Box<dy
 
     Ok(())
 }
+
+#[test]
+fn accepted_pairing_replay_projects_a_redacted_rejection_without_invite_fields(
+) -> Result<(), Box<dyn std::error::Error>> {
+    let family_context = ProvisioningFamilyContextInput {
+        setup_invite_input: SetupInviteInput {
+            replay_state: SetupInviteReplayState::ReplayDetected,
+            ..ready_family_context().setup_invite_input
+        },
+        ..ready_family_context()
+    };
+    let projected_input = derive_provisioning_readiness_input_from_family_context(family_context);
+    let readiness_event = provisioning_readiness_evaluated_event(
+        ProvisioningAggregateId::parse(PROVISIONING_AGGREGATE_ID)?,
+        ProvisioningReadinessEvaluationId::parse(PROVISIONING_EVALUATION_ID)?,
+        projected_input,
+    );
+
+    assert_eq!(
+        readiness_event.input.pairing_lifecycle_state,
+        PairingLifecycleState::Replayed
+    );
+    assert_eq!(
+        readiness_event.decision.blocker_reason,
+        Some(ProvisioningBlockerReason::PairingReplayRejected)
+    );
+
+    let readiness_json = serde_json::to_value(&readiness_event)?;
+    assert_eq!(
+        readiness_json["input"]["pairing_lifecycle_state"],
+        Value::String(String::from("replayed"))
+    );
+    for field in ["purpose", "target_role", "invite_state", "replay_state"] {
+        assert_eq!(readiness_json.get(field), None);
+        assert_eq!(readiness_json["input"].get(field), None);
+    }
+
+    Ok(())
+}

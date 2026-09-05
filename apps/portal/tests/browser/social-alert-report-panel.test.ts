@@ -31,9 +31,9 @@ function samplePanel(title: string, summary: string): ParentBrowserPanelSnapshot
 }
 
 describe('portal social alert/report panel', () => {
-  it('mounts only on the proof-panels route', () => {
-    expect(shouldRenderSocialAlertReportRoute(ParentRoute.ProofPanels)).toBe(true);
-    expect(shouldRenderSocialAlertReportRoute(ParentRoute.AppGameSessions)).toBe(false);
+  it('mounts only on the Browser product route', () => {
+    expect(shouldRenderSocialAlertReportRoute(ParentRoute.Browser)).toBe(true);
+    expect(shouldRenderSocialAlertReportRoute(ParentRoute.ProofPanels)).toBe(false);
   });
 
   it('renders Rust-owned social alert, parent surface, notification, and receipt panels', () => {

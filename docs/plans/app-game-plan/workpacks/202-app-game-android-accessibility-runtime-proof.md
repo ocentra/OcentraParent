@@ -38,39 +38,36 @@ proof exist.
 - Updated `platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/MainActivity.java`
   to surface parent-safe Accessibility declaration, runtime, and event-sample
   states.
-- Added
-  `packages/parent-domain/src/app-game-android-accessibility-runtime-proof.ts`.
-- Added
-  `packages/parent-domain/tests/app-game-android-accessibility-runtime-proof.test.ts`.
-- Added `scripts/test/app-game-android-accessibility-runtime-proof.mjs`.
+- Added focused real behavior coverage at
+  `platforms/android/agent/app/src/test/java/ca/ocentra/parent/agent/AppGameAndroidAccessibilityRuntimeServiceTest.java`.
+
+Historical `packages/parent-domain` and `scripts/test/app-game-*` paths were
+removed during Rust-first convergence and are not current implementation or
+test owners. Canonical `7339e7476` covers global/own-service settings,
+bound-event state, interruption versus unbind/destroy lifecycle,
+malformed/partial/future durable records, restart readback, and redaction.
 
 ## Validation
 
-Focused validation for this workpack:
-
-```powershell
-cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-android-accessibility-runtime-proof
-cmd /c node scripts/test/app-game-android-accessibility-runtime-proof.mjs
-```
+The focused Java behavior test is written but was not executed in this
+code/test-source phase.
 
 ## Proof
 
-- `test-results/app-game-android-accessibility-runtime-proof/proof.json`
-- `output/app-game-plan-proof/202-app-game-android-accessibility-runtime-proof/proof.json`
+No proof artifact was generated or retained in this phase. Physical service
+enablement/event observation and the canonical workpack proof root remain open.
 
 ## Boundaries
 
 Proved:
 
-- Android package declares an Ocentra AccessibilityService.
-- The service is bound by the Android Accessibility service permission.
+- Android package declares an Ocentra AccessibilityService bound by the Android
+  Accessibility service permission.
 - The service config listens only for window state changes and does not request
   window-content retrieval.
-- MainActivity exposes parent-safe Accessibility declaration/runtime/sample
-  states after package install and launch.
-- Parent-domain proof rejects raw event rows, raw service/component names, raw
-  overlay content, adapter dispatch, platform enforcement, and child-device
-  delivery claims.
+- The manifest child runtime exposes parent-safe declaration/runtime/sample
+  state and the focused test covers lifecycle, durable failure, restart, and
+  redaction behavior.
 
 Not proved:
 

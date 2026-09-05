@@ -16,11 +16,9 @@ use crate::{
     enforcement_os_adapter_product_proof_read_model::{
         v08_os_adapter_product_proof_read_model, GeneratedAtTextRef,
     },
-    test_invariants::require_some,
+    test_require_some::require_some,
 };
 
-#[path = "enforcement_os_adapter_product_proof_read_model_tests/product_control_api_tests.rs"]
-mod product_control_api_tests;
 #[path = "enforcement_os_adapter_product_proof_read_model_tests/product_control_spine_tests.rs"]
 mod product_control_spine_tests;
 
@@ -162,7 +160,7 @@ fn readiness_count(counts: &BTreeMap<TestText, usize>, state: impl std::fmt::Dis
 
 #[cfg(windows)]
 fn expected_implemented_count() -> usize {
-    6
+    3
 }
 
 #[cfg(not(windows))]
@@ -172,7 +170,7 @@ fn expected_implemented_count() -> usize {
 
 #[cfg(windows)]
 fn expected_manual_required_count() -> usize {
-    5
+    8
 }
 
 #[cfg(not(windows))]
@@ -192,7 +190,7 @@ fn expected_unavailable_count() -> usize {
 
 #[cfg(windows)]
 fn expected_restart_recovery_state() -> V08OsAdapterProductProofTimerRecoveryState {
-    V08OsAdapterProductProofTimerRecoveryState::RestartRecovered
+    V08OsAdapterProductProofTimerRecoveryState::ManualRequired
 }
 
 #[cfg(not(windows))]
@@ -202,7 +200,7 @@ fn expected_restart_recovery_state() -> V08OsAdapterProductProofTimerRecoverySta
 
 #[cfg(windows)]
 fn expected_parent_override_state() -> V08OsAdapterProductProofParentOverrideState {
-    V08OsAdapterProductProofParentOverrideState::CancelSupported
+    V08OsAdapterProductProofParentOverrideState::ManualRequired
 }
 
 #[cfg(not(windows))]

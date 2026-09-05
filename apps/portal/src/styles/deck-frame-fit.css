@@ -614,3 +614,44 @@
     overflow: visible;
   }
 }
+
+@media (max-width: 640px) {
+  .app-sidebar {
+    grid-template-rows: auto;
+  }
+
+  .sidebar-device-frame {
+    display: none;
+  }
+
+  .sidebar-nav-frame {
+    padding: 10px;
+  }
+
+  .sidebar-nav-frame > .routes {
+    display: grid;
+    gap: 6px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .sidebar-nav-frame .route-group:not([open]) {
+    display: block;
+    grid-row: 1;
+  }
+
+  .sidebar-nav-frame .route-group[open] {
+    display: grid;
+    gap: 6px;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sidebar-nav-frame .route-group[open] > .route-group-label {
+    grid-column: 1 / -1;
+  }
+
+  .sidebar-nav-frame .route-link {
+    min-height: 40px;
+  }
+}

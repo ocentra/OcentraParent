@@ -1,117 +1,120 @@
-# Workpack 06: Storage DO D1 KV R2 Queue Bindings
+# Workpack 06 - Storage DO D1 KV R2 Queue Bindings
 
-> **2026-07-28 correction:** `infra/cloudflare` imports module-local generated billing contracts. This workpack remains open because it has no tracked account-storage proof bundle; restore the module dependency environment, then record the actual result.
+> **Status:** BLOCKED on Protected WP05 -> Account WP09; current-v2
+> Cloudflare verifier/store source is present, authenticated owner delivery and
+> eight expected tests remain open.
+
+## Agent capsule
+
+- Route: Cloudflare control-plane WP06 only.
+- Own the private current-v2 Account issuer consumer, current-key/D1 custody,
+  migration, runtime mount, and Cloudflare-side tests.
+- Consume only an owner-authenticated Account delivery and current public-key
+  record. Never derive Account authority from headers, provider claims, D1
+  rows, environment keys, or caller scalars.
+- Do not edit Account or Protected Custody source from this workpack.
 
 ## Goal
 
-Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, and optional R2.
+Receive the bounded P-256 v2 Account authority wire through a private
+owner-authenticated handoff, verify the original bytes against the exact current
+Account public key, persist only public verifier currentness/CAS and inbound
+idempotency in D1, and expose the existing caller/runtime/writer path only after
+that binding is current.
 
-## First-touch surfaces
+## Current production truth - 2026-08-29
 
-- `infra/cloudflare/src/env.ts` for the required account-identity D1/DO/KV declarations and ownership boundary (currently absent)
-- `infra/cloudflare/wrangler.toml` for the selected account-identity D1 binding and binding-specific migration-directory configuration (currently absent)
-- `infra/cloudflare/src/account-identity-d1-adapter.ts` for the Cloudflare-owned adapter that consumes, but does not define, the Account WP08 contract
-- `infra/cloudflare/migrations/0001_account_identity_authority.sql` for the selected account-identity D1 schema/migration
-- `infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts` for the migration/adapter integration surface
+The repository already contains the current-v2 Cloudflare substrate:
 
-## Read inputs
+- canonical P-256 v2 outer/inner verification, key-ID derivation, low-S and
+  bounded-time checks;
+- D1 migration `0008` and current verifier/inbound receipt custody;
+- the existing Account caller, runtime, store, and writer hosts;
+- a Worker internal route that accepts only the internal-queue header plus a
+  shared secret.
 
-- [STORAGE_BINDING_MODEL.md](../STORAGE_BINDING_MODEL.md)
-- [SECURITY_PRIVACY_OBSERVABILITY.md](../SECURITY_PRIVACY_OBSERVABILITY.md)
-- `docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md` for the Rust-owned account/family contract handoff only
+That internal route is not Account authority. There is no shipped
+Account-authenticated service-binding delivery caller, no positive owner-issued
+current-key registration path, and no production delivery owner. Protected
+WP05 must first preserve the broker transcript and authorize the Account owner;
+Account WP09 must then compose the family lifecycle. Until then, WP06 remains
+manual-required and must not expose mutation readiness.
 
-## Output files
+## Current-v2 production roots
 
-- `infra/cloudflare/src/env.ts`
-- `infra/cloudflare/wrangler.toml`
-- `infra/cloudflare/src/account-identity-d1-adapter.ts`
-- `infra/cloudflare/migrations/0001_account_identity_authority.sql`
-- `infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts`
-- [STORAGE_BINDING_MODEL.md](../STORAGE_BINDING_MODEL.md)
-- `output/cloudflare-control-plane-plan-proof/06-storage-do-d1-kv-r2-queue-bindings/`
+```text
+infra/cloudflare/src/auth/account-identity-authority-issuer-v2.ts
+infra/cloudflare/src/auth/account-identity-authority-producer-v2-contract.ts
+infra/cloudflare/src/auth/account-identity-authority-producer-v2-transport.ts
+infra/cloudflare/src/auth/account-identity-authority-caller.ts
+infra/cloudflare/src/auth/account-identity-authority-runtime.ts
+infra/cloudflare/src/storage/account-identity-authority-issuer-v2.ts
+infra/cloudflare/src/storage/account-identity-authority-store.ts
+infra/cloudflare/src/storage/account-identity-authority-writer.ts
+infra/cloudflare/migrations/account-identity/0008_account_identity_authority_issuer_v2.sql
+```
 
-## Acceptance
+The old unversioned
+`account-identity-authority-issuer-{transport,key-registry,runtime}.ts` names
+are retired. The live v2 hosts above must be completed; duplicating or renaming
+them would split the authority boundary.
 
-- Each binding has one owner and one purpose.
-- No child-data storage drift is allowed.
-- Queue and dead-letter ownership is explicit.
-- Account-identity D1/DO/KV bindings, adapter, and migration consume Account WP08's canonical Rust contract without redefining family authority.
-- The account D1 migration directory is binding-specific (or has an equivalent proven mapping), so account migration application cannot target `BILLING_D1`.
-- The retained storage result or exact blocker is linked for Cloudflare WP08 runner proof and Account WP06 aggregation.
+## Expected real test source
 
-## Proof IDs
+One current-v2 negative test exists but is not registered by the Cloudflare
+test runner:
 
-- `cloudflare-control.do-bindings`
-- `cloudflare-control.d1-bindings`
-- `cloudflare-control.queue-bindings`
-- `cloudflare-control.kv-bindings`
-- `cloudflare-control.r2-audit-binding-manual-required`
+```text
+infra/cloudflare/tests/account-identity-authority-issuer-v2.test.ts
+```
 
-## Validation
+The remaining real test roots are:
 
-- Scoped validation: `npm --prefix infra/cloudflare run test:unit`
-- Scoped validation: `npm --prefix infra/cloudflare run test:integration`
-- Scoped validation: `npm --prefix infra/cloudflare run test:property`
-- Migration validation only after the selected account binding has a binding-specific migration directory (or equivalent isolated mapping): `cd infra/cloudflare && npm exec -c "wrangler d1 migrations apply <account-identity-d1-database> --local"`
-- Account-identity migration/adapter validation after the selected test is registered in the module runner: `npm --prefix infra/cloudflare run test:integration`
-- Required direct migration-test validation: `cd infra/cloudflare && npm exec -c "node --import tsx --test tests/integration/account-identity-d1-migration.test.ts"`; retain its result separately so the aggregate integration script cannot omit it.
-- Architecture validation: `npm run lint:architecture -- --files infra/cloudflare/src/env.ts infra/cloudflare/src/account-identity-d1-adapter.ts infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts`
+```text
+infra/cloudflare/tests/unit/account-identity-authority-issuer-v2-transport.test.ts
+infra/cloudflare/tests/unit/account-identity-authority-issuer-v2-key-registry.test.ts
+infra/cloudflare/tests/integration/account-identity-authority-issuer-v2-runtime.test.ts
+infra/cloudflare/tests/unit/account-identity-authority-caller.test.ts
+infra/cloudflare/tests/unit/account-identity-authority-runtime.test.ts
+infra/cloudflare/tests/integration/account-identity-authority-currentness.test.ts
+infra/cloudflare/tests/integration/account-identity-authority-restart-cas.test.ts
+infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts
+```
 
-## Negative cases
+They must exercise the real private adapter and real D1/migration boundary:
+valid owner delivery/current key, malformed and high-S wire, stale/unknown/
+revoked key, outer/inner binding mismatch, duplicate delivery, restart,
+compare-and-swap, rotation/revocation, migration mismatch, unavailable owner,
+and fail-closed mutation reachability. A fixture key, public route, test-double
+authority, or source-text assertion is not valid.
 
-- Reject optional R2 as a telemetry dump.
-- Reject D1/KV claims without privacy boundaries.
-- Reject a Cloudflare adapter, migration, or test double as a redefinition of the Account WP08 Rust authority contract.
+## Dependency route
 
-## Failure conditions
+```text
+Protected WP01 -> WP02 -> WP03 -> WP04 -> WP05
+-> Account WP08 -> Account WP09
+-> Cloudflare WP06
+-> Cloudflare WP08 runner/proof
+```
 
-- Do not imply real binding IDs or runtime success from placeholder config.
+WP06 remains implementation-blocked on Account WP09, which is itself blocked
+on Protected WP05. Mapping current-v2 roots does not bypass that gate.
 
-## Completion
+## Storage ownership
 
-- Status: blocked / no current account-storage proof; no Cloudflare runtime-ready, deployment-ready, or payment-ready claim is made.
-- Proof root: `output/cloudflare-control-plane-plan-proof/06-storage-do-d1-kv-r2-queue-bindings/`
-- Runtime/source owner: `infra/cloudflare/src/env.ts`
-- Required Account D1/DO/KV and isolated account-migration configuration: `infra/cloudflare/wrangler.toml` plus `src/env.ts` (currently absent; no `BILLING_D1` substitution)
-- Owned adapter/migration surfaces: `infra/cloudflare/src/account-identity-d1-adapter.ts`; `infra/cloudflare/migrations/0001_account_identity_authority.sql`
-- Owned test surfaces: `infra/cloudflare/tests/unit/env-bindings.test.ts`; `infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts`
+Account SQLite remains authoritative for Account key lineage, issue
+reservation, receipts, and outbox. Cloudflare D1 owns only public verifier
+currentness/CAS, inbound idempotency, and the selected Account mapping needed by
+the Worker. Account DO/KV remain absent/manual-required; billing storage and R2
+remain separate owners. Placeholder Wrangler IDs are not deployment evidence.
 
-## What is actually proved
+## Exit conditions
 
-- Durable Object ownership is explicit for `BILLING_DO`, `REFERRAL_DO`, and `ENTITLEMENT_SNAPSHOT_DO`, each with one owner, one purpose, and explicit child-data prohibition.
-- D1 ownership is explicit for `BILLING_D1` as billing/support/reconciliation read-model storage only.
-- KV ownership is explicit for `BILLING_RATE_LIMIT_KV` and `BILLING_CONFIG_KV`, with child-data and provider-secret boundaries kept explicit.
-- Queue ownership is explicit for `BILLING_RECONCILIATION_QUEUE` and `BILLING_DEAD_LETTER_QUEUE`, including paired dead-letter responsibility.
-- Optional `BILLING_AUDIT_R2` stays `manual-required` and is explicitly rejected as a telemetry dump or general-purpose child-data store.
-- Placeholder Wrangler binding names and IDs are treated as non-proof and non-runtime-ready.
-- No account-identity D1/DO/KV binding or account migration directory is currently proved; this packet does not claim that billing bindings can serve that role.
+Exit requires the owner-authenticated delivery/current-key adapter, production
+runtime composition, all nine real test roots registered and executable,
+applied migration/restart/CAS/revocation results, retained proof, checklist
+acceptance, pre-commit, CI, deployment/review, and normal merge. No READY or
+DONE claim follows from verifier/store file presence.
 
-## Blocked truth
-
-- `npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types` currently exits nonzero with an empty module dependency tree. WP01 owns restoring that dependency environment before WP06 invokes module test scripts.
-- Account WP08's Rust contract and the selected WP06 D1 binding, adapter, migration, and direct integration-test artifacts are not yet retained. Until they exist, this packet cannot produce a storage handoff for Cloudflare WP08 or Account WP06.
-- `infra/cloudflare/wrangler.toml` and `src/env.ts` currently declare only billing storage bindings: no account D1/DO/KV declaration or binding-specific account `migrations_dir`/equivalent mapping exists. WP06 must not run the account migration command against `BILLING_D1`.
-- `infra/cloudflare/src/index.ts` imports `./generated/billing-contracts.js`, backed by the checked-in module-local generated artifact. Obsolete `packages/billing-domain/src/*` imports are not WP06 blockers and must not be revived.
-
-## Proof artifacts
-
-- `00-scope-summary.md`
-- `01-negative-case-proof.md`
-- `02-rollback-or-teardown-proof.md`
-- `03-account-identity-d1-migration-test.md`
-- `16-validation-commands.log`
-
-## Focused validations
-
-- `node --import tsx --test infra/cloudflare/tests/unit/env-bindings.test.ts`
-- `cd infra/cloudflare && npm exec -c "node --import tsx --test tests/integration/account-identity-d1-migration.test.ts"` required direct test; retain its result in `03-account-identity-d1-migration-test.md` and do not let `test:integration` substitute for it
-- `npm --prefix infra/cloudflare run test:unit`, `test:integration`, and `test:property` are deferred until WP01 restores the module dependency tree; any later failure records its then-current exact blocker
-- `npm run lint:architecture -- --files infra/cloudflare/src/env.ts infra/cloudflare/src/account-identity-d1-adapter.ts infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts`
-
-## No-claim boundary
-
-- No claim is made that real binding IDs are configured.
-- No claim is made that the Cloudflare worker boots successfully in this worktree.
-- No claim is made that queue retries, dead-letter replay, D1 writes, KV writes, or R2 writes executed live.
-- No claim is made that Account WP08 or this packet alone completes account authority; Cloudflare WP08 runner proof and Account WP06 aggregation remain separate required handoffs.
-- The account-identity adapter, migration, focused integration test, and Wrangler D1 binding configuration are required first-touch/output surfaces for this WP06 packet; listing them does not claim they exist or have run in this checkout.
+Expected proof root:
+`output/cloudflare-control-plane-plan-proof/06-storage-do-d1-kv-r2-queue-bindings/`.

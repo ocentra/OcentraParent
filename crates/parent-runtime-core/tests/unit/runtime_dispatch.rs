@@ -257,7 +257,7 @@ fn tracking_config_parent_runtime_records_typed_dispatch_event() {
 
 #[tokio::test]
 async fn tracking_child_check_in_request_publishes_trusted_intent_and_awaits_receipt() {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     let runtime_flow = result_or_panic!(
         TrackingRuntimeEventFlow::with_bus(bus.clone()).await,
         constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED,
@@ -307,7 +307,7 @@ async fn tracking_child_check_in_request_publishes_trusted_intent_and_awaits_rec
 
 #[tokio::test]
 async fn tracking_child_check_in_request_can_publish_without_waiting_for_receipt() {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     let runtime_flow = result_or_panic!(
         TrackingRuntimeEventFlow::with_bus(bus.clone()).await,
         constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED,
@@ -341,7 +341,7 @@ async fn tracking_child_check_in_request_can_publish_without_waiting_for_receipt
 
 #[tokio::test]
 async fn tracking_child_check_in_request_rejects_duplicate_awaited_request_ids() {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     let runtime_flow = result_or_panic!(
         TrackingRuntimeEventFlow::with_bus(bus.clone()).await,
         constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED,

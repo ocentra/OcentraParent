@@ -1,39 +1,60 @@
 # Next Actions
 
-## Scope and ownership
+## Scope and phase
 
 - Plan owner: `child-agent-runtime-distribution-plan`.
-- Ownership domain: child Windows, macOS, Linux, Android, and iOS package distribution, respawn, tamper/uninstall, signing/device-owner matrix, and setup-device-trust handoff.
-- Scope boundary: child runtime artifacts only. Parent client distribution, setup journey ownership, account identity, policy behavior, and billing behavior are out of scope.
+- Current program phase: continue coherent production/test packets after the retained WP01 route proof and WP06 capability-boundary proof.
+- This plan owns child package/runtime distribution, installed child startup, platform lifecycle, updater distribution consumption, and platform removal callbacks.
+- Setup owns its producer/UI journey, Device Trust owns current trust material, Account owns current household authority, and parent-client distribution stays separate.
+- WP01 and WP06 focused tests and retained proof have run. This does not authorize broader precommit, CI, PR, release, or aggregate child-runtime claims.
 
-## Decision routes and failure conditions
+## Source-wave order
 
-- If a package artifact or signing state is missing, keep the workpack open.
-- If parent client distribution is being claimed here, block the row.
-- If the platform cannot support respawn or device-owner behavior, keep the row manual-required.
-- If setup-device-trust handoff is not explicit, do not claim package readiness.
+- [x] WP06: canonical child capability-package source, expected test source, focused retained proof, and every no-daemon/manual-required limit agree. macOS/Xcode, physical-device, Apple signing/provisioning, and store authority remain explicit external/manual-required gaps; Tracking WP11/WP12 Core Location behavior was not absorbed.
+- [ ] WP10: after the graph confirms reviewed Device Trust WP01 implementation, compose current trust into shipped child startup, own authenticated external ingress and health, and connect the typed handoff/update consumer. Do not add a reverse dependency on Setup WP07.
+- [ ] WP02: finish the Windows package/runtime identity and installed child startup boundary against WP10.
+- [ ] WP03: finish the macOS child package identity, lifecycle source, and signing/notarization ownership against WP10.
+- [ ] WP04: finish the Linux child package identity and fail-closed service lifecycle against WP10.
+- [ ] WP05: compose Android JNI startup with current trust and platform lifecycle/authority boundaries against WP10.
+- [ ] WP07: add health-aware lifecycle/supervision truth after WP02-WP06 and WP10 source exist.
+- [ ] WP08: connect Account-owned current household authority to child revocation and platform cleanup callbacks after WP07/WP10; never let the child mint authority.
+- [ ] WP09: connect the updater to WP10's handoff and finish platform-specific signing/store/update ownership after package identities are canonical.
+- [ ] WP11: add the executable aggregate source gate only after WP01-WP10 production source exists.
 
-## Immediate audit-derived next actions
+WP06 and WP10 are the first disjoint source packets. WP02-WP05 may proceed in parallel only after the reviewed WP10 implementation roots exist. WP07, WP08, WP09, and WP11 remain ordered downstream.
 
-- [ ] Re-run WP02 from an elevated Windows shell so the built MSI can exercise install, start, stop, restart, uninstall, authority cleanup, and installed service-manager respawn proof instead of the current `admin-required` blocked state.
-  - latest non-elevated blocked proof rerun: `test-results/windows-package-lifecycle-proof/2026-06-28T20-18-36-351Z/proof.json`
-- [x] Close WP03 with a real macOS proof pack under `output/child-agent-runtime-distribution-plan-proof/03-child-macos-service-package/` and keep `launchd-pkg-script`, `pkg-script-defined`, `launchd-boundary-scripted`, `unsigned`, and install/runtime/restart/notarization/uninstall manual-required truth explicit.
-- [x] Close WP04 with a real Linux proof pack under `output/child-agent-runtime-distribution-plan-proof/04-child-linux-service-package/` and keep the unsigned direct `.deb`, Ubuntu 22.04 baseline, smoke-proved install/remove/purge cleanup, and steady-state-service-health/crash-recovery manual-required boundaries explicit.
-- [x] Close WP05 with a real Android proof pack under `output/child-agent-runtime-distribution-plan-proof/05-child-android-agent-package/` and keep `debug-apk-built`, `debug-apk-sideload`, install/launch/removal manual-required, and device-owner/managed-profile manual-required truth explicit.
-- [x] Close WP06 with the Rust-owned iOS capability proof pack under `output/child-agent-runtime-distribution-plan-proof/06-ios-entitlement-capability-proof/` and keep capability-only, provisioning-limit, supervision-limit, manual-required, no-daemon, and no-parity boundaries explicit.
-- [x] Close WP08 with a real uninstall/revocation proof pack under `output/child-agent-runtime-distribution-plan-proof/08-child-parent-authorized-uninstall/` and keep parent-authorization, revocation-audit, teardown, residual-state, and no-self-authorize truth explicit.
-- [x] Close WP09 with a Rust-owned shared matrix contract under `crates/schema/`, a checked-in generated TS contract, and a thin `schema-domain` adapter/proof pack under `output/child-agent-runtime-distribution-plan-proof/09-child-signing-store-device-owner-matrix/`.
-- [x] Close WP10 with a real proof pack under `output/child-agent-runtime-distribution-plan-proof/10-setup-device-trust-handoff/` and keep the Rust-owned typed handoff, external artifact pointer, route-sync boundaries, and non-claims explicit.
-- [x] Close WP01 with a real proof pack under `output/child-agent-runtime-distribution-plan-proof/01-child-agent-scope-and-route-boundary/` and keep the Rust-first scope route, historical parent-client compatibility note, and package/install/runtime/setup/release no-claim boundaries explicit.
-- [x] Close WP11 with a real aggregate proof gate under `output/child-agent-runtime-distribution-plan-proof/11-proof-ci-release-gate/` and keep rejected/open workpacks visible so PR-ready or release-ready is not falsely claimed.
-- [ ] Remove the stale legacy proof route from this plan and keep every proof reference on the `output/...` root.
+Tracking WP11/WP12 consume WP06's package identity only after WP10 trusted
+startup/ingress and Tracking WP40 durable ingress are reviewed. They must not
+turn WP06 into a daemon or add an unconsumed Swift file/JSON handoff.
 
-## Actioned completion tracker
+## Expected test-source wave after production source
 
-- [x] Confirm canonical child scope and parent/child separation.
-- [x] Define the child artifact matrix.
-- [ ] Define the Windows, macOS, Linux, Android, and iOS distribution contracts.
-- [x] Define signing, store, and device-owner states per artifact.
-- [x] Define managed respawn and uninstall/tamper proof expectations.
-- [x] Define setup-device-trust handoff inputs and outputs.
-- [ ] Define the proof matrix and external artifact root.
+- [ ] WP02-WP04: child-labelled package/lifecycle tests for install, startup authority, health, restart, disable/remove, and cleanup on the target desktop host.
+- [ ] WP05: correct the JNI bridge expectation to fail closed without trust, then cover current-trust startup, foreground lifecycle, authenticated ingress, removal, and device-owner/manual-required states.
+- [x] WP06: child application identity plus host-aware Node/XCTest capability-limit source and retained proof; Windows records the real XCTest as platform-unavailable/manual-required.
+- [ ] WP07: bounded respawn, deliberate-stop, reboot, loop-guard, teardown, and health-observer tests by platform.
+- [ ] WP08: parent-authority mismatch/replay/restart plus platform cleanup callback/idempotency tests.
+- [ ] WP09: updater handoff, installer result/restart, signing/store, and platform matrix behavior tests.
+- [ ] WP10: trust-source/currentness, authenticated ingress, external health, durable handoff replay/expiry, updater callback, and crash/restart tests.
+- [ ] WP11: aggregate negative fixtures that keep release blocked for every missing or manual-required child path.
+
+## Later validation sequence
+
+After all selected production and test source is present (WP01 and WP06 have already completed their focused retained-proof steps):
+
+1. run focused formatter, syntax, architecture, and crate/package tests per workpack;
+2. run platform lifecycle tests only on suitable hosts/devices;
+3. run the child plan's focused Enforcer and graph gates;
+4. regenerate proof for the complete plan slice;
+5. run precommit once for the consolidated branch;
+6. open one consolidated PR and let CI reproduce the required validation.
+
+## Failure conditions
+
+- Treating package-script presence, manager declarations, mapped files, contract tests, or historical proof as production completion.
+- Starting a graph-blocked source packet or bypassing an implementation dependency.
+- Making Child WP10 depend on Setup WP07 and creating a dependency cycle.
+- Claiming health from an in-process Rust/Android method without a shipped external endpoint.
+- Claiming authenticated ingress from the current in-process queue.
+- Claiming uninstall from durable revocation state without a platform cleanup callback and receipt.
+- Claiming the iOS child package while the actual app, bundle, scheme, artifact, or smoke defaults retain the parent identity.

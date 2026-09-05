@@ -21,7 +21,6 @@ pub(super) fn classification_for_discovery(
     }
     if device.child_profile_id.is_some()
         || is_confirmed_agent_status(device.agent_status.as_deref())
-        || device.hardware_profile.is_some()
         || has_child_agent_evidence(evidence_sources)
     {
         return LanCanonicalHouseholdDeviceClassification::ChildAgent;

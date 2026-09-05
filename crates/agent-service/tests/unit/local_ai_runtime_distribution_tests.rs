@@ -10,7 +10,7 @@ use crate::local_ai_runtime_distribution::{
     requested_runtime_acceleration, select_llama_runtime_distribution, LlamaRuntimeAcceleration,
     LocalAiRuntimeTarget,
 };
-use crate::test_invariants::require_some;
+use crate::test_require_some::require_some;
 
 #[test]
 fn current_runtime_target_matches_compiled_platform() {

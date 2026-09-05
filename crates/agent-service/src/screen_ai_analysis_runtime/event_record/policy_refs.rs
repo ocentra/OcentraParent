@@ -1,9 +1,7 @@
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::LogFieldValue;
 
-use super::super::queue::QueuedScreenImage;
 use super::{ScreenAiAnalysisEventRecord, ScreenAnalysisFieldEntry};
-use crate::screen_ai_service_capture_event_builder::{ScreenIdPrefix, ScreenText};
 
 pub(super) struct ScreenAiServicePolicyRefs {
     pub(super) policy_decision_ref: Option<String>,
@@ -15,40 +13,12 @@ pub(super) struct ScreenAiServicePolicyRefs {
     pub(super) deletion_reasons: Vec<String>,
 }
 
-pub(super) fn service_policy_refs(
-    image: &QueuedScreenImage,
-    policy_eligible: bool,
-) -> ScreenAiServicePolicyRefs {
-    if !policy_eligible {
-        return empty_policy_refs();
-    }
-    ScreenAiServicePolicyRefs {
-        policy_decision_ref: Some(
-            prefixed_id(
-                ScreenIdPrefix(constants::screen_flow::SCREEN_SERVICE_POLICY_DECISION_ID_PREFIX),
-                &ScreenText::from_display(image.queue_job_id.clone()),
-            )
-            .0,
-        ),
-        policy_action: Some(constants::screen_flow::SCREEN_SERVICE_POLICY_ACTION_ALLOW.to_string()),
-        policy_reason_codes: vec![
-            constants::screen_flow::SCREEN_SERVICE_POLICY_REASON_CODE.to_string()
-        ],
-        parent_rule_refs: vec![constants::screen_flow::SCREEN_SERVICE_PARENT_RULE_REF.to_string()],
-        parent_explanation_refs: vec![
-            prefixed_id(
-                ScreenIdPrefix(
-                    constants::screen_flow::SCREEN_SERVICE_PARENT_EXPLANATION_REF_PREFIX,
-                ),
-                &ScreenText::from_display(image.queue_job_id.clone()),
-            )
-            .0,
-        ],
-        explanation_reasons: vec![
-            constants::screen_flow::SCREEN_SERVICE_EXPLANATION_REASON.to_string()
-        ],
-        deletion_reasons: vec![constants::screen_flow::SCREEN_SERVICE_DELETION_REASON.to_string()],
-    }
+pub(super) fn service_policy_refs() -> ScreenAiServicePolicyRefs {
+    // AI output is a candidate only. This runtime has no trusted policy resolver,
+    // so it must not mint decision, action, parent-rule, or explanation authority.
+    // The caller remains on the non-enforcing/degraded path until policy-control
+    // supplies a verified decision and its retained references.
+    empty_policy_refs()
 }
 
 pub(super) fn screen_analysis_policy_fields(
@@ -107,10 +77,4 @@ fn empty_policy_refs() -> ScreenAiServicePolicyRefs {
         explanation_reasons: Vec::new(),
         deletion_reasons: Vec::new(),
     }
-}
-
-fn prefixed_id(prefix: ScreenIdPrefix, value: &ScreenText) -> ScreenText {
-    let mut id = String::from(prefix.0);
-    id.push_str(&value.0);
-    ScreenText::from_display(id)
 }

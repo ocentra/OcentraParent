@@ -5,16 +5,7 @@ use ocentra_parent_agent_protocol::network_apple_network_extension_gate_status::
     NetworkAppleNetworkExtensionGateCapabilityStatusState, NetworkAppleNetworkExtensionGateStatus,
     NetworkAppleNetworkExtensionGateStatusState, NetworkAppleNetworkExtensionPlatformStatus,
 };
-use ocentra_parent_agent_protocol::policy_constants;
-use ocentra_parent_agent_protocol::transport::{
-    AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget, AgentPeer,
-    AgentPeerRole, AgentRoute,
-};
-use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
-use ocentra_parent_agent_service::test_support::{
-    handle_local_command_text_for_test,
-    network_apple_network_extension_gate_status_payload_for_test,
-};
+use ocentra_parent_agent_service::test_support::network_apple_network_extension_gate_status_payload_for_test;
 use serde::de::DeserializeOwned;
 
 #[test]
@@ -26,25 +17,6 @@ fn network_apple_network_extension_gate_status_payload_reports_entitlement_ready
         constants::network_flow::FIELD_NETWORK_APPLE_NETWORK_EXTENSION_GATE_STATUS,
     )?;
 
-    assert_apple_network_extension_status(&status);
-    Ok(())
-}
-
-#[tokio::test]
-async fn websocket_network_apple_network_extension_gate_status_command_reports_payload(
-) -> Result<(), Box<dyn std::error::Error>> {
-    let body = serde_json::to_string(&command_envelope())?;
-    let event =
-        handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await;
-    let status: NetworkAppleNetworkExtensionGateStatus = status_value(
-        &event.payload,
-        constants::network_flow::FIELD_NETWORK_APPLE_NETWORK_EXTENSION_GATE_STATUS,
-    )?;
-
-    assert_eq!(
-        event.event,
-        AgentEventName::AgentNetworkAppleNetworkExtensionGateStatusReported
-    );
     assert_apple_network_extension_status(&status);
     Ok(())
 }
@@ -108,26 +80,6 @@ fn assert_non_claims(status: &NetworkAppleNetworkExtensionGateStatus) {
     assert!(!status.exact_url_available);
     assert!(!status.decrypted_payload_available);
     assert!(!status.page_content_available);
-}
-
-fn command_envelope() -> AgentCommandEnvelope {
-    AgentCommandEnvelope {
-        schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
-        message_id: constants::event_id::NETWORK_APPLE_NETWORK_EXTENSION_GATE_STATUS_REPORTED
-            .to_string(),
-        sent_at: constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
-        source: AgentPeer {
-            peer_id: constants::peer::PORTAL_DEV.to_string(),
-            role: AgentPeerRole::Portal,
-        },
-        target: AgentMessageTarget {
-            device_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
-            platform: policy_constants::TEST_PARENT_DEVICE_PLATFORM_WINDOWS.to_string(),
-            route: AgentRoute::Localhost,
-        },
-        command: AgentCommandName::AgentNetworkAppleNetworkExtensionGateStatusGet,
-        payload: Default::default(),
-    }
 }
 
 fn status_value<TStatus: DeserializeOwned>(

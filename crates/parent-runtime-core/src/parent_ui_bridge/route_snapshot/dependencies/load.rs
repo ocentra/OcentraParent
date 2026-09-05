@@ -1,80 +1,60 @@
 use super::*;
 
+#[path = "load/activity.rs"]
+mod activity;
+#[path = "load/app_game.rs"]
+mod app_game;
+#[path = "load/browser.rs"]
+mod browser;
+#[path = "load/browser_social.rs"]
+mod browser_social;
+#[path = "load/network.rs"]
+mod network;
+
 pub(super) fn load_parent_route_snapshot_dependencies_impl(
     route: &ParentRouteId,
     network_flow_snapshot: Option<&NetworkFlowAgentServiceSnapshot>,
 ) -> ParentRouteSnapshotDependencies {
-    let loaded_network_flow_snapshot =
-        if network_flow_snapshot.is_none() && route_requires_network_flow_read_model(route) {
-            load_network_flow_read_model_snapshot(None).ok()
-        } else {
-            None
-        };
-    let network_flow_snapshot = network_flow_snapshot.or(loaded_network_flow_snapshot.as_ref());
-    let network_runtime_event_chain_snapshot = if network_flow_snapshot.is_some()
-        || route_requires_network_runtime_event_chain_stream(route)
-    {
-        load_network_runtime_event_chain_stream_snapshot(None).ok()
-    } else {
-        None
-    };
-    let policy_preview_snapshot =
-        if network_flow_snapshot.is_some() || route_requires_policy_preview_read_model(route) {
-            load_policy_preview_read_model_snapshot(None).ok()
-        } else {
-            None
-        };
-    let tracking_read_model_snapshot = if route_requires_tracking_read_model(route) {
-        load_tracking_read_model_snapshot(None).ok()
-    } else {
-        None
-    };
-    let screen_read_model_snapshot = if route_requires_screen_summary_read_model(route) {
-        load_activity_screen_read_model_snapshot(None).ok()
-    } else {
-        None
-    };
-    let app_game_required = route_requires_app_game_session_read_models(route);
+    let mut dependency_failures = DependencyFailures::default();
+    let network = network::load(route, network_flow_snapshot, &mut dependency_failures);
+    let activity = activity::load(route, &mut dependency_failures);
+    let app_use_read_model_snapshot = app_game::load_app_use(route, &mut dependency_failures);
+    let browser_activity_read_model_snapshot =
+        browser::load_activity(route, &mut dependency_failures);
+    let games_read_model_snapshot = app_game::load_games(route, &mut dependency_failures);
+    let browser_inventory_read_model_snapshot =
+        browser::load_inventory(route, &mut dependency_failures);
+    let browser_evidence_read_model_snapshot =
+        browser::load_evidence(route, &mut dependency_failures);
+    let browser_status = browser::load_status(route, &mut dependency_failures);
+    let browser_social = browser_social::load(route);
+    let app_game = app_game::load_remaining(route, &mut dependency_failures);
     ParentRouteSnapshotDependencies {
-        network_flow_snapshot: loaded_network_flow_snapshot,
-        network_runtime_event_chain_snapshot,
-        policy_preview_snapshot,
-        tracking_read_model_snapshot,
-        screen_read_model_snapshot,
-        app_game_notification_readiness_snapshot: if app_game_required {
-            load_app_game_notification_readiness_read_model_snapshot(None).ok()
-        } else {
-            None
-        },
-        app_game_policy_readiness_snapshot: if app_game_required {
-            load_app_game_policy_readiness_read_model_snapshot(None).ok()
-        } else {
-            None
-        },
-        app_game_platform_proof_status_snapshot: if app_game_required {
-            load_app_game_platform_proof_status_read_model_snapshot(None).ok()
-        } else {
-            None
-        },
-        app_game_child_runtime_transport_receipt_snapshot: if app_game_required {
-            load_app_game_child_runtime_transport_receipt_read_model_snapshot(None).ok()
-        } else {
-            None
-        },
-        app_game_adapter_dispatch_preflight_snapshot: if app_game_required {
-            load_app_game_adapter_dispatch_preflight_read_model_snapshot(None).ok()
-        } else {
-            None
-        },
-        app_game_adapter_dispatch_result_snapshot: if app_game_required {
-            load_app_game_adapter_dispatch_result_read_model_snapshot(None).ok()
-        } else {
-            None
-        },
-        app_game_timer_parent_surface_snapshot: if app_game_required {
-            load_app_game_timer_parent_surface_read_model_snapshot(None).ok()
-        } else {
-            None
-        },
+        dependency_failures,
+        network_flow_snapshot: network.network_flow_snapshot,
+        network_runtime_event_chain_snapshot: network.network_runtime_event_chain_snapshot,
+        policy_preview_snapshot: network.policy_preview_snapshot,
+        tracking_read_model_snapshot: activity.tracking_read_model_snapshot,
+        screen_read_model_snapshot: activity.screen_read_model_snapshot,
+        app_use_read_model_snapshot,
+        browser_activity_read_model_snapshot,
+        games_read_model_snapshot,
+        browser_inventory_read_model_snapshot,
+        browser_evidence_read_model_snapshot,
+        browser_managed_status_snapshot: browser_status.managed_status_snapshot,
+        browser_intervention_read_model_snapshot: browser_status.intervention_read_model_snapshot,
+        social_dashboard_snapshot: browser_social.dashboard,
+        social_audit_explanation_snapshot: browser_social.audit_explanation,
+        social_alert_report_snapshot: browser_social.alert_report,
+        social_alert_report_parent_surface_snapshot: browser_social.alert_report_parent_surface,
+        social_parent_notification_delivery_snapshot: browser_social.parent_notification_delivery,
+        app_game_notification_readiness_snapshot: app_game.notification_readiness_snapshot,
+        app_game_policy_readiness_snapshot: app_game.policy_readiness_snapshot,
+        app_game_platform_proof_status_snapshot: app_game.platform_proof_status_snapshot,
+        app_game_child_runtime_transport_receipt_snapshot: app_game
+            .child_runtime_transport_receipt_snapshot,
+        app_game_adapter_dispatch_preflight_snapshot: app_game.adapter_dispatch_preflight_snapshot,
+        app_game_adapter_dispatch_result_snapshot: app_game.adapter_dispatch_result_snapshot,
+        app_game_timer_parent_surface_snapshot: app_game.timer_parent_surface_snapshot,
     }
 }

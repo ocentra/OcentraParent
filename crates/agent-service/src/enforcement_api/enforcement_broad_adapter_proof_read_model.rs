@@ -1,4 +1,6 @@
+use ocentra_parent_agent_protocol::constants::enforcement as enforcement_constants;
 use ocentra_parent_agent_protocol::constants::enforcement_broad_adapter_proof as proof;
+use ocentra_parent_agent_protocol::constants::v08_browser_domain_adapter_proof as browser_proof;
 use ocentra_parent_agent_protocol::enforcement::ParentPlatform;
 use ocentra_parent_agent_protocol::enforcement_broad_adapter_proof::V08BroadAdapterRuntimeClaimState;
 use ocentra_parent_agent_protocol::enforcement_broad_adapter_proof::V08BroadAdapterRuntimeEvidenceState;
@@ -78,22 +80,20 @@ fn implemented_boundary_specs() -> Vec<EntrySpec> {
             ProofEntryId(proof::ENTRY_ID_OWNED_PROCESS_TIMER),
             V08BroadAdapterRuntimeSurface::WindowsOwnedProcessAndTimerRuntimeBoundary,
             ParentPlatform::Windows,
-            V08BroadAdapterRuntimeClaimState::ImplementedBoundary,
-            V08BroadAdapterRuntimeEvidenceState::CompositeRuntimeProof,
+            V08BroadAdapterRuntimeClaimState::ManualRequired,
+            V08BroadAdapterRuntimeEvidenceState::ManualArtifactRequired,
             EvidenceRefs {
                 source_proof_ids: &[
                     proof::SOURCE_BROAD_OS_ADAPTER_PROOF,
                     proof::SOURCE_OS_ADAPTER_PRODUCT_PROOF,
                 ],
-                linked_proof_commands: &[
-                    proof::COMMAND_BROAD_OS_ADAPTER_PROOF,
-                    proof::COMMAND_OS_ADAPTER_PRODUCT_PROOF_CARGO,
+                linked_proof_commands: &[],
+                linked_proof_artifacts: &[],
+                manual_proof_requirements: &[
+                    enforcement_constants::ARTIFACT_APP_TIME_LIMIT_EXECUTOR,
+                    proof::REQUIREMENT_ROLLBACK,
+                    proof::REQUIREMENT_AUDIT_CUSTODY,
                 ],
-                linked_proof_artifacts: &[
-                    proof::ARTIFACT_BROAD_OS_ADAPTER_PROOF,
-                    proof::ARTIFACT_OS_ADAPTER_PRODUCT_PROOF_SERVICE,
-                ],
-                manual_proof_requirements: &[],
             },
             BoundaryText {
                 claim_boundary: proof::CLAIM_OWNED_PROCESS_TIMER,
@@ -104,22 +104,21 @@ fn implemented_boundary_specs() -> Vec<EntrySpec> {
             ProofEntryId(proof::ENTRY_ID_MANAGED_BROWSER_SESSION),
             V08BroadAdapterRuntimeSurface::WindowsManagedBrowserSessionRuntimeBoundary,
             ParentPlatform::Windows,
-            V08BroadAdapterRuntimeClaimState::ImplementedBoundary,
-            V08BroadAdapterRuntimeEvidenceState::CompositeRuntimeProof,
+            V08BroadAdapterRuntimeClaimState::ManualRequired,
+            V08BroadAdapterRuntimeEvidenceState::ManualArtifactRequired,
             EvidenceRefs {
                 source_proof_ids: &[
                     proof::SOURCE_BROAD_OS_ADAPTER_PROOF,
                     proof::SOURCE_BROWSER_DOMAIN_ADAPTER_PROOF,
                 ],
-                linked_proof_commands: &[
-                    proof::COMMAND_BROWSER_DOMAIN_ADAPTER_PROOF,
-                    proof::COMMAND_BROWSER_DOMAIN_ADAPTER_PROOF_CARGO,
+                linked_proof_commands: &[],
+                linked_proof_artifacts: &[],
+                manual_proof_requirements: &[
+                    browser_proof::REQUIREMENT_MANAGED_PROFILE,
+                    browser_proof::REQUIREMENT_ACTIVE_TAB,
+                    browser_proof::REQUIREMENT_ROLLBACK,
+                    browser_proof::REQUIREMENT_AUDIT_CUSTODY,
                 ],
-                linked_proof_artifacts: &[
-                    proof::ARTIFACT_BROWSER_DOMAIN_ADAPTER_PROOF,
-                    proof::ARTIFACT_BROWSER_DOMAIN_ADAPTER_PROOF_SERVICE,
-                ],
-                manual_proof_requirements: &[],
             },
             BoundaryText {
                 claim_boundary: proof::CLAIM_MANAGED_BROWSER_SESSION,

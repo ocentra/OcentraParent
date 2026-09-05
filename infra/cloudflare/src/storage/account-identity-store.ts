@@ -35,7 +35,10 @@ export type AccountIdentityInvalidReason =
 /** Explicit outcomes for an account identity persistence attempt. */
 export type AccountIdentityUpsertResult =
   | { status: 'persisted'; record: AccountIdentityRecord }
-  | { status: 'manual-required'; reason: 'account-identity-d1-binding-missing' }
+  | {
+      status: 'manual-required';
+      reason: 'account-identity-d1-binding-missing' | 'account-identity-d1-schema-missing';
+    }
   | { status: 'conflict'; reason: 'provider-subject-already-linked' }
   | { status: 'invalid-input'; reason: AccountIdentityInvalidReason };
 
@@ -43,7 +46,10 @@ export type AccountIdentityUpsertResult =
 export type AccountIdentityLookupResult =
   | { status: 'found'; record: AccountIdentityRecord }
   | { status: 'not-found' }
-  | { status: 'manual-required'; reason: 'account-identity-d1-binding-missing' }
+  | {
+      status: 'manual-required';
+      reason: 'account-identity-d1-binding-missing' | 'account-identity-d1-schema-missing';
+    }
   | { status: 'invalid-input'; reason: 'provider-unsupported' | 'provider-subject-invalid' };
 
 type AccountIdentityLookupInvalidReason = 'provider-unsupported' | 'provider-subject-invalid';
@@ -53,19 +59,6 @@ export interface AccountIdentityStore {
   get(provider: AccountIdentityProvider, providerSubject: string): Promise<AccountIdentityLookupResult>;
   upsert(input: AccountIdentityUpsertInput): Promise<AccountIdentityUpsertResult>;
 }
-
-/** Schema owned by the account identity persistence adapter. */
-export const ACCOUNT_IDENTITY_SCHEMA_SQL = `
-CREATE TABLE IF NOT EXISTS ocentra_account_identities (
-  account_id TEXT NOT NULL,
-  provider TEXT NOT NULL CHECK (provider IN ('authjs', 'firebase')),
-  provider_subject TEXT NOT NULL,
-  status TEXT NOT NULL CHECK (status IN ('active', 'revoked')),
-  created_at INTEGER NOT NULL,
-  updated_at INTEGER NOT NULL,
-  PRIMARY KEY (provider, provider_subject)
-);
-`;
 
 const ACCOUNT_IDENTITY_SELECT_SQL = `
 SELECT account_id, provider, provider_subject, status, created_at, updated_at
@@ -155,12 +148,7 @@ function validateLookupInput(provider: string, providerSubject: string): Account
   return null;
 }
 
-/** Ensure the narrow mapping table exists before an adapter operation. */
-export async function initializeAccountIdentitySchema(database: D1Database): Promise<void> {
-  await database.exec(ACCOUNT_IDENTITY_SCHEMA_SQL);
-}
-
-/** Create an adapter that fails closed when the optional D1 binding is absent. */
+/** Create a store that fails closed when the optional D1 binding is absent. */
 export function createAccountIdentityStore(database: D1Database | undefined): AccountIdentityStore {
   async function read(
     database: D1Database,
@@ -184,9 +172,15 @@ export function createAccountIdentityStore(database: D1Database | undefined): Ac
         return { status: 'invalid-input', reason: invalidReason };
       }
       const normalisedSubject = normaliseBoundedText(providerSubject, MAX_PROVIDER_SUBJECT_LENGTH)!;
-      await initializeAccountIdentitySchema(database);
-      const record = await read(database, provider, normalisedSubject);
-      return record === null ? { status: 'not-found' } : { status: 'found', record };
+      try {
+        const record = await read(database, provider, normalisedSubject);
+        return record === null ? { status: 'not-found' } : { status: 'found', record };
+      } catch (error) {
+        if (isMissingAccountIdentitySchemaError(error)) {
+          return { status: 'manual-required', reason: 'account-identity-d1-schema-missing' };
+        }
+        throw error;
+      }
     },
 
     async upsert(input) {
@@ -199,30 +193,41 @@ export function createAccountIdentityStore(database: D1Database | undefined): Ac
       }
       const accountId = normaliseBoundedText(input.accountId, MAX_ACCOUNT_ID_LENGTH)!;
       const providerSubject = normaliseBoundedText(input.providerSubject, MAX_PROVIDER_SUBJECT_LENGTH)!;
-      await initializeAccountIdentitySchema(database);
-      const existing = await read(database, input.provider, providerSubject);
-      if (existing !== null && existing.accountId !== accountId) {
-        return { status: 'conflict', reason: 'provider-subject-already-linked' };
+      try {
+        const existing = await read(database, input.provider, providerSubject);
+        if (existing !== null && existing.accountId !== accountId) {
+          return { status: 'conflict', reason: 'provider-subject-already-linked' };
+        }
+        if (existing !== null) {
+          await database
+            .prepare(ACCOUNT_IDENTITY_UPDATE_SQL)
+            .bind(input.status, input.nowMs, input.provider, providerSubject)
+            .run();
+        } else {
+          await database
+            .prepare(ACCOUNT_IDENTITY_INSERT_SQL)
+            .bind(accountId, input.provider, providerSubject, input.status, input.nowMs, input.nowMs)
+            .run();
+        }
+        const persisted = await read(database, input.provider, providerSubject);
+        if (persisted === null) {
+          throw new Error('account identity row unavailable after persistence attempt');
+        }
+        if (persisted.accountId !== accountId) {
+          return { status: 'conflict', reason: 'provider-subject-already-linked' };
+        }
+        return { status: 'persisted', record: persisted };
+      } catch (error) {
+        if (isMissingAccountIdentitySchemaError(error)) {
+          return { status: 'manual-required', reason: 'account-identity-d1-schema-missing' };
+        }
+        throw error;
       }
-      if (existing !== null) {
-        await database
-          .prepare(ACCOUNT_IDENTITY_UPDATE_SQL)
-          .bind(input.status, input.nowMs, input.provider, providerSubject)
-          .run();
-      } else {
-        await database
-          .prepare(ACCOUNT_IDENTITY_INSERT_SQL)
-          .bind(accountId, input.provider, providerSubject, input.status, input.nowMs, input.nowMs)
-          .run();
-      }
-      const persisted = await read(database, input.provider, providerSubject);
-      if (persisted === null) {
-        throw new Error('account identity row unavailable after persistence attempt');
-      }
-      if (persisted.accountId !== accountId) {
-        return { status: 'conflict', reason: 'provider-subject-already-linked' };
-      }
-      return { status: 'persisted', record: persisted };
     },
   };
+}
+
+function isMissingAccountIdentitySchemaError(error: unknown): boolean {
+  const message = (error instanceof Error ? error.message : String(error)).toLowerCase();
+  return message.includes('no such table') && message.includes('ocentra_account_identities');
 }

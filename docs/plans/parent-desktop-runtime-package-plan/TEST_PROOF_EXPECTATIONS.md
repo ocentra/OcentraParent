@@ -83,6 +83,30 @@ A workpack can be complete for one tier while other tiers remain open. Record th
 | WP10 | setup handoff request/response contract only |
 | WP11 | proof/CI/release gate and product-status wording |
 
+### WP12 Protected Broker Provisioner Package
+
+Expected production roots:
+
+```text
+scripts/release/windows/parent-protected-custody/
+scripts/release/windows/parent-protected-custody.wxs
+scripts/release/windows/build-parent-protected-custody-package.ps1
+```
+
+Expected test source:
+
+```text
+scripts/release/windows/parent-protected-custody/tests/
+tests/repo-tooling/parent-protected-custody-package.test.mjs
+```
+
+The later test/proof packet must cover package identity and artifact wiring,
+installer-only invocation input rejection, absence of raw `authValue`
+transport, repair/upgrade idempotency, rollback failure, uninstall/
+deprovisioning safety, and the boundary between package outcome and Protected
+authority. Package tests cannot bless a fake owner or turn MSI success into
+protected readiness; no test source is added by this routing packet.
+
 ## Structured harness logging expectations
 
 Product/runtime-safe logging:

@@ -1,5 +1,7 @@
-use std::io::ErrorKind;
+use std::io::{ErrorKind, Write};
 
+use atomicwrites::{AllowOverwrite, AtomicFile};
+use ocentra_parent_agent_core::enforcement_timer_state::active_timer_state_is_consistent;
 use ocentra_parent_agent_protocol::enforcement::EnforcementActiveTimerState;
 
 use crate::enforcement_timer_state_path::EnforcementTimerStatePath;
@@ -39,10 +41,12 @@ fn read_active_timer_state_sync(
     path: &EnforcementTimerStatePath,
 ) -> Result<Option<EnforcementActiveTimerState>, EnforcementTimerStateFileError> {
     match std::fs::read_to_string(&path.0) {
-        Ok(text) => serde_json::from_str(&text)
-            .map(Some)
-            .map_err(active_timer_state_deserializes_error),
+        Ok(text) => match serde_json::from_str(&text) {
+            Ok(state) if active_timer_state_is_consistent(&state) => Ok(Some(state)),
+            Ok(_) | Err(_) => Ok(None),
+        },
         Err(error) if error.kind() == ErrorKind::NotFound => Ok(None),
+        Err(error) if error.kind() == ErrorKind::InvalidData => Ok(None),
         Err(_) => Err(EnforcementTimerStateFileError::ActiveTimerStateRequired),
     }
 }
@@ -55,7 +59,12 @@ fn write_active_timer_state_sync(
         parent.create_all().map_err(activity_capture_store_error)?;
     }
     let text = serde_json::to_string_pretty(state).map_err(agent_event_serializes_error)?;
-    std::fs::write(&path.0, text).map_err(activity_capture_store_error)
+    AtomicFile::new(&path.0, AllowOverwrite)
+        .write(|file| {
+            file.write_all(text.as_bytes())?;
+            file.sync_all()
+        })
+        .map_err(activity_capture_store_error)
 }
 
 fn remove_active_timer_state_sync(
@@ -66,10 +75,6 @@ fn remove_active_timer_state_sync(
         Err(error) if error.kind() == ErrorKind::NotFound => Ok(()),
         Err(_) => Err(EnforcementTimerStateFileError::Store),
     }
-}
-
-fn active_timer_state_deserializes_error(_: serde_json::Error) -> EnforcementTimerStateFileError {
-    EnforcementTimerStateFileError::ActiveTimerStateRequired
 }
 
 fn activity_capture_store_error(_: impl std::fmt::Debug) -> EnforcementTimerStateFileError {

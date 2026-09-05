@@ -79,6 +79,8 @@ export type ParentPortalAppGamePlatformCapabilityRow = {
 export type ParentPortalAppGameDashboardIntent = {
   readonly state: string;
   readonly summary: string;
+  readonly metricsState: 'reported' | 'unavailable';
+  readonly metricsUnavailableMessage: string | null;
   readonly appRows: readonly ParentPortalAppGameDashboardRow[];
   readonly gameRows: readonly ParentPortalAppGameDashboardRow[];
   readonly rows: readonly ParentPortalAppGameDashboardRow[];
@@ -105,12 +107,19 @@ export function createParentPortalAppGameDashboardIntent(
   ].sort(sourceStatusRowSort);
   const platformCapabilityRows = appGamePlatformCapabilityRows(platformExtensionReadModel);
   const sourcePanelSections = createParentPortalAppGameSourcePanelSections(sourceStatusRows);
-  const metrics = appGameDashboardMetrics(appRows, gameRows, rows, sourceStatusRows, platformCapabilityRows);
-  const state = dashboardState(appUseReadModel, gamesReadModel, rows);
+  const metricsReported = combinedReadModelsReported(appUseReadModel, gamesReadModel);
+  const metrics = metricsReported
+    ? appGameDashboardMetrics(appRows, gameRows, rows, sourceStatusRows, platformCapabilityRows)
+    : [];
+  const state = dashboardState(appUseReadModel, gamesReadModel, rows, metricsReported);
 
   return {
     state,
     summary: dashboardSummary(appUseReadModel, gamesReadModel, rows),
+    metricsState: metricsReported ? 'reported' : 'unavailable',
+    metricsUnavailableMessage: metricsReported
+      ? null
+      : 'Measured totals are hidden until both app-use and games read models are reported by the local service.',
     appRows,
     gameRows,
     rows,
@@ -292,11 +301,26 @@ function dashboardSummary(
 function dashboardState(
   appUseReadModel: Record<string, unknown> | null,
   gamesReadModel: Record<string, unknown> | null,
-  rows: readonly ParentPortalAppGameDashboardRow[]
+  rows: readonly ParentPortalAppGameDashboardRow[],
+  metricsReported: boolean
 ): string {
+  if (!metricsReported) return 'unavailable';
   if (rows.some((row) => row.manualRequired)) return 'manual-required';
   if (rows.some((row) => row.riskCandidate || row.unknownApproval)) return 'review-required';
   return stringValue(appUseReadModel?.['state']) || stringValue(gamesReadModel?.['state']) || 'unavailable';
+}
+
+function combinedReadModelsReported(
+  appUseReadModel: Record<string, unknown> | null,
+  gamesReadModel: Record<string, unknown> | null
+): boolean {
+  return readModelReported(appUseReadModel) && readModelReported(gamesReadModel);
+}
+
+function readModelReported(readModel: Record<string, unknown> | null): boolean {
+  if (readModel === null) return false;
+  const state = stringValue(readModel['state']);
+  return state.length > 0 && state !== 'unavailable';
 }
 
 function capabilityRows(
@@ -360,7 +384,7 @@ function evidenceRows(
   const visibleRows = [...blockerRows, ...platformRows, ...sourceRows, ...boundaryRows, ...serviceRows].slice(0, 18);
   return visibleRows.length > 0
     ? visibleRows
-    : [{ label: 'Evidence drawer', value: 'No evidence refs reported', tone: 'gold' }];
+    : [{ label: 'Evidence refs', value: 'No evidence refs reported', tone: 'gold' }];
 }
 
 function appGamePlatformCapabilityRows(

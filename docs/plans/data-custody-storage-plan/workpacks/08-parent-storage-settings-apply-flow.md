@@ -4,22 +4,19 @@ Goal: define the parent-facing storage settings flow and the apply-back decision
 
 Current exact status:
 
-- `done`
+- `source incomplete / expected tests open`
 - Canonical Rust contract owner: `crates/schema/src/parent_storage_settings_apply_flow.rs`
 - Rust-owned TS contract generator: `crates/schema/src/parent_storage_settings_apply_flow_ts.rs`
 - Canonical Rust runtime owner: `crates/storage-custody-core/src/parent_storage_settings_apply_flow.rs`
-- Thin/generated schema edge: `packages/schema-domain/src/generated/parent-storage-settings-apply-flow-contracts.ts` and `packages/schema-domain/src/parent-storage-settings-apply-flow.ts`
-- Real runtime proof: `crates/storage-custody-core/tests/unit/parent_storage_settings_apply_flow.rs`
-- Real schema contract proof: `crates/schema/tests/contract/parent_storage_settings_apply_flow.rs` and `packages/schema-domain/tests/contract/parent-storage-settings-apply-flow.test.ts`
-- Focused proof runner: `scripts/test/parent-storage-settings-apply-flow-proof.mjs`
-- Proof root: `output/data-custody-storage-plan-proof/08-parent-storage-settings-apply-flow/`
-- Focused pass: `cargo test -q -p ocentra-schema --test contract parent_storage_settings_apply_flow`
-- Focused pass: `cargo test -q -p ocentra-storage-custody-core parent_storage_settings_apply_flow`
-- Focused pass: `cmd /c npm run build --workspace @ocentra-parent/schema-domain`
-- Focused pass: `cmd /c npm run test --workspace @ocentra-parent/schema-domain -- tests/contract/parent-storage-settings-apply-flow.test.ts`
-- Focused pass: `node scripts/test/parent-storage-settings-apply-flow-proof.mjs`
-- Focused pass: `cargo lint-architecture crates/schema/src/lib.rs crates/schema/src/parent_storage_settings_apply_flow.rs crates/schema/src/parent_storage_settings_apply_flow_ts.rs crates/schema/src/bin/export_parent_storage_settings_apply_flow_contract_types.rs crates/schema/tests/contract.rs crates/schema/tests/contract/parent_storage_settings_apply_flow.rs crates/storage-custody-core/src/lib.rs crates/storage-custody-core/src/parent_storage_settings_apply_flow.rs crates/storage-custody-core/tests/unit.rs crates/storage-custody-core/tests/unit/parent_storage_settings_apply_flow.rs`
-- Focused pass: `cmd /c npm run lint:architecture -- --files packages/schema-domain/src/generated/parent-storage-settings-apply-flow-contracts.ts packages/schema-domain/src/parent-storage-settings-apply-flow.ts packages/schema-domain/src/parent-storage-settings-apply-flow-rules.ts packages/schema-domain/tests/contract/parent-storage-settings-apply-flow.test.ts scripts/test/parent-storage-settings-apply-flow-proof.mjs`
+- Thin/generated schema edge: `packages/schema-domain/src/generated-parent-storage-settings-apply-flow-contracts.ts` and `packages/schema-domain/src/generated-parent-storage-settings-apply-flow-contract-rules.ts`.
+- Existing Rust tests: `crates/storage-custody-core/tests/unit/parent_storage_settings_apply_flow.rs` and `crates/schema/tests/contract/parent_storage_settings_apply_flow.rs`; they were not run in the current source/status reconciliation.
+- Exact source defect: `ParentStorageApplyDecisionInput` carries no trusted confirmation receipt or confirmed state. Every preview sets `confirmation_required = true`, so `Applied` and `Partial` are unreachable and always rejected by the apply derivation.
+- Required source packet: add an authority-bound, replay-safe confirmation input and a legal confirmed `Applied`/`Partial` decision path without accepting caller-supplied authority or auto-applying provider data.
+- Dependency gate: confirmation staging/consume must receive a typed opaque Account WP05A effect handoff backed by the durable Account WP05A multi-owner CAS/recovery coordinator; Account WP05 remains only the base authority/CAS consumer seam. The existing WP05 manual-required fence, current-authority CAS, and unrelated mutation-effect table cannot authorize this path; do not bypass the dependency with a caller-made receipt.
+- The source attempt ending at `7c232efbfb1c4c4c5f227332e3a66734432276fe` is held and rejected for current integration. Its only `HouseholdAuthorityRuntimeCasFence` implementation returns `RuntimeFenceUnavailable`, and no production caller reaches either confirmation entrypoint. It also consumes the Account effect before staging confirmation in a separate transaction, then marks confirmation consumed before the Data executor receives the handoff. Those crash windows have no durable recoverable outcome. Retain the branch only for narrow redesign after Account WP05A supplies the real owner/coordinator while consuming the WP05 base seam; do not merge or cherry-pick it wholesale.
+- Required expected-test packet: successful confirmed `Applied` and `Partial`, missing/expired/replayed/wrong-household confirmation, rollback/manual-required, and unchanged disconnect-versus-delete negatives.
+- The old handwritten TypeScript adapter/test and focused proof runner are absent after Rust-first convergence; do not restore them unless a real consumer requires that edge.
+- Historical proof root: `output/data-custody-storage-plan-proof/08-parent-storage-settings-apply-flow/` is ignored/absent in a clean checkout and is not current acceptance.
 - No-claim boundary: this packet does not claim final portal rendering, desktop host wiring, provider SDK runtime, or automatic provider delete/apply execution.
 
 Context to read:
@@ -55,11 +52,11 @@ Acceptance:
 - Disconnect and delete are separate actions.
 - Manual-required states are visible instead of hidden.
 
-Proved states:
+Declared states and current limitation:
 
 - Explicit parent storage mode labels stay typed at the Rust contract boundary and remain visible through the thin/generated schema-domain edge.
 - Restore remains retrieve -> preview -> confirm apply, with explicit `importPreviewPassed`, `partialRestore`, `wrongHousehold`, `wrongKey`, `schemaUnsupported`, `bundleCorrupt`, `tombstoneConflict`, and `manualRequired` preview states.
-- Apply remains confirmation-gated with explicit `applyRequiresConfirmation`, `applyPending`, `applied`, `partial`, `rollbackManualRequired`, and `blockedManualRequired` state labels.
+- Apply declares `applyRequiresConfirmation`, `applyPending`, `applied`, `partial`, `rollbackManualRequired`, and `blockedManualRequired` state labels, but the current input cannot prove confirmation, so `applied` and `partial` are not reachable production outcomes yet.
 - Disconnect and delete stay separate, and provider delete remains a distinct action from disconnect.
 - Claim-safe copy and canonical no-claim rows are checked in from the Rust owner and consumed through the thin schema adapter.
 

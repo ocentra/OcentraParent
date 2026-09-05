@@ -1,5 +1,8 @@
 use std::fmt::Display;
+use std::fs;
 use std::net::UdpSocket;
+use std::path::{Path, PathBuf};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use ocentra_lan_core::network_inventory::passive_discovery::LanPassiveDiscoveryEventHistory;
 use ocentra_lan_core::network_inventory::LanNetworkInventoryDevice;
@@ -12,6 +15,10 @@ use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
 };
 
 use crate::lan_pairing::LanPairingRuntime;
+use crate::lan_pairing_browser_add_device_state::scan_history::{
+    save_scan_history, scan_history_path_for_registry, LanScanHistoryRegistryPath,
+    LanScanHistorySnapshot,
+};
 use crate::test_text::TestText;
 
 #[path = "discovery.rs"]
@@ -48,6 +55,39 @@ pub(crate) fn default_child_mdns_advertisement_fixture(
     support_state: LanMdnsAdvertisementSupportState,
 ) -> LanChildMdnsAdvertisementFixture {
     mdns::default_child_mdns_advertisement_fixture(lifecycle_state, support_state)
+}
+
+pub(crate) fn persistent_runtime_with_devices(
+    devices: &[LanNetworkInventoryDevice],
+) -> (LanPairingRuntime, PathBuf) {
+    let unique_id = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_nanos();
+    let registry_path =
+        std::env::temp_dir().join(format!("ocentra-lan-cache-boundary-{unique_id}.json"));
+    let runtime = LanPairingRuntime::persistent_json(&registry_path);
+    assert!(save_scan_history(&runtime, devices, None));
+    (runtime, registry_path)
+}
+
+pub(crate) fn write_scan_history_snapshot(
+    registry_path: &Path,
+    snapshot: &LanScanHistorySnapshot,
+) -> bool {
+    let history_path =
+        scan_history_path_for_registry(&LanScanHistoryRegistryPath::from(registry_path));
+    serde_json::to_vec_pretty(snapshot)
+        .ok()
+        .is_some_and(|encoded| fs::write(history_path.as_ref(), encoded).is_ok())
+}
+
+pub(crate) fn cleanup_persistent_runtime(registry_path: &Path) {
+    let history_path =
+        scan_history_path_for_registry(&LanScanHistoryRegistryPath::from(registry_path));
+    let _ = fs::remove_file(registry_path);
+    let _ = fs::remove_file(history_path.as_ref());
+    let _ = fs::remove_file(history_path.as_ref().with_extension("lock"));
 }
 
 impl LanPairingRuntime {
@@ -161,94 +201,4 @@ pub(crate) fn canonical_household_devices_for_test(
         trusted_registry,
         household_device_decisions,
     )
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use ocentra_parent_agent_protocol::lan_pairing::{
-        LanMdnsAdvertisementLifecycleState, LanMdnsAdvertisementSupportState,
-    };
-    use std::net::UdpSocket;
-
-    #[test]
-    fn lan_runtime_support_helpers_are_linked() {
-        let _ = TestLeaseState::Claimed;
-        let _ = TestLeaseState::Completed;
-        let _ = TestLeaseState::DuplicateRejected;
-        let _ = TestLeaseState::ExpiredRequeued;
-        let _ = TestLeaseState::DeadLettered;
-        let _ = default_child_mdns_advertisement_fixture;
-        let _ = |path: &std::path::Path| LanPairingRuntime::persistent_json(path);
-        let _ = |local_child_device_id: Option<TestText>| {
-            LanPairingRuntime::empty_with_local_child_device_id(local_child_device_id)
-        };
-        let _ = |local_child_device_id: Option<TestText>,
-                 parent_device_id: &str,
-                 family_hash: &str,
-                 route_id: &str| {
-            LanPairingRuntime::empty_with_signed_child_agent_context(
-                local_child_device_id,
-                parent_device_id,
-                family_hash,
-                route_id,
-            )
-        };
-        let _ = |device_roles: DeviceRoleRuntimeReadModel| {
-            LanPairingRuntime::empty_with_device_role_read_model(device_roles)
-        };
-        let runtime = LanPairingRuntime::empty();
-        let _ = runtime.passive_discovery_history_snapshot();
-        let _ = runtime.mark_selected_offline_for_test();
-        let _ = runtime.mark_selected_stale_for_test();
-        runtime.mark_lan_ai_provider_heartbeat_stale_for_test();
-        runtime.mark_lan_ai_provider_heartbeat_offline_for_test();
-        let _ = |runtime: &LanPairingRuntime| {
-            runtime.seed_lan_ai_job_lease_for_test("job", "claimed", 1, "2026-06-24T00:00:00Z")
-        };
-        let _ = |runtime: &LanPairingRuntime,
-                 advertisement_id: &str,
-                 protocol_version: &str,
-                 family_hash: &str,
-                 lifecycle_state: LanMdnsAdvertisementLifecycleState,
-                 support_state: LanMdnsAdvertisementSupportState| {
-            LanPairingRuntime::parent_mdns_advertisement(
-                runtime,
-                advertisement_id,
-                protocol_version,
-                family_hash,
-                lifecycle_state,
-                support_state,
-            )
-        };
-        let _ = |runtime: &LanPairingRuntime, fixture: LanChildMdnsAdvertisementFixture| {
-            LanPairingRuntime::child_mdns_advertisement(runtime, fixture)
-        };
-        let _ = |runtime: &LanPairingRuntime, socket: &UdpSocket, max_datagram_count: usize| {
-            runtime.record_allowed_snmp_probe_responses(socket, max_datagram_count)
-        };
-        let _ = load_scan_history_for_test;
-        let _ = canonical_household_devices_for_test;
-        let _ = discovery::passive_discovery_history_snapshot;
-        let _ = discovery::record_allowed_snmp_probe_responses;
-        let _ = mdns::default_child_mdns_advertisement_fixture;
-        let _ = |runtime: &LanPairingRuntime,
-                 advertisement_id: &str,
-                 protocol_version: &str,
-                 family_hash: &str,
-                 lifecycle_state: LanMdnsAdvertisementLifecycleState,
-                 support_state: LanMdnsAdvertisementSupportState| {
-            mdns::parent_mdns_advertisement(
-                runtime,
-                advertisement_id,
-                protocol_version,
-                family_hash,
-                lifecycle_state,
-                support_state,
-            )
-        };
-        let _ = |runtime: &LanPairingRuntime, fixture: LanChildMdnsAdvertisementFixture| {
-            mdns::child_mdns_advertisement(runtime, fixture)
-        };
-    }
 }

@@ -52,11 +52,11 @@ fn core_workpack_rows(
 
 fn packet_boundary_workpack_rows() -> Vec<LanPlanWorkpackStatusRow> {
     vec![
-        ci_workpack(
+        implemented_workpack(
             LanPlanWorkpackId::W05,
             constants::lan_pairing::LAN_SOURCE_MATRIX_TITLE_05,
         ),
-        ci_workpack(
+        implemented_workpack(
             LanPlanWorkpackId::W06,
             constants::lan_pairing::LAN_SOURCE_MATRIX_TITLE_06,
         ),
@@ -181,6 +181,24 @@ fn partial_workpack(
             proof_state: V09ProductionDiscoveryHouseholdProofState::CiMechanicalProof,
             runtime_owner: V09ProductionDiscoveryHouseholdRuntimeOwner::RustServiceReadModel,
             source_status: LanDiscoverySourceStatus::Partial,
+            read_model_visible: true,
+            required_artifact_summary: None,
+        },
+    )
+}
+
+fn implemented_workpack(
+    workpack_id: LanPlanWorkpackId,
+    workpack_title: &str,
+) -> LanPlanWorkpackStatusRow {
+    workpack(
+        workpack_id,
+        workpack_title,
+        WorkpackDetails {
+            discovery_state: LanPairingProductionDiscoveryState::Discovered,
+            proof_state: V09ProductionDiscoveryHouseholdProofState::CiMechanicalProof,
+            runtime_owner: V09ProductionDiscoveryHouseholdRuntimeOwner::RustServiceReadModel,
+            source_status: LanDiscoverySourceStatus::Implemented,
             read_model_visible: true,
             required_artifact_summary: None,
         },

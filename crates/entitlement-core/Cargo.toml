@@ -11,8 +11,10 @@ workspace = true
 path = "src/lib.rs"
 
 [dependencies]
+chrono = { version = "0.4.42", default-features = false, features = ["std"] }
 ocentra-eventing = { path = "../ocentra-eventing" }
 serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.145"
 
 [[test]]
 name = "unit"

@@ -10,6 +10,8 @@ mod app_game_sessionization_observation;
 use crate::activity_store_app_game_observation::AppGameObservation;
 use crate::activity_store_app_game_rows::AppGameStoreRow;
 
+use super::app_game_session_time::timestamp_ms;
+
 const SESSION_STALE_TIMEOUT_MS: u64 = 60_000;
 
 pub fn session_summaries_from_rows(
@@ -21,8 +23,9 @@ pub fn session_summaries_from_rows(
         .map(AppGameObservation::from_row)
         .collect::<Vec<_>>();
     observations.sort_by(|left, right| {
-        left.observed_at
-            .cmp(&right.observed_at)
+        timestamp_ms(&left.observed_at)
+            .cmp(&timestamp_ms(&right.observed_at))
+            .then_with(|| left.observed_at.cmp(&right.observed_at))
             .then_with(|| left.process_identity.cmp(&right.process_identity))
             .then_with(|| left.kind.cmp(&right.kind))
     });
@@ -34,9 +37,9 @@ pub fn session_summaries_from_rows(
 
     let mut summaries = state.into_summaries();
     summaries.sort_by(|left, right| {
-        right
-            .last_observed_at
-            .cmp(&left.last_observed_at)
+        timestamp_ms(&right.last_observed_at)
+            .cmp(&timestamp_ms(&left.last_observed_at))
+            .then_with(|| right.last_observed_at.cmp(&left.last_observed_at))
             .then_with(|| right.session_id.cmp(&left.session_id))
     });
     summaries.truncate(limit as usize);
@@ -52,7 +55,9 @@ struct SessionizationState {
 
 struct SessionState {
     summary: AppGameSessionSummary,
-    started_at_ms: i64,
+    running_started_at_ms: Option<i64>,
+    last_process_observed_at_ms: Option<i64>,
+    last_process_observed_at: Option<String>,
     last_observed_at_ms: i64,
 }
 

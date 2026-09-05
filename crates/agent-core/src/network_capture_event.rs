@@ -10,11 +10,44 @@ use crate::network_capture_event_fields::{
     network_display_name, network_fields, network_subject_id,
 };
 
-pub fn network_snapshot_events(observed_at: &str, limit: usize) -> Vec<ActivityEvent> {
+#[derive(Clone, Debug, PartialEq)]
+pub struct NetworkCaptureResult {
+    observation: NetworkObservation,
+    activity_event: ActivityEvent,
+}
+
+impl NetworkCaptureResult {
+    pub fn observation(&self) -> &NetworkObservation {
+        &self.observation
+    }
+
+    pub fn activity_event(&self) -> &ActivityEvent {
+        &self.activity_event
+    }
+
+    pub fn into_parts(self) -> (NetworkObservation, ActivityEvent) {
+        (self.observation, self.activity_event)
+    }
+}
+
+pub fn network_snapshot_capture_results(
+    observed_at: &str,
+    limit: usize,
+) -> Vec<NetworkCaptureResult> {
     collect_network_snapshot(limit)
         .into_iter()
         .enumerate()
-        .map(|(index, observation)| network_observation_event(observation, observed_at, index))
+        .map(|(index, observation)| NetworkCaptureResult {
+            activity_event: network_observation_event(observation.clone(), observed_at, index),
+            observation,
+        })
+        .collect()
+}
+
+pub fn network_snapshot_events(observed_at: &str, limit: usize) -> Vec<ActivityEvent> {
+    network_snapshot_capture_results(observed_at, limit)
+        .into_iter()
+        .map(|capture| capture.activity_event)
         .collect()
 }
 

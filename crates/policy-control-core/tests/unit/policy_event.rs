@@ -1,7 +1,17 @@
 use super::TestResult;
 use std::collections::BTreeSet;
 
+#[path = "policy_event/replay.rs"]
+mod replay;
+#[path = "policy_event/validation.rs"]
+mod validation;
+
+use ocentra_eventing::envelope::{EventEnvelope, EventMetadata, EventSource};
 use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::{
+    CausationId, CorrelationId, EventCustody, RuntimeInstanceId, RuntimeRole, SourceComponent,
+    SourceService,
+};
 use ocentra_policy_control_core::policy_delivery::PolicyDeliveryId;
 use ocentra_policy_control_core::policy_event::{
     apply_policy_event_replay, policy_event_contract_registry, policy_event_family_namespace,
@@ -207,6 +217,60 @@ fn policy_event_family_registry_lists_all_event_types() -> TestResult {
 }
 
 #[test]
+fn policy_event_envelope_preserves_causation_correlation_and_deterministic_keys() -> TestResult {
+    let event = sample_delivery_queued_event(3)?;
+    let aggregate_key = test_ok!(event.aggregate_key(), "policy aggregate key");
+    let idempotency_key = test_ok!(event.idempotency_key(), "policy idempotency key");
+    let correlation_id = test_ok!(
+        CorrelationId::parse("correlation-policy-event-1"),
+        "policy event correlation id"
+    );
+    let causation_id = test_ok!(
+        CausationId::parse("causation-policy-event-1"),
+        "policy event causation id"
+    );
+    let metadata = EventMetadata::new(
+        correlation_id.clone(),
+        EventSource::new(
+            test_ok!(EventCustody::parse("local"), "event custody"),
+            test_ok!(RuntimeRole::parse("policy-control-plane"), "runtime role"),
+            test_ok!(
+                SourceService::parse("policy-control-plane"),
+                "source service"
+            ),
+            test_ok!(
+                SourceComponent::parse("policy-event-test"),
+                "source component"
+            ),
+            test_ok!(
+                RuntimeInstanceId::parse("instance-1"),
+                "runtime instance id"
+            ),
+        ),
+    )
+    .with_causation_id(causation_id.clone());
+
+    let envelope = test_ok!(
+        EventEnvelope::from_event(event.clone(), metadata),
+        "policy event envelope"
+    );
+
+    assert_eq!(
+        envelope.contract().event_type.as_str(),
+        event.kind.event_type_name()
+    );
+    assert_eq!(envelope.contract().schema_version, event.schema_version);
+    assert_eq!(envelope.aggregate_key(), &aggregate_key);
+    assert_eq!(envelope.idempotency_key(), &idempotency_key);
+    assert_eq!(envelope.correlation_id(), &correlation_id);
+    assert_eq!(
+        test_some!(envelope.causation_id(), "policy event causation"),
+        &causation_id
+    );
+    Ok(())
+}
+
+#[test]
 fn policy_event_keys_and_contract_are_stable_for_delivery_events() -> TestResult {
     let event = sample_delivery_queued_event(3)?;
 
@@ -220,50 +284,6 @@ fn policy_event_keys_and_contract_are_stable_for_delivery_events() -> TestResult
     assert_eq!(
         test_ok!(event.idempotency_key(), "policy idempotency key").as_str(),
         "policy-event:policy.delivery.queued|policy-delivery:household-default:policy-delivery-default:child-primary:device-laptop:tracking:5|3|delivery|audit-policy-event|none|none"
-    );
-    Ok(())
-}
-
-#[test]
-fn policy_event_replay_tracks_duplicate_stale_and_conflicting_sequences() -> TestResult {
-    let current = sample_delivery_queued_event(3)?;
-    let current_record = test_ok!(current.replay_record(), "policy event replay record");
-
-    match test_ok!(
-        apply_policy_event_replay(&current_record, &current),
-        "duplicate replay"
-    ) {
-        PolicyEventApplyOutcome::Duplicate(record) => assert_eq!(record, current_record),
-        other => {
-            return Err(std::io::Error::other(format!(
-                "expected duplicate replay outcome, got {other:?}"
-            ))
-            .into());
-        }
-    }
-
-    match apply_policy_event_replay(&current_record, &sample_delivery_queued_event(2)?)
-        .map_err(|error| std::io::Error::other(format!("stale replay: {error}")))?
-    {
-        PolicyEventApplyOutcome::Stale(record) => assert_eq!(record, current_record),
-        other => {
-            return Err(std::io::Error::other(format!(
-                "expected stale replay outcome, got {other:?}"
-            ))
-            .into());
-        }
-    }
-
-    let error = test_err!(
-        apply_policy_event_replay(&current_record, &sample_delivery_sent_event(3)?),
-        "conflicting same-sequence replay must fail"
-    );
-    assert_eq!(
-        error,
-        EventingError::InvalidValue {
-            field: "policy_delivery.sequence",
-            value: "conflicting replay for sequence 3 on policy.delivery.queued".to_string(),
-        }
     );
     Ok(())
 }

@@ -1,5 +1,9 @@
 import type { ReactElement } from 'react';
-import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/portal-domain/display-text';
+import {
+  decodeDisplayText,
+  PortalDevTextToken,
+  resolvePortalDevText,
+} from '@ocentra-parent/portal-domain/display-text';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import {
   createLocalAiRuntimePanelIntent,
@@ -11,6 +15,11 @@ import { isParentAiRuntimeRoute, type ParentRouteId } from '../generated/parent-
 import type { PortalRenderActions } from './portal-actions';
 import { type PortalDisplayText } from '@ocentra-parent/portal-domain/display-text';
 import type { PortalLiveActivityState } from './live-activity-state';
+
+const AI_RUNTIME_TEXT = {
+  statusTitle: decodeDisplayText('Local AI status'),
+  unavailable: decodeDisplayText('Retry status to load local AI runtime and household job status.'),
+} as const;
 
 export function shouldRenderAiRuntimeRoute(route: ParentRouteId): boolean {
   return isParentAiRuntimeRoute(route);
@@ -31,29 +40,89 @@ export function AiRuntimeRoutePanel({
     liveActivity.activityMemoryGraphReadModel,
     liveActivity.parentAssistantBoundaryEvent
   );
+  const empty = intent.cards.length === 0;
+  const routeAction = aiRuntimeRouteAction(actions, commandEnabled);
+  const content = <AiRuntimeContent intent={intent} routeAction={routeAction} showAction={!empty} />;
   return (
     <section
       aria-label={resolvePortalDevText(PortalDevTextToken.AiRuntime)}
-      className={PortalDom.Classes.TrackingStatusOverlay}
+      className={empty ? PortalDom.Classes.ParentStatusDock : PortalDom.Classes.TrackingStatusOverlay}
+      data-ocentra-ai-runtime-empty={String(empty)}
+      data-ocentra-ai-runtime-panel=""
     >
-      <div className={PortalDom.Classes.TrackingStatusOverlayContent}>
-        <header className={PortalDom.Classes.TrackingStatusOverlayHeader}>
-          <p className={PortalDom.Classes.ProductEyebrow}>{intent.eyebrow}</p>
-          <h2>{intent.title}</h2>
-          <p>{intent.body}</p>
-          <button
-            className={PortalDom.Classes.CommandResultTab}
-            disabled={!commandEnabled}
-            type={PortalDom.ButtonType.Button}
-            onClick={() => void actions.refreshRouteSnapshot?.()}
-          >
-            {resolvePortalDevText(PortalDevTextToken.GetLocalAiRuntimeStatus)}
-          </button>
-        </header>
-        <AiRuntimeCards intent={intent} />
-      </div>
+      {empty ? (
+        <>
+          <div className={PortalDom.Classes.ParentStatusDockToolbar}>
+            <div>
+              <strong>{AI_RUNTIME_TEXT.statusTitle}</strong>
+              <span>{AI_RUNTIME_TEXT.unavailable}</span>
+            </div>
+            <button
+              className={PortalDom.Classes.CommandResultTab}
+              onClick={routeAction.run}
+              type={PortalDom.ButtonType.Button}
+            >
+              {routeAction.label}
+            </button>
+          </div>
+          <details className={PortalDom.Classes.ParentStatusDockDisclosure} data-ocentra-ai-runtime-disclosure="">
+            <summary>
+              <span>{intent.title}</span>
+              <span className={PortalDom.Classes.ParentStatusDockState}>{intent.emptyStatus}</span>
+            </summary>
+            {content}
+          </details>
+        </>
+      ) : (
+        content
+      )}
     </section>
   );
+}
+
+function AiRuntimeContent({
+  intent,
+  routeAction,
+  showAction,
+}: {
+  readonly intent: LocalAiRuntimePanelIntent;
+  readonly routeAction: Readonly<{ label: string; run(): void }>;
+  readonly showAction: boolean;
+}): ReactElement {
+  return (
+    <div className={PortalDom.Classes.TrackingStatusOverlayContent}>
+      <header className={PortalDom.Classes.TrackingStatusOverlayHeader}>
+        <p className={PortalDom.Classes.ProductEyebrow}>{intent.eyebrow}</p>
+        <h2>{intent.title}</h2>
+        <p>{intent.body}</p>
+        {showAction ? (
+          <button
+            className={PortalDom.Classes.CommandResultTab}
+            type={PortalDom.ButtonType.Button}
+            onClick={routeAction.run}
+          >
+            {routeAction.label}
+          </button>
+        ) : null}
+      </header>
+      <AiRuntimeCards intent={intent} />
+    </div>
+  );
+}
+
+function aiRuntimeRouteAction(
+  actions: PortalRenderActions,
+  commandEnabled: boolean
+): { readonly label: string; readonly run: () => void } {
+  if (!commandEnabled || actions.refreshRouteSnapshot === undefined) {
+    return { label: resolvePortalDevText(PortalDevTextToken.RetryStatus), run: actions.reconnect };
+  }
+  return {
+    label: resolvePortalDevText(PortalDevTextToken.GetLocalAiRuntimeStatus),
+    run: () => {
+      void actions.refreshRouteSnapshot?.();
+    },
+  };
 }
 
 function AiRuntimeCards({ intent }: { readonly intent: LocalAiRuntimePanelIntent }): ReactElement {

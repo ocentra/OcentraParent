@@ -34,26 +34,27 @@ child-device delivery.
 - No hide, suspend, uninstall-block, lock task, managed configuration, adapter
   dispatch, platform enforcement, provider delivery, or child delivery claim.
 
-## Files
+## Current source and test roots
 
 - `platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsCapabilityProof.java`
-- `platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/MainActivity.java`
-- `packages/parent-domain/src/app-game-android-usage-events-capability-proof.ts`
-- `packages/parent-domain/tests/app-game-android-usage-events-capability-proof.test.ts`
-- `scripts/test/app-game-android-usage-events-capability-proof.mjs`
+- `platforms/android/agent/app/src/main/java/ca/ocentra/child/agent/ChildAgentCompositionService.java`
+- `platforms/android/agent/app/src/main/AndroidManifest.xml`
+- `platforms/android/agent/app/src/test/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsCapabilityProofTest.java`
 
-## Validation
+The historical `packages/parent-domain` and `scripts/test/app-game-*` owners
+were removed during Rust-first convergence and must not be recreated. Canonical
+`bb83a0aef` keeps the live manifest/service consumer-topology claim and tests
+the exact redacted capability bundle, empty proof refs, gaps, and non-claims.
 
-- `cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-android-usage-events-capability-proof`
-- `cmd /c node --check scripts/test/app-game-android-usage-events-capability-proof.mjs`
-- `cmd /c node scripts/test/app-game-android-usage-events-capability-proof.mjs`
+## Validation state
 
-## Done Criteria
+The focused Java behavior test is written but was not executed in the
+code/test-source phase. No Android grant, package, physical-device, or retained
+proof was produced.
 
-- Android package source contains a package-local app/game UsageEvents capability
-  bridge.
-- MainActivity surfaces the bridge state without raw UsageEvents data.
-- Parent-domain rejects rows that promote raw storage, adapter dispatch,
-  platform enforcement, or child delivery.
-- Android package build proof confirms the bridge compiles while UsageStats
-  remains settings-grant-required.
+## Remaining completion criteria
+
+- Execute the focused Java test in the later validation wave.
+- Retain real Android package/grant evidence without raw UsageEvents data.
+- Keep raw storage, adapter dispatch, platform enforcement, provider delivery,
+  and child-device delivery unclaimed.

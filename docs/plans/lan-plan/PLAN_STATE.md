@@ -7,7 +7,7 @@
 > Doc: `LAN Plan State`
 > Kind: current executable status and open gaps.
 > Read when: first, before opening workpacks or proof paths.
-> Stop rule: do not widen beyond the selected workpack from here; `21-25` are active LAN follow-on scope, with `23` and `25` currently open.
+> Stop rule: do not widen beyond the selected workpack from here; `21-26` are active LAN follow-on scope, with `23`, `25`, and `26` currently open.
 > Proves: current plan model, current slice status, and next execution route only.
 > Does not prove: final completion of open workpacks, physical household proof, or sibling plan completion.
 > Proof rule: any status claim here must point at an existing artifact or an explicit open/manual-required gap.
@@ -17,8 +17,8 @@
 ## Current State
 
 - Plan state: active
-- Authoritative execution model: `01-25`
-- Active open follow-on workpacks: `23`, `25`
+- Authoritative execution model: `01-26`
+- Active open follow-on workpacks: `23`, `25`, `26`
 - Current completed slices: `Slice A`, `B1`, `B2`, `01`, `02`, `03`, `05`, `06`, `10`, `12`, `13`, `14`, `15`, `21`, `22`, `24`
 - Slice A evidence root: `output/lan-plan-proof/00-plan-model-reconciliation/`
 - B1 evidence root: `output/lan-plan-proof/01-lan-b1-proof-regeneration/`
@@ -72,14 +72,14 @@ parent/child runtime distribution plans:
 - portal rendering proof is not LAN truth proof
 - B1/B2 proof is not signed hello/heartbeat, service/runtime, portal, physical
   household, router/firewall, Android/mobile, or relay proof
-- active workpacks 23-25 still need explicit truth-sync and must not be skipped,
+- active workpacks 23-26 still need explicit truth-sync and must not be skipped,
   auto-closed, or treated as off-plan
 ```
 
 ## Agentless evidence-fusion adoption
 
 As of 2026-06-23, the plan absorbs the agentless LAN design note into the
-current authoritative `01-25` model instead of creating a parallel discovery
+current authoritative `01-26` model instead of creating a parallel discovery
 plan.
 
 ```text
@@ -140,7 +140,7 @@ Portal and downstream consumers need source/service-backed proof artifacts.
 - legacy `@ocentra-parent/lan-domain` build pass for the assigned slice only
 - legacy `packages/lan-domain` architecture pass for the assigned slice only
 - plan truth-sync for the then-authoritative `01-20` reconciliation slice,
-  now carried forward inside the active `01-25` Rust-first model
+  now carried forward inside the active `01-26` Rust-first model
 - honest proof-root bootstrap for this reconciliation slice
 
 Exact evidence:
@@ -208,8 +208,8 @@ Expected evidence for `B2`:
 - `packages/parent-domain/src/lan-*` is not the authoritative owner for current
   completion claims.
 - The current LAN source-matrix/read-model model already drives workpacks
-  `01-20`; workpacks `21-25` are also active scope, with `21`, `22`, and `24`
-  locally closed by their own proof and `23`/`25` still open.
+  `01-20`; workpacks `21-26` are also active scope, with `21`, `22`, and `24`
+  locally closed by their own proof and `23`/`25`/`26` still open.
 - Portal LAN proof still depends on source/service-backed truth; portal does
   not own the LAN truth model.
 - Canonical backend LAN stream replay is loaded, validated, ordered, and bound
@@ -231,31 +231,88 @@ Expected evidence for `B2`:
 
 ## Code-First Audit Correction - 2026-08-15
 
-All 25 LAN workpacks now have reviewed implementation/test ownership in the
-engineering graph. Twenty-two have their bounded Phase 1 production code and
-expected tests written. Three remain incomplete before focused Phase 2 runs:
+All 25 pre-existing LAN workpacks have reviewed implementation/test ownership in
+the engineering graph. Twenty-one have their bounded Phase 1 production code
+and expected tests written. Four pre-existing expected-test/validation/wrapper
+rows remain incomplete, and the newly routed WP26 is intentionally open:
 
-- `16`: no integrated backend replay -> real Tauri `AppHandle` emit -> portal
-  listener regression;
-- `20`: all six LAN aggregate verifier commands named by current plan docs
-  point to absent scripts; the signed-relay and source-matrix runners are also
-  incorrectly checked complete in the workpack;
-- `25`: depends on both gaps above before its rollout gate can be code/test
-  complete.
+- `18` supplies the existing signed-envelope verification/freshness boundary
+  consumed by WP26. It does not own or claim a production beacon receiver.
+- `07` has accepted recurring-listener deadline source, but its shared-budget,
+  timeout-restoration, rotation, and cancellation tests are not written.
+- `16` has a production delivery chain but lacks the integrated backend replay
+  -> real Tauri `AppHandle` -> portal-listener validation.
+- `20` is proof-only and its named aggregate verifier programs are absent.
+- `25` is a rollout wrapper blocked by WP16/WP20 plus manual topology evidence.
+- `26` is the blocked real signed-child beacon ingress and household-mesh
+  authority handoff packet. A bounded code draft exists, but it depends on
+  W15/W18/W19 plus Device Trust WP01's persistent trusted-device/signer-key
+  registration source and WP03's one-time `RegisterLanSignerAnchor` ceremony.
+  No shipped service route currently establishes that authority, and there is
+  no code, test, or proof closure claim.
 
-Manual household/router/platform artifacts remain Phase 3 and do not turn the
-other 22 rows into missing-code work.
+Manual household/router/platform artifacts remain separate Phase 3 gates and do
+not turn the other 21 code-and-expected-test-complete rows into missing-code
+work.
 
 ## Open Execution Buckets
 
-- Local Rust implementation complete; manual/packet proof remains: `04`, `07`,
-  `08`, `09`, `11`, `17`
-- Partial implemented slices still needing local proof/gap closure: none after
-  the accepted 2026-06-28 LAN packet waves; the remaining open work is now
-  integration/runtime parity or explicit manual/packet proof
-- Phase 1 code/expected-test gaps: `16`, `20`, `25`
+## Production Reachability Audit - 2026-08-16
+
+This audit follows the shipped Rust service entrypoint (`agent-service::app::router`),
+its WebSocket command dispatch, the Tauri parent bridge, and the portal projection.
+It records production-code reachability only; graph validation, tests, proof,
+physical household evidence, and platform artifacts remain separate gates.
+
+| WP | Actual production path | Code-pass truth | Remaining production boundary |
+| --- | --- | --- | --- |
+| 01 | `agent-protocol` LAN contracts -> `lan-core` verification/read-model shapes -> `agent-service` command dispatch | Reachable Rust contract and service boundary exists; no missing production slice found. | Contract validation and physical/runtime proof remain deferred. |
+| 02 | `AgentLanPairing*` command -> `agent-service::lan_pairing_browser_add_device_state` -> trusted registry/read model | Reachable durable evidence/device-record path exists and is fail-closed on persistence failure. | Household authority and physical evidence remain external/manual. |
+| 03 | `AgentLanPairingStatusGet`/discovery scan -> `physical_lan_scan` -> `lan-core::network_inventory_hardware` | Real local-interface selection and scan-plan attribution are reachable. | OS/platform coverage and manual interface proof remain open. |
+| 04 | `physical_lan_scan` -> `windows_neighbors`/`linux_neighbors`/`macos_neighbors` | Real OS neighbor-table readers and normalization are reachable. | macOS live/manual platform proof remains open; no local parser gap identified. |
+| 05 | active discovery command -> `stimulate_bounded_ipv4_neighbors` -> packet/neighbor refresh | Bounded targeted ARP refresh is a real production call with subnet/interface scope. | Packet/manual household proof remains open. |
+| 06 | active discovery command -> bounded IPv4 target planner and refresh suppression | Real bounded sweep path is reachable and reuses durable MAC-bound suppression truth. | Physical reachability and packet proof remain open. |
+| 07 | `app::router` passive runtime -> raw ARP/DHCP and UDP multicast collectors -> listener state | Canonical `ffaade68a` reaches a recurring runtime with one absolute cycle deadline, per-receive remaining-time enforcement, and panic-safe timeout restoration. | Slow-trickle/zero-deadline timing, timeout restoration on success/error/unwind, six-listener rotation/cancellation tests, platform packet behavior, and manual proof remain open. |
+| 08 | scan -> `enrich_mdns_dns_sd_devices` -> real mDNS query/parse/merge | mDNS/DNS-SD socket query and bounded parser are reachable from production scan. | Packet/manual proof; mDNS never establishes child authority alone. |
+| 09 | scan -> `enrich_ssdp_upnp_devices` -> bounded M-SEARCH/descriptor fetch/merge | SSDP/UPnP socket and private-location descriptor path is reachable and bounded. | Packet/manual proof; infrastructure remains non-enrollable. |
+| 10 | platform neighbor readers -> reverse-DNS/NetBIOS/LLMNR name evidence | Real platform enrichment is reachable as weak name-only evidence. | No production gap; names cannot establish identity or assignment. |
+| 11 | neighbor scan -> `service_identity::enrich_service_identity_probes` -> bounded HTTP/HTTPS/TLS/WSD/SNMP probes | Real bounded service-probe caller and evidence merge exist. | Optional OS fingerprint and live/manual probe proof remain open. |
+| 12 | neighbor inventory -> `mac_identity` assessment and source projection | MAC/OUI/private/multicast handling is reachable as weak evidence. | Vendor data cannot establish platform or child identity; no code gap found. |
+| 13 | scan result -> `lan-core::read_model_builder` canonical merge/dedupe -> service read model | Durable install/pairing-aware merge path is reachable. | Broader physical/authority proof remains open. |
+| 14 | canonical device builder -> weighted classification -> Tauri/portal snapshot | Explainable classification and manual/unknown fences are reachable. | Installability and physical proof remain open. |
+| 15 | scan/read-model path -> scan-history and trusted-registry JSON with write lock | Restart continuity and fail-closed durable store path are reachable. | Cross-session/physical proof remains open. |
+| 16 | service LAN stream -> parent replay parser -> Tauri subscription -> portal listener | Production seams exist end-to-end, but no real `AppHandle` emission-to-listener regression is present. | Integrated delivery validation is the remaining Phase 1 gap; no source edit authorized in this code-only pass. |
+| 17 | `app::router` -> periodic `spawn_lan_mdns_advertisement_runtime` -> UDP multicast sink | Parent/child mDNS advertisement production sender is reachable where platform support/configuration exists. | Signed-child confirmation and mobile/macOS background multicast proof remain open. |
+| 18 | `AgentLanPairingSignedChildAgentObserve` -> signed envelope parser/verifier/replay guard -> passive observation | The signed verification/freshness boundary is real and is an input to WP26. The passive collector marks `OcentraBeacon` unsupported and has no signed hello/heartbeat socket receiver. | WP26 owns the missing shipped ingress and authority composition; WP18 remains bounded verifier/freshness code plus later physical evidence. |
+| 19 | LAN route select/revoke/controller lease commands -> service runtime validation, registry persistence, audit, selected-route dispatch | Real pairing/controller/revoke callers and fail-closed authority checks are reachable. | Physical two-device topology and platform authority proof remain open. |
+| 20 | proof/fixture/aggregate verifier files | No product runtime owner; this is validation/proof-only. | Named aggregate verifier scripts are absent; excluded from production-code work. |
+| 21 | Rust protocol/shared contract modules consumed by LAN service/runtime | Contract/domain boundary is present; no independent runtime caller is owned here. | Downstream runtime, invite/account, and setup authority remain separate owners. |
+| 22 | plan/source-map documentation only | No production entrypoint or behavior. | Documentation/status reconciliation only; no code slice. |
+| 23 | same service pairing/route/revoke commands plus parent route snapshot consumer | Production pairing and route seams already exist; no missing LAN runtime wiring found. | Integrated/physical route proof remains open. |
+| 24 | Tauri parent snapshot -> generated bridge -> portal LAN presentation | Thin consumer is reachable and Rust-backed; it does not own LAN truth. | UI/manual proof remains separate; no LAN code gap. |
+| 25 | rollout checklist/PR gate wrappers over WP16/WP20 and manual artifacts | No product runtime owner; validation/release wrapper only. | Blocked by integrated delivery validation, absent aggregate verifiers, and manual topology evidence. |
+| 26 | real child/runtime signed beacon ingress -> W15 household custody + W18 signed hello/heartbeat trust + W19 route/revocation authority -> private Eventing WP10 authorization handoff | A bounded custody/registry/transport draft exists, but no shipped ingress or composed custody/handoff caller is legally claimable. Device Trust WP01 registration and WP03 one-time `RegisterLanSignerAnchor` authorization are missing. | Code integration, organized real-ingress tests, restart/duplicate/stale/revoked/wrong-family/wrong-target/provider-policy negatives, and the canonical proof root remain open; portal authority and fake transport are forbidden. |
+
+The signed-child transport gap is owned by WP26. WP26 consumes W18's existing
+signed verification/freshness boundary together with W15 custody and W19
+route/revocation authority, then supplies the private Eventing WP10 handoff.
+It cannot establish signer registration itself: Device Trust WP01 owns the
+persistent registration source and WP03 owns the one-time parent ceremony.
+The current typed WebSocket observation command remains an explicit
+manual/controlled seam and cannot substitute for WP26.
+
+- Local Rust implementation complete; manual/packet proof remains: `04`, `08`,
+  `09`, `11`, `17`
+- Source accepted but expected-test delta remains: `07` (shared absolute
+  deadline, timeout restoration, listener rotation, and cancellation)
+- Production implementation gap: `26` (real ingress, durable custody, authority
+  composition, and private Eventing WP10 handoff). WP18 is an existing code
+  input, not the ingress owner.
+- Phase 1 expected-test/validation/proof/wrapper gaps: `07` deadline/lifecycle
+  tests, `16` integrated delivery validation, `20` absent aggregate verifiers,
+  and `25` rollout gate.
 - Physical/manual final gates after Phase 1: `04`, `07`, `08`, `09`, `11`,
-  `16`, `17`, `18`, `19`, `20`, `23`, `25`
+  `16`, `17`, `18`, `19`, `20`, `23`, `25`, `26`
 - Locally closed rows and truth-synced summaries: `01`, `02`, `03`, `05`,
   `06`, `10`, `12`, `13`, `14`, `15`, `21`, `22`, `24`
 
@@ -263,7 +320,8 @@ other 22 rows into missing-code work.
 
 - real second-device household proof
 - router/firewall reachability proof
-- long-running passive DHCP listener proof plus broader passive
+- shared-deadline, timeout-restoration, listener-rotation, and cancellation
+  tests for the recurring passive runtime, followed later by broader passive
   trigger/platform/manual cross-checks
 - live macOS/manual neighbor-table proof for the now locally complete W04
   parser path
@@ -273,7 +331,10 @@ other 22 rows into missing-code work.
   the optional OS-fingerprint manual gate
 - weighted classification and installability proof for
   unknown/probable/not-installable states
-- real signed child hello/heartbeat artifacts
+- production signed-child beacon ingress/child-runtime transport authority,
+  then real signed child hello/heartbeat artifacts
+- WP26 atomic message/idempotency custody, restart continuity, authority
+  composition, provider-policy negatives, and private Eventing WP10 handoff
 - restart and physical cross-session event-stream proof completion
 - real Tauri `AppHandle` emission plus portal-listener observation of a
   backend replay batch; backend validation, bridge construction, the host
@@ -288,14 +349,22 @@ other 22 rows into missing-code work.
   be called green again
 
 Household/setup/account first-run UX is no longer a broad unvalidated LAN gap.
-The remaining Phase 1 truth is concentrated in the integrated route/runtime
-test (`16`) and executable aggregate verifiers (`20`, `25`). Signed-child,
-paired-device, router/firewall, packet, and platform evidence remains Phase 3
-for the locally code-complete rows.
+The remaining Phase 1 truth includes WP26 real ingress and authority handoff,
+the integrated route/runtime
+validation (`16`), and executable aggregate verifiers/rollout gating (`20`,
+`25`).
+Signed-child artifacts, paired-device, router/firewall, packet, and platform
+evidence remain later gates after the production transport owner exists.
 
 ## Next Slice
 
-The next exact Phase 1 slice is the integrated WP16 backend replay -> Tauri
-`AppHandle` -> portal listener regression, followed by restoration or
-replacement of the six named aggregate verifier programs. WP25 can then enter
-focused Phase 2 validation; physical/manual proof remains last.
+Production-code work remains first: implement WP26 by selecting the shipped
+child/runtime or service composition owner and composing W15/W18/W19 into a
+real signed-child beacon ingress. Do not substitute a fixture, manual
+observation command, or synthetic receiver. WP26 must
+persist atomic message/idempotency custody, and stop before the private Eventing
+WP10 authorization handoff when any trust, route, revocation, target, or
+provider-policy check fails. After WP26 production code is complete, Phase 2 may
+add the WP16 backend replay -> real Tauri `AppHandle` -> portal-listener
+regression and restore or replace the six named WP20 aggregate verifiers. WP25
+can then enter focused validation; physical/manual proof remains last.

@@ -26,39 +26,48 @@ authority, hide/suspend, adapter dispatch, or platform enforcement.
 
 ## Implementation
 
-- Added `packages/parent-domain/src/app-game-android-usage-events-child-runtime-replay.ts`.
-- Added focused tests for redacted replay consumer attachment, unavailable
-  replay fallback, and rejection of raw row, delivery, and drifted count
-  overclaims.
-- Added the combined platform runtime proof harness in
-  `scripts/test/app-game-platform-runtime-readiness-batch.mjs`.
+The source phase adds:
+
+- `platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsChildRuntimeReplay.java`
+- `platforms/android/agent/app/src/main/java/ca/ocentra/child/agent/ChildAgentCompositionService.java`
+- `platforms/android/agent/app/src/main/java/ca/ocentra/child/agent/ChildAgentActivity.java`
+
+The consumer accepts only an owner-produced count snapshot, validates current
+timestamp/count bounds, rejects duplicate or older generations, rejects
+corrupt or stale durable readback, and revalidates the committed record before
+reporting `CONSUMED`. The manifest-declared child service invokes the consumer
+from its bounded worker, publishes synchronized immutable status, and waits
+for bounded worker shutdown before closing native composition. The launcher
+activity now binds to that service and polls a redacted status projection, so
+the production consumer is reachable from an existing app lifecycle; it does
+not claim device delivery or enforcement. Canonical `a45575cfa` adds real JVM
+restart/currentness/corruption tests and a physical-device instrumentation path
+that grants UsageStats through Android AppOps, consumes a real owner-produced
+snapshot, proves duplicate/older rejection, and accepts a newer generation.
 
 ## Validation
 
-Focused validation for this workpack:
-
-```powershell
-cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-android-usage-events-child-runtime-replay app-game-linux-foreground-source-preflight
-cmd /c node scripts/test/app-game-platform-runtime-readiness-batch.mjs
-```
+The real JVM and instrumentation test sources are written but were not
+executed in this code/test-source phase. No proof harness was run or retained.
 
 ## Proof
 
-- `test-results/app-game-platform-runtime-readiness-batch/proof.json`
-- `output/app-game-plan-proof/190-191-platform-runtime-readiness-batch/proof.json`
+No proof artifact exists in this source phase. The graph remains planned and
+the required tests/proof/checklist evidence remain open.
 
 ## Boundaries
 
-Proved:
+Source packet semantics:
 
-- Redacted Android UsageEvents foreground counts can feed a child-runtime
-  replay consumer boundary.
-- The child runtime replay consumer gap is removed without claiming actual
-  child-device delivery.
+- The actual manifest-declared child service consumes the owner-produced,
+  count-only snapshot on a bounded worker and exposes durable readback.
+- The service publishes no raw rows, package/activity data, proof refs,
+  delivery receipts, or enforcement claims.
 
 Not proved:
 
 - Raw UsageEvents row storage or raw package/activity data.
+- Test execution and retained proof artifacts.
 - Android child-device delivery.
 - Device Owner/Profile Owner authority.
 - Hide/suspend/uninstall block, lock task, managed configuration, Play policy,

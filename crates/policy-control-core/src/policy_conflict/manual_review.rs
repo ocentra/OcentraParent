@@ -7,6 +7,9 @@ use super::{schedules, PolicyConflictKind, PolicyScheduleClockSource, PolicySche
 pub(super) fn schedule_manual_review_conflict_kind(
     schedule: &PolicyScheduleWindow,
 ) -> Result<Option<PolicyConflictKind>, EventingError> {
+    if !schedules::schedule_uses_supported_wp07_dst_timezone(schedule) {
+        return Ok(Some(PolicyConflictKind::TimezoneBoundary));
+    }
     if schedules::schedule_has_nonexistent_local_time(schedule)? {
         return Ok(Some(PolicyConflictKind::NonexistentLocalTime));
     }

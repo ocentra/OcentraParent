@@ -16,6 +16,7 @@ use ocentra_family_identity_core::trust_bootstrap::{
 use ocentra_storage_custody_core::windows_device_trust_custody::{
     Error as CustodyError, WindowsDeviceTrustCustody,
 };
+use zeroize::Zeroizing;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ParentDeviceTrustBootstrapResult {
@@ -234,13 +235,13 @@ impl ParentDeviceTrustCommandFacade {
         let staged = staged_ceremonies
             .remove(ceremony_ref)
             .ok_or(ParentDeviceTrustCommandError::UnknownOrConsumedCeremony)?;
-        let mut material = [0_u8; 32];
-        fill(&mut material).map_err(|_error| ParentDeviceTrustCommandError::HandleGeneration)?;
+        let mut material = Zeroizing::new([0_u8; 32]);
+        fill(&mut *material).map_err(|_error| ParentDeviceTrustCommandError::HandleGeneration)?;
         self.runtime
             .seal_verified_parent_device_trust(
                 staged.trust_bootstrap_ref,
                 staged.ceremony,
-                &material,
+                &material[..],
             )
             .map_err(ParentDeviceTrustCommandError::Runtime)
     }

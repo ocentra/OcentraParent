@@ -12,7 +12,10 @@ pub(super) fn complete_pending_request(
     entry.state = super::RequestState::Completed;
     let outcome = match entry.sender.take() {
         Some(sender) => {
-            if sender.send(payload).is_ok() {
+            if sender
+                .send(super::RequestCompletionSignal::Response(payload))
+                .is_ok()
+            {
                 super::RequestCompletionOutcome::Completed
             } else {
                 super::RequestCompletionOutcome::Late
@@ -32,6 +35,41 @@ pub(super) fn request_registry_report(
         pending_request_count: count_request_state(state, super::RequestState::Pending),
         completed_request_count: count_request_state(state, super::RequestState::Completed),
         timed_out_request_count: count_request_state(state, super::RequestState::TimedOut),
+        cancelled_request_reports: Vec::new(),
+    }
+}
+
+pub(super) fn cancel_pending_requests(
+    state: &mut super::RequestRegistryState,
+) -> Vec<super::RequestCompletionReport> {
+    let pending_request_ids = state
+        .entries
+        .iter()
+        .filter(|(_, entry)| entry.state == super::RequestState::Pending)
+        .map(|(request_id, _)| request_id.clone())
+        .collect::<Vec<_>>();
+    pending_request_ids
+        .into_iter()
+        .filter_map(|request_id| {
+            let entry = state.entries.get_mut(&request_id)?;
+            if let Some(sender) = entry.sender.take() {
+                let _ = sender.send(super::RequestCompletionSignal::Cancelled);
+            }
+            Some(super::completion_report(
+                request_id,
+                super::RequestCompletionOutcome::Cancelled,
+            ))
+        })
+        .collect()
+}
+
+pub(super) fn record_cancellation_report(
+    state: &mut super::RequestRegistryState,
+    report: super::RequestCompletionReport,
+) {
+    state.cancellation_reports.push_back(report);
+    while state.cancellation_reports.len() > super::CANCELLATION_REPORT_RETENTION_LIMIT {
+        state.cancellation_reports.pop_front();
     }
 }
 

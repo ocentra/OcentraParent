@@ -33,6 +33,7 @@ export type BrowserRulesQuestionKind = 'single' | 'multi' | 'action';
 export type BrowserRulesQuestion = {
   readonly id: string;
   readonly header: string;
+  readonly compactHeader?: string;
   readonly title: string;
   readonly kind: BrowserRulesQuestionKind;
   readonly disabled?: boolean;
@@ -52,6 +53,7 @@ export type BrowserRulesQuestion = {
 
 type BrowserRulesQuestionnaireProps = {
   readonly questions: readonly BrowserRulesQuestion[];
+  readonly guideLabel: string;
   readonly availableWidth?: number;
   readonly disabled?: boolean;
   readonly onInfoClick?: () => void;
@@ -144,6 +146,7 @@ const BROWSER_RULES_QUESTIONNAIRE_LAYOUT = {
   rootInlineReservedWidth: 12,
   bubbleDefaultWidth: 640,
   bubbleMinWidth: 320,
+  fullHeaderMinWidth: 520,
   frameHeaderHeight: defaultChatBubbleConfig.header.height,
   frameCollapsedBodyHeight: defaultChatBubbleConfig.body.collapsedHeight,
   frameVerticalOverflowInset: 10,
@@ -158,7 +161,6 @@ const BROWSER_RULES_QUESTIONNAIRE_LAYOUT = {
 const BROWSER_RULES_COPY = {
   collapseQuestion: 'Collapse rule question',
   expandQuestion: 'Expand rule question',
-  openGuide: 'Open browser rules guide',
   actionTitle: 'A',
   actionIconTitle: 'Action',
   enforcementTitle: 'E',
@@ -238,6 +240,14 @@ function stableLayoutWidth(width: number | undefined) {
 
 function stableQuestionnaireContentWidth(availableWidth: number | undefined) {
   return Math.max(1, stableLayoutWidth(availableWidth) - BROWSER_RULES_QUESTIONNAIRE_LAYOUT.rootInlineReservedWidth);
+}
+
+function visibleQuestionHeader(question: BrowserRulesQuestion, width: number) {
+  if (width >= BROWSER_RULES_QUESTIONNAIRE_LAYOUT.fullHeaderMinWidth) {
+    return question.header;
+  }
+
+  return question.compactHeader ?? question.header;
 }
 
 function setQuestionnaireLayoutFromWidth(
@@ -746,6 +756,7 @@ function renderEnforcementTitle(slot: {
 
 export function BrowserRulesQuestionnaire({
   availableWidth,
+  guideLabel,
   questions,
   disabled = false,
   onInfoClick,
@@ -776,6 +787,7 @@ export function BrowserRulesQuestionnaire({
             {columnQuestions.map((question) => (
               <BrowserRulesQuestionBubble
                 disabled={disabled || question.disabled === true}
+                guideLabel={guideLabel}
                 key={question.id}
                 question={question}
                 widthHint={layout.columnWidth}
@@ -792,15 +804,18 @@ export function BrowserRulesQuestionnaire({
 function BrowserRulesQuestionBubble({
   question,
   disabled,
+  guideLabel,
   onInfoClick,
   widthHint,
 }: {
   readonly question: BrowserRulesQuestion;
   readonly disabled: boolean;
+  readonly guideLabel: string;
   readonly onInfoClick?: () => void;
   readonly widthHint: number;
 }) {
   const width = useStableWidth(widthHint);
+  const headerLabel = visibleQuestionHeader(question, width);
   const [heightCollapsed, setHeightCollapsed] = useState(question.collapsed);
   const [visualCollapsed, setVisualCollapsed] = useState(question.collapsed);
   const [transitionPhase, setTransitionPhase] = useState<BrowserRulesBubbleTransitionPhase>('idle');
@@ -957,10 +972,9 @@ function BrowserRulesQuestionBubble({
           variant="incoming"
           collapsed={question.collapsed}
           visualCollapsed={renderedVisualCollapsed}
-          headerLabel={question.header}
+          headerLabel={headerLabel}
           showInfo
-          infoLabel={BROWSER_RULES_COPY.openGuide}
-          disabled={disabled}
+          infoLabel={guideLabel}
           collapseDisabled={bubbleIsAnimating}
           collapseLabel={BROWSER_RULES_COPY.collapseQuestion}
           expandLabel={BROWSER_RULES_COPY.expandQuestion}

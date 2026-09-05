@@ -31,9 +31,9 @@ function samplePanel(): ParentBrowserPanelSnapshot {
 }
 
 describe('social dashboard portal route panel', () => {
-  it('mounts only on the proof-panels route', () => {
-    expect(shouldRenderSocialDashboardRoute(ParentRoute.ProofPanels)).toBe(true);
-    expect(shouldRenderSocialDashboardRoute(ParentRoute.AppGameSessions)).toBe(false);
+  it('mounts only on the Browser product route', () => {
+    expect(shouldRenderSocialDashboardRoute(ParentRoute.Browser)).toBe(true);
+    expect(shouldRenderSocialDashboardRoute(ParentRoute.ProofPanels)).toBe(false);
   });
 
   it('renders the Rust-owned social dashboard snapshot', () => {

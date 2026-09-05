@@ -1,14 +1,15 @@
 use std::collections::HashMap;
 use std::fs;
 use std::net::Ipv4Addr;
-use std::time::Duration;
+use std::{sync::atomic::AtomicBool, time::Duration};
 
 use chrono::Utc;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceReachability;
 
 use crate::network_inventory_command::{
-    command_json_records, command_json_records_with_timeout, normalize_mac_address, record_text,
+    command_json_records, command_json_records_with_timeout,
+    command_json_records_with_timeout_and_cancellation, normalize_mac_address, record_text,
 };
 
 use super::super::neighbor_support::{
@@ -80,6 +81,24 @@ pub fn linux_ip_neigh_observations_with_observed_at(
             constants::lan_pairing::IP_JSON_ARG,
             constants::lan_pairing::IP_NEIGH_ARG,
         ],
+    )
+    .into_iter()
+    .filter_map(|record| linux_ip_neigh_observation_with_observed_at(&record, observed_at))
+    .collect()
+}
+
+pub(super) fn linux_ip_neigh_observations_with_cancellation(
+    observed_at: &str,
+    cancellation: &AtomicBool,
+) -> Vec<LanNeighborObservation> {
+    command_json_records_with_timeout_and_cancellation(
+        constants::lan_pairing::IP_EXE,
+        &[
+            constants::lan_pairing::IP_JSON_ARG,
+            constants::lan_pairing::IP_NEIGH_ARG,
+        ],
+        Duration::from_millis(constants::lan_pairing::LAN_NETWORK_INVENTORY_COMMAND_TIMEOUT_MS),
+        cancellation,
     )
     .into_iter()
     .filter_map(|record| linux_ip_neigh_observation_with_observed_at(&record, observed_at))

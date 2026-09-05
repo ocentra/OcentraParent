@@ -26,6 +26,9 @@ pub(crate) fn browser_bridge_poll_non_response_reason(
         BrowserBridgePollError::UntrustedSession => {
             constants::value::BROWSER_BRIDGE_UNTRUSTED_SESSION
         }
+        BrowserBridgePollError::ManualRequired => {
+            constants::value::MANAGED_BROWSER_BRIDGE_ENDPOINT_MANUAL_REQUIRED
+        }
         BrowserBridgePollError::Io => constants::value::BROWSER_BRIDGE_IO_ERROR,
         _ => constants::value::BROWSER_BRIDGE_IO_ERROR,
     }

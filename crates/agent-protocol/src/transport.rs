@@ -171,6 +171,8 @@ pub enum AgentCommandName {
     AgentActivityTrackingReadModelGet,
     #[serde(rename = "agent.activity.tracking.retention-settings.write")]
     AgentActivityTrackingRetentionSettingsWrite,
+    #[serde(rename = "agent.parent-runtime.intent-ingress.publish")]
+    AgentParentRuntimeIntentIngressPublish,
     #[serde(rename = "agent.browser.inventory.read-model.get")]
     AgentBrowserInventoryReadModelGet,
     #[serde(rename = "agent.browser.evidence.recent.get")]
@@ -289,6 +291,27 @@ pub enum AgentCommandName {
     AgentLanAiJobSubmit,
 }
 
+impl AgentCommandName {
+    pub fn is_lan_command(&self) -> bool {
+        matches!(
+            self,
+            Self::AgentLanPairingProofSubmit
+                | Self::AgentLanPairingRouteSelect
+                | Self::AgentLanPairingRouteRevoke
+                | Self::AgentLanPairingStatusGet
+                | Self::AgentLanRuntimeEventChainStreamGet
+                | Self::AgentLanPairingBrowserDiscoveryScan
+                | Self::AgentLanPairingAddDeviceRequest
+                | Self::AgentLanPairingSignedChildAgentObserve
+                | Self::AgentLanPairingControllerLeaseRenew
+                | Self::AgentLanPairingControllerLeaseRelease
+                | Self::AgentLanPairingControllerLeaseTakeover
+                | Self::AgentLanAiProviderStatusGet
+                | Self::AgentLanAiJobSubmit
+        )
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AgentEventName {
     #[serde(rename = "agent.connection.ready")]
@@ -367,6 +390,8 @@ pub enum AgentEventName {
     AgentActivityTrackingReadModelReported,
     #[serde(rename = "agent.activity.tracking.retention-settings.write.reported")]
     AgentActivityTrackingRetentionSettingsWriteReported,
+    #[serde(rename = "agent.parent-runtime.intent-ingress.reported")]
+    AgentParentRuntimeIntentIngressReported,
     #[serde(rename = "agent.browser.inventory.read-model.reported")]
     AgentBrowserInventoryReadModelReported,
     #[serde(rename = "agent.browser.evidence.recent.reported")]
@@ -473,6 +498,353 @@ pub enum AgentEventName {
     AgentLanPairingAuditReported,
     #[serde(rename = "agent.lan-ai.job.reported")]
     AgentLanAiJobReported,
+}
+
+const COMMAND_RESPONSE_EVENT_ID_PREFIX: &str = "agent-command-response";
+
+impl AgentCommandName {
+    pub fn response_event_is_expected(&self, event: &AgentEventName) -> bool {
+        event == &AgentEventName::AgentCommandRejected
+            || response_event_matches_basic(self, event)
+            || response_event_matches_activity(self, event)
+            || response_event_matches_app_game(self, event)
+            || response_event_matches_browser_network(self, event)
+            || response_event_matches_ai_policy(self, event)
+            || response_event_matches_enforcement(self, event)
+            || response_event_matches_parent_assistant_lan(self, event)
+    }
+}
+
+fn response_event_matches_basic(command: &AgentCommandName, event: &AgentEventName) -> bool {
+    matches!(
+        (command, event),
+        (
+            AgentCommandName::AgentHealthCheck,
+            AgentEventName::AgentHealthReported
+        ) | (
+            AgentCommandName::AgentLogSnapshotGet,
+            AgentEventName::AgentLogSnapshotReported
+        ) | (
+            AgentCommandName::AgentDevEcho,
+            AgentEventName::AgentDevEchoed
+        ) | (
+            AgentCommandName::AgentWatchStatusGet,
+            AgentEventName::AgentWatchStatusReported
+        ) | (
+            AgentCommandName::AgentActivityIngestStatusGet,
+            AgentEventName::AgentActivityIngestStatusReported
+        ) | (
+            AgentCommandName::AgentActivityRecentSummaryGet,
+            AgentEventName::AgentActivityRecentSummaryReported
+        ) | (
+            AgentCommandName::AgentActivityMemoryGraphGet,
+            AgentEventName::AgentActivityMemoryGraphReported
+        ) | (
+            AgentCommandName::AgentActivityReportDailyGenerate
+                | AgentCommandName::AgentActivityReportWeeklyGenerate
+                | AgentCommandName::AgentActivityReportMonthlyGenerate,
+            AgentEventName::AgentActivityReportGenerated
+        ) | (
+            AgentCommandName::AgentActivityReportSave,
+            AgentEventName::AgentActivityReportSaved
+        ) | (
+            AgentCommandName::AgentActivityReportHistoryList,
+            AgentEventName::AgentActivityReportHistoryReported
+        )
+    )
+}
+
+fn response_event_matches_activity(command: &AgentCommandName, event: &AgentEventName) -> bool {
+    matches!(
+        (command, event),
+        (
+            AgentCommandName::AgentActivityScreenReadModelGet,
+            AgentEventName::AgentActivityScreenReadModelReported
+        ) | (
+            AgentCommandName::AgentActivityAppUseReadModelGet,
+            AgentEventName::AgentActivityAppUseReadModelReported
+        ) | (
+            AgentCommandName::AgentActivityBrowserReadModelGet,
+            AgentEventName::AgentActivityBrowserReadModelReported
+        ) | (
+            AgentCommandName::AgentActivityGamesReadModelGet,
+            AgentEventName::AgentActivityGamesReadModelReported
+        ) | (
+            AgentCommandName::AgentActivityNetworkReadModelGet,
+            AgentEventName::AgentActivityNetworkReadModelReported
+        ) | (
+            AgentCommandName::AgentActivityTrackingReadModelGet,
+            AgentEventName::AgentActivityTrackingReadModelReported
+        ) | (
+            AgentCommandName::AgentActivityTrackingRetentionSettingsWrite,
+            AgentEventName::AgentActivityTrackingRetentionSettingsWriteReported
+        ) | (
+            AgentCommandName::AgentParentRuntimeIntentIngressPublish,
+            AgentEventName::AgentParentRuntimeIntentIngressReported
+        ) | (
+            AgentCommandName::AgentBrowserSocialDashboardReadModelGet,
+            AgentEventName::AgentBrowserSocialDashboardReadModelReported
+        ) | (
+            AgentCommandName::AgentBrowserSocialAuditExplanationReadModelGet,
+            AgentEventName::AgentBrowserSocialAuditExplanationReadModelReported
+        ) | (
+            AgentCommandName::AgentBrowserSocialAlertReportReadModelGet,
+            AgentEventName::AgentBrowserSocialAlertReportReadModelReported
+        ) | (
+            AgentCommandName::AgentBrowserSocialAlertReportParentSurfaceReadModelGet,
+            AgentEventName::AgentBrowserSocialAlertReportParentSurfaceReadModelReported
+        ) | (
+            AgentCommandName::AgentBrowserSocialParentNotificationDeliveryReadModelGet,
+            AgentEventName::AgentBrowserSocialParentNotificationDeliveryReadModelReported
+        ) | (
+            AgentCommandName::AgentBrowserSocialSourceCustodyMutationApply,
+            AgentEventName::AgentBrowserSocialSourceCustodyMutationApplied
+        )
+    )
+}
+
+fn response_event_matches_app_game(command: &AgentCommandName, event: &AgentEventName) -> bool {
+    matches!(
+        (command, event),
+        (
+            AgentCommandName::AgentActivityAppGameBoundaryReadModelGet,
+            AgentEventName::AgentActivityAppGameBoundaryReadModelReported
+        ) | (
+            AgentCommandName::AgentActivityAppGamePolicyReadinessReadModelGet,
+            AgentEventName::AgentActivityAppGamePolicyReadinessReadModelReported
+        ) | (
+            AgentCommandName::AgentActivityAppGameNotificationReadinessReadModelGet,
+            AgentEventName::AgentActivityAppGameNotificationReadinessReadModelReported
+        ) | (
+            AgentCommandName::AgentActivityAppGameAdapterExecutionReadinessReadModelGet,
+            AgentEventName::AgentActivityAppGameAdapterExecutionReadinessReadModelReported
+        ) | (
+            AgentCommandName::AgentActivityAppGamePlatformProofStatusReadModelGet,
+            AgentEventName::AgentActivityAppGamePlatformProofStatusReadModelReported
+        ) | (
+            AgentCommandName::AgentActivityAppGameChildRuntimeTransportReceiptReadModelGet,
+            AgentEventName::AgentActivityAppGameChildRuntimeTransportReceiptReadModelReported
+        ) | (
+            AgentCommandName::AgentActivityAppGameAdapterDispatchPreflightReadModelGet,
+            AgentEventName::AgentActivityAppGameAdapterDispatchPreflightReadModelReported
+        ) | (
+            AgentCommandName::AgentActivityAppGameAdapterDispatchResultReadModelGet,
+            AgentEventName::AgentActivityAppGameAdapterDispatchResultReadModelReported
+        ) | (
+            AgentCommandName::AgentActivityAppGameAdapterDispatchExecute,
+            AgentEventName::AgentEnforcementAuditReported
+        ) | (
+            AgentCommandName::AgentActivityAppGameTimerParentSurfaceReadModelGet,
+            AgentEventName::AgentActivityAppGameTimerParentSurfaceReadModelReported
+        ) | (
+            AgentCommandName::AgentActivityAppGameTimerParentPreferenceSetupRequest,
+            AgentEventName::AgentActivityAppGameTimerParentPreferenceSetupRequested
+        )
+    )
+}
+
+fn response_event_matches_browser_network(
+    command: &AgentCommandName,
+    event: &AgentEventName,
+) -> bool {
+    matches!(
+        (command, event),
+        (
+            AgentCommandName::AgentBrowserInventoryReadModelGet,
+            AgentEventName::AgentBrowserInventoryReadModelReported
+        ) | (
+            AgentCommandName::AgentBrowserEvidenceRecentGet,
+            AgentEventName::AgentBrowserEvidenceRecentReported
+        ) | (
+            AgentCommandName::AgentBrowserManagedBridgePoll,
+            AgentEventName::AgentBrowserManagedStatusReported
+        ) | (
+            AgentCommandName::AgentBrowserInterventionReadModelGet,
+            AgentEventName::AgentBrowserInterventionReadModelReported
+        ) | (
+            AgentCommandName::AgentBrowserRuntimeEventChainStreamGet,
+            AgentEventName::AgentBrowserRuntimeEventChainStreamReported
+        ) | (
+            AgentCommandName::AgentNetworkFlowReadModelGet,
+            AgentEventName::AgentNetworkFlowReadModelReported
+        ) | (
+            AgentCommandName::AgentNetworkRuntimeEventChainStreamGet,
+            AgentEventName::AgentNetworkRuntimeEventChainStreamReported
+        ) | (
+            AgentCommandName::AgentLanRuntimeEventChainStreamGet,
+            AgentEventName::AgentLanRuntimeEventChainStreamReported
+        ) | (
+            AgentCommandName::AgentNetworkRemoteDeliveryStatusGet,
+            AgentEventName::AgentNetworkRemoteDeliveryStatusReported
+        ) | (
+            AgentCommandName::AgentNetworkLiveCaptureStatusGet,
+            AgentEventName::AgentNetworkLiveCaptureStatusReported
+        ) | (
+            AgentCommandName::AgentNetworkLinuxNftablesLabStatusGet,
+            AgentEventName::AgentNetworkLinuxNftablesLabStatusReported
+        ) | (
+            AgentCommandName::AgentNetworkWindowsFirewallLabStatusGet,
+            AgentEventName::AgentNetworkWindowsFirewallLabStatusReported
+        ) | (
+            AgentCommandName::AgentNetworkWindowsWfpGateStatusGet,
+            AgentEventName::AgentNetworkWindowsWfpGateStatusReported
+        ) | (
+            AgentCommandName::AgentNetworkAndroidVpnServiceGateStatusGet,
+            AgentEventName::AgentNetworkAndroidVpnServiceGateStatusReported
+        ) | (
+            AgentCommandName::AgentNetworkAppleNetworkExtensionGateStatusGet,
+            AgentEventName::AgentNetworkAppleNetworkExtensionGateStatusReported
+        )
+    )
+}
+
+fn response_event_matches_ai_policy(command: &AgentCommandName, event: &AgentEventName) -> bool {
+    matches!(
+        (command, event),
+        (
+            AgentCommandName::AgentLocalAiRuntimeStatusGet,
+            AgentEventName::AgentLocalAiRuntimeStatusReported
+        ) | (
+            AgentCommandName::AgentLocalAiChatGenerate,
+            AgentEventName::AgentLocalAiChatGenerationReported
+        ) | (
+            AgentCommandName::AgentParentAssistantAnswerGenerate
+                | AgentCommandName::AgentParentAssistantMessageSend
+                | AgentCommandName::AgentParentAssistantQuickActionStart,
+            AgentEventName::AgentParentAssistantAnswerReported
+        ) | (
+            AgentCommandName::AgentPolicyPreviewReadModelGet,
+            AgentEventName::AgentPolicyPreviewReadModelReported
+        ) | (
+            AgentCommandName::AgentPolicyRequestAssistantPreviewConfirm,
+            AgentEventName::AgentPolicyRequestAssistantPreviewConfirmReported
+        ) | (
+            AgentCommandName::AgentPolicyRequestParentResolutionResolve,
+            AgentEventName::AgentPolicyRequestParentResolutionResolved
+        ) | (
+            AgentCommandName::AgentBrowserPolicyGet,
+            AgentEventName::AgentBrowserPolicyReported
+        ) | (
+            AgentCommandName::AgentBrowserPolicyPreview,
+            AgentEventName::AgentBrowserPolicyPreviewed
+        ) | (
+            AgentCommandName::AgentBrowserPolicyPatch,
+            AgentEventName::AgentBrowserPolicyPatchAccepted
+                | AgentEventName::AgentBrowserPolicyPatchRejected
+        ) | (
+            AgentCommandName::AgentBrowserPolicyReplace,
+            AgentEventName::AgentBrowserPolicyReplaceAccepted
+                | AgentEventName::AgentBrowserPolicyReplaceRejected
+        ) | (
+            AgentCommandName::AgentBrowserPolicyRollback,
+            AgentEventName::AgentBrowserPolicyRollbackAccepted
+                | AgentEventName::AgentBrowserPolicyRollbackRejected
+        ) | (
+            AgentCommandName::AgentScreenSettingsGet,
+            AgentEventName::AgentScreenSettingsReported
+        ) | (
+            AgentCommandName::AgentScreenSettingsReplace,
+            AgentEventName::AgentScreenSettingsReplaceAccepted
+                | AgentEventName::AgentScreenSettingsReplaceRejected
+        )
+    )
+}
+
+fn response_event_matches_enforcement(command: &AgentCommandName, event: &AgentEventName) -> bool {
+    matches!(
+        (command, event),
+        (
+            AgentCommandName::AgentEnforcementExecute,
+            AgentEventName::AgentEnforcementAuditReported
+        ) | (
+            AgentCommandName::AgentEnforcementTimerRecover
+                | AgentCommandName::AgentEnforcementTimerExpire
+                | AgentCommandName::AgentEnforcementOverrideCancel,
+            AgentEventName::AgentEnforcementTimerReported
+        ) | (
+            AgentCommandName::AgentEnforcementProductControlSpineGet,
+            AgentEventName::AgentEnforcementProductControlSpineReported
+        ) | (
+            AgentCommandName::AgentEnforcementPolicyDispatchGet,
+            AgentEventName::AgentEnforcementPolicyDispatchReported
+        ) | (
+            AgentCommandName::AgentEnforcementBroadAdapterProofGet,
+            AgentEventName::AgentEnforcementBroadAdapterProofReported
+        ) | (
+            AgentCommandName::AgentEnforcementSupportedAdapterRuntimeProofGet,
+            AgentEventName::AgentEnforcementSupportedAdapterRuntimeProofReported
+        )
+    )
+}
+
+fn response_event_matches_parent_assistant_lan(
+    command: &AgentCommandName,
+    event: &AgentEventName,
+) -> bool {
+    matches!(
+        (command, event),
+        (
+            AgentCommandName::AgentParentAssistantThreadList
+                | AgentCommandName::AgentParentAssistantThreadCreate
+                | AgentCommandName::AgentParentAssistantThreadOpen
+                | AgentCommandName::AgentParentAssistantThreadArchive,
+            AgentEventName::AgentParentAssistantThreadUpdated
+        ) | (
+            AgentCommandName::AgentParentAssistantRunCancel,
+            AgentEventName::AgentParentAssistantErrorReported
+        ) | (
+            AgentCommandName::AgentParentAssistantActionPreview,
+            AgentEventName::AgentParentAssistantActionPreviewed
+        ) | (
+            AgentCommandName::AgentParentAssistantActionConfirm,
+            AgentEventName::AgentParentAssistantActionConfirmed
+        ) | (
+            AgentCommandName::AgentParentAssistantProviderStatusGet,
+            AgentEventName::AgentParentAssistantProviderDegraded
+        ) | (
+            AgentCommandName::AgentLanPairingProofSubmit
+                | AgentCommandName::AgentLanPairingRouteSelect
+                | AgentCommandName::AgentLanPairingRouteRevoke
+                | AgentCommandName::AgentLanPairingStatusGet
+                | AgentCommandName::AgentLanPairingControllerLeaseRenew
+                | AgentCommandName::AgentLanPairingControllerLeaseRelease
+                | AgentCommandName::AgentLanPairingControllerLeaseTakeover
+                | AgentCommandName::AgentLanAiProviderStatusGet,
+            AgentEventName::AgentLanPairingStatusReported
+        ) | (
+            AgentCommandName::AgentLanPairingBrowserDiscoveryScan,
+            AgentEventName::AgentLanPairingBrowserDiscoveryReported
+        ) | (
+            AgentCommandName::AgentLanPairingAddDeviceRequest,
+            AgentEventName::AgentLanPairingAddDeviceReported
+        ) | (
+            AgentCommandName::AgentLanPairingSignedChildAgentObserve,
+            AgentEventName::AgentLanPairingSignedChildAgentReported
+        ) | (
+            AgentCommandName::AgentLanAiJobSubmit,
+            AgentEventName::AgentLanAiJobReported
+        )
+    )
+}
+
+pub fn command_response_event_id_prefix(
+    command: &AgentCommandName,
+    correlation_id: &str,
+    request_nonce_digest: &str,
+    event: &AgentEventName,
+) -> String {
+    format!(
+        "{COMMAND_RESPONSE_EVENT_ID_PREFIX}-{}-{correlation_id}-{request_nonce_digest}-{}",
+        serialized_transport_label(command),
+        serialized_transport_label(event),
+    )
+}
+
+fn serialized_transport_label<T: Serialize>(value: &T) -> String {
+    serde_json::to_value(value)
+        .ok()
+        .and_then(|value| value.as_str().map(ToOwned::to_owned))
+        .unwrap_or_default()
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -711,6 +1083,51 @@ pub struct AgentEventEnvelope {
     pub severity: crate::LogLevel,
     pub payload: LogFields,
     pub snapshot: Option<AgentLogSnapshot>,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ParentRuntimeIntentIngressKind {
+    #[serde(rename = "unknown")]
+    Unknown,
+    #[serde(rename = "tracking-child-check-in-request")]
+    TrackingChildCheckInRequest,
+    #[serde(rename = "policy-control-delivery")]
+    PolicyControlDelivery,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ParentRuntimeIntentIngressState {
+    #[serde(rename = "published")]
+    Published,
+    #[serde(rename = "rejected")]
+    Rejected,
+    #[serde(rename = "manual-required")]
+    ManualRequired,
+    #[serde(rename = "unavailable")]
+    Unavailable,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ParentRuntimeIntentIngressClaimState {
+    #[serde(rename = "claimed")]
+    Claimed,
+    #[serde(rename = "unclaimed")]
+    Unclaimed,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ParentRuntimeIntentIngressResult {
+    pub schema_version: u16,
+    pub command_id: String,
+    pub intent_kind: ParentRuntimeIntentIngressKind,
+    pub state: ParentRuntimeIntentIngressState,
+    pub journal_state: ParentRuntimeIntentIngressClaimState,
+    pub eventing_publish_state: ParentRuntimeIntentIngressClaimState,
+    pub event_id: Option<String>,
+    pub rejection_reason: Option<String>,
+    pub no_claim_reason: Option<String>,
+    pub child_transport_claimed: bool,
 }
 
 const PARENT_CHILD_RUNTIME_PHASES: [ParentChildRuntimePhase; 9] = [

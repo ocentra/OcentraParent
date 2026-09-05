@@ -1,6 +1,9 @@
 use std::{error::Error, fmt};
 
-use crate::{EventId, EventType, IdempotencyKey, RequestId, SchemaVersion, SubscriberId};
+use crate::{
+    AggregateKey, CausationId, EventId, EventType, IdempotencyKey, RequestId, SchemaVersion,
+    SubscriberId,
+};
 
 mod format;
 
@@ -64,13 +67,43 @@ pub enum EventingError {
     DuplicateIdempotencyKey {
         idempotency_key: IdempotencyKey,
     },
+    OrderedDispatchCycle {
+        bus_identity: u64,
+        aggregate_key: AggregateKey,
+    },
+    OrderedDispatchDepthExceeded {
+        max_depth: usize,
+    },
+    OrderedDispatchLockOrderViolation {
+        held_bus_identity: u64,
+        held_aggregate_key: AggregateKey,
+        requested_bus_identity: u64,
+        requested_aggregate_key: AggregateKey,
+    },
+    OrderedDispatchChainExpired {
+        aggregate_key: AggregateKey,
+    },
+    CausalDispatchCancelled,
+    CausalPublicationOutsideHandlerTask,
+    CausalPublicationRequiresRootAuthority {
+        event_type: EventType,
+    },
+    CallerSuppliedCausation {
+        causation_id: CausationId,
+    },
     InvalidRequestOptions {
         reason: String,
     },
     DuplicateRequest {
         request_id: RequestId,
     },
+    RequestTypeMismatch {
+        request_id: RequestId,
+    },
     RequestTimedOut {
+        request_id: RequestId,
+    },
+    RequestCancelled {
         request_id: RequestId,
     },
     RequestResponseEncode {

@@ -1,6 +1,297 @@
 # Payment Subscription Plan State
 
-Status: engineering-grade monetization spec is complete, WP00 now has a real `blocked / proof-present` handoff bundle, WP01 now has a real `done / proof-present` pricing bundle, WP02 now has a real `blocked / proof-present` checkout and billing-portal bundle, WP03 now has a real Rust-owned `done` webhook lifecycle bundle, WP04 now has a real Rust-owned `done / proof-present` entitlement-delivery bundle, and broader runtime execution remains blocked behind the exact upstream Cloudflare blocker set plus the current broader-workspace validation blockers carried by WP02.
+## Reviewed WP02 production truth checkpoint - 2026-08-25
+
+This is a source-and-routing truth update from canonical `baa37f98e`. It does
+not add completion evidence, tests, proof, CI, PR, READY, or DONE state.
+
+The Cloudflare route manifest exposes `POST /auth/billing/checkout` and
+`POST /auth/billing/portal` as `parent-session-required` billing writes. Their
+request and response codecs are bound to the generated Worker billing-contract
+registry, but both execution bindings remain `manual-required` with blocker
+`payment-provider-execution-owner-missing`. The route handlers return the
+shared manual-required response, and no checkout or portal provider API/session
+caller exists. Provider key names in `infra/cloudflare/src/env.ts`, webhook
+signature verification, and local fixture hosted URLs are not provider-session
+execution or production caller evidence.
+
+Account authority composition is real at the existing status/webhook seams:
+browser sessions re-read current Account authority, and provider billing
+mapping resolution joins the canonical provider mapping to
+`ocentra_account_identity_current_authority` while rejecting missing, stale,
+revoked, mismatched, or inactive ownership. The `ACCOUNT_IDENTITY_D1` binding
+is still `manual-required`, migration `0004` requires the Account current-
+authority schema, and no checkout or portal path composes this authority into a
+provider session request.
+
+Rust-owned canonical checkout/portal templates and generated schema-domain
+files are present, and the Worker has a separate generated route codec surface.
+The planned `packages/schema-domain/src/billing-checkout-portal-boundary.ts`
+adapter is absent. The `packages/billing-domain` package is absent, so its
+planned WP02 unit tests and the two named proof scripts are absent. Existing
+Cloudflare hosted-session tests use `createTestHarness` with
+`AUTH_ADAPTER_MODE: local-safe-fixture` and assert accepted hosted sessions;
+they are mapped local-fixture assertions, not evidence of a live provider
+caller, and remain stale against the current manual-required route source.
+
+WP02 therefore remains `blocked`: route contracts and Account lookup seams are
+present, while the provider execution owner, Account current-authority/D1
+readiness, schema-domain adapter, focused expected tests, proof, deployment,
+CI, PR, and completion remain open.
+
+## Reviewed WP03 production truth checkpoint - 2026-08-25
+
+This is a source-and-routing truth update from the WP02-integrated canonical
+base `d337a7e5d`. It does not add completion evidence, tests, proof, CI, PR,
+READY, or DONE state.
+
+The Rust lifecycle surface is real: `crates/billing-core` defines provider,
+test/live, signature, payload-parse, idempotency, replay/order, retry,
+dead-letter, reconciliation, and entitlement-transition classifications. Its
+public classifier and projector accept those states from the caller, and no
+non-test caller of that API was found. The mapped Rust unit tests construct
+those trust/state enums directly; they do not establish a production ingress
+or provider owner.
+
+The reachable Cloudflare webhook ingress is also real but incomplete. The
+route manifest exposes Stripe, Razorpay, PayPal, Apple, and Google webhook
+routes, while request/response provider-event contracts remain unbound and
+manual-required. Only Stripe raw HMAC verification is implemented. Razorpay,
+PayPal, Apple, and Google fail closed as unavailable/manual-required before
+lifecycle processing.
+
+Cloudflare has durable D1/Durable Object receipt, cursor, queue, lease,
+dead-letter, reconciliation, and mutation-outbox custody. The receipt schema
+does not persist normalized signature state, payload parse state, or provider
+mode, and the reachable TypeScript queue/mutation path does not invoke the
+Rust billing-core classifier/projector. Account/provider mapping is rechecked
+at the Worker custody seam, but the Account binding remains manual-required.
+
+The mapped Cloudflare integration/fuzz tests use the local-safe fixture
+harness, and some non-Stripe acceptance expectations are stale against the
+current manual-required source. No tests were run in this packet. The WP03
+proof root is absent in this checkout. WP03 therefore remains
+`blocked / source reviewed`: runtime provider composition, normalized receipt
+truth, focused expected tests, proof, CI, PR, and completion remain open.
+
+## Reviewed WP04 production truth checkpoint - 2026-08-25
+
+This is a source-and-routing truth update from canonical `643c137dc`. It does
+not add completion evidence, tests, proof, CI, PR, READY, or DONE state.
+
+`crates/entitlement-core/src/entitlement_snapshot_derivation.rs` derives an
+explicitly unsigned projection from billing, referral, entitlement, and
+provider-input state. The provider boundary remains input-only. The issuer
+module is crate-private, its trusted issuance projection has no public
+constructor, and its manual-required signer returns `SigningUnavailable`.
+The snapshot authority's `open` and
+`verify_current_account_and_device` entry points are crate-private; its key,
+installed-package, and currentness ports remain manual-required/fail-closed,
+so no public owner-composed unlock path exists.
+
+`crates/child-runtime/src/runtime_gate.rs` is a non-test consumer of the
+entitlement decision function, but no non-test caller of
+`evaluate_child_runtime_preflight` or its decision recorder was found. The
+generic input does not compose the missing issuer/verifier/currentness and
+Account/Device Trust owners, and deserialization forces unavailable snapshot
+context. The mapped entitlement contract imports removed signed-derivation and
+context APIs; schema/TypeScript roots remain proof-consumer topology. The WP04
+expected assertion matrix, focused tests, proof root, and validation evidence
+are open, so WP04 remains `blocked / source reviewed`.
+
+## Reviewed WP05 production truth checkpoint - 2026-08-25
+
+This is a source-and-routing truth update from canonical `7ff5d6e4f`. It does
+not add completion evidence, tests, proof, CI, PR, READY, or DONE state.
+
+The actual production boundary is Cloudflare-owned.
+`infra/cloudflare/src/billing-binding-read-model.ts` contains durable
+D1/Durable Object state, mutation idempotency, mutation outbox delivery,
+invoice/admin-invoice rows, admin-dispute rows, and a refund ledger.
+`applyBillingStateMutation` validates invoice identity, currency, cumulative
+refund amount, refund state, and replay/terminal guards before committing the
+app-owned state transition. Its manual-invoice, admin-refund, cancellation,
+and provider-webhook branches remain explicit app-state projections; they do
+not call a provider API or establish a provider-owned execution owner.
+
+The reachable Worker callers in `infra/cloudflare/src/index.ts` are narrower:
+parent invoices and support/admin invoice and dispute reads call the durable
+read model; the admin refund handler returns `manual-required`, and the parent
+cancel and manual-invoice handlers are also manual-required. The route manifest
+keeps the invoice request/response and mutation request codecs unbound where
+the generated boundary is missing, with blockers including
+`billing-refund-owner-adapter-missing`,
+`payment-provider-execution-owner-missing`, and
+`manual-invoice-owner-adapter-missing`. The provider-webhook queue consumer can
+apply a verified, authority-matched receipt to the Cloudflare mutation path,
+but WP03's missing normalized provider receipt/lifecycle owner composition
+still prevents treating that path as a complete invoice, tax, refund, or
+dispute lifecycle.
+
+`crates/billing-core/src/billing_subscription.rs` exposes lifecycle helpers
+through a public module, but its projection module is private to the crate and
+no non-test production caller of the lifecycle API was found. The Rust schema
+and generated schema-domain files are export/contract surfaces; their contract
+tests compare generated files and do not prove provider execution or a live
+ledger caller. The mapped Cloudflare tests use `createTestHarness` with
+`ENVIRONMENT: 'test'` and `AUTH_ADAPTER_MODE: 'local-safe-fixture'`; they cover
+local accepted/rejected route contracts and durable-state shapes, not live
+provider execution or completion of the full lifecycle matrix.
+
+The required assertion matrix remains open for all 16 rows, and
+`output/payment-subscription-plan-proof/05-invoice-tax-refund-dispute/` is
+absent. The planned `packages/billing-domain` source and unit-test paths are
+also absent. WP05 therefore remains `blocked / source reviewed`: the real
+Cloudflare state boundary is recorded, while provider execution/owner
+composition, normalized lifecycle authority, focused expected tests, and proof
+remain open.
+
+## Reviewed WP08/WP09 production truth checkpoint - 2026-08-25
+
+This is a source-and-routing truth update from canonical `4ecf83198`. It does
+not add completion evidence, tests, proof, CI, PR, READY, or DONE state.
+
+WP08 remains `blocked / source reviewed`. The only payment-provider source under
+`infra/cloudflare/src/providers/` is the Firebase authentication provider
+surface; its `README.md` describes future payment adapters but no Stripe,
+Razorpay, PayPal, Apple, Google, or manual-invoice adapter exists. The reachable
+Worker boundary in `infra/cloudflare/src/auth/provider-webhook.ts` implements
+Stripe timestamped HMAC verification only. The Razorpay, PayPal, Apple, and
+Google handlers in `infra/cloudflare/src/index.ts` fail closed as
+`manual-required`, while the webhook route request/response contracts remain
+unbound. Checkout and portal execution also remain manual-required because the
+provider execution owner is missing.
+
+`crates/billing-core` exposes provider-channel/mode/event and lifecycle
+classification types, but its public helpers accept caller-supplied trust and
+state enums and no non-test Worker or service caller invokes them. Cloudflare
+does own durable provider receipt, cursor, queue, retry, dead-letter, and
+mutation-outbox custody, and rechecks Account-composite provider mapping at
+ingress and queue-consumption seams. Those receipts still omit normalized
+signature state, payload-parse state, and provider mode, so the custody path is
+not a cross-provider adapter contract. No provider API credential owner or
+server-side normalized adapter composition is present.
+
+The planned `packages/billing-domain/src/billing-account-runtime-boundary.ts`
+and `billing-checkout-portal-boundary.ts` files, the two WP08 unit-test roots,
+and `output/payment-subscription-plan-proof/08-provider-adapter-portability/`
+are absent. The mapped Cloudflare integration tests use local-safe fixture
+runtime setup; some non-Stripe acceptance expectations are stale against the
+current fail-closed handlers. The adapter-interface, per-provider contract,
+normalized-event, provider-lock, and no-direct-provider-read assertions remain
+open.
+
+WP09 remains `blocked / source reviewed`. The regional strategy and market
+matrix documents define provider ordering and manual-required regions, but no
+non-test source implements a region/provider selector, currency or tax launch
+gate, or verified regional provider availability input. The reachable Worker
+path accepts a free-form region only for the support/admin manual-invoice flow;
+status projections expose only `stripe-hosted` or `manual-invoice` provider
+modes. No regional provider owner, currentness binding, or live fallback caller
+was found. Pakistan and China remain manual/support paths in the matrix, while
+UAE/Dubai and other regional fallbacks remain strategy-only until their provider
+and tax/currency owners exist.
+
+The planned `packages/billing-domain/src/billing-pricing-matrix.ts` and
+`billing-checkout-portal-boundary.ts` files, both WP09 unit-test roots, and
+`output/payment-subscription-plan-proof/09-regional-payment-rollout/` are
+absent. The mapped Cloudflare pricing/worker tests use local fixture data and
+do not establish live regional provider execution or launch readiness. The
+regional matrix, currency/tax, manual-required-gap, and unsupported-region
+negative assertions remain open. Neither workpack has completion evidence.
+
+## Accepted production-source checkpoint - 2026-08-17
+
+The independently reviewed Payment source wave at `63305016f` is now on the
+root integration line. This is a **source-only** checkpoint: expected tests,
+focused test execution, proof, precommit, CI, and PR promotion remain open.
+
+Live source now provides:
+
+- Account-composite provider identity and exact provider-object binding rather
+  than provider subject text as standalone product authority;
+- durable Worker/Durable Object idempotency with versioned leases, bounded
+  retry/backoff, collision-safe ownership, and terminal manual-required state;
+- monotonic receipt/outbox/provider-cursor handling that rejects stale or
+  conflicting replay instead of re-running an accepted mutation;
+- a real forward D1 migration from legacy provider mappings that aborts on
+  ambiguous account/household ownership or uniqueness collisions; and
+- an unsigned entitlement projection that cannot be upgraded into access by
+  caller-supplied signature/key/status text.
+
+The source wave does **not** close the Payment plan. The Account WP02 current
+authority migration must land before Payment migration `0003`; ambiguous
+legacy rows require manual backfill; and no genuine provider-owned entitlement
+issuer/verifier bridge exists. Paid access therefore remains manual-required,
+and old text describing WP04 as a completed signed-snapshot runtime is
+superseded by this fail-closed source truth. Existing tests that construct the
+removed signed API are intentionally deferred to the expected-test wave.
+
+## Production reachability audit - 2026-08-16
+
+The payment workpacks were checked against non-test callers and owned runtime
+boundaries. No payment-owned production slice is authorized from this pass.
+
+- **WP00:** no implementation source; the Cloudflare handoff remains an
+  upstream blocked dependency, not payment runtime.
+- **WP01:** Rust schema and generated/edge TypeScript surfaces exist, but no
+  billing production caller consumes the pricing/seat model. The package
+  surfaces remain proof/contract boundaries, not shipped entitlement runtime.
+- **WP02:** checkout and portal route contracts exist, while the actual Worker
+  path is owned by `cloudflare-control-plane-plan`. The reachable POST routes
+  bind generated request/response codecs but keep execution
+  `manual-required` because the provider execution owner is missing; their
+  handlers do not create provider sessions. Local fixture seeding is gated to
+  local/test/development and production read-model access requires durable
+  bindings, so fixture URLs are not provider execution. Account-composite
+  provider mapping is consumed by status/webhook seams, not by a live
+  checkout/portal caller. The missing provider owner, Account D1 readiness,
+  schema-domain adapter, and focused expected tests remain blockers outside a
+  legal Payment-only runtime edit.
+- **WP03:** `crates/billing-core` contains the lifecycle classifier and
+  idempotency/projector helpers, but no non-test caller outside the crate was
+  found and its public API accepts caller-supplied trust/state enums. The
+  Cloudflare webhook route is the reachable ingress: only Stripe raw HMAC is
+  implemented, the other providers are unavailable/manual-required, and the
+  route parses/queues generic payload data without invoking the Rust lifecycle
+  owner. Durable receipt custody exists, but normalized signature, parse, and
+  provider-mode fields are absent from the receipt schema.
+- **WP04:** `crates/entitlement-core` owns a fail-closed derivation contract,
+  but no non-test downstream consumer was found in the payment/runtime
+  surfaces. Device-trust binding remains adjacent-plan owned.
+- **WP05:** Cloudflare owns a durable invoice/admin-invoice, dispute, refund
+  ledger, mutation, and outbox boundary, with non-test invoice and admin read
+  callers plus a provider-webhook queue projection. The admin refund, parent
+  cancel, and manual-invoice handlers remain manual-required; no provider API
+  owner, normalized lifecycle authority, or non-test Rust billing-core caller
+  was found. The planned billing-domain source/test paths and WP05 proof root
+  are absent, so no runtime completion claim is legal here.
+- **WP06:** billing security/privacy contracts exist; shared Worker auth,
+  binding, redaction, and observability remain Cloudflare-owned. No payment
+  runtime caller or provider-secret authority was found.
+- **WP07:** rollout/route gate is proof-only and has no production source.
+- **WP08/WP09:** the reviewed source truth remains blocked: WP08 has no payment
+  adapter or non-test Rust lifecycle caller, and WP09 has no region/provider
+  selector or verified regional launch input. Their expected tests and proof
+  roots are absent; see the 2026-08-25 checkpoint above.
+- **WP10:** referral/entitlement model code and local seed fixtures exist, but
+  no non-test production qualification/credit caller was found.
+- **WP11:** the graph maps a parent dashboard to `packages/parent-domain`,
+  which is absent in this checkout; actual portal source has no billing summary
+  consumer. This is stale topology plus a missing portal owner, not a legal
+  payment edit.
+- **WP12:** support/admin contracts and Worker route handlers exist, but their
+  read model can fall back to fixtures and provider/account role authority is
+  unresolved. Runtime support authority remains unproven.
+
+The rejected candidate was a fail-closed production guard around the Worker
+read-model fallback. It has a real caller, but its owning files are under
+`cloudflare-control-plane-plan`; no cross-plan code change was retained. The
+next legal production owners are Cloudflare for fixture-seed/fallback removal,
+an actual runtime consumer for `billing-core`, and an actual portal consumer
+for WP11. No tests, builds, proof, CI, or graph edits were run.
+
+Status: engineering-grade monetization spec is complete, and the recorded WP00-WP04 plan references preserve their historical narrow source or blocked-state results. WP01's pricing reference, WP03's Rust webhook-lifecycle source/tests, and WP04's Rust entitlement-delivery source/tests do not establish production-code or proof completion: this audit found no production caller for the WP01 model, no non-test consumer of the WP03 lifecycle owner, and no non-test downstream consumer of the WP04 entitlement owner. WP02 remains blocked with route-contract source present but provider execution, Account authority readiness, focused expected tests, and proof open; broader payment runtime execution remains blocked behind the exact upstream Cloudflare and Account dependency set.
 
 Research status: aligned against the current Parent codebase, billing-domain and parent-domain surfaces, the reusable games Cloudflare deep dive summarized in `docs/plans/cloudflare-control-plane-plan/GAMES_INFRA_PARITY_MAP.md`, and the new `cloudflare-control-plane-plan` that now owns the shared Worker/module scaffold. This plan remains the single monetization owner; the shared Cloudflare module itself is not owned here.
 
@@ -57,9 +348,14 @@ The upstream Cloudflare handoff gate is output/cloudflare-control-plane-plan-pro
 WP00 now has a real blocked-state proof bundle at `output/payment-subscription-plan-proof/00-cloudflare-control-plane-handoff/`.
 That bundle consumes `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/payment-handoff-proof.md` and carries its exact blocker set forward into payment.
 WP01 now has a real pricing and entitlement proof bundle at `output/payment-subscription-plan-proof/01-product-pricing-entitlement/`.
-WP02 now has a real checkout and billing portal proof bundle at `output/payment-subscription-plan-proof/02-checkout-billing-portal/`.
-WP03 now has a real Rust-owned webhook lifecycle proof bundle at `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/`.
-WP04 now has a real Rust-owned entitlement-delivery proof bundle at `output/payment-subscription-plan-proof/04-entitlement-delivery-gates/`.
+WP02 has no current checked-in checkout or billing portal proof bundle; the
+expected proof root remains open until a real provider caller, focused tests,
+and the required validation evidence exist.
+WP03 has no checked-in proof bundle at `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/` in this checkout. Its mapped Rust and Cloudflare tests are not live-provider proof, and no test or proof command was run in the reviewed source packet. WP04's historical proof reference is superseded by the reviewed WP04 source truth checkpoint above.
+WP04 has no checked-in proof bundle at `output/payment-subscription-plan-proof/04-entitlement-delivery-gates/` in this checkout. Its mapped signed-snapshot contract imports removed APIs, and its schema/TypeScript surfaces are proof-consumer topology rather than a production entitlement caller. No test or proof command was run in the reviewed WP04 source packet.
+WP05 has no checked-in proof bundle at `output/payment-subscription-plan-proof/05-invoice-tax-refund-dispute/` in this checkout. Its mapped schema tests compare generated files and its mapped Cloudflare tests use the local-safe fixture harness; they are not live-provider proof or completion of the 16-row lifecycle matrix. No test or proof command was run in the reviewed WP05 source packet.
+WP08 has no checked-in proof bundle at `output/payment-subscription-plan-proof/08-provider-adapter-portability/` in this checkout. Its mapped Cloudflare tests use local-safe fixtures, the non-Stripe acceptance expectations conflict with the current fail-closed source, and no provider adapter or non-test caller exists. No test or proof command was run in this reviewed source packet.
+WP09 has no checked-in proof bundle at `output/payment-subscription-plan-proof/09-regional-payment-rollout/` in this checkout. Its mapped Cloudflare tests use local pricing/worker fixtures, with no runtime region/provider selector or verified launch gate. No test or proof command was run in this reviewed source packet.
 All runtime payment rows after WP00 remain blocked until selected code, tests, negative cases, rollback/teardown notes, validation logs, and proof bundles exist.
 ```
 
@@ -67,11 +363,19 @@ Current Parent direction:
 
 - `cloudflare-control-plane-plan` owns `infra/cloudflare/`, Wrangler envs, auth states, route manifest, local dev loop, test runner, deployment promotion, and the shared payment handoff gate.
 - WP00 is closed only as `blocked / proof-present`: payment consumed the Cloudflare module/auth/route/testing truth, but the upstream handoff still carries missing Cloudflare WP03/WP05/WP09/WP11 proof roots, missing billing-domain runtime boundary modules, unresolved account-auth/trusted-device authority, and blocked portal-smoke/deployment proof.
-- WP01 is closed as `done / proof-present`: the shared payment proof surface now makes the one-parent-plus-one-child starter bundle explicit, keeps extra parent access separate from child-seat math, derives the effective child-device limit from base plus referral plus paid seats, carries visible over-limit grace, preserves safety-critical local behavior under degradation, and rejects game-economy pricing references.
+- WP01 retains its historical `done / proof-present` pricing result: the shared payment proof surface makes the one-parent-plus-one-child starter bundle explicit, keeps extra parent access separate from child-seat math, derives the effective child-device limit from base plus referral plus paid seats, carries visible over-limit grace, preserves safety-critical local behavior under degradation, and rejects game-economy pricing references. It is not production-code complete because no billing production caller consumes the model.
 - WP01 does not restore TS ownership: `crates/schema` remains the Rust-first canonical contract target, while the `packages/schema-domain/src/*` edits in this packet are transitional thin edge validation and proof data only.
-- WP02 is closed only as `blocked / proof-present`: the live schema-domain edge contracts now make hosted checkout/portal return states, redirect/origin/csrf/secret boundaries, invalid-plan rejection, and no-client-secret leakage explicit, while keeping Cloudflare Worker runtime, provider/backend runtime, account backend runtime, portal UI runtime, and entitlement completion as non-claims. WP02 remains blocked by the current broader validation failures in `npm run format:check` and `npm run lint:schema-boundaries`.
-- WP03 is closed as `done`: `crates/billing-core` now carries provider channel, payload-parse, idempotency, replay/order, retry, dead-letter, reconciliation, and test/live boundary truth with real unit coverage under `crates/billing-core/tests/unit/**`. TypeScript does not own this webhook lifecycle contract.
-- WP04 is closed as `done / proof-present`: `crates/entitlement-core` now owns signed entitlement snapshot derivation, provider input-only boundary, referral seat recalculation, fixed snapshot-model fields, and the snapshot-to-device gate bridge with real unit coverage under `crates/entitlement-core/tests/unit/**`. TypeScript remains proof-consumer only for this slice.
+- WP02 remains `blocked`: the Rust/schema and Worker route codec surfaces
+  describe hosted checkout/portal states and redirect/secret boundaries, but
+  the reachable Worker handlers are manual-required and no provider session
+  caller exists. The schema-domain adapter, Account current-authority
+  readiness, focused expected tests, proof, and broader validation remain open;
+  no hosted-session or payment-completion claim follows from local fixtures.
+- WP03 current truth is `blocked / source reviewed`, not production-complete. `crates/billing-core` carries provider channel, payload-parse, idempotency, replay/order, retry, dead-letter, reconciliation, and test/live boundary classifications with mapped unit coverage under `crates/billing-core/tests/unit/**`, but its public entry points accept caller-supplied trust/state enums and have no non-test production consumer. Cloudflare owns the reachable ingress and durable receipt/queue custody, yet does not compose normalized signature/parse/mode receipt fields or invoke the Rust lifecycle owner. TypeScript therefore supplies the current runtime mutation path while the Rust contract remains unbound.
+- WP04 current truth is `blocked / source reviewed`: `crates/entitlement-core/src/entitlement_snapshot_derivation.rs` owns an unsigned projection from billing/referral/entitlement/provider inputs, while the crate-private issuer and verifier/currentness ports remain manual-required and no public owner-composed unlock path exists. `crates/child-runtime/src/runtime_gate.rs` consumes the generic entitlement decision function, but no non-test caller of its preflight/decision path was found. The mapped signed-snapshot contract imports removed APIs, generated schema/TypeScript remains proof-consumer topology, and the focused expected tests and proof root remain open.
+- WP05 current truth is `blocked / source reviewed`: Cloudflare's `billing-binding-read-model.ts` owns durable invoice, admin-invoice, dispute, refund-ledger, mutation, and outbox projections, while Worker refund/cancel/manual-invoice execution remains manual-required and no provider owner or non-test Rust billing-core caller exists. The local-safe fixture tests and schema parity tests do not close the 16 expected lifecycle assertions, and the planned billing-domain paths plus proof root remain absent. No completionEvidence, READY, DONE, proof, CI, or PR claim follows.
+- WP08 current truth is `blocked / source reviewed`: the Worker has only Stripe raw HMAC verification; the other provider webhook paths fail closed, the provider directory has no payment adapter implementation, and no non-test caller composes the Rust billing lifecycle types. Durable receipt and queue custody exists, but normalized signature/parse/mode fields and provider-owner composition are absent. Planned billing-domain source/tests and the WP08 proof root remain absent.
+- WP09 current truth is `blocked / source reviewed`: the regional matrix is strategy input only. The Worker has no region/provider selector, currency/tax launch gate, or verified regional fallback caller; support manual-invoice accepts a region string and status exposes only Stripe-hosted/manual-invoice modes. Planned billing-domain source/tests and the WP09 proof root remain absent. No regional readiness or completion claim follows.
 - This plan owns billing semantics on top of that module: pricing, referral qualification, provider strategy, checkout meaning, webhook-to-ledger meaning, entitlement meaning, dashboard meaning, and support/admin meaning.
 - Stripe Checkout, Billing, Portal, invoices, entitlements, and webhooks remain the default web control-plane path.
 - Razorpay remains the India-native adapter; PayPal remains the secondary wallet/subscription adapter; Apple and Google remain channel adapters, not the root billing authority.
@@ -103,4 +407,4 @@ Current Parent direction:
 
 ## Overclaim boundary
 
-This plan is architecture-route ready, not implementation complete. WP00 proves the upstream dependency boundary and exact blocker set only, while WP03 and WP04 now prove their Rust-owned lifecycle and entitlement-delivery boundaries on their own surfaces. Broader runtime correctness remains unproven until the selected workpack's code, tests, negative cases, proof bundle, rollback/teardown notes, and validation log exist under `output/payment-subscription-plan-proof/` and the relevant scoped validation actually passes or is carried as an exact blocker.
+This plan is architecture-route ready, not implementation complete. WP00 proves the upstream dependency boundary and exact blocker set only; WP03 and WP04 have bounded Rust source/test contract surfaces, but neither establishes production runtime completion from those surfaces alone. Broader runtime correctness remains unproven until the selected workpack's code, tests, negative cases, proof bundle, rollback/teardown notes, and validation log exist under `output/payment-subscription-plan-proof/` and the relevant scoped validation actually passes or is carried as an exact blocker.

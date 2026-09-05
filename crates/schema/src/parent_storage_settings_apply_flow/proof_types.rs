@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 
+use super::apply_binding_types::{ParentStorageApplyIntentDigest, ParentStorageHouseholdRef};
 use super::enums::{
     ParentStorageApplyState, ParentStorageCopyKey, ParentStorageDeleteActionKind,
     ParentStorageEncryptionStatus, ParentStorageKeyStatus, ParentStorageModeLabel,
@@ -40,6 +41,7 @@ pub struct ParentStorageModeCard {
 #[serde(rename_all = "camelCase")]
 pub struct ParentStorageRestorePreview {
     pub preview_id: ParentStoragePreviewId,
+    pub household_ref: ParentStorageHouseholdRef,
     pub preview_state: ParentStoragePreviewState,
     pub created_at: ParentStorageTimestamp,
     pub product_version: String,
@@ -60,6 +62,7 @@ pub struct ParentStorageRestorePreview {
 #[serde(rename_all = "camelCase")]
 pub struct ParentStorageApplyDecision {
     pub apply_id: ParentStorageApplyId,
+    pub apply_intent_digest: ParentStorageApplyIntentDigest,
     pub apply_state: ParentStorageApplyState,
     pub confirmation_required: bool,
     pub will_change: Vec<ParentOwnedSyncExportDataClass>,

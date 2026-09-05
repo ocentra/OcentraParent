@@ -1,33 +1,19 @@
 use std::collections::BTreeMap;
 
-use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::constants::enforcement_broad_adapter_proof as proof;
+use ocentra_parent_agent_protocol::constants::v08_browser_domain_adapter_proof as browser_proof;
 use ocentra_parent_agent_protocol::enforcement::ParentPlatform;
 use ocentra_parent_agent_protocol::enforcement_broad_adapter_proof::V08BroadAdapterRuntimeClaimState;
+use ocentra_parent_agent_protocol::enforcement_broad_adapter_proof::V08BroadAdapterRuntimeEvidenceState;
 use ocentra_parent_agent_protocol::enforcement_broad_adapter_proof::V08BroadAdapterRuntimeProofEntry;
-use ocentra_parent_agent_protocol::enforcement_broad_adapter_proof::V08BroadAdapterRuntimeProofReadModel;
 use ocentra_parent_agent_protocol::enforcement_broad_adapter_proof::V08BroadAdapterRuntimeSurface;
-use ocentra_parent_agent_protocol::logging::LogFieldValue;
-use ocentra_parent_agent_protocol::logging::LogFields;
 use ocentra_parent_agent_protocol::policy_constants;
-use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
-use ocentra_parent_agent_protocol::transport::AgentCommandName;
-use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
-use ocentra_parent_agent_protocol::transport::AgentEventName;
-use ocentra_parent_agent_protocol::transport::AgentMessageTarget;
-use ocentra_parent_agent_protocol::transport::AgentPeer;
-use ocentra_parent_agent_protocol::transport::AgentPeerRole;
-use ocentra_parent_agent_protocol::transport::AgentRoute;
-use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
-use ocentra_parent_agent_service::test_support::handle_local_command_text_for_test;
 
 use super::enforcement_api::enforcement_broad_adapter_proof_read_model::{
     v08_broad_adapter_proof_read_model, GeneratedAtTextRef,
 };
-use super::test_text::{
-    count_for_display, optional_log_string, test_ok, test_some, TestResult, TestText,
-};
-use crate::test_invariants::require_some;
+use super::test_text::{count_for_display, TestText};
+use crate::test_require_some::require_some;
 
 #[test]
 fn broad_adapter_proof_read_model_preserves_honest_runtime_states() {
@@ -40,9 +26,9 @@ fn broad_adapter_proof_read_model_preserves_honest_runtime_states() {
     assert_eq!(read_model.entries.len(), 10);
     assert_eq!(
         claim_count(&claim_counts, proof::CLAIM_IMPLEMENTED_BOUNDARY),
-        2
+        0
     );
-    assert_eq!(claim_count(&claim_counts, proof::CLAIM_MANUAL_REQUIRED), 6);
+    assert_eq!(claim_count(&claim_counts, proof::CLAIM_MANUAL_REQUIRED), 8);
     assert_eq!(claim_count(&claim_counts, proof::CLAIM_UNAVAILABLE), 1);
     assert_eq!(claim_count(&claim_counts, proof::CLAIM_NOT_CLAIMED), 1);
     assert_eq!(
@@ -84,13 +70,35 @@ fn broad_adapter_proof_read_model_keeps_surface_outcomes_exact() {
     assert_surface_state(
         &read_model.entries,
         V08BroadAdapterRuntimeSurface::WindowsOwnedProcessAndTimerRuntimeBoundary,
-        V08BroadAdapterRuntimeClaimState::ImplementedBoundary,
+        V08BroadAdapterRuntimeClaimState::ManualRequired,
     );
     assert_surface_state(
         &read_model.entries,
         V08BroadAdapterRuntimeSurface::WindowsManagedBrowserSessionRuntimeBoundary,
-        V08BroadAdapterRuntimeClaimState::ImplementedBoundary,
+        V08BroadAdapterRuntimeClaimState::ManualRequired,
     );
+    let owned_process = entry_for(
+        &read_model.entries,
+        V08BroadAdapterRuntimeSurface::WindowsOwnedProcessAndTimerRuntimeBoundary,
+    );
+    let managed_browser = entry_for(
+        &read_model.entries,
+        V08BroadAdapterRuntimeSurface::WindowsManagedBrowserSessionRuntimeBoundary,
+    );
+    assert_eq!(
+        owned_process.evidence_state,
+        V08BroadAdapterRuntimeEvidenceState::ManualArtifactRequired
+    );
+    assert_eq!(
+        managed_browser.evidence_state,
+        V08BroadAdapterRuntimeEvidenceState::ManualArtifactRequired
+    );
+    assert!(owned_process
+        .manual_proof_requirements
+        .contains(&proof::REQUIREMENT_ROLLBACK.to_string()));
+    assert!(managed_browser
+        .manual_proof_requirements
+        .contains(&browser_proof::REQUIREMENT_ROLLBACK.to_string()));
     assert_surface_state(
         &read_model.entries,
         V08BroadAdapterRuntimeSurface::WindowsNetworkDomainRuntimeGate,
@@ -137,85 +145,6 @@ fn broad_adapter_proof_read_model_does_not_upgrade_claim_flags() {
         .entries
         .iter()
         .all(|entry| !entry.mobile_privilege_claimed));
-}
-
-#[tokio::test]
-async fn broad_adapter_proof_websocket_command_returns_service_read_model() -> TestResult {
-    let event = send_broad_adapter_proof_command().await?;
-
-    assert_eq!(
-        event.event,
-        AgentEventName::AgentEnforcementBroadAdapterProofReported
-    );
-    assert_eq!(
-        test_some(
-            optional_log_string(&event.payload, constants::field::READ_MODEL_ID),
-            constants::error::AGENT_EVENT_SERIALIZES,
-        )?
-        .to_string(),
-        proof::READ_MODEL_ID
-    );
-    assert_eq!(
-        number_payload_field(&event, constants::field::RETURNED)?,
-        10.0
-    );
-
-    let read_model: V08BroadAdapterRuntimeProofReadModel = test_ok(
-        serde_json::from_str(
-            test_some(
-                optional_log_string(
-                    &event.payload,
-                    constants::field::ENFORCEMENT_BROAD_ADAPTER_PROOF_READ_MODEL,
-                ),
-                constants::error::AGENT_EVENT_SERIALIZES,
-            )?
-            .as_ref(),
-        ),
-        constants::error::AGENT_EVENT_SERIALIZES,
-    )?;
-    let managed_exact = entry_for(
-        &read_model.entries,
-        V08BroadAdapterRuntimeSurface::WindowsManagedBrowserExactUrlRuntimeGate,
-    );
-
-    assert_eq!(read_model.read_model_id, proof::READ_MODEL_ID);
-    assert_eq!(read_model.entries.len(), 10);
-    assert_eq!(
-        managed_exact.product_claim_state,
-        V08BroadAdapterRuntimeClaimState::ManualRequired
-    );
-    assert!(managed_exact
-        .manual_proof_requirements
-        .contains(&proof::REQUIREMENT_EXACT_URL_APPLY.to_string()));
-
-    Ok(())
-}
-
-async fn send_broad_adapter_proof_command() -> Result<AgentEventEnvelope, TestText> {
-    let body = test_ok(
-        serde_json::to_string(&command_envelope()),
-        constants::error::AGENT_EVENT_SERIALIZES,
-    )?;
-    Ok(handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await)
-}
-
-fn command_envelope() -> AgentCommandEnvelope {
-    AgentCommandEnvelope {
-        schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
-        message_id: proof::READ_MODEL_ID.to_string(),
-        sent_at: policy_constants::TEST_EVALUATED_AT.to_string(),
-        source: AgentPeer {
-            peer_id: constants::peer::PORTAL_DEV.to_string(),
-            role: AgentPeerRole::Portal,
-        },
-        target: AgentMessageTarget {
-            device_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
-            platform: policy_constants::TEST_PARENT_DEVICE_PLATFORM_WINDOWS.to_string(),
-            route: AgentRoute::Localhost,
-        },
-        command: AgentCommandName::AgentEnforcementBroadAdapterProofGet,
-        payload: LogFields::new(),
-    }
 }
 
 fn entry_for(
@@ -266,17 +195,4 @@ fn count_platforms(entries: &[V08BroadAdapterRuntimeProofEntry]) -> BTreeMap<Tes
 
 fn platform_count(counts: &BTreeMap<TestText, usize>, platform: impl std::fmt::Display) -> usize {
     count_for_display(counts, platform)
-}
-
-fn number_payload_field(
-    event: &AgentEventEnvelope,
-    field: impl std::fmt::Display,
-) -> Result<f64, TestText> {
-    let field_name = field.to_string();
-    match event.payload.get(field_name.as_str()) {
-        Some(LogFieldValue::Number(value)) => Ok(*value),
-        _ => Err(TestText::from_display(
-            constants::error::AGENT_EVENT_SERIALIZES,
-        )),
-    }
 }

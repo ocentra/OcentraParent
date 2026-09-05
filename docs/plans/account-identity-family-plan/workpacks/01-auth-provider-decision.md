@@ -148,6 +148,18 @@ The account-identity lane added a narrow Cloudflare persistence boundary without
 
 This evidence does not close WP01 or the plan. External provider token verification, login/session route wiring, household/membership/role/device authority, D1 deployment/migration proof, and production readiness remain manual-required. Historical checkboxes and the prior validation log are intentionally unchanged.
 
+## 2026-08-16 production reachability audit
+
+`infra/cloudflare/src/auth/verifier.ts` is reached by the Worker route
+dispatcher, but both Wrangler configurations use
+`AUTH_ADAPTER_MODE=account-auth-adapter-manual-required`. The only non-blocked
+bearer path is `local-safe-fixture`; it normalizes a caller token and is not a
+cryptographic provider verifier. The route manifest contains billing,
+admin, and provider-webhook routes, not Account identity routes. The D1 store
+has no production caller. Provider library, issuer, trust material, and the
+runtime-owned Account caller remain unresolved; no Account auth or D1
+persistence implementation slice is authorized from this workpack.
+
 ## Fill before DONE
 
 - Workpack id and branch: `WP01 Auth Provider Decision`; `codex/tracking-plan-full-continuation-a`.

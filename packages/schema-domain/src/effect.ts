@@ -26,6 +26,10 @@ export type SafeParseResult<T> =
 
 export type Infer<S extends AnySchema> = TypeOf<S>;
 
+export interface ParserOptions {
+  readonly onExcessProperty?: 'ignore' | 'error' | 'preserve';
+}
+
 export const NonEmptyStringSchema = Schema.String.pipe(Schema.minLength(1));
 
 export function brandedNonEmptyStringSchema<const Brand extends string>(brand: Brand) {
@@ -79,36 +83,44 @@ function toDecodeError(error: ParseResult.ParseError): SchemaDecodeError {
   return new SchemaDecodeError(issues);
 }
 
-export function safeParseUnknown<S extends ParseableSchema>(schema: S, input: unknown): SafeParseResult<TypeOf<S>> {
-  const decoded = Schema.decodeUnknownEither(schema)(input, { errors: 'all' });
+export function safeParseUnknown<S extends ParseableSchema>(
+  schema: S,
+  input: unknown,
+  options: ParserOptions = {}
+): SafeParseResult<TypeOf<S>> {
+  const decoded = Schema.decodeUnknownEither(schema)(input, { errors: 'all', ...options });
   if (Either.isRight(decoded)) {
     return { success: true, data: decoded.right };
   }
   return { success: false, error: toDecodeError(decoded.left) };
 }
 
-export function parseUnknown<S extends ParseableSchema>(schema: S, input: unknown): TypeOf<S> {
-  const parsed = safeParseUnknown(schema, input);
+export function parseUnknown<S extends ParseableSchema>(
+  schema: S,
+  input: unknown,
+  options: ParserOptions = {}
+): TypeOf<S> {
+  const parsed = safeParseUnknown(schema, input, options);
   if (parsed.success) {
     return parsed.data;
   }
   throw parsed.error;
 }
 
-export function withParser<S extends AnySchema>(schema: S): ParsedSchema<S> {
+export function withParser<S extends AnySchema>(schema: S, options: ParserOptions = {}): ParsedSchema<S> {
   const parsedSchema = schema as unknown as ParsedSchema<S>;
   const parseableSchema = schema as unknown as ParseableSchema;
   Object.defineProperties(parsedSchema, {
     parse: {
       configurable: true,
       value(input: unknown) {
-        return parseUnknown(parseableSchema, input) as TypeOf<S>;
+        return parseUnknown(parseableSchema, input, options) as TypeOf<S>;
       },
     },
     safeParse: {
       configurable: true,
       value(input: unknown) {
-        return safeParseUnknown(parseableSchema, input) as SafeParseResult<TypeOf<S>>;
+        return safeParseUnknown(parseableSchema, input, options) as SafeParseResult<TypeOf<S>>;
       },
     },
     partial: {
@@ -119,7 +131,8 @@ export function withParser<S extends AnySchema>(schema: S): ParsedSchema<S> {
             Partial<TypeOf<S>>,
             Partial<EncodedOf<S>>,
             ContextOf<S>
-          >
+          >,
+          options
         );
       },
     },

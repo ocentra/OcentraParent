@@ -17,50 +17,78 @@
 
 ## Scope
 
-Turn WSLg display and X11/Wayland socket proof into a parent-domain foreground
-capture readiness row.
+Turn Linux display and X11/Wayland socket probing into a typed foreground
+capture readiness boundary.
 
-This does not prove active foreground capture. It records that the display layer
-is ready on this Windows/WSL host and that an active-window capture tool/source
-is still missing.
+This source phase does not prove active foreground capture or a current host
+state. It records only what an actual Linux probe can establish and keeps
+WSLg/Docker presence by itself outside the evidence boundary.
 
 ## Implementation
 
-- Added `packages/parent-domain/src/app-game-linux-foreground-capture-readiness.ts`.
-- Added focused tests for WSLg display-ready/capture-tool-missing readiness,
-  display-not-ready fallback, and rejection of raw window title or enforcement
-  claim upgrades.
-- Updated parent-domain platform proof status so an attached Linux foreground
-  readiness row adds `linux-foreground-capture-readiness-ref` while keeping
-  `linux-foreground-capture-not-proved` open.
-- Added `scripts/test/app-game-linux-foreground-capture-readiness-proof.mjs`.
+- Rust production source owns Linux display classification and X11/Wayland
+  socket readiness in `crates/screen-capture-adapter/src/linux_display.rs`,
+  `linux_display_paths.rs`, `linux_display_readiness.rs`,
+  `linux_socket_security.rs`, and `linux_socket_connect.rs`. Only fixed,
+  canonical runtime roots with a trusted owner/mode chain are accepted;
+  arbitrary absolute `WAYLAND_DISPLAY` values, remote/invalid `DISPLAY`,
+  symlink sockets, unsafe owners/modes, and unbounded connects fail closed.
+- The agent-service platform status path stays unavailable for a live Linux
+  foreground probe. Its explicit read-model seam accepts a separately owned
+  typed preflight, but it never mints refs from WSL/Docker presence or display
+  readiness alone.
+- Linux xwd/convert capture is intentionally unavailable. A compile-checked
+  FD-backed handoff was not established in this source-only phase, so no
+  replaceable temporary pathname is passed to an external capture tool.
+  Trusted display/source observation remains separate from capture custody.
+- xprop/xdotool subprocess probing is also intentionally removed. No OS
+  primitive in this source phase guarantees custody across setsid or
+  pid-namespace escapes, so X11 active-window results and their refs remain
+  unavailable rather than being inferred from a display/socket probe.
+- No workpack tests, proof artifacts, or deployment validation were added in
+  this source-only phase.
 
 ## Validation
 
-Focused validation for this workpack:
-
-```powershell
-cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-linux-foreground-capture-readiness app-game-platform-proof-status
-cmd /c node scripts/test/app-game-linux-foreground-capture-readiness-proof.mjs
-```
+Source-only validation is limited to focused Cargo checks, formatting, source
+shape/architecture, Enforcer coordination, graph validation, and diff guards.
+The adapter Linux library check passed under WSL; no tests or proof commands
+were run.
 
 ## Proof
 
-- `test-results/app-game-linux-foreground-capture-readiness-proof/proof.json`
-- `output/app-game-plan-proof/189-app-game-linux-foreground-capture-readiness/proof.json`
+No proof artifact exists. The expected Linux capture/readiness test roots are
+absent and this workpack is not DONE or proof-complete.
 
-## Boundaries
+## Boundaries (validation-open; not completion)
 
-Proved:
+Source-only boundary:
 
-- WSLg display and X11/Wayland socket proof can feed a parent-safe foreground
-  capture readiness row.
-- The Linux platform proof status row can carry a foreground readiness ref.
+- The production source retains a typed, redacted display and socket readiness
+  boundary for later tests; this source-only edit does not prove the behavior.
 
 Not proved:
 
-- Active foreground capture.
+- Active foreground capture or App/Game ownership.
+- Linux xwd/convert capture custody; the exact missing owner is a safe
+  FD-backed handoff that keeps both external tools attached to the validated
+  producer-owned artifact.
+- Selected-window/title capture, which remains unavailable because raw-title
+  search is outside the metadata boundary.
+- Live xprop/xdotool probing or active-window ownership; the missing owner is a
+  real OS process-custody primitive for escaped descendants.
 - Raw active-window title custody.
 - AppArmor, SELinux, package manager, Flatpak, Snap, rollback, audit, launch
   blocking, adapter dispatch, platform enforcement, provider delivery, or
   child-device delivery.
+
+## Graph ownership correction — 2026-08-25
+
+WP189 is the production owner for the foundational Linux capture/readiness
+roots: `crates/agent-protocol/src/constants/v08_supported_adapter_runtime_proof.rs`,
+`crates/screen-capture-adapter/src/lib.rs`, the three `linux_display*` files,
+the three `linux_socket*` files, and `linux_x11.rs` plus
+`linux_x11_capture.rs`. The agent-service activity API roots and
+`linux_foreground_source.rs` belong to WP191; WP204 owns no production source.
+WP191 therefore depends on WP189. Missing expected tests and proof keep this
+workpack validation-open; this is not a completion claim.

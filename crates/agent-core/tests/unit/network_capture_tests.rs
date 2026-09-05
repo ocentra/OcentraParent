@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::activity::{
     ActivityEventKind, ActivityObserver, ActivitySubjectKind,
 };
@@ -7,7 +8,10 @@ use ocentra_parent_agent_protocol::activity_capture::{
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::LogFieldValue;
 
-use crate::{network_observation_event, NetworkObservation};
+use crate::NetworkObservation;
+use ocentra_parent_agent_core::network_capture_event::{
+    network_observation_event, network_snapshot_capture_results,
+};
 
 #[cfg(windows)]
 #[derive(Debug)]
@@ -130,6 +134,27 @@ fn network_observation_event_maps_degraded_status_contract() {
         ))
     );
     assert!(event.fields.get(constants::field::DESTINATION_IP).is_none());
+}
+
+#[test]
+fn network_capture_result_preserves_observation_and_constructed_event_identity() {
+    let observed_at = constants::activity_store::TEST_FIRST_OBSERVED_AT;
+    let captures = network_snapshot_capture_results(observed_at, 1);
+    assert_eq!(captures.len(), 1);
+
+    let capture = &captures[0];
+    let expected_observation = capture.observation().clone();
+    let expected_event = network_observation_event(expected_observation.clone(), observed_at, 0);
+    assert_eq!(capture.activity_event(), &expected_event);
+    assert_eq!(capture.activity_event().event_id, expected_event.event_id);
+
+    let (observation, event) = captures
+        .into_iter()
+        .next()
+        .expect_value("capture result exists")
+        .into_parts();
+    assert_eq!(observation, expected_observation);
+    assert_eq!(event, expected_event);
 }
 
 #[cfg(windows)]

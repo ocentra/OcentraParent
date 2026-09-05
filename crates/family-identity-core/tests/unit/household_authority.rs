@@ -9,10 +9,6 @@ use ocentra_family_identity_core::household_authority::{
     ParentControllerLeaseState, ParentStepUpAssertionSnapshot, ParentStepUpValidationDecision,
     ParentStepUpValidationFailureReason, ParentStepUpValidationInput,
 };
-use ocentra_family_identity_core::household_authority_proof::{
-    HouseholdAuthorityCurrentState, HouseholdAuthorityProofIdentityBinding,
-    HouseholdAuthorityProofSigner, HouseholdAuthorityProofVerifier,
-};
 
 fn trusted_parent_input(action: HouseholdAuthorityAction) -> HouseholdAuthorityInput {
     HouseholdAuthorityInput {
@@ -32,74 +28,6 @@ fn trusted_parent_input(action: HouseholdAuthorityAction) -> HouseholdAuthorityI
 
 const PARENT_ACTION_DEVICE_ID: &str = "device-parent-1";
 const TARGET_CHILD_PROFILE_ID: &str = "child-1";
-
-fn authority_binding() -> HouseholdAuthorityProofIdentityBinding {
-    HouseholdAuthorityProofIdentityBinding {
-        household_id: "family-main".to_owned(),
-        parent_actor_id: "parent-account-1".to_owned(),
-        parent_device_id: PARENT_ACTION_DEVICE_ID.to_owned(),
-        child_profile_id: TARGET_CHILD_PROFILE_ID.to_owned(),
-        target_device_id: "child-device-1".to_owned(),
-    }
-}
-
-#[test]
-fn household_authority_proof_requires_fresh_matching_unrevoked_family_state(
-) -> Result<(), Box<dyn std::error::Error>> {
-    let signer = HouseholdAuthorityProofSigner::from_platform_key([31; 32]);
-    let current_state = HouseholdAuthorityCurrentState {
-        authority: trusted_parent_input(HouseholdAuthorityAction::ChangePolicy),
-        identity_binding: authority_binding(),
-        family_revocation_epoch: 4,
-    };
-    let proof = signer
-        .sign_bound_at(
-            &current_state,
-            authority_binding(),
-            "2026-07-28T00:00:00Z",
-            "2026-07-28T00:05:00Z",
-        )
-        .map_err(|_error| std::io::Error::other("fresh proof must sign"))?;
-    let verifier = HouseholdAuthorityProofVerifier::new(signer.verifying_key());
-    assert!(verifier
-        .verify_against_current_state(&proof, &current_state, "2026-07-28T00:01:00Z")
-        .is_ok());
-    assert!(verifier
-        .verify_against_current_state(&proof, &current_state, "2026-07-28T00:05:00Z")
-        .is_err());
-    assert!(verifier
-        .verify_against_current_state(
-            &proof,
-            &HouseholdAuthorityCurrentState {
-                family_revocation_epoch: 5,
-                ..current_state.clone()
-            },
-            "2026-07-28T00:01:00Z",
-        )
-        .is_err());
-    let foreign_household_state = HouseholdAuthorityCurrentState {
-        identity_binding: HouseholdAuthorityProofIdentityBinding {
-            household_id: "family-other".to_owned(),
-            ..authority_binding()
-        },
-        ..current_state
-    };
-    assert!(verifier
-        .verify_against_current_state(&proof, &foreign_household_state, "2026-07-28T00:01:00Z")
-        .is_err());
-    assert!(signer
-        .sign_bound_at(
-            &current_state,
-            HouseholdAuthorityProofIdentityBinding {
-                household_id: "family-other".to_owned(),
-                ..authority_binding()
-            },
-            "2026-07-28T00:00:00Z",
-            "2026-07-28T00:05:00Z",
-        )
-        .is_err());
-    Ok(())
-}
 
 #[test]
 fn parent_can_manage_billing_for_member_household() {

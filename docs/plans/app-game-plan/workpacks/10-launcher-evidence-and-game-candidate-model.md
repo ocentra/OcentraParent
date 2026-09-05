@@ -75,4 +75,40 @@ Launchers can help identify games without becoming fake game-session proof.
   product capability checklist unchanged because this proof does not move the
   app/game control product row to complete.
 
+## 2026-08-17 Source-Wave Truth
+
+Production source is accepted on the integration branch. The recurring Windows
+capture now takes one process snapshot and shares its process-start generation
+across process, launcher, generic foreground, and app/game foreground evidence.
+Launcher child processes remain candidates unless deterministic or
+classifier-backed proof promotes them. Generic foreground evidence retains its
+window identity while app/game sessionization consumes the bound
+generation-safe process identity exactly once.
+
+This is source acceptance only. The expected-test wave must still refresh or
+add the launcher/candidate, missing-generation, targeted-PID, shared-snapshot,
+foreground-join, duplicate-session, and no-false-known-game cases before any
+focused execution or proof. None of the checklist or proof rows below are
+closed by this source integration.
+
+## 2026-08-28 Test-Source Wave Truth
+
+Canonical `51d9819a9` adds the six mapped real Rust test roots for this bounded
+workpack. They cover launcher/candidate states that do not become known games,
+deterministic and classifier-backed promotion, missing PID and process
+generation, a shared PID-start generation identity, foreground joins, PID
+reuse session separation, and invalid known-game ingest:
+
+- `crates/agent-core/tests/unit/activity_store_app_game/app_game_journal_sqlite_ingest_tests.rs`
+- `crates/agent-core/tests/unit/activity_store_app_game/app_game_windows_foreground_source_tests.rs`
+- `crates/agent-core/tests/unit/activity_store_app_game/app_game_windows_launcher_tests.rs`
+- `crates/agent-core/tests/unit/activity_store_app_game/app_game_windows_process_runtime_tests.rs`
+- `crates/agent-core/tests/unit/activity_store_app_game/app_game_windows_process_source_tests.rs`
+- `crates/agent-protocol/tests/unit/app_game_tests.rs`
+
+No test, build, proof, pre-commit, CI, or PR was run in this code/test-source
+phase. Live launcher manifest/catalog crawling, the external
+publisher/classifier proof owner, focused execution, retained proof, checklist
+acceptance, READY, and DONE remain open.
+
 Use the standard checklist in [workpacks README](README.md).

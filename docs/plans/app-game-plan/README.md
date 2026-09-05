@@ -21,15 +21,20 @@ README content is preserved at [README_FULL_ORIGINAL.md](README_FULL_ORIGINAL.md
 
 1. Read [AGENTS.md](AGENTS.md).
 2. Read [PLAN_STATE.md](PLAN_STATE.md).
-3. Read [NEXT_ACTIONS.md](NEXT_ACTIONS.md) when starting/resuming.
-4. Read [WORKPACK_INDEX.md](WORKPACK_INDEX.md).
-5. Open only the assigned workpack.
-6. Use [CHECKLIST_INDEX.md](CHECKLIST_INDEX.md) to locate exact checklist sections.
-7. Use [PROOF_INDEX.md](PROOF_INDEX.md) only when proof artifacts are needed.
+3. Read [CODE_AUDIT.md](CODE_AUDIT.md) for the current 220-row code/test state.
+4. Read [NEXT_ACTIONS.md](NEXT_ACTIONS.md) when starting/resuming.
+5. Read [WORKPACK_INDEX.md](WORKPACK_INDEX.md).
+6. Open only the assigned workpack.
+7. Use [CHECKLIST_INDEX.md](CHECKLIST_INDEX.md) to locate exact checklist sections.
+8. Use [PROOF_INDEX.md](PROOF_INDEX.md) only when proof artifacts are needed.
 
 ## Current scope
 
 This folder is the shared native app and native game control plan. It exists because apps and games share the low-level evidence spine, but they do not share product meaning.
+
+Current code-first baseline: 220/220 workpacks are mapped; 170 have no Phase
+1 source/test-writing gap (151 code+test packets and 19 no-code packets), while
+50 remain incomplete. This is not a Phase 2, proof, or release claim.
 
 ## Do not default-read
 

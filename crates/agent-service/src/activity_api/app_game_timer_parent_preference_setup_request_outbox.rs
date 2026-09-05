@@ -1,15 +1,17 @@
 use std::{
-    fs::read_to_string,
-    fs::{create_dir_all, OpenOptions},
+    fs::{create_dir_all, File, OpenOptions},
     io::Write,
     path::PathBuf,
 };
 
+use fs2::FileExt;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::AppGameTimerParentPreferenceSetupRequestResult;
 use serde_json::{Map, Value};
 
 use super::app_game_timer_parent_preference_setup_request::AppGameTimerSetupStorePath;
+
+const OUTBOX_LOCK_EXTENSION: &str = "lock";
 
 pub(crate) struct SetupOutboxPath(PathBuf);
 
@@ -25,6 +27,14 @@ struct SetupOutboxBoolField {
     value: bool,
 }
 
+struct SetupOutboxLock(File);
+
+impl Drop for SetupOutboxLock {
+    fn drop(&mut self) {
+        let _ = self.0.unlock();
+    }
+}
+
 pub(crate) trait SetupOutboxStorePathSource {
     fn setup_outbox_store_path(&self) -> SetupOutboxPath;
 }
@@ -32,12 +42,6 @@ pub(crate) trait SetupOutboxStorePathSource {
 impl SetupOutboxStorePathSource for AppGameTimerSetupStorePath {
     fn setup_outbox_store_path(&self) -> SetupOutboxPath {
         SetupOutboxPath(self.0.clone())
-    }
-}
-
-impl SetupOutboxStorePathSource for PathBuf {
-    fn setup_outbox_store_path(&self) -> SetupOutboxPath {
-        SetupOutboxPath(self.clone())
     }
 }
 
@@ -68,21 +72,79 @@ pub(crate) fn append_setup_outbox_record(
         create_dir_all(parent).map_err(|_error| ())?;
     }
     let record = setup_outbox_record(result);
+    let record_id = record
+        .get(constants::field::APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_RECORD_ID)
+        .and_then(Value::as_str)
+        .filter(|record_id| !record_id.is_empty() && *record_id == record_id.trim())
+        .ok_or(())?;
+    let line = serde_json::to_string(&record).map_err(|_error| ())?;
+    let lock_path = outbox_path.0.with_extension(OUTBOX_LOCK_EXTENSION);
+    let lock_file = OpenOptions::new()
+        .create(true)
+        .truncate(false)
+        .read(true)
+        .write(true)
+        .open(lock_path)
+        .map_err(|_error| ())?;
+    lock_file.lock_exclusive().map_err(|_error| ())?;
+    let _lock = SetupOutboxLock(lock_file);
     let mut file = OpenOptions::new()
         .create(true)
+        .read(true)
         .append(true)
-        .open(outbox_path.0)
+        .open(&outbox_path.0)
         .map_err(|_error| ())?;
-    let line = serde_json::to_string(&record).map_err(|_error| ())?;
-    file.write_all(line.as_bytes()).map_err(|_error| ())?;
-    file.write_all(constants::delimiter::NEWLINE.to_string().as_bytes())
+    let existing = std::fs::read_to_string(&outbox_path.0).map_err(|_error| ())?;
+    if !existing.is_empty()
+        && !existing.ends_with(constants::delimiter::NEWLINE.to_string().as_str())
+    {
+        return Err(());
+    }
+    let existing_records: Vec<(Value, String)> = existing
+        .lines()
+        .filter(|line| !line.trim().is_empty())
+        .map(|existing_line| {
+            let existing_record: Value =
+                serde_json::from_str(existing_line).map_err(|_error| ())?;
+            let existing_object = existing_record.as_object().ok_or(())?;
+            let existing_record_id = existing_object
+                .get(constants::field::APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_RECORD_ID)
+                .and_then(Value::as_str)
+                .filter(|record_id| !record_id.is_empty() && *record_id == record_id.trim())
+                .ok_or(())?
+                .to_owned();
+            Ok((existing_record, existing_record_id))
+        })
+        .collect::<Result<_, ()>>()?;
+    for (existing_record, existing_record_id) in existing_records {
+        if existing_record_id == record_id {
+            if existing_record == record {
+                return Ok(());
+            }
+            return Err(());
+        }
+    }
+    let serialized_line = format!("{}{}", line, constants::delimiter::NEWLINE);
+    file.write_all(serialized_line.as_bytes())
+        .map_err(|_error| ())?;
+    file.sync_all().map_err(|_error| ())?;
+    if let Some(parent) = outbox_path.0.parent() {
+        sync_parent_directory(parent)?;
+    }
+    Ok(())
+}
+
+#[cfg(not(windows))]
+fn sync_parent_directory(parent: &std::path::Path) -> Result<(), ()> {
+    File::open(parent)
+        .map_err(|_error| ())?
+        .sync_all()
         .map_err(|_error| ())
 }
 
-pub(crate) fn setup_outbox_has_records(store_path: &impl SetupOutboxStorePathSource) -> bool {
-    read_to_string(setup_outbox_path(store_path).0)
-        .map(|contents| contents.lines().any(|line| !line.trim().is_empty()))
-        .unwrap_or(false)
+#[cfg(windows)]
+fn sync_parent_directory(_parent: &std::path::Path) -> Result<(), ()> {
+    Ok(())
 }
 
 fn setup_outbox_path(store_path: &impl SetupOutboxStorePathSource) -> SetupOutboxPath {

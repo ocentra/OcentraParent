@@ -139,7 +139,7 @@ npm run lint:architecture -- --files crates/schema crates/family-identity-core p
 ```
 
 Cloudflare WP06 owns the real persistence/migration command and must use
-`cd infra/cloudflare && npm exec -c "wrangler d1 migrations apply <account-identity-d1-database> --local"` only after its dedicated account D1 binding and binding-specific migration directory (or equivalent isolated mapping) exist. Current Cloudflare source declares neither that account D1/DO/KV set nor the isolated migration mapping, so `BILLING_D1` cannot be used as a substitute. Cloudflare WP08 owns the module-scoped runner command `npm --prefix infra/cloudflare run test:integration`. Account WP08 consumes neither result as its own validation; Account WP06 aggregates their proof or exact blockers later.
+`cd infra/cloudflare && npm exec -c "wrangler d1 migrations apply <account-identity-d1-database> --local"`. The dedicated Account D1 binding and ordered migration source now exist, but application, authoritative write/update/revocation/CAS behavior, provider-to-Account caller reachability, and retained proof do not; `BILLING_D1` cannot substitute. Cloudflare WP08 owns the module-scoped runner command `npm --prefix infra/cloudflare run test:integration`. Account WP08 consumes neither result as its own validation; Account WP06 aggregates their proof or exact blockers later.
 
 Expected proof:
 
@@ -165,10 +165,44 @@ wrong household or revoked/stale actor cannot read or mutate authority state
 malformed/duplicate/schema-incompatible records reject or degrade safely
 schema-incompatible authority input cannot invent a successful decision
 Account WP08 cannot report a D1 test double or Cloudflare runner as its own proof
+Cloudflare read-adapter presence cannot substitute for authoritative write/update/revocation/CAS and provider-caller tests
 TS edge code cannot become the account-authority owner or bypass the Rust generated-artifact drift test
 account, household, device, invite, recovery, and session operations have focused negative coverage
 authority proof redacts sensitive values and preserves a safe correlation ID
 ```
+
+Expected producer-transport test roots (not present and not run in this
+source/map phase):
+
+```text
+crates/family-identity-core/tests/contract/account_identity_authority_producer.rs
+crates/family-identity-core/tests/unit/account_identity_authority_producer.rs
+```
+
+The expected cases cover bounded wire parsing, canonical JSON and domain
+separation, signature/key-id failure, exact UTC-millisecond timestamp and
+lifetime/skew rejection, typed signer-custody unavailability, and the rule
+that every authority-bearing signed field comes from the sealed Account
+capability. Cloudflare subject/currentness and D1 CAS/revocation tests remain
+owned by Cloudflare WP06/WP08.
+
+## WP05A Runtime Effect Fencing Coordinator
+
+Expected focused source/test scope after the owner protocol is reviewed:
+
+```bash
+cargo test -p ocentra-family-identity-core household_authority_runtime_fence
+npm run lint:architecture -- --files crates/family-identity-core/src/household_authority_runtime_fence_coordinator.rs crates/family-identity-core/src/household_authority_runtime_fence_schema.rs crates/family-identity-core/src/household_authority_runtime_fence_recovery.rs crates/family-identity-core/src/household_authority_runtime_fence_account.rs crates/family-identity-core/src/household_authority_runtime_fence_capability.rs crates/family-identity-core/src/household_authority_runtime_fence_lease.rs crates/family-identity-core/tests/unit/household_authority_runtime_fence.rs
+```
+
+Required negative cases are owner-unavailable, stale generation, revocation,
+expiry, target substitution, duplicate operation identity, prepare/commit
+failure, abort retry, restart ambiguity, exact committed replay, and no-new-
+receipt recovery. These paths do not exist yet; no test or proof claim is made.
+
+The test must exercise the same private owner seams as production. It must not
+use caller-assembled authority, a snapshot-only CAS, a mock that bypasses an
+owner reservation, or a fixture/manual/debug authority path.
 
 ## WP02 Identity Household Role Model
 
@@ -190,6 +224,12 @@ parent owner/co-parent/observer/child/support roles are distinct
 revoked/disabled/pending/invited states deny or degrade correctly
 cross-family id guessing is denied
 support/admin actor is minimized and audited
+actor parent-controller device cannot be reused as the target child/profile/device
+cross-child and cross-household target substitution is denied for Pair, Register, Revoke, View, ChangePolicy, and Remote actions
+caller-supplied same-family, capability, controller lease, and step-up facts cannot authorize
+ParentOwner, CoParent, and Observer ViewChildStatus preserves parent actor scope while resolving the target independently
+the Cloudflare provider caller reaches only sealed target-aware identity and authoritative D1 currentness
+capability, controller-lease, and step-up actions reject while their owning authority sources are unavailable
 ```
 
 ## WP03 Session Token Lifecycle
@@ -228,7 +268,12 @@ Expected focused commands:
 npm run build --workspace @ocentra-parent/family-domain
 npm run test --workspace @ocentra-parent/family-domain -- invite
 npm run test --workspace @ocentra-parent/family-domain -- recovery
+cargo test -p ocentra-family-identity-core --test unit invite_recovery_repository
+cargo test -p ocentra-family-identity-core --test unit recovery_owner_ack
+cargo test -p ocentra-family-identity-core --test contract recovery_data_custody_handoff
+cargo test -p ocentra-family-identity-core --test integration invite_recovery_repository
 npm run lint:architecture -- --files packages/family-domain
+npm run lint:architecture -- --files crates/family-identity-core
 ```
 
 Expected coverage:
@@ -245,6 +290,12 @@ recovery owner approval and support audit
 enumeration-resistant response and timing strategy
 rate limiting or exact blocker
 account delete/export handoff to data custody
+same-transaction current-authority revalidation
+strict SQLite object/index/row validation and corruption rejection
+monotonic clock rollback/forward-skew edges
+durable restart, replay, lease, and concurrent redemption/claim behavior
+owner receipt binding; approval alone never becomes terminal completion
+typed correlated Data Custody retry without Account-owned side effects
 ```
 
 ## WP05 Device Ownership AuthZ
@@ -275,6 +326,16 @@ remote view and remote control capability separation
 export/delete owner-only
 billing parent-owner-only
 all decisions emit audit refs
+durable Account-owned CAS repository/fence compares the opaque target,
+authority generations, revocation, capability, lease, and one-time step-up
+state before effect consumption
+exact-idempotent replay returns only the already committed outcome for the
+same target/generation/nonce; replay, mismatch, stale, and ambiguous partial
+commit fail closed
+crash/restart recovery never mints a second receipt and preserves monotonic
+terminal state
+Data Custody WP08 confirmation staging/consume remains blocked until this
+typed Account handoff is reachable from a production caller
 ```
 
 ## WP07 Parent Account Family Setup UI

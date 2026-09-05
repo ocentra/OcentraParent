@@ -23,7 +23,7 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 | checked | [10 LAN Pairing State Consumption](workpacks/10-lan-pairing-state-consumption.md)                     | 3,257 | 11/11 checked; 0 open |
 | checked | [01 Service-Backed Shell And Navigation](workpacks/01-service-backed-shell-and-navigation.md)         | 5,408 | 8/8 checked; 0 open   |
 | checked | [02 Household First-Run And Profiles](workpacks/02-household-first-run-and-profiles.md)               | 5,470 | 8/8 checked; 0 open   |
-| checked | [03 Device Inventory And Source States](workpacks/03-device-inventory-and-source-states.md)           | 3,254 | 5/5 checked; 0 open   |
+| source accepted / validation open | [03 Device Inventory And Source States](workpacks/03-device-inventory-and-source-states.md) | 4,685 | 5/5 checked; focused projection test and proof open |
 | checked | [04 Selected Device Context](workpacks/04-selected-device-context.md)                                 | 1,027 | 5/5 checked; 0 open   |
 | open    | [05 Policy Authoring Control Center](workpacks/05-policy-authoring-control-center.md)                 | 3,935 | 0/5 checked; 5 open   |
 | open    | [06 Schedules, Time Budgets, And Templates](workpacks/06-schedules-time-budgets-and-templates.md)     | 1,071 | 0/5 checked; 5 open   |
@@ -35,17 +35,28 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 | open    | [13 Degraded, Empty, Stale, And Error States](workpacks/13-degraded-empty-stale-and-error-states.md)  | 1,023 | 0/5 checked; 5 open   |
 | open    | [14 Audit History And Copy/Debug](workpacks/14-audit-history-and-copy-debug.md)                       | 1,063 | 0/5 checked; 5 open   |
 | open    | [15 Accessibility, Responsive, And Keyboard UX](workpacks/15-accessibility-responsive-keyboard-ux.md) | 1,348 | 0/5 checked; 5 open   |
-| open    | [16 No-Fake-Data Contract Adapter](workpacks/16-no-fake-data-contract-adapter.md)                     | 1,051 | 0/5 checked; 5 open   |
+| done / bounded no-fake-data projection proof | [16 No-Fake-Data Contract Adapter](workpacks/16-no-fake-data-contract-adapter.md) | current | 7/7 checked; retained proof; execution owners open |
 | open    | [17 Playwright Screenshot Proof](workpacks/17-playwright-screenshot-proof.md)                         | 1,013 | 0/5 checked; 5 open   |
 | open    | [18 Parent Mobile Shell Readiness](workpacks/18-parent-mobile-shell-readiness.md)                     | 1,323 | 1/6 checked; 5 open   |
 | open    | [19 Product Docs And Checklist Sync](workpacks/19-product-docs-and-checklist-sync.md)                 | 1,036 | 0/5 checked; 5 open   |
 | open    | [20 Manual User Review Gate](workpacks/20-manual-user-review-gate.md)                                 | 1,116 | 0/5 checked; 5 open   |
 
+## Production reachability audit (2026-08-16)
+
+The portal entrypoint and typed host bridge are real and reach Rust parent
+route snapshots/actions. WP01-WP04 and WP10 have source-backed consumption
+boundaries; WP05 has the existing bounded Rust authoring/confirmation seam.
+The remaining open rows either lack a sibling-owned service read model/action,
+remain domain-authority dependent, or are explicitly tests, proof, mobile
+scaffold, docs, or manual review. The index must not promote route existence,
+static/proof panels, fixtures, generic JSON, or DTO-only components into
+product truth. No portal-only production edit was legal in this audit.
+
 ## Selection rules
 
 - Choose exactly one workpack.
 - If owner/proof family is unclear, classify through `WORKPACK_FAMILIES.md`; do not scan every family.
-- Do not use checked shell/device/LAN rows to close open policy, assistant, reports, degraded-state, accessibility, no-fake-data, screenshot, mobile, docs, or manual-review workpacks.
+- Do not use checked shell/device/LAN/no-fake-data rows to close open policy, assistant, reports, degraded-state, accessibility, screenshot, mobile, docs, or manual-review workpacks.
 - Do not use portal-domain exports or route existence as proof of rendered portal UX.
 - Do not use screenshot proof as service-backed validation.
 - Do not use service-backed parser proof as rendered user-facing proof.

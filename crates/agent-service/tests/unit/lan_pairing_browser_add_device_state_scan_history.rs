@@ -9,15 +9,23 @@ use ocentra_lan_core::network_inventory::{
     LanTargetedArpRefreshEvidence, LanTargetedArpRefreshOutcome,
 };
 use ocentra_parent_agent_protocol::constants;
-use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceReachability;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingText;
+use ocentra_parent_agent_protocol::lan_pairing::{
+    LanPairingDeviceReachability, LanPairingNetworkMode, LanPairingProductionDiscoveryState,
+    LanPairingTrustState,
+};
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
-    LanServiceIdentityProbeEvidence, LanServiceIdentityProbeEvidenceKind,
+    LanCanonicalHouseholdDevice, LanCanonicalHouseholdDeviceClassification,
+    LanCanonicalHouseholdDeviceConfidence, LanCanonicalHouseholdDeviceSource,
+    LanCanonicalHouseholdNetworkIdentity, LanCanonicalHouseholdRouteState,
+    LanCanonicalHouseholdSurface, LanServiceIdentityProbeEvidence,
+    LanServiceIdentityProbeEvidenceKind,
 };
 
 use super::*;
 use crate::lan_pairing_browser_add_device_state::scan_history::write_lock::scan_history_write_lock;
-use crate::test_invariants::{require_ok, require_some};
+use crate::test_require_ok::require_ok;
+use crate::test_require_some::require_some;
 
 #[test]
 fn persistent_runtime_saves_and_loads_scan_history_sidecar() {
@@ -142,6 +150,163 @@ fn legacy_snapshot_without_metadata_still_loads() {
     assert_eq!(snapshot.devices, vec![sample_network_device()]);
 
     cleanup_test_files(&registry_path);
+}
+
+#[test]
+fn unsupported_scan_history_schema_fails_closed_without_reusing_devices() {
+    let registry_path = temp_registry_path();
+    cleanup_test_files(&registry_path);
+    let runtime = LanPairingRuntime::persistent_json(&registry_path);
+    let path =
+        scan_history_path_for_registry(&LanScanHistoryRegistryPath::from(registry_path.as_path()));
+    let unsupported_schema = LAN_SCAN_HISTORY_SCHEMA_VERSION.saturating_add(1);
+    let snapshot_json = serde_json::json!({
+        "schemaVersion": unsupported_schema,
+        "updatedAt": "2026-06-24T02:00:00.000Z",
+        "devices": [sample_network_device()],
+    });
+
+    require_ok(
+        fs::write(
+            &path,
+            require_ok(
+                serde_json::to_vec_pretty(&snapshot_json),
+                constants::error::AGENT_EVENT_SERIALIZES,
+            ),
+        ),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    );
+
+    assert!(load_scan_history_snapshot(&runtime).is_none());
+    assert!(load_scan_history(&runtime).is_empty());
+    cleanup_test_files(&registry_path);
+}
+
+#[test]
+fn malformed_scan_history_timestamp_fails_closed_without_reusing_devices() {
+    let registry_path = temp_registry_path();
+    cleanup_test_files(&registry_path);
+    let runtime = LanPairingRuntime::persistent_json(&registry_path);
+    let path =
+        scan_history_path_for_registry(&LanScanHistoryRegistryPath::from(registry_path.as_path()));
+    let snapshot_json = serde_json::json!({
+        "schemaVersion": LAN_SCAN_HISTORY_SCHEMA_VERSION,
+        "updatedAt": "2026-06-24T02:00:00Z",
+        "devices": [sample_network_device()],
+    });
+
+    require_ok(
+        fs::write(
+            &path,
+            require_ok(
+                serde_json::to_vec_pretty(&snapshot_json),
+                constants::error::AGENT_EVENT_SERIALIZES,
+            ),
+        ),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    );
+
+    assert!(load_scan_history_snapshot(&runtime).is_none());
+    assert!(load_scan_history(&runtime).is_empty());
+    cleanup_test_files(&registry_path);
+}
+
+#[test]
+fn replay_projection_rejects_malformed_canonical_rows() {
+    let assert_invalid = |device: LanCanonicalHouseholdDevice| {
+        let projection = replay_projection_for(vec![device]);
+        assert!(valid_replay_projection(Some(&projection)).is_none());
+    };
+
+    let mut empty_id = sample_canonical_device();
+    empty_id.canonical_device_id = " ".to_string();
+    assert_invalid(empty_id);
+
+    let mut empty_display_name = sample_canonical_device();
+    empty_display_name.display_name = "\t".to_string();
+    assert_invalid(empty_display_name);
+
+    let mut unsupported_device_schema = sample_canonical_device();
+    unsupported_device_schema.schema_version = constants::lan_pairing::SCHEMA_VERSION + 1;
+    assert_invalid(unsupported_device_schema);
+
+    let mut enrollable_non_child = sample_canonical_device();
+    enrollable_non_child.enrollable = true;
+    assert_invalid(enrollable_non_child);
+
+    let mut routed_non_child = sample_canonical_device();
+    routed_non_child.route_id = Some("lan-route".to_string());
+    assert_invalid(routed_non_child);
+
+    let mut non_unavailable_non_child = sample_canonical_device();
+    non_unavailable_non_child.route_state = LanCanonicalHouseholdRouteState::LocalNetwork;
+    assert_invalid(non_unavailable_non_child);
+
+    let device = sample_canonical_device();
+    let duplicate = device.clone();
+    let duplicate_projection = replay_projection_for(vec![device, duplicate]);
+    assert!(valid_replay_projection(Some(&duplicate_projection)).is_none());
+}
+
+#[test]
+fn invalid_replay_projection_is_not_persisted_or_replayed() {
+    let mut invalid_device = sample_canonical_device();
+    invalid_device.enrollable = true;
+    let invalid_projection = replay_projection_for(vec![invalid_device.clone()]);
+    assert!(valid_replay_projection(Some(&invalid_projection)).is_none());
+
+    let registry_path = temp_registry_path();
+    cleanup_test_files(&registry_path);
+    let runtime = LanPairingRuntime::persistent_json(&registry_path);
+    assert!(save_scan_history(
+        &runtime,
+        &[sample_network_device()],
+        None,
+    ));
+    let expected = require_some(load_scan_history_snapshot(&runtime), "scan persists");
+    assert!(save_replay_canonical_devices(
+        &runtime,
+        &expected,
+        &[invalid_device],
+        &LanPairingText(expected.updated_at.clone()),
+    )
+    .is_none());
+    let current = require_some(
+        load_scan_history_snapshot(&runtime),
+        "scan remains readable",
+    );
+    assert!(current.replay_canonical_projection.is_none());
+
+    let path =
+        scan_history_path_for_registry(&LanScanHistoryRegistryPath::from(registry_path.as_path()));
+    let invalid_snapshot = LanScanHistorySnapshot {
+        schema_version: LAN_SCAN_HISTORY_SCHEMA_VERSION,
+        updated_at: expected.updated_at,
+        metadata: None,
+        devices: vec![sample_network_device()],
+        replay_canonical_projection: Some(invalid_projection),
+    };
+    require_ok(
+        fs::write(
+            &path,
+            require_ok(
+                serde_json::to_vec_pretty(&invalid_snapshot),
+                constants::error::AGENT_EVENT_SERIALIZES,
+            ),
+        ),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    );
+    assert!(load_scan_history_snapshot(&runtime).is_none());
+    cleanup_test_files(&registry_path);
+}
+
+#[test]
+fn valid_replay_projection_preserves_canonical_rows() {
+    let projection = replay_projection_for(vec![sample_canonical_device()]);
+    assert_eq!(
+        valid_replay_projection(Some(&projection)),
+        Some(&projection)
+    );
 }
 
 #[test]
@@ -362,5 +527,46 @@ fn sample_scan_metadata() -> LanScanHistoryMetadata {
                 throttled: false,
             }],
         },
+    }
+}
+
+fn replay_projection_for(
+    canonical_devices: Vec<LanCanonicalHouseholdDevice>,
+) -> LanReplayCanonicalProjection {
+    LanReplayCanonicalProjection {
+        schema_version: 1,
+        generated_at: "2026-06-24T02:00:00.000Z".to_string(),
+        canonical_devices,
+    }
+}
+
+fn sample_canonical_device() -> LanCanonicalHouseholdDevice {
+    LanCanonicalHouseholdDevice {
+        schema_version: constants::lan_pairing::SCHEMA_VERSION,
+        canonical_device_id: "lan-canonical-tablet".to_string(),
+        display_name: "Family Tablet".to_string(),
+        classification: LanCanonicalHouseholdDeviceClassification::Tablet,
+        role_badges: Vec::new(),
+        enrollable: false,
+        discovery_state: LanPairingProductionDiscoveryState::Discovered,
+        trust_state: LanPairingTrustState::Unpaired,
+        route_id: None,
+        route_state: LanCanonicalHouseholdRouteState::Unavailable,
+        network_mode: LanPairingNetworkMode::LocalNetwork,
+        source_labels: vec![LanCanonicalHouseholdDeviceSource::NetworkNeighbor],
+        network_identity: LanCanonicalHouseholdNetworkIdentity {
+            hostname: Some("family-tablet.local".to_string()),
+            ip_addresses: vec!["192.168.0.25".to_string()],
+            mac_address: Some("00-11-22-33-44-55".to_string()),
+            mac_vendor: None,
+            network_interfaces: vec!["Wi-Fi".to_string()],
+            reachability: LanPairingDeviceReachability::Online,
+            confidence: LanCanonicalHouseholdDeviceConfidence::ManualRequired,
+            stale_at: None,
+            offline_at: None,
+            evidence_records: Vec::new(),
+        },
+        child_agent_inventory: None,
+        policy_target_surfaces: vec![LanCanonicalHouseholdSurface::Devices],
     }
 }

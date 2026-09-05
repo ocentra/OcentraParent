@@ -11,26 +11,39 @@ workspace = true
 path = "src/lib.rs"
 
 [dependencies]
+atomicwrites = "0.4.4"
 axum = { version = "=0.8.7", features = ["ws"] }
 chrono = { version = "0.4.42", default-features = false, features = ["clock", "std"] }
+file-id = "0.2.3"
+fs2 = "0.4.3"
 base64 = "0.22.1"
 ocentra-parent-agent-core = { path = "../agent-core" }
+ocentra-app-game-core = { path = "../app-game-core" }
 ocentra-parent-agent-protocol = { path = "../agent-protocol" }
 ocentra-lan-core = { path = "../lan-core" }
 ocentra-parent-logging-core = { path = "../logging-core" }
 ocentra-child-runtime = { path = "../child-runtime" }
 ocentra-eventing = { path = "../ocentra-eventing" }
+ocentra-family-identity-core = { path = "../family-identity-core" }
 ocentra-policy-control-core = { path = "../policy-control-core" }
 ocentra-parent-runtime-core = { path = "../parent-runtime-core" }
 ocentra-parent-screen-capture-adapter = { path = "../screen-capture-adapter" }
+ocentra-screen-ai-core = { path = "../screen-ai-core" }
 ocentra-screen-live-view-core = { path = "../screen-live-view-core" }
 ocentra-network-evidence = { path = "../ocentra-network-evidence" }
 ocentra-schema = { path = "../schema" }
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.145"
 sha2 = "0.10.9"
-tokio = { version = "1.48.0", features = ["macros", "net", "process", "rt-multi-thread", "sync", "time"] }
+tokio = { version = "1.48.0", features = ["io-util", "macros", "net", "process", "rt-multi-thread", "sync", "time"] }
 tower-http = { version = "0.6.7", features = ["cors"] }
+
+[target.'cfg(unix)'.dependencies]
+nix = { version = "=0.30.1", default-features = false, features = ["process", "signal"] }
+rustix = { version = "1.1.4", features = ["event", "fs", "process"] }
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61.2", features = ["Win32_Storage_FileSystem"] }
 
 [dev-dependencies]
 ed25519-dalek = "2.2.0"
@@ -46,6 +59,14 @@ path = "tests/unit/activity_surface.rs"
 [[test]]
 name = "app_game_activity_read_models"
 path = "tests/unit/app_game_activity_read_models.rs"
+
+[[test]]
+name = "app_game_linux_preflight"
+path = "tests/unit/app_game_linux_preflight.rs"
+
+[[test]]
+name = "app_game_notification_policy"
+path = "tests/unit/app_game_notification_policy.rs"
 
 [[test]]
 name = "app_game_timer_parent_pref_request"
@@ -96,18 +117,6 @@ name = "lan_runtime"
 path = "tests/unit/lan_runtime.rs"
 
 [[test]]
-name = "lan_pairing"
-path = "tests/unit/lan_pairing.rs"
-
-[[test]]
-name = "lan_pairing_runtime_state"
-path = "tests/unit/lan_pairing_runtime_state.rs"
-
-[[test]]
-name = "lan_pairing_status_selection"
-path = "tests/unit/lan_pairing_status_selection.rs"
-
-[[test]]
 name = "local_ai_runtime"
 path = "tests/unit/local_ai_runtime.rs"
 
@@ -126,6 +135,10 @@ path = "tests/unit/parent_assistant_runtime_tests.rs"
 [[test]]
 name = "screen_ai_runtime"
 path = "tests/unit/screen_ai_runtime.rs"
+
+[[test]]
+name = "service_degraded_startup"
+path = "tests/integration/service_degraded_startup.rs"
 
 [[test]]
 name = "social_activity_api"

@@ -741,6 +741,26 @@ fn cap_carryover_requires_positive_max_minutes() -> TestResult {
 }
 
 #[test]
+fn carry_forward_carryover_rejects_zero_max_minutes() -> TestResult {
+    let mut document = sample_policy_source_document()?;
+    document.schedules[0].time_budget.carryover.mode =
+        PolicyScheduleBudgetCarryoverMode::CarryForward;
+    document.schedules[0].time_budget.carryover.max_minutes = Some(0);
+
+    let error = test_err!(
+        register_parent_policy_source_document(None, document),
+        "carry-forward must reject a zero max_minutes cap"
+    );
+
+    expect_invalid_value(
+        error,
+        policy_control::source::FIELD_SCHEDULE_CARRYOVER_MAX_MINUTES,
+        "carry-forward",
+    )?;
+    Ok(())
+}
+
+#[test]
 fn effective_until_must_be_after_effective_from() -> TestResult {
     let mut document = sample_policy_source_document()?;
     document.schedules[0].time_budget.effective_until = Some("2026-01-01T00:00:00Z".to_string());
@@ -772,6 +792,24 @@ fn bonus_expiry_minutes_must_be_non_zero() -> TestResult {
         error,
         policy_control::source::FIELD_SCHEDULE_BONUS_EXPIRY_MINUTES,
         "0",
+    )?;
+    Ok(())
+}
+
+#[test]
+fn schedule_timestamps_reject_impossible_calendar_dates() -> TestResult {
+    let mut document = sample_policy_source_document()?;
+    document.schedules[0].time_budget.effective_from = "2026-02-29T00:00:00Z".to_string();
+
+    let error = test_err!(
+        register_parent_policy_source_document(None, document),
+        "schedule timestamps must reject non-leap-day February 29"
+    );
+
+    expect_invalid_value(
+        error,
+        policy_control::source::FIELD_SCHEDULE_EFFECTIVE_FROM,
+        "2026-02-29T00:00:00Z",
     )?;
     Ok(())
 }

@@ -1,8 +1,8 @@
 use metadata::{tracking_runtime_metadata, TrackingRuntimeHop};
 use ocentra_eventing::bus::reports::handler::EventMetricsSnapshot;
 use ocentra_eventing::{
-    bus::subscriber::SubscriptionReport, bus::EventBus, envelope::EventMetadata,
-    error::EventingError, request::RequestCompletionReport,
+    bus::publisher::RootEventPublisher, bus::subscriber::SubscriptionReport, bus::EventBus,
+    envelope::EventMetadata, error::EventingError, request::RequestCompletionReport,
 };
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::tracking::runtime_event::{
@@ -20,7 +20,9 @@ use subscriptions::{
     subscribe_child_ai_tracking_analysis_events, subscribe_child_notification_policy_events,
     subscribe_child_policy_tracking_analysis_events,
     subscribe_child_policy_tracking_expected_place_events,
-    subscribe_child_tracking_check_in_request_events, subscribe_tracking_location_observed_events,
+    subscribe_child_tracking_check_in_request_events,
+    subscribe_tracking_child_check_in_recorded_events, subscribe_tracking_evidence_recorded_events,
+    subscribe_tracking_geofence_transition_events, subscribe_tracking_location_observed_events,
 };
 
 mod check_in_requests;
@@ -57,7 +59,7 @@ pub struct TrackingRuntimeEventFlowReport {
 }
 
 pub struct TrackingRuntimeEventFlow {
-    bus: EventBus,
+    bus: RootEventPublisher,
     state: TrackingRuntimeEventState,
     tracking_subscription_report: SubscriptionReport,
     child_check_in_request_subscription_report: SubscriptionReport,
@@ -69,13 +71,19 @@ pub struct TrackingRuntimeEventFlow {
 
 impl TrackingRuntimeEventFlow {
     pub async fn new() -> Result<Self, EventingError> {
-        Self::with_bus(EventBus::new()).await
+        Self::with_bus(EventBus::root()).await
     }
 
-    pub async fn with_bus(bus: EventBus) -> Result<Self, EventingError> {
+    pub async fn with_bus(bus: RootEventPublisher) -> Result<Self, EventingError> {
         let state = TrackingRuntimeEventState::default();
         let tracking_subscription_report =
             subscribe_tracking_location_observed_events(&bus, state.clone()).await?;
+        let _evidence_subscription_report =
+            subscribe_tracking_evidence_recorded_events(&bus, state.clone()).await?;
+        let _geofence_subscription_report =
+            subscribe_tracking_geofence_transition_events(&bus, state.clone()).await?;
+        let _child_check_in_subscription_report =
+            subscribe_tracking_child_check_in_recorded_events(&bus, state.clone()).await?;
         let child_check_in_request_subscription_report =
             subscribe_child_tracking_check_in_request_events(&bus, state.clone()).await?;
         let child_ai_subscription_report =

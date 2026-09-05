@@ -34,9 +34,9 @@ function samplePanel(): ParentBrowserPanelSnapshot {
 }
 
 describe('social audit explanation portal route panel', () => {
-  it('mounts only on the proof-panels route', () => {
-    expect(shouldRenderSocialAuditExplanationRoute(ParentRoute.ProofPanels)).toBe(true);
-    expect(shouldRenderSocialAuditExplanationRoute(ParentRoute.AppGameSessions)).toBe(false);
+  it('mounts only on the Browser product route', () => {
+    expect(shouldRenderSocialAuditExplanationRoute(ParentRoute.Browser)).toBe(true);
+    expect(shouldRenderSocialAuditExplanationRoute(ParentRoute.ProofPanels)).toBe(false);
   });
 
   it('renders the Rust-owned browser route snapshot', () => {

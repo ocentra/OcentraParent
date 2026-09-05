@@ -19,17 +19,17 @@ Purpose: define the Parent Cloudflare bindings stripped down from the games modu
 
 ## Account-identity binding prerequisite
 
-WP06 has no configured account-identity D1, Durable Object, or KV binding in
-the current `infra/cloudflare/wrangler.toml` or `src/env.ts`; the bindings above
-are billing-owned and cannot be repurposed for account authority. WP06 remains
-blocked until the Account WP08 contract names the selected authority boundary
-and Cloudflare declares all three bindings with the following ownership model:
+WP06 now declares the narrow account-identity D1 binding in `src/env.ts` and
+both Wrangler configs, with an isolated `migrations/account-identity` directory.
+The bindings above remain billing-owned and cannot be repurposed for account
+authority. Account DO and KV are intentionally not declared in this slice and
+remain manual-required until the Account WP08 handoff defines a need and owner:
 
 | Required binding role | Type | Owner | Purpose | Privacy boundary | Current state |
 | --- | --- | --- | --- | --- | --- |
-| Account-identity authority store | D1 | Account WP08 canonical Rust authority; Cloudflare WP06 adapter is consumer only | Persist the selected account/family authority projection and migration-compatible read/write state | Account/family authority records only; no child telemetry, raw child data, billing ledger, or provider secrets | blocked; no binding/config declaration |
-| Account-identity coordination | Durable Object | Account WP08 authority boundary; Cloudflare WP06 adapter is consumer only | Serialize the selected account/session authority coordination and idempotency path | Account/session coordination only; no child telemetry, raw child data, billing state, or provider secrets | blocked; no binding/config declaration |
-| Account-identity low-risk operational state | KV | Account WP08 authority boundary; Cloudflare WP06 adapter is consumer only | Store only selected low-risk, non-authoritative rollout or freshness state | Non-secret low-risk operational state only; no child telemetry, raw child data, authority ledger, or provider secrets | blocked; no binding/config declaration |
+| Account-identity authority store | D1 | Account WP08 canonical Rust authority; Cloudflare WP06 migrated-schema consumer only | Persist the selected narrow provider-subject mapping and migration-compatible read/write state | Account identity mapping only; no child telemetry, raw child data, billing ledger, or provider secrets | declared; migration/proof deferred |
+| Account-identity coordination | Durable Object | Account WP08 authority boundary; Cloudflare consumer only | Serialize selected account/session authority coordination if later required | Account/session coordination only; no child telemetry, raw child data, billing state, or provider secrets | absent; manual-required |
+| Account-identity low-risk operational state | KV | Account WP08 authority boundary; Cloudflare consumer only | Store selected low-risk, non-authoritative rollout or freshness state if later required | Non-secret low-risk operational state only; no child telemetry, raw child data, authority ledger, or provider secrets | absent; manual-required |
 
 ### Account D1 migration isolation
 

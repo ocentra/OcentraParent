@@ -225,6 +225,10 @@ fn event_descriptors_local_policy_lan_network() -> Vec<ProtocolLiteralDescriptor
             AgentEventName::AgentActivityTrackingRetentionSettingsWriteReported,
         ),
         event(
+            "ParentRuntimeIntentIngressReported",
+            AgentEventName::AgentParentRuntimeIntentIngressReported,
+        ),
+        event(
             "LocalAiRuntimeStatusReported",
             AgentEventName::AgentLocalAiRuntimeStatusReported,
         ),

@@ -27,6 +27,12 @@ pub fn browser_managed_status_payload(status: &BrowserManagedSessionStatus) -> L
     let mut pairs = browser_managed_identity_pairs(status);
     pairs.extend(browser_managed_unmanaged_process_pairs(status));
     pairs.extend(browser_managed_state_pairs(status));
+    if let Ok(serialized) = serde_json::to_string(status) {
+        pairs.0.push((
+            constants::field::BROWSER_MANAGED_STATUS_JSON,
+            LogFieldValue::String(serialized),
+        ));
+    }
     fields_from_pairs(pairs.0)
 }
 
@@ -35,6 +41,12 @@ pub fn browser_inventory_read_model_payload(read_model: &BrowserInventoryReadMod
     let mut pairs = browser_inventory_read_model_pairs(read_model);
     pairs.extend(browser_inventory_latest_identity_pairs(latest));
     pairs.extend(browser_inventory_latest_state_pairs(latest));
+    if let Ok(serialized) = serde_json::to_string(read_model) {
+        pairs.0.push((
+            constants::field::BROWSER_INVENTORY_READ_MODEL_JSON,
+            LogFieldValue::String(serialized),
+        ));
+    }
     fields_from_pairs(pairs.0)
 }
 

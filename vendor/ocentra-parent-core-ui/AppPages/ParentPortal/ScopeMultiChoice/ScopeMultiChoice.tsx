@@ -420,6 +420,7 @@ export function ScopeMultiChoice({
             role="button"
             aria-label={option.label}
             aria-pressed={isSelected}
+            aria-disabled={disabled || option.disabled || undefined}
             tabIndex={disabled || option.disabled ? -1 : 0}
             opacity={option.disabled ? config.opacity.disabled : 1}
             onPointerEnter={() => setHoveredValue(option.value)}

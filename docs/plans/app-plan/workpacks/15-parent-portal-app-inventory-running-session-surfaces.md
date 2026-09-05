@@ -6,9 +6,17 @@ Sources: [UI/UX guide](../ui-ux-requirements-guide.md),
 
 ## Where We Are
 
-Portal currently has live activity and policy-preview surfaces. A polished app
-inventory, running, foreground, unknown, risk, capability, and evidence-detail
-dashboard is not product-complete.
+Portal currently has live activity and policy-preview surfaces. The bounded
+source/test slice now mounts an inline app inventory/session dashboard in the
+parent route, consuming the existing typed app/game dashboard intent from
+service-backed read models. Product/runtime/physical UI completion is not
+claimed.
+
+Current source/test reconciliation (2026-08-29): canonical `65be97f13`
+provides the route-gated production mount and real rendered ready/unavailable
+behavior coverage, including capability and evidence details. Existing intent
+tests cover normal, stale, degraded, manual-required, unknown/risk, evidence,
+and hostile/long metadata states.
 
 ## Where We Want To Be
 
@@ -29,11 +37,18 @@ state, degraded state, manual-required state, and evidence details.
 
 ## Touched Paths
 
-- `apps/portal/src/live-activity-state.ts`
-- `apps/portal/src/live-activity-panel.ts`
-- `apps/portal/src/activity-timeline.ts`
-- `apps/portal/src/portal-capability-guidance.ts`
-- `apps/portal/src/PortalAppLayoutSurfacePanel.tsx`
+- `crates/parent-runtime-core/src/agent_service_client.rs`
+- `crates/parent-runtime-core/src/agent_service_client/loaders.rs`
+- `crates/parent-runtime-core/src/agent_service_client/snapshots_tracking.rs`
+- `crates/parent-runtime-core/src/agent_service_client/types.rs`
+- `crates/parent-runtime-core/src/parent_ui_bridge.rs`
+- `crates/parent-runtime-core/src/parent_ui_bridge/route_snapshot/dependencies.rs`
+- `crates/parent-runtime-core/src/parent_ui_bridge/route_snapshot/dependencies/load.rs`
+- `crates/parent-runtime-core/src/parent_ui_bridge/live_activity/snapshot.rs`
+- `crates/parent-runtime-core/src/parent_ui_bridge/live_activity/snapshot/tracking.rs`
+- `crates/schema/src/parent_ui_bridge.rs`
+- `apps/portal/generated/parent-ui-bridge.ts`
+- `apps/portal/src/ParentPortalRoute.tsx`
 - `vendor/ocentra-parent-core-ui/AppPages/ParentPortal/activity-ui-intent.ts`
 - `apps/portal/tests/*app*` and Playwright specs when assigned.
 
@@ -75,6 +90,15 @@ Fill this before reporting `DONE` or PR-ready:
 
 UI can display a capability only when service/read-model state provides that
 capability and proof state. UI cannot invent evidence or enforcement support.
+
+## Code-pass Notes - 2026-08-16
+
+- Production draft: local agent-service app-use and games read models are now
+  loaded only for app/game-session routes, wrapped in the existing typed
+  activity adapter shape, and carried through the generated parent route
+  bridge. The existing portal activity intent consumes those fields; no portal
+  OS observation or authority is added.
+- Status: code-drafted; unvalidated; tests/proof/checklist deferred.
 
 ## Completion Notes - 2026-06-03
 

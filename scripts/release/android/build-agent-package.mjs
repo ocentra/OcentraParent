@@ -7,7 +7,12 @@ import { fileURLToPath } from 'node:url';
 import { evaluateReleaseVersionPolicy } from '../version-policy.mjs';
 
 const repoRoot = resolve(fileURLToPath(new URL('../../..', import.meta.url)));
-const version = process.env['OCENTRA_PARENT_VERSION'] ?? releaseVersion();
+if (process.env['OCENTRA_PARENT_VERSION']) {
+  throw new Error(
+    'Refusing legacy parent-scoped Android child package version input. Use OCENTRA_CHILD_ANDROID_VERSION.'
+  );
+}
+const version = process.env['OCENTRA_CHILD_ANDROID_VERSION'] ?? releaseVersion();
 const packageRoot = join(repoRoot, 'target', 'release-packages', 'android');
 const apkSource = join(
   repoRoot,
@@ -21,9 +26,9 @@ const apkSource = join(
   'debug',
   'app-debug.apk'
 );
-const apkName = `ocentra-parent-agent-android-debug-v${version}.apk`;
+const apkName = `ocentra-child-agent-android-debug-v${version}.apk`;
 const apkPath = join(packageRoot, apkName);
-const latestPath = join(packageRoot, 'ocentra-parent-agent-android-debug-latest.apk');
+const latestPath = join(packageRoot, 'ocentra-child-agent-android-debug-latest.apk');
 
 mkdirSync(packageRoot, { recursive: true });
 runGradle();

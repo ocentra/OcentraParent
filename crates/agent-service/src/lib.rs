@@ -2,6 +2,10 @@
 
 mod activity_api;
 mod activity_capture;
+#[path = "activity_capture/network_observation.rs"]
+pub(crate) mod activity_capture_network_observation;
+#[path = "activity_capture/persistence.rs"]
+mod activity_capture_persistence;
 mod activity_family_sources;
 mod activity_memory_graph_payload;
 mod activity_network_flow_payload;
@@ -21,6 +25,7 @@ mod app;
 mod app_game_dispatch_evidence;
 pub mod authenticated_delivery_execution_api;
 pub mod authenticated_delivery_execution_read_model;
+pub mod authenticated_delivery_policy_receipt;
 mod browser_evidence_payload;
 mod browser_intervention_page;
 mod browser_inventory_read_model;
@@ -74,6 +79,8 @@ mod local_ai_cache_root;
 mod local_ai_chat_generation;
 mod local_ai_chat_generation_args;
 mod local_ai_chat_generation_request;
+#[path = "local_ai_chat_generation_request/input.rs"]
+mod local_ai_chat_generation_request_input;
 mod local_ai_chat_generation_result;
 mod local_ai_chat_generation_runner;
 mod local_ai_generation_payload;
@@ -107,21 +114,27 @@ mod network_flow_digest_rollups;
 mod network_linux_nftables_lab_status_bridge;
 mod network_live_capture_execution_bridge;
 mod network_live_capture_readiness_bridge;
-mod network_product_path_bridge;
 mod network_remote_delivery_status_cross_process;
 mod network_remote_delivery_status_payload;
+#[path = "network_runtime_delivery/capture_loop.rs"]
+mod network_runtime_capture_loop;
 mod network_runtime_delivery;
+mod network_runtime_journal_path;
 mod network_runtime_stream_event_payloads;
 mod network_runtime_stream_event_values;
 mod network_runtime_stream_events;
 mod network_runtime_stream_payload;
 mod network_windows_firewall_lab_status_bridge;
 mod network_windows_wfp_gate_status_bridge;
+mod parent_assistant_activity_snapshot;
+mod parent_assistant_answer_payload;
 mod parent_assistant_api;
 mod parent_assistant_evidence_context;
 mod parent_assistant_payload;
+mod parent_assistant_provider_state_value;
 mod parent_assistant_report_history;
 mod parent_assistant_runtime;
+mod parent_local_bridge_admission;
 mod policy_preview_api;
 mod policy_preview_payload;
 mod screen_ai_analysis_runtime;

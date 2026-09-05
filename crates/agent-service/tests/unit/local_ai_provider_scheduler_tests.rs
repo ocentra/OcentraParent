@@ -1,16 +1,18 @@
 use std::primitive::str as TestStr;
 use std::{
     sync::{
-        atomic::{AtomicUsize, Ordering},
+        atomic::{AtomicBool, AtomicUsize, Ordering},
         Arc,
     },
     time::Duration,
 };
 
+use ocentra_eventing::expect_value::{ExpectErrValue, ExpectValue};
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::local_ai_runtime::generation::LocalAiChatGenerationResult;
-use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiGenerationState;
-use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiResourceClass;
+use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::{
+    LocalAiDegradedState, LocalAiGenerationState, LocalAiResourceClass,
+};
 use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerJobClass;
 use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerJobStatus;
 use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerLifecycle;
@@ -22,8 +24,11 @@ use tokio::sync::{Mutex as TokioMutex, Notify};
 use crate::local_ai_provider_scheduler::{
     local_ai_provider_scheduler, LocalAiProviderSchedulerRuntime,
 };
+use crate::local_ai_provider_scheduler_queue::{
+    LocalAiProviderRuntimeLaneAdmission, LocalAiProviderRuntimeLaneQueue, MAX_PENDING_RUNTIME_JOBS,
+};
 use crate::local_ai_provider_scheduler_state::LocalAiPhysicalDeviceId;
-use crate::test_invariants::require_ok;
+use crate::test_require_ok::require_ok;
 
 #[test]
 fn unavailable_runtime_marks_scheduler_unavailable_without_queue() {
@@ -48,6 +53,244 @@ fn unavailable_runtime_marks_scheduler_unavailable_without_queue() {
     );
     assert_eq!(status.queue.total(), 0);
     assert_eq!(status.current_job_class, None);
+}
+
+#[tokio::test]
+async fn unavailable_runtime_does_not_execute_provider_closure() {
+    let scheduler = LocalAiProviderSchedulerRuntime::new();
+    let invoked = Arc::new(AtomicBool::new(false));
+    let closure_invoked = Arc::clone(&invoked);
+
+    let result = scheduler
+        .run_generation_job(
+            LocalAiProviderSchedulerJobClass::ChildSafety,
+            unavailable_runtime(),
+            move || async move {
+                closure_invoked.store(true, Ordering::SeqCst);
+                completed_result(constants::local_ai_runtime::SCHEDULER_JOB_CHILD_SAFETY)
+            },
+        )
+        .await;
+
+    assert_eq!(result.generation_state, LocalAiGenerationState::Unavailable);
+    assert!(!invoked.load(Ordering::SeqCst));
+    assert_eq!(
+        scheduler.status_snapshot().lifecycle_state,
+        LocalAiProviderSchedulerLifecycle::Unavailable
+    );
+}
+
+#[tokio::test]
+async fn aborting_active_generation_releases_lane_and_status() {
+    let scheduler = Arc::new(LocalAiProviderSchedulerRuntime::new());
+    let holder_started = Arc::new(Notify::new());
+    let holder = {
+        let scheduler = Arc::clone(&scheduler);
+        let runtime = ready_runtime();
+        let holder_started = Arc::clone(&holder_started);
+        tokio::spawn(async move {
+            scheduler
+                .run_generation_job(
+                    LocalAiProviderSchedulerJobClass::ParentReport,
+                    runtime,
+                    || async move {
+                        holder_started.notify_one();
+                        tokio::time::sleep(Duration::from_secs(3600)).await;
+                        completed_result(constants::local_ai_runtime::SCHEDULER_JOB_PARENT_REPORT)
+                    },
+                )
+                .await
+        })
+    };
+
+    holder_started.notified().await;
+    let running_status = scheduler.status_snapshot();
+    assert_eq!(
+        running_status.lifecycle_state,
+        LocalAiProviderSchedulerLifecycle::Running
+    );
+    assert_eq!(
+        running_status.current_job_class,
+        Some(LocalAiProviderSchedulerJobClass::ParentReport)
+    );
+
+    holder.abort();
+    let holder_join_error = holder
+        .await
+        .expect_err_value("aborted running job must return a join error");
+    assert_eq!(
+        (
+            holder_join_error.is_cancelled(),
+            holder_join_error.is_panic()
+        ),
+        (true, false)
+    );
+
+    let recovered_status = scheduler.status_snapshot();
+    assert_eq!(
+        recovered_status.lifecycle_state,
+        LocalAiProviderSchedulerLifecycle::Idle
+    );
+    assert_eq!(recovered_status.current_job_class, None);
+    assert_eq!(recovered_status.queue.total(), 0);
+    assert!(!recovered_status.duplicate_runtime_blocked);
+
+    let result = scheduler
+        .run_generation_job(
+            LocalAiProviderSchedulerJobClass::ChildSafety,
+            ready_runtime(),
+            || async { completed_result(constants::local_ai_runtime::SCHEDULER_JOB_CHILD_SAFETY) },
+        )
+        .await;
+    assert_eq!(result.generation_state, LocalAiGenerationState::Complete);
+    assert_idle_singleton_scheduler_status(&scheduler);
+}
+
+#[tokio::test]
+async fn aborting_queued_generation_removes_queue_state_and_preserves_lane() {
+    let scheduler = Arc::new(LocalAiProviderSchedulerRuntime::new());
+    let holder_started = Arc::new(Notify::new());
+    let release_holder = Arc::new(Notify::new());
+    let observed_jobs = Arc::new(TokioMutex::new(Vec::new()));
+    let holder = spawn_observed_job(
+        Arc::clone(&scheduler),
+        ready_runtime(),
+        LocalAiProviderSchedulerJobClass::ParentReport,
+        constants::local_ai_runtime::SCHEDULER_JOB_PARENT_REPORT,
+        Arc::clone(&observed_jobs),
+        Some(Arc::clone(&holder_started)),
+        Some(Arc::clone(&release_holder)),
+    );
+    holder_started.notified().await;
+
+    let queued_invoked = Arc::new(AtomicBool::new(false));
+    let queued = {
+        let scheduler = Arc::clone(&scheduler);
+        let queued_invoked = Arc::clone(&queued_invoked);
+        tokio::spawn(async move {
+            scheduler
+                .run_generation_job(
+                    LocalAiProviderSchedulerJobClass::ParentAssistant,
+                    ready_runtime(),
+                    || async move {
+                        queued_invoked.store(true, Ordering::SeqCst);
+                        completed_result(
+                            constants::local_ai_runtime::SCHEDULER_JOB_PARENT_ASSISTANT,
+                        )
+                    },
+                )
+                .await
+        })
+    };
+
+    wait_until_scheduler_status(&scheduler, |status| {
+        status.queue.parent_assistant_queued == 1
+    })
+    .await;
+    queued.abort();
+    let queued_join_error = queued
+        .await
+        .expect_err_value("aborted queued job must return a join error");
+    assert_eq!(
+        (
+            queued_join_error.is_cancelled(),
+            queued_join_error.is_panic()
+        ),
+        (true, false)
+    );
+
+    let cancelled_status = scheduler.status_snapshot();
+    assert_eq!(
+        cancelled_status.lifecycle_state,
+        LocalAiProviderSchedulerLifecycle::Running
+    );
+    assert_eq!(
+        cancelled_status.current_job_class,
+        Some(LocalAiProviderSchedulerJobClass::ParentReport)
+    );
+    assert_eq!(cancelled_status.queue.parent_assistant_queued, 0);
+    assert_eq!(cancelled_status.queue.total(), 0);
+    assert!(cancelled_status.duplicate_runtime_blocked);
+    assert!(!queued_invoked.load(Ordering::SeqCst));
+
+    release_holder.notify_one();
+    assert_completed_generation(holder.await);
+
+    let result = scheduler
+        .run_generation_job(
+            LocalAiProviderSchedulerJobClass::ChildSafety,
+            ready_runtime(),
+            || async { completed_result(constants::local_ai_runtime::SCHEDULER_JOB_CHILD_SAFETY) },
+        )
+        .await;
+    assert_eq!(result.generation_state, LocalAiGenerationState::Complete);
+    assert_idle_singleton_scheduler_status(&scheduler);
+}
+
+#[test]
+fn runtime_lane_bounds_pending_jobs_and_removes_cancelled_waiters() {
+    let mut queue = LocalAiProviderRuntimeLaneQueue::new();
+    assert!(matches!(
+        queue.reserve(LocalAiProviderSchedulerJobClass::ParentReport),
+        LocalAiProviderRuntimeLaneAdmission::Running
+    ));
+
+    let mut waiters = Vec::new();
+    for _ in 0..MAX_PENDING_RUNTIME_JOBS {
+        let waiter = match queue.reserve(LocalAiProviderSchedulerJobClass::ParentReport) {
+            LocalAiProviderRuntimeLaneAdmission::Queued(waiter) => Some(waiter),
+            LocalAiProviderRuntimeLaneAdmission::Running
+            | LocalAiProviderRuntimeLaneAdmission::Rejected => None,
+        }
+        .expect_value("queue should accept exactly its bounded pending capacity");
+        waiters.push(waiter);
+    }
+    assert!(matches!(
+        queue.reserve(LocalAiProviderSchedulerJobClass::ParentReport),
+        LocalAiProviderRuntimeLaneAdmission::Rejected
+    ));
+
+    drop(waiters);
+    let _ = queue.finish_running();
+    assert!(matches!(
+        queue.reserve(LocalAiProviderSchedulerJobClass::ParentReport),
+        LocalAiProviderRuntimeLaneAdmission::Running
+    ));
+}
+
+#[tokio::test]
+async fn failed_generation_remains_visible_as_degraded_scheduler_state() {
+    let scheduler = LocalAiProviderSchedulerRuntime::new();
+    let result = scheduler
+        .run_generation_job(
+            LocalAiProviderSchedulerJobClass::ParentAssistant,
+            ready_runtime(),
+            || async {
+                let mut result =
+                    completed_result(constants::local_ai_runtime::SCHEDULER_JOB_PARENT_ASSISTANT);
+                result.generation_state = LocalAiGenerationState::Failed;
+                result.output_text = None;
+                result.exit_code = None;
+                result.unavailable_reason = Some(
+                    constants::local_ai_runtime::UNAVAILABLE_REASON_RUNTIME_PROCESS_FAILED
+                        .to_string(),
+                );
+                result
+            },
+        )
+        .await;
+
+    assert_eq!(result.generation_state, LocalAiGenerationState::Failed);
+    let status = scheduler.status_snapshot();
+    assert_eq!(
+        status.lifecycle_state,
+        LocalAiProviderSchedulerLifecycle::Degraded
+    );
+    assert_eq!(status.degraded_state, LocalAiDegradedState::InvalidOutput);
+    assert_eq!(
+        status.unavailable_reason,
+        Some(constants::local_ai_runtime::UNAVAILABLE_REASON_RUNTIME_PROCESS_FAILED.to_string())
+    );
 }
 
 #[tokio::test]

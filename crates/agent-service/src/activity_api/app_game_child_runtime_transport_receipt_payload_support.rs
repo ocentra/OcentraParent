@@ -29,7 +29,7 @@ use self::boundary::count_rows;
 use self::rows::child_runtime_rows_from_service_model;
 
 use crate::{
-    activity_surface_store::load_app_game_model, event_builder::build_event,
+    activity_surface_store::app_game::load_app_game_model, event_builder::build_event,
     fields::fields_from_pairs, time::timestamp_now,
 };
 
@@ -48,7 +48,7 @@ pub(super) async fn build_activity_app_game_child_runtime_transport_receipt_repo
     let generated_at: String = timestamp_now();
     let read_model = match load_app_game_model().await {
         Some(model) => {
-            app_game_child_runtime_transport_receipt_read_model_from_service_model(model)
+            super::app_game_child_runtime_transport_receipt_read_model_from_service_model(model)
         }
         None => app_game_child_runtime_transport_receipt_read_model(AppGameReceiptGeneratedAt(
             generated_at,

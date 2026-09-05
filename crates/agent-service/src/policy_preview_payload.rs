@@ -56,6 +56,14 @@ fn row_pairs(row: Option<&PolicyPreviewReadModelRow>) -> Vec<PolicyPreviewFieldP
     let mut pairs = row_identity_pairs(row);
     pairs.extend(row_state_pairs(row));
     pairs.extend(row_review_pairs(row));
+    if let Some(context) = row.and_then(|value| value.confirmation_context.as_ref()) {
+        if let Ok(serialized) = serde_json::to_string(context) {
+            pairs.push(PolicyPreviewFieldPair(
+                constants::field::POLICY_PREVIEW_CONFIRMATION_CONTEXT,
+                LogFieldValue::String(serialized),
+            ));
+        }
+    }
     pairs
 }
 

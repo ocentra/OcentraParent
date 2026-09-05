@@ -4,16 +4,11 @@ import { NetworkEvidenceDrawerRoutePanel } from './NetworkEvidenceDrawerRoutePan
 import { PolicyPreviewRoutePanel } from './PolicyPreviewRoutePanel';
 import { TrackingStatusRoutePanel } from './TrackingStatusRoutePanel';
 import { renderAppGameProofPanel } from './portal-proof-panels-app-game-renderers';
-import { renderPortalProofPanelSocial } from './portal-proof-panels-social-renderers';
 import type { PortalProofPanelsRoutePanelProps } from './portal-proof-panels-renderers';
 
 export function renderPortalProofPanelContent({
   actions,
   activePanel,
-  browserActionIntentStreamStatusPanel,
-  browserParentExplanationPanel,
-  browserSocialProviderReceiptIngestionReadinessStatusPanel,
-  browserSocialProviderReceiptStreamStatusPanel,
   commandEnabled,
   liveActivity,
   networkEvidenceSummary,
@@ -24,33 +19,7 @@ export function renderPortalProofPanelContent({
   appGameChildRuntimeTransportReceiptPanel,
   appGameAdapterDispatchPanel,
   appGameTimerParentSurfacePanel,
-  socialAlertReportPanel,
-  socialAlertReportParentSurfacePanel,
-  socialAuditExplanationPanel,
-  socialDashboardPanel,
-  socialParentNotificationDeliveryPanel,
 }: Omit<PortalProofPanelsRoutePanelProps, 'onSelectPanel'>): ReactElement {
-  if (
-    activePanel === 'browser-parent-explanation' ||
-    activePanel === 'social-audit-explanation' ||
-    activePanel === 'social-dashboard' ||
-    activePanel === 'social-alert-report'
-  ) {
-    return renderPortalProofPanelSocial({
-      actions,
-      activePanel,
-      commandEnabled,
-      browserActionIntentStreamStatusPanel,
-      browserParentExplanationPanel,
-      browserSocialProviderReceiptIngestionReadinessStatusPanel,
-      browserSocialProviderReceiptStreamStatusPanel,
-      socialAlertReportPanel,
-      socialAlertReportParentSurfacePanel,
-      socialAuditExplanationPanel,
-      socialDashboardPanel,
-      socialParentNotificationDeliveryPanel,
-    });
-  }
   if (
     activePanel === 'app-game-notification-parent-surface' ||
     activePanel === 'app-game-policy-readiness' ||
@@ -74,6 +43,8 @@ export function renderPortalProofPanelContent({
   if (activePanel === 'network-activity') {
     return (
       <NetworkEvidenceDrawerRoutePanel
+        actions={actions}
+        commandEnabled={commandEnabled}
         liveActivity={liveActivity}
         networkEvidenceSummary={networkEvidenceSummary}
         route={ParentRoute.ProofPanels}
@@ -81,7 +52,21 @@ export function renderPortalProofPanelContent({
     );
   }
   if (activePanel === 'policy-preview') {
-    return <PolicyPreviewRoutePanel actions={actions} commandEnabled={commandEnabled} panel={policyPreviewPanel} />;
+    return (
+      <PolicyPreviewRoutePanel
+        actions={actions}
+        commandEnabled={commandEnabled}
+        panel={policyPreviewPanel}
+        route={ParentRoute.ProofPanels}
+      />
+    );
   }
-  return <TrackingStatusRoutePanel actions={actions} commandEnabled={commandEnabled} liveActivity={liveActivity} />;
+  return (
+    <TrackingStatusRoutePanel
+      actions={actions}
+      commandEnabled={commandEnabled}
+      liveActivity={liveActivity}
+      showUnavailable
+    />
+  );
 }

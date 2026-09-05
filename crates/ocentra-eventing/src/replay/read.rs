@@ -1,4 +1,7 @@
-use crate::{EventingError, NdjsonEventJournal, ReplayFilter, ReplayMode, ReplayReadReport};
+use crate::{
+    EventingError, NdjsonEventJournal, ReplayActionReport, ReplayFilter, ReplayMode,
+    ReplayReadReport,
+};
 
 #[path = "read/runner.rs"]
 mod runner;
@@ -17,8 +20,9 @@ impl NdjsonEventJournal {
     pub async fn replay_action_records(
         &self,
         filter: ReplayFilter,
-    ) -> Result<ReplayReadReport, EventingError> {
-        self.read(filter, ReplayMode::ActionHandlersAllowed).await
+    ) -> Result<ReplayActionReport, EventingError> {
+        let report = self.read(filter, ReplayMode::ActionHandlersAllowed).await?;
+        ReplayActionReport::from_read_report(report)
     }
 
     async fn read(

@@ -1,7 +1,10 @@
 use super::*;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFields;
 use ocentra_schema::parent_ui_bridge::{
     ParentPolicyApprovalId, ParentPolicyAuditReferenceId, ParentPolicyDecisionActionId,
-    ParentPolicyDecisionId, ParentPolicyOverrideId, ParentPolicyPreviewId, ParentPolicyReasonCodes,
+    ParentPolicyDecisionId, ParentPolicyOverrideId, ParentPolicyPreviewConfirmationContext,
+    ParentPolicyPreviewId, ParentPolicyPreviewReadModelSnapshot, ParentPolicyReasonCodes,
     ParentPolicyReplayApprovalId, ParentPolicyRuleContextRefIds, ParentPolicyRuleIds,
     ParentPolicyTargetId, ParentRouteEventId, ParentUserActorId, ParentUserLocalAiResultId,
 };
@@ -62,6 +65,13 @@ pub(super) fn policy_preview_read_model_from_payload_impl(
         network_policy_mapping_mode: network.network_policy_mapping_mode,
         network_adapter_action_authorized: network.network_adapter_action_authorized,
         network_enforcement_command_authorized: network.network_enforcement_command_authorized,
+        confirmation_context: optional_string_field(
+            payload,
+            constants::field::POLICY_PREVIEW_CONFIRMATION_CONTEXT,
+        )
+        .and_then(|value| {
+            serde_json::from_str::<ParentPolicyPreviewConfirmationContext>(&value).ok()
+        }),
     })
 }
 

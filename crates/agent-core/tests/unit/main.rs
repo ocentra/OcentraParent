@@ -15,10 +15,8 @@ use ocentra_parent_agent_core::browser_managed_discovery::{
     unmanaged_browser_processes,
 };
 use ocentra_parent_agent_core::browser_managed_session::{
-    create_or_repair_managed_browser_profile_store, delete_managed_browser_profile_store,
-    launch_managed_browser, load_managed_browser_profile_store, managed_browser_launch_plan,
-    reserve_managed_browser_bridge_port, BrowserManagedLaunchConfig, BrowserManagedLaunchError,
-    BrowserManagedProfileStoreConfig, BrowserManagedProfileStoreError,
+    launch_managed_browser, managed_browser_launch_plan, reserve_managed_browser_bridge_port,
+    BrowserManagedLaunchConfig, BrowserManagedLaunchError,
 };
 use ocentra_parent_agent_core::browser_windows_inventory::{
     windows_browser_executable_identity, windows_browser_inventory_observations,
@@ -56,9 +54,8 @@ use ocentra_parent_agent_core::household_ai_provider_route_state::{
     HouseholdAiRouteDecisionState, HouseholdAiRouteRejectionReason,
 };
 use ocentra_parent_agent_core::household_mesh_event_bridge::{
-    export_selected_local_event, validate_incoming_lan_message, HouseholdMeshAuthenticationState,
-    HouseholdMeshBridgeRejection, HouseholdMeshExportDecision, HouseholdMeshImportDecision,
-    HouseholdMeshLanMessage, HouseholdMeshLocalEventKind, HouseholdMeshPolicyAuthority,
+    export_selected_local_event, HouseholdMeshAuthenticationState, HouseholdMeshBridgeRejection,
+    HouseholdMeshExportDecision, HouseholdMeshLocalEventKind, HouseholdMeshPolicyAuthority,
 };
 use ocentra_parent_agent_core::journal::ActivityJournal;
 use ocentra_parent_agent_core::journal_crypto::{JournalKey, JOURNAL_KEY_BYTES};
@@ -113,6 +110,8 @@ mod activity_store_app_game_tests;
 mod activity_store_browser_intervention_tests;
 #[path = "activity_store_browser_tests.rs"]
 mod activity_store_browser_tests;
+#[path = "activity_store_enforcement_audit_empty_tests.rs"]
+mod activity_store_enforcement_audit_empty_tests;
 #[path = "activity_store_enforcement_audit_tests.rs"]
 mod activity_store_enforcement_audit_tests;
 #[path = "activity_store_memory_graph_index_tests.rs"]

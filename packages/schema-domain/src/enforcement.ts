@@ -1,18 +1,42 @@
 /* thin adapter over Rust-owned generated enforcement contracts */
 
 import * as Generated from './generated-enforcement';
+import { withParser } from './effect';
 
-export const EnforcementAdapterKindSchema = Generated.EnforcementAdapterKindSchema;
-export const EnforcementModeSchema = Generated.EnforcementModeSchema;
-export const EnforcementCapabilityStateSchema = Generated.EnforcementCapabilityStateSchema;
-export const EnforcementCapabilityStatusSchema = Generated.EnforcementCapabilityStatusSchema;
-export const EnforcementUnavailableStatusSchema = Generated.EnforcementUnavailableStatusSchema;
-export const EnforcementIntentSchema = Generated.EnforcementIntentSchema;
-export const EnforcementActionSchema = Generated.EnforcementActionSchema;
-export const EnforcementResultSchema = Generated.EnforcementResultSchema;
-export const EnforcementAuditEventSchema = Generated.EnforcementAuditEventSchema;
-export const EnforcementTimerEventSchema = Generated.EnforcementTimerEventSchema;
-export const EnforcementActiveTimerStateSchema = Generated.EnforcementActiveTimerStateSchema;
+const STRICT_ENFORCEMENT_PARSER_OPTIONS = { onExcessProperty: 'error' } as const;
+
+export const EnforcementAdapterKindSchema = withParser(
+  Generated.EnforcementAdapterKindSchema,
+  STRICT_ENFORCEMENT_PARSER_OPTIONS
+);
+export const EnforcementModeSchema = withParser(Generated.EnforcementModeSchema, STRICT_ENFORCEMENT_PARSER_OPTIONS);
+export const EnforcementCapabilityStateSchema = withParser(
+  Generated.EnforcementCapabilityStateSchema,
+  STRICT_ENFORCEMENT_PARSER_OPTIONS
+);
+export const EnforcementCapabilityStatusSchema = withParser(
+  Generated.EnforcementCapabilityStatusSchema,
+  STRICT_ENFORCEMENT_PARSER_OPTIONS
+);
+export const EnforcementUnavailableStatusSchema = withParser(
+  Generated.EnforcementUnavailableStatusSchema,
+  STRICT_ENFORCEMENT_PARSER_OPTIONS
+);
+export const EnforcementIntentSchema = withParser(Generated.EnforcementIntentSchema, STRICT_ENFORCEMENT_PARSER_OPTIONS);
+export const EnforcementActionSchema = withParser(Generated.EnforcementActionSchema, STRICT_ENFORCEMENT_PARSER_OPTIONS);
+export const EnforcementResultSchema = withParser(Generated.EnforcementResultSchema, STRICT_ENFORCEMENT_PARSER_OPTIONS);
+export const EnforcementAuditEventSchema = withParser(
+  Generated.EnforcementAuditEventSchema,
+  STRICT_ENFORCEMENT_PARSER_OPTIONS
+);
+export const EnforcementTimerEventSchema = withParser(
+  Generated.EnforcementTimerEventSchema,
+  STRICT_ENFORCEMENT_PARSER_OPTIONS
+);
+export const EnforcementActiveTimerStateSchema = withParser(
+  Generated.EnforcementActiveTimerStateSchema,
+  STRICT_ENFORCEMENT_PARSER_OPTIONS
+);
 
 export type EnforcementCapabilityStatus = Generated.EnforcementCapabilityStatus;
 export type EnforcementUnavailableStatus = Generated.EnforcementUnavailableStatus;

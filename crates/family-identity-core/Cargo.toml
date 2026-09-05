@@ -11,9 +11,13 @@ workspace = true
 path = "src/lib.rs"
 
 [dependencies]
+atomicwrites = "0.4.4"
 chrono = { version = "0.4.42", default-features = false, features = ["std"] }
 ed25519-dalek = "2.2.0"
+fs2 = "0.4.3"
 getrandom = "0.3.4"
+num-bigint = "0.4.6"
+ring = "0.17.14"
 ocentra-eventing = { path = "../ocentra-eventing" }
 ocentra-schema = { path = "../schema" }
 rusqlite = { version = "0.39.0", features = ["bundled"] }
@@ -36,3 +40,7 @@ path = "tests/unit/mod.rs"
 [[test]]
 name = "contract"
 path = "tests/contract/mod.rs"
+
+[[test]]
+name = "integration"
+path = "tests/integration/invite_recovery_repository.rs"

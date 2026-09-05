@@ -2,6 +2,7 @@ use ocentra_eventing::envelope::{DomainEvent, EventContract};
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, SchemaVersion};
 use ocentra_parent_agent_protocol::child_domain_runtime::ChildDomainObservedEvent;
+use serde::de::{Deserializer, Error as DeError};
 use serde::{Deserialize, Serialize};
 
 use crate::runtime_ids::{AppAggregateId, AppRuntimeDecisionId};
@@ -66,6 +67,7 @@ pub enum AppPolicyHandoffState {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct AppRuntimeInput {
     pub capability_state: AppCapabilityState,
     pub foreground_state: AppForegroundState,
@@ -73,6 +75,7 @@ pub struct AppRuntimeInput {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct AppRuntimeDecision {
     pub observation_intent: AppObservationIntent,
     pub runtime_action_state: AppRuntimeActionState,
@@ -80,12 +83,41 @@ pub struct AppRuntimeDecision {
     pub policy_handoff_state: AppPolicyHandoffState,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize)]
 pub struct AppRuntimeDecisionRecordedEvent {
     pub aggregate_id: AppAggregateId,
     pub decision_id: AppRuntimeDecisionId,
     pub input: AppRuntimeInput,
     pub decision: AppRuntimeDecision,
+}
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct AppRuntimeDecisionRecordedEventWire {
+    aggregate_id: AppAggregateId,
+    decision_id: AppRuntimeDecisionId,
+    input: AppRuntimeInput,
+    decision: AppRuntimeDecision,
+}
+
+impl<'de> Deserialize<'de> for AppRuntimeDecisionRecordedEvent {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let wire = AppRuntimeDecisionRecordedEventWire::deserialize(deserializer)?;
+        if !app_runtime_decision_matches_input(wire.input, wire.decision) {
+            return Err(D::Error::custom(
+                "app runtime decision does not match its observed input",
+            ));
+        }
+        Ok(Self {
+            aggregate_id: wire.aggregate_id,
+            decision_id: wire.decision_id,
+            input: wire.input,
+            decision: wire.decision,
+        })
+    }
 }
 
 impl DomainEvent for AppRuntimeDecisionRecordedEvent {
@@ -118,6 +150,13 @@ pub fn evaluate_app_runtime(input: AppRuntimeInput) -> AppRuntimeDecision {
     }
 
     foreground_decision(input.classification_state)
+}
+
+fn app_runtime_decision_matches_input(
+    input: AppRuntimeInput,
+    decision: AppRuntimeDecision,
+) -> bool {
+    decision == evaluate_app_runtime(input)
 }
 
 fn manual_required_decision() -> AppRuntimeDecision {

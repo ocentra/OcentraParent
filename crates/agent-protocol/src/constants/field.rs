@@ -12,6 +12,7 @@ pub const APP_GAME_BOUNDARY_READ_MODEL: &str = "appGameBoundaryReadModel";
 pub const APP_GAME_POLICY_READINESS_READ_MODEL: &str = "appGamePolicyReadinessReadModel";
 pub const APP_GAME_NOTIFICATION_READINESS_READ_MODEL: &str =
     "appGameNotificationReadinessReadModel";
+pub const APP_GAME_NOTIFICATION_STATUS_READ_MODELS: &str = "appGameNotificationStatusReadModels";
 pub const APP_GAME_ADAPTER_EXECUTION_READINESS_READ_MODEL: &str =
     "appGameAdapterExecutionReadinessReadModel";
 pub const APP_GAME_PLATFORM_PROOF_STATUS_READ_MODEL: &str = "appGamePlatformProofStatusReadModel";
@@ -50,6 +51,8 @@ pub const ACTIVITY_TRACKING_RETENTION_SETTINGS_WRITE_REQUEST: &str =
     "trackingRetentionSettingsWriteRequest";
 pub const ACTIVITY_TRACKING_RETENTION_SETTINGS_WRITE_RESULT: &str =
     "trackingRetentionSettingsWriteResult";
+pub const PARENT_RUNTIME_INTENT_INGRESS_REQUEST: &str = "parentRuntimeIntentIngressRequest";
+pub const PARENT_RUNTIME_INTENT_INGRESS_RESULT: &str = "parentRuntimeIntentIngressResult";
 pub const POLICY_REQUEST_ASSISTANT_PREVIEW_CONFIRM_REQUEST: &str =
     "policyRequestAssistantPreviewConfirmRequest";
 pub const POLICY_REQUEST_ASSISTANT_PREVIEW_CONFIRM_RESULT: &str =
@@ -66,6 +69,10 @@ pub const BRIDGE_KIND: &str = "bridgeKind";
 pub const BROWSER_EVIDENCE_ID: &str = "browserEvidenceId";
 pub const BROWSER_FAMILY: &str = "browserFamily";
 pub const BROWSER_CHANNEL: &str = "browserChannel";
+pub const BROWSER_MANAGED_STATUS_JSON: &str = "browserManagedStatusJson";
+pub const BROWSER_INTERVENTION_READ_MODEL_JSON: &str = "browserInterventionReadModelJson";
+pub const BROWSER_INVENTORY_READ_MODEL_JSON: &str = "browserInventoryReadModelJson";
+pub const BROWSER_EVIDENCE_READ_MODEL_JSON: &str = "browserEvidenceReadModelJson";
 pub const BROWSER_INVENTORY_ROW_ID: &str = "browserInventoryRowId";
 pub const BROWSER_INTERVENTION_ID: &str = "browserInterventionId";
 pub const BROWSER_INTERVENTION_ACTION_ID: &str = "browserInterventionActionId";
@@ -137,6 +144,8 @@ pub const CIPHER: &str = "cipher";
 pub const CIPHERTEXT: &str = "ciphertext";
 pub const COMMAND: &str = "command";
 pub const COMMAND_ID: &str = "commandId";
+pub const REQUEST_NONCE: &str = "requestNonce";
+pub const REQUEST_NONCE_DIGEST: &str = "requestNonceDigest";
 pub const CORRELATION_ID: &str = "correlationId";
 pub const CREATED_AT: &str = "createdAt";
 pub const CUSTODY_LABEL: &str = "custodyLabel";
@@ -214,6 +223,7 @@ pub const POLICY_PREVIEW_MANUAL_REVIEW_STATE: &str = "policyPreviewManualReviewS
 pub const POLICY_PREVIEW_TARGET_STATE: &str = "policyPreviewTargetState";
 pub const POLICY_PREVIEW_TARGET_EXPLANATION_CODE: &str = "policyPreviewTargetExplanationCode";
 pub const POLICY_PREVIEW_FINDING_KINDS: &str = "policyPreviewFindingKinds";
+pub const POLICY_PREVIEW_CONFIRMATION_CONTEXT: &str = "policyPreviewConfirmationContext";
 pub const POLICY_SOURCE_STATUS: &str = "policySourceStatus";
 pub const POLICY_SOURCE_SURFACE: &str = "policySourceSurface";
 pub const POLICY_REQUEST_ORIGIN: &str = "policyRequestOrigin";
@@ -279,6 +289,7 @@ pub const LAN_AI_JOB_STATUS: &str = "lanAiJobStatus";
 pub const LAN_AI_JOB_STATE: &str = "lanAiJobState";
 pub const LAN_DISCOVERY_STATE: &str = "discoveryState";
 pub const LAN_DISCOVERY_STATUS: &str = "discoveryStatus";
+pub const LAN_PASSIVE_DISCOVERY_RUNTIME_CAPABILITY: &str = "lanPassiveDiscoveryRuntimeCapability";
 pub const LAN_ADD_DEVICE_READ_MODEL: &str = "addDeviceReadModel";
 pub const LAN_ADD_DEVICE_STATE: &str = "addDeviceState";
 pub const LAN_RUNTIME_EVENT_CHAIN_STREAM: &str = "lanRuntimeEventChainStream";
@@ -417,35 +428,6 @@ pub const NETWORK_MAPPED_POLICY_ACTION: &str = "networkMappedPolicyAction";
 pub const NETWORK_POLICY_MAPPING_MODE: &str = "networkPolicyMappingMode";
 pub const NETWORK_REQUESTED_POLICY_ACTION: &str = "networkRequestedPolicyAction";
 pub const NETWORK_PROTOCOL: &str = "networkProtocol";
-pub const NETWORK_PRODUCT_PATH_ANALYZER_ALERT_REFS: &str = "networkProductPathAnalyzerAlertRefs";
-pub const NETWORK_PRODUCT_PATH_AI_DETECTION_REFS: &str = "networkProductPathAiDetectionRefs";
-pub const NETWORK_PRODUCT_PATH_ACTION_RESULT_REFS: &str = "networkProductPathActionResultRefs";
-pub const NETWORK_PRODUCT_PATH_ACTION_RESULTS: &str = "networkProductPathActionResults";
-pub const NETWORK_PRODUCT_PATH_ADAPTER_ACTION_EXECUTED: &str =
-    "networkProductPathAdapterActionExecuted";
-pub const NETWORK_PRODUCT_PATH_AI_ADVISORY_ROWS: &str = "networkProductPathAiAdvisoryRows";
-pub const NETWORK_PRODUCT_PATH_DELETION_REFS: &str = "networkProductPathDeletionRefs";
-pub const NETWORK_PRODUCT_PATH_DELETE_RECORDS: &str = "networkProductPathDeleteRecords";
-pub const NETWORK_PRODUCT_PATH_ENFORCEMENT_COMMAND_EVENTS: &str =
-    "networkProductPathEnforcementCommandEvents";
-pub const NETWORK_PRODUCT_PATH_EXPORT_REFS: &str = "networkProductPathExportRefs";
-pub const NETWORK_PRODUCT_PATH_EXPORT_RECORDS: &str = "networkProductPathExportRecords";
-pub const NETWORK_PRODUCT_PATH_FAILED_ROWS: &str = "networkProductPathFailedRows";
-pub const NETWORK_PRODUCT_PATH_MANUAL_REQUIRED_ROWS: &str = "networkProductPathManualRequiredRows";
-pub const NETWORK_PRODUCT_PATH_OBSERVED_ROWS: &str = "networkProductPathObservedRows";
-pub const NETWORK_PRODUCT_PATH_POLICY_DECISION_REFS: &str = "networkProductPathPolicyDecisionRefs";
-pub const NETWORK_PRODUCT_PATH_POLICY_DECISIONS: &str = "networkProductPathPolicyDecisions";
-pub const NETWORK_PRODUCT_PATH_PORTAL_READ_MODEL_REFS: &str =
-    "networkProductPathPortalReadModelRefs";
-pub const NETWORK_PRODUCT_PATH_PORTAL_READ_MODELS: &str = "networkProductPathPortalReadModels";
-pub const NETWORK_PRODUCT_PATH_PROVED_ROWS: &str = "networkProductPathProvedRows";
-pub const NETWORK_PRODUCT_PATH_RISK_BUDGET_REFS: &str = "networkProductPathRiskBudgetRefs";
-pub const NETWORK_PRODUCT_PATH_RETENTION_RECORDS: &str = "networkProductPathRetentionRecords";
-pub const NETWORK_PRODUCT_PATH_RETENTION_REFS: &str = "networkProductPathRetentionRefs";
-pub const NETWORK_PRODUCT_PATH_SKIPPED_ROWS: &str = "networkProductPathSkippedRows";
-pub const NETWORK_PRODUCT_PATH_UNAVAILABLE_ROWS: &str = "networkProductPathUnavailableRows";
-pub const NETWORK_PRODUCT_PATH_WEAK_OR_UNAVAILABLE_BLOCKED_ROWS: &str =
-    "networkProductPathWeakOrUnavailableBlockedRows";
 pub const BROWSER_RUNTIME_EVENT_CHAIN_STREAM: &str = "browserRuntimeEventChainStream";
 pub const BROWSER_RUNTIME_ACTION_INTENT_CANDIDATES: &str = "browserRuntimeActionIntentCandidates";
 pub const BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_CANDIDATES: &str =
@@ -501,6 +483,7 @@ pub const BROWSER_RUNTIME_READ_MODEL_PROJECTION_EVENTS: &str =
 pub const BROWSER_RUNTIME_STREAMED_EVENTS: &str = "browserRuntimeStreamedEvents";
 pub const NETWORK_RUNTIME_EVENT_CHAIN_STREAM: &str = "networkRuntimeEventChainStream";
 pub const NETWORK_RUNTIME_DEAD_LETTERS: &str = "networkRuntimeDeadLetters";
+pub const NETWORK_RUNTIME_DURABLE_JOURNAL_STATE: &str = "networkRuntimeDurableJournalState";
 pub const NETWORK_RUNTIME_DELIVERED_ROWS: &str = "networkRuntimeDeliveredRows";
 pub const NETWORK_RUNTIME_ENFORCEMENT_COMMAND_EVENTS: &str =
     "networkRuntimeEnforcementCommandEvents";
@@ -538,6 +521,7 @@ pub const DELETED_AT: &str = "deletedAt";
 pub const REPAIR_REASON: &str = "repairReason";
 pub const QUERY_VISIBILITY: &str = "queryVisibility";
 pub const PROCESS_ATTRIBUTION_STATUS: &str = "processAttributionStatus";
+pub const PROCESS_IDENTITY: &str = "processIdentity";
 pub const PROCESS_NAME: &str = "processName";
 pub const PROCESS_PATH: &str = "processPath";
 pub const PUBLISHER_SIGNATURE_REF: &str = "publisherSignatureRef";

@@ -1,3 +1,6 @@
+use std::path::Path;
+
+use crate::authenticated_delivery_grant::AuthenticatedDeliveryGrantTrustedIssuer;
 use ocentra_parent_agent_protocol::constants::enforcement as enforcement_constants;
 use ocentra_parent_agent_protocol::enforcement::{
     EnforcementAdapterKind, EnforcementAdapterResultCode, EnforcementCapabilityState,
@@ -6,6 +9,17 @@ use ocentra_parent_agent_protocol::enforcement::{
     EnforcementUnavailableReason, ParentPlatform,
 };
 use ocentra_parent_agent_protocol::policy_constants;
+use ocentra_schema::{
+    authenticated_delivery_grant::AuthenticatedDeliveryGrant,
+    authenticated_delivery_managed_process::AuthenticatedManagedProcessTargetBinding,
+};
+
+#[path = "enforcement_adapter_authenticated_target.rs"]
+mod enforcement_adapter_authenticated_target;
+#[path = "enforcement_adapter_process_control.rs"]
+mod enforcement_adapter_process_control;
+#[path = "enforcement_adapter_target_resolution.rs"]
+mod enforcement_adapter_target_resolution;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct EnforcementAdapterOutcome {
@@ -22,6 +36,59 @@ pub struct EnforcementAdapterOutcome {
 pub struct OwnedProcessTerminationTarget {
     pub pid: u32,
     pub expected_process_name: String,
+}
+
+/// A process target is only constructible inside the authenticated delivery
+/// verifier.  Public callers can still submit `OwnedProcessTerminationTarget`
+/// as raw adapter evidence, but that type cannot authorize a policy receipt.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct AuthenticatedOwnedProcessTerminationTarget {
+    pid: u32,
+    expected_process_name: String,
+    grant_fingerprint: String,
+    issuer_key_id: String,
+    issuer_actor_id: String,
+    household_id: String,
+    parent_device_id: String,
+    child_profile_id: String,
+    target_device_id: String,
+    policy_decision_id: String,
+    policy_version: String,
+    action_id: String,
+    capability_id: String,
+    managed_process_identity: String,
+    expected_executable_path_ref: String,
+    process_start_time: u64,
+}
+
+pub(crate) fn resolve_authenticated_managed_process_target(
+    grant: &AuthenticatedDeliveryGrant,
+    binding: &AuthenticatedManagedProcessTargetBinding,
+    trusted_issuer: &AuthenticatedDeliveryGrantTrustedIssuer,
+    activity_store_path: impl AsRef<Path>,
+) -> Result<AuthenticatedOwnedProcessTerminationTarget, ()> {
+    enforcement_adapter_target_resolution::resolve(
+        grant,
+        binding,
+        trusted_issuer,
+        activity_store_path,
+    )
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(crate) struct AdapterObservedProcessIdentity {
+    pub pid: Option<u32>,
+    pub process_name: Option<String>,
+    pub executable_path: Option<String>,
+    pub process_start_time: Option<u64>,
+    pub owner_sid: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(crate) struct AuthenticatedAdapterExecution {
+    pub outcome: EnforcementAdapterOutcome,
+    pub observed_process: AdapterObservedProcessIdentity,
+    pub observed_at: String,
 }
 
 pub fn process_control_capability(checked_at: &str) -> EnforcementCapabilityStatus {
@@ -106,7 +173,26 @@ pub fn terminate_owned_process(
     target: OwnedProcessTerminationTarget,
     completed_at: &str,
 ) -> EnforcementAdapterOutcome {
-    terminate_owned_process_impl(target, completed_at)
+    terminate_owned_process_impl(target, completed_at, None).0
+}
+
+pub(crate) fn terminate_authenticated_owned_process(
+    target: &AuthenticatedOwnedProcessTerminationTarget,
+    completed_at: &str,
+) -> AuthenticatedAdapterExecution {
+    let (outcome, observed_process) = terminate_owned_process_impl(
+        target.raw_target(),
+        completed_at,
+        Some((
+            target.expected_executable_path(),
+            target.process_start_time(),
+        )),
+    );
+    AuthenticatedAdapterExecution {
+        outcome,
+        observed_process,
+        observed_at: chrono::Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Nanos, true),
+    }
 }
 
 #[cfg(windows)]
@@ -168,73 +254,18 @@ pub fn unavailable_adapter_outcome(
 fn terminate_owned_process_impl(
     target: OwnedProcessTerminationTarget,
     completed_at: &str,
-) -> EnforcementAdapterOutcome {
-    use sysinfo::{Pid, ProcessesToUpdate, System};
-
-    let OwnedProcessTerminationTarget {
-        pid,
-        expected_process_name,
-    } = target;
-
-    let mut system = System::new();
-    let pid = Pid::from_u32(pid);
-    system.refresh_processes(ProcessesToUpdate::Some(&[pid]), true);
-    let Some(process) = system.process(pid) else {
-        return adapter_outcome(
-            EnforcementResultStatus::NoOp,
-            EnforcementAdapterResultCode::ProcessAlreadyExited,
-            Some(completed_at.to_string()),
-            None,
-            None,
-            None,
-            EnforcementRollbackState::NotRequired,
-        );
-    };
-
-    if process.name().to_string_lossy() != expected_process_name {
-        return adapter_outcome(
-            EnforcementResultStatus::Failed,
-            EnforcementAdapterResultCode::AdapterFailed,
-            Some(completed_at.to_string()),
-            None,
-            Some(enforcement_constants::REJECTION_TARGET_MISMATCH.to_string()),
-            None,
-            EnforcementRollbackState::Failed,
-        );
-    }
-
-    if process.kill() {
-        adapter_outcome(
-            EnforcementResultStatus::ActuallyEnforced,
-            EnforcementAdapterResultCode::ProcessTerminated,
-            Some(completed_at.to_string()),
-            None,
-            None,
-            None,
-            EnforcementRollbackState::NotRequired,
-        )
-    } else {
-        adapter_outcome(
-            EnforcementResultStatus::Failed,
-            EnforcementAdapterResultCode::AdapterFailed,
-            Some(completed_at.to_string()),
-            None,
-            Some(enforcement_constants::ADAPTER_FAILED.to_string()),
-            None,
-            EnforcementRollbackState::Failed,
-        )
-    }
+    expected_identity: Option<(&str, u64)>,
+) -> (EnforcementAdapterOutcome, AdapterObservedProcessIdentity) {
+    enforcement_adapter_process_control::terminate(target, completed_at, expected_identity)
 }
 
 #[cfg(not(windows))]
 fn terminate_owned_process_impl(
     _target: OwnedProcessTerminationTarget,
     completed_at: &str,
-) -> EnforcementAdapterOutcome {
-    unavailable_adapter_outcome(
-        EnforcementUnavailableReason::UnsupportedPlatform,
-        completed_at,
-    )
+    _expected_identity: Option<(&str, u64)>,
+) -> (EnforcementAdapterOutcome, AdapterObservedProcessIdentity) {
+    enforcement_adapter_process_control::terminate(_target, completed_at, _expected_identity)
 }
 
 fn adapter_outcome(

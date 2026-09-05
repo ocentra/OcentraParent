@@ -1,6 +1,5 @@
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingAuditEventType;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingOptionalText;
-use ocentra_parent_agent_protocol::lan_pairing::LanPairingProof;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingRejectionReason;
 use ocentra_parent_agent_protocol::lan_pairing::LanParentIntentEnvelope;
 use ocentra_parent_agent_protocol::lan_pairing::LanSignedChildAgentClaim;
@@ -24,13 +23,6 @@ pub(crate) fn accepted_control_audit_fields(
     origin: &LanPairingOptionalText,
 ) -> LogFields {
     control_audit::accepted_control_audit_fields(command, intent, origin)
-}
-
-pub(crate) fn accepted_pairing_audit_fields(
-    command: &AgentCommandEnvelope,
-    proof: &LanPairingProof,
-) -> LogFields {
-    pairing_audit::accepted_pairing_audit_fields(command, proof)
 }
 
 pub(crate) fn rejected_pairing_audit_fields(

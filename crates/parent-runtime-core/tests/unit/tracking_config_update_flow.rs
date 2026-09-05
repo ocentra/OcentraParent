@@ -12,7 +12,9 @@ use ocentra_parent_agent_protocol::transport::{
     AgentRoute,
 };
 use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
-use ocentra_parent_runtime_core::tracking_config_update_flow::publish_parent_tracking_config_updated_event_flow;
+use ocentra_parent_runtime_core::tracking_config_update_flow::{
+    publish_parent_tracking_config_updated_event_flow, ParentTrackingConfigUpdateEventFlowReport,
+};
 use ocentra_parent_runtime_core::tracking_dispatch::{
     ChildAcknowledgementState, ChildRuntimePublishState, ParentRuntimeOriginState,
 };
@@ -41,6 +43,7 @@ async fn parent_runtime_tracking_config_flow_publishes_approved_chain_and_child_
     )
     .await;
     let flow_report = result_or_unreachable!(flow_report, constants::error::AGENT_EVENT_SERIALIZES);
+    assert_event_sink_subscriptions(&flow_report);
 
     assert_eq!(
         flow_report.change_requested_event.previous_event_ref,
@@ -109,6 +112,7 @@ async fn parent_runtime_tracking_config_flow_rejects_untrusted_origin_without_ch
     )
     .await;
     let flow_report = result_or_unreachable!(flow_report, constants::error::AGENT_EVENT_SERIALIZES);
+    assert_event_sink_subscriptions(&flow_report);
 
     assert_eq!(
         flow_report.policy_decision_event.decision_state,
@@ -141,6 +145,35 @@ async fn parent_runtime_tracking_config_flow_rejects_untrusted_origin_without_ch
         TrackingConfigUpdateResponseState::Rejected
     );
     assert!(flow_report.child_runtime_flow.is_none());
+}
+
+fn assert_event_sink_subscriptions(flow_report: &ParentTrackingConfigUpdateEventFlowReport) {
+    assert_eq!(
+        flow_report.dispatch_subscription_report.event_type.as_str(),
+        ocentra_parent_runtime_core::tracking_dispatch::PARENT_RUNTIME_TRACKING_DISPATCH_EVALUATED_EVENT_TYPE
+    );
+    assert_eq!(
+        flow_report
+            .change_approved_subscription_report
+            .event_type
+            .as_str(),
+        constants::tracking_config_update::CHANGE_APPROVED_EVENT_TYPE
+    );
+    assert_eq!(
+        flow_report
+            .change_rejected_subscription_report
+            .event_type
+            .as_str(),
+        constants::tracking_config_update::CHANGE_REJECTED_EVENT_TYPE
+    );
+    assert_eq!(
+        flow_report.audit_subscription_report.event_type.as_str(),
+        constants::network_flow::EVENT_AUDIT_ENTRY_COMMITTED
+    );
+    assert_eq!(
+        flow_report.portal_subscription_report.event_type.as_str(),
+        constants::network_flow::EVENT_PORTAL_READ_MODEL_UPDATED
+    );
 }
 
 fn parent_tracking_config_event(

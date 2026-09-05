@@ -73,7 +73,7 @@ pub(crate) fn analysis_event_record(
     redaction_policy: &ScreenOcrRedactionPolicy,
 ) -> ScreenAiAnalysisEventRecord {
     let parsed = parsed_fields_from_generation(generation, redaction_policy);
-    let policy = policy_refs::service_policy_refs(image, parsed.policy_eligible);
+    let policy = policy_refs::service_policy_refs();
     ScreenAiAnalysisEventRecord {
         queue_job_id: image.queue_job_id.clone(),
         image_digest: image.image_digest.clone(),
@@ -81,7 +81,10 @@ pub(crate) fn analysis_event_record(
         summary: parsed.summary,
         primary_category: parsed.category,
         confidence: parsed.confidence,
-        policy_eligible: parsed.policy_eligible,
+        // The adapter's eligibility flag is an AI candidate, not a trusted
+        // policy decision. Until policy-control resolves this result, fail
+        // closed and expose no action-authorizing eligibility.
+        policy_eligible: false,
         provider_kind: parsed.provider_kind,
         model_runtime_ref: parsed.model_runtime_ref,
         model_id: parsed.model_id,

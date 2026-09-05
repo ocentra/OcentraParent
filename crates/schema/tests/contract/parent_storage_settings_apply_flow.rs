@@ -37,7 +37,7 @@ fn parent_storage_settings_apply_flow_contract_round_trips_through_rust_owned_sh
     );
     assert_eq!(
         encoded["applyDecision"]["applyState"],
-        json!("applyRequiresConfirmation")
+        json!("blockedManualRequired")
     );
     assert_eq!(
         encoded["disconnectAction"]["state"],

@@ -11,8 +11,8 @@ use super::fixtures::{
 };
 use crate::{
     AggregateKey, DomainEvent, EventBus, EventContract, EventQueuePolicy, EventResponseContract,
-    EventingError, IdempotencyKey, RequestEvent, RequestId, RequestOptions, SchemaVersion,
-    ShutdownMode,
+    EventingError, IdempotencyKey, RequestCompletionOutcome, RequestEvent, RequestId,
+    RequestOptions, SchemaVersion, ShutdownMode,
 };
 use ocentra_eventing::bus::reports::dead_letter::DeadLetterReason;
 
@@ -141,7 +141,7 @@ async fn production_shutdown_dead_letters_queued_without_dispatch() {
 
 #[tokio::test]
 async fn production_shutdown_waits_for_active_dispatch_before_clearing_state() {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     let handler_started = Arc::new(Notify::new());
     let release_handler = Arc::new(Notify::new());
     let handled = Arc::new(Mutex::new(0_usize));
@@ -236,7 +236,7 @@ async fn test_only_shutdown_drop_reports_dropped_queued_work() {
 
 #[tokio::test]
 async fn production_shutdown_cancels_pending_request_completion() {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     let handler_seen = Arc::new(Notify::new());
     let handler_seen_clone = Arc::clone(&handler_seen);
     bus.subscribe::<ShutdownRequestEvent, _, _>(
@@ -249,6 +249,7 @@ async fn production_shutdown_cancels_pending_request_completion() {
             let handler_seen = Arc::clone(&handler_seen_clone);
             async move {
                 handler_seen.notify_one();
+                std::future::pending::<()>().await;
                 Ok(())
             }
         },
@@ -280,9 +281,27 @@ async fn production_shutdown_cancels_pending_request_completion() {
         .expect_value("second shutdown reports idempotently");
 
     assert_eq!(report.pending_request_count, 1);
-    assert!(matches!(result, Err(EventingError::RequestTimedOut { .. })));
+    assert!(matches!(
+        result,
+        Err(EventingError::RequestCancelled { request_id })
+            if request_id.as_str() == SHUTDOWN_REQUEST_ID
+    ));
+    assert_eq!(
+        report.cancelled_request_reports.len(),
+        1,
+        "shutdown must report every cancelled request"
+    );
+    assert_eq!(
+        report.cancelled_request_reports[0].request_id.as_str(),
+        SHUTDOWN_REQUEST_ID
+    );
+    assert_eq!(
+        report.cancelled_request_reports[0].outcome,
+        RequestCompletionOutcome::Cancelled
+    );
     assert!(second_shutdown.already_shutdown);
     assert_eq!(second_shutdown.queued_event_count, 0);
+    assert!(second_shutdown.cancelled_request_reports.is_empty());
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

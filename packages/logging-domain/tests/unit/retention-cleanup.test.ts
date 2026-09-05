@@ -1,18 +1,20 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, expect, it } from 'vitest';
 import { appendAppLogEntries, listAppLogSessionFiles, pruneAppLogSessions } from '../../src/app-log/appNdjsonWriter';
 import { appendTestLogEntries } from '../../src/test-log/ndjsonWriter';
 import { listNdjsonFiles } from '../../src/test-log/ndjsonPaths';
+import { testLogDerivedArtifactPaths } from '../../src/test-log/testLogMutation';
 import { pruneTestLogRuns } from '../../src/test-log/testLogRetention';
 import { RunType, TestLogScope, TestLogSchemaVersion } from '../../src/test-log/types';
+import { closeLocalArtifactMutationProvider } from '../../src/local-artifact-mutation-provider';
 
-function makeTestEntry(runId: string, timestamp: number) {
+function makeTestEntry(runId: string, timestamp: number, scope = TestLogScope.ParentCodex) {
   return {
     schemaVersion: TestLogSchemaVersion,
     type: 'log' as const,
-    scope: TestLogScope.ParentCodex,
+    scope,
     runId,
     runType: RunType.Single,
     suiteType: 'unit' as const,
@@ -37,97 +39,164 @@ function makeTestEntry(runId: string, timestamp: number) {
 
 const retentionCleanupTempDirs: string[] = [];
 
-afterEach(() => {
+afterEach(async () => {
   for (const tempDir of retentionCleanupTempDirs.splice(0, retentionCleanupTempDirs.length)) {
+    await closeLocalArtifactMutationProvider(tempDir);
     fs.rmSync(tempDir, { force: true, recursive: true });
   }
 });
 
-describe('retention cleanup test-log runs', () => {
-  it('keeps only the newest test runs for a scope', () => {
+it.skipIf(process.platform !== 'win32')('keeps only the newest test runs for a scope', async () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'logging-domain-retention-'));
+  retentionCleanupTempDirs.push(tempDir);
+
+  appendTestLogEntries([makeTestEntry('run-old', 1)], tempDir);
+  appendTestLogEntries([makeTestEntry('run-new', 2)], tempDir);
+  await closeLocalArtifactMutationProvider(tempDir);
+
+  const files = listNdjsonFiles(path.join(tempDir, 'test-logs'));
+  await closeLocalArtifactMutationProvider(tempDir);
+  const oldFile = files.find((filePath) => path.basename(filePath) === 'run-old.ndjson');
+  const newFile = files.find((filePath) => path.basename(filePath) === 'run-new.ndjson');
+  if (oldFile == null || newFile == null) {
+    throw new Error('Expected run-old and run-new NDJSON files');
+  }
+  const derivedArtifacts = testLogDerivedArtifactPaths(TestLogScope.ParentCodex, tempDir);
+  fs.mkdirSync(path.dirname(derivedArtifacts.manifest), { recursive: true });
+  fs.mkdirSync(path.dirname(derivedArtifacts.database), { recursive: true });
+  fs.writeFileSync(derivedArtifacts.manifest, '{}', 'utf8');
+  fs.writeFileSync(derivedArtifacts.database, 'db', 'utf8');
+  fs.writeFileSync(derivedArtifacts.databaseWal, 'wal', 'utf8');
+  fs.utimesSync(oldFile, new Date(1_000), new Date(1_000));
+  fs.utimesSync(newFile, new Date(2_000), new Date(2_000));
+
+  const deleted = pruneTestLogRuns(TestLogScope.ParentCodex, 1, tempDir);
+
+  expect(deleted).toBe(1);
+  const remaining = listNdjsonFiles(path.join(tempDir, 'test-logs'));
+  expect(remaining).toHaveLength(1);
+  expect(path.basename(remaining[0]!)).toBe('run-new.ndjson');
+  expect(fs.existsSync(derivedArtifacts.manifest)).toBe(false);
+  expect(fs.existsSync(derivedArtifacts.database)).toBe(false);
+  expect(fs.existsSync(derivedArtifacts.databaseWal)).toBe(false);
+});
+
+it.skipIf(process.platform !== 'win32')(
+  'uses a deterministic path order when test runs have the same modification time',
+  async () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'logging-domain-retention-'));
     retentionCleanupTempDirs.push(tempDir);
 
-    appendTestLogEntries([makeTestEntry('run-old', 1)], tempDir);
-    appendTestLogEntries([makeTestEntry('run-new', 2)], tempDir);
-
+    appendTestLogEntries([makeTestEntry('run-b', 1), makeTestEntry('run-a', 2)], tempDir);
+    await closeLocalArtifactMutationProvider(tempDir);
     const files = listNdjsonFiles(path.join(tempDir, 'test-logs'));
-    const oldFile = files.find((filePath) => path.basename(filePath) === 'run-old.ndjson');
-    const newFile = files.find((filePath) => path.basename(filePath) === 'run-new.ndjson');
-    if (oldFile == null || newFile == null) {
-      throw new Error('Expected run-old and run-new NDJSON files');
+    await closeLocalArtifactMutationProvider(tempDir);
+    for (const filePath of files) {
+      fs.utimesSync(filePath, new Date(1_000), new Date(1_000));
     }
-    fs.utimesSync(oldFile, new Date(1_000), new Date(1_000));
-    fs.utimesSync(newFile, new Date(2_000), new Date(2_000));
 
     const deleted = pruneTestLogRuns(TestLogScope.ParentCodex, 1, tempDir);
 
     expect(deleted).toBe(1);
     const remaining = listNdjsonFiles(path.join(tempDir, 'test-logs'));
-    expect(remaining).toHaveLength(1);
-    expect(path.basename(remaining[0]!)).toBe('run-new.ndjson');
-  });
+    expect(remaining.map((filePath) => path.basename(filePath))).toEqual(['run-a.ndjson']);
+  }
+);
+
+it.skipIf(process.platform !== 'win32')('keeps only the newest app-log sessions for a scope', () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'logging-domain-retention-'));
+  retentionCleanupTempDirs.push(tempDir);
+
+  appendAppLogEntries(
+    TestLogScope.ParentCodex,
+    'session-old',
+    [
+      {
+        schemaVersion: 1,
+        sessionId: 'session-old',
+        scope: TestLogScope.ParentCodex,
+        timestamp: 1,
+        level: 'info',
+        source: 'portal',
+        context: 'retention',
+        message: 'old',
+        data: null,
+        file: null,
+        filePath: null,
+        line: null,
+        column: null,
+        correlationId: null,
+        environment: 'test',
+      },
+    ],
+    tempDir
+  );
+  pruneAppLogSessions(TestLogScope.ParentCodex, 2, tempDir);
+
+  appendAppLogEntries(
+    TestLogScope.ParentCodex,
+    'session-new',
+    [
+      {
+        schemaVersion: 1,
+        sessionId: 'session-new',
+        scope: TestLogScope.ParentCodex,
+        timestamp: 2,
+        level: 'info',
+        source: 'portal',
+        context: 'retention',
+        message: 'new',
+        data: null,
+        file: null,
+        filePath: null,
+        line: null,
+        column: null,
+        correlationId: null,
+        environment: 'test',
+      },
+    ],
+    tempDir
+  );
+  pruneAppLogSessions(TestLogScope.ParentCodex, 1, tempDir);
+
+  const files = listAppLogSessionFiles(TestLogScope.ParentCodex, tempDir);
+  expect(files).toHaveLength(1);
+  expect(path.basename(files[0]!)).toContain('session-new');
 });
 
-describe('retention cleanup app-log sessions', () => {
-  it('keeps only the newest app-log sessions for a scope', () => {
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'logging-domain-retention-'));
-    retentionCleanupTempDirs.push(tempDir);
+it.skipIf(process.platform !== 'win32')('does not prune app-log sessions from another scope', () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'logging-domain-retention-'));
+  retentionCleanupTempDirs.push(tempDir);
 
-    appendAppLogEntries(
-      TestLogScope.ParentCodex,
-      'session-old',
-      [
-        {
-          schemaVersion: 1,
-          sessionId: 'session-old',
-          scope: TestLogScope.ParentCodex,
-          timestamp: 1,
-          level: 'info',
-          source: 'portal',
-          context: 'retention',
-          message: 'old',
-          data: null,
-          file: null,
-          filePath: null,
-          line: null,
-          column: null,
-          correlationId: null,
-          environment: 'test',
-        },
-      ],
-      tempDir
-    );
-    pruneAppLogSessions(TestLogScope.ParentCodex, 2, tempDir);
+  const entry = {
+    schemaVersion: 1 as const,
+    sessionId: 'portal-session',
+    scope: TestLogScope.ParentPortal,
+    timestamp: 1,
+    level: 'info' as const,
+    source: 'portal',
+    context: 'retention',
+    message: 'portal',
+    data: null,
+    file: null,
+    filePath: null,
+    line: null,
+    column: null,
+    correlationId: null,
+    environment: 'test',
+  };
+  appendAppLogEntries(TestLogScope.ParentPortal, 'portal-session', [entry], tempDir);
+  appendAppLogEntries(
+    TestLogScope.ParentCodex,
+    'codex-session',
+    [{ ...entry, sessionId: 'codex-session', scope: TestLogScope.ParentCodex }],
+    tempDir
+  );
 
-    appendAppLogEntries(
-      TestLogScope.ParentCodex,
-      'session-new',
-      [
-        {
-          schemaVersion: 1,
-          sessionId: 'session-new',
-          scope: TestLogScope.ParentCodex,
-          timestamp: 2,
-          level: 'info',
-          source: 'portal',
-          context: 'retention',
-          message: 'new',
-          data: null,
-          file: null,
-          filePath: null,
-          line: null,
-          column: null,
-          correlationId: null,
-          environment: 'test',
-        },
-      ],
-      tempDir
-    );
-    pruneAppLogSessions(TestLogScope.ParentCodex, 1, tempDir);
+  const deleted = pruneAppLogSessions(TestLogScope.ParentCodex, 0, tempDir);
 
-    const files = listAppLogSessionFiles(TestLogScope.ParentCodex, tempDir);
-    expect(files).toHaveLength(1);
-    expect(path.basename(files[0]!)).toContain('session-new');
-  });
+  expect(deleted).toBe(1);
+  expect(listAppLogSessionFiles(TestLogScope.ParentPortal, tempDir).map((filePath) => path.basename(filePath))).toEqual(
+    ['portal-session.ndjson']
+  );
 });

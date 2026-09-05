@@ -2,12 +2,19 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { executeRequest, readJson } from '../../src/testing.js';
 
-interface ErrorResponse {
-  error: string;
+const ACCOUNT_IDENTITY_BINDING_UNAVAILABLE = {
+  error: 'manual-required',
+  authState: 'parent-session-required',
+  blocker: 'account-identity-binding-context-manual-required',
+} as const;
+
+async function assertAccountIdentityBindingUnavailable(response: Response): Promise<void> {
+  assert.equal(response.status, 503);
+  assert.deepEqual(await readJson<unknown>(response), ACCOUNT_IDENTITY_BINDING_UNAVAILABLE);
 }
 
 describe('interactive billing boundary', () => {
-  it('rejects checkout without explicit origin and csrf proof', async () => {
+  it('does not treat a caller-supplied parent token as authority before origin and csrf evaluation', async () => {
     const { response } = await executeRequest({
       path: '/auth/billing/checkout',
       method: 'POST',
@@ -20,12 +27,10 @@ describe('interactive billing boundary', () => {
       },
     });
 
-    const body = await readJson<ErrorResponse>(response);
-    assert.equal(response.status, 403);
-    assert.equal(body.error, 'origin-validation-failed');
+    await assertAccountIdentityBindingUnavailable(response);
   });
 
-  it('rejects checkout with missing csrf even when the origin is allowed', async () => {
+  it('does not let an allowed origin bypass the missing Account identity binding', async () => {
     const { response } = await executeRequest({
       path: '/auth/billing/checkout',
       method: 'POST',
@@ -39,12 +44,10 @@ describe('interactive billing boundary', () => {
       },
     });
 
-    const body = await readJson<ErrorResponse>(response);
-    assert.equal(response.status, 403);
-    assert.equal(body.error, 'csrf-validation-failed');
+    await assertAccountIdentityBindingUnavailable(response);
   });
 
-  it('rejects change-plan without an allowlisted origin and cancel without csrf proof', async () => {
+  it('keeps change-plan and cancel blocked before caller-minted interactive proofs are considered', async () => {
     const changePlan = await executeRequest({
       path: '/auth/billing/change-plan',
       method: 'POST',
@@ -57,9 +60,7 @@ describe('interactive billing boundary', () => {
         abuseGateState: 'passed-turnstile',
       },
     });
-    const changePlanBody = await readJson<ErrorResponse>(changePlan.response);
-    assert.equal(changePlan.response.status, 403);
-    assert.equal(changePlanBody.error, 'origin-validation-failed');
+    await assertAccountIdentityBindingUnavailable(changePlan.response);
 
     const cancel = await executeRequest({
       path: '/auth/billing/cancel',
@@ -73,8 +74,6 @@ describe('interactive billing boundary', () => {
         abuseGateState: 'trusted-authenticated-session',
       },
     });
-    const cancelBody = await readJson<ErrorResponse>(cancel.response);
-    assert.equal(cancel.response.status, 403);
-    assert.equal(cancelBody.error, 'csrf-validation-failed');
+    await assertAccountIdentityBindingUnavailable(cancel.response);
   });
 });

@@ -63,7 +63,11 @@ describe('kill switch', () => {
       },
     });
 
+    const healthBody = await readJson<Record<string, unknown>>(health.response);
     assert.equal(health.response.status, 200);
+    assert.equal(healthBody.status, 'ok');
+    const pricingBody = await readJson<Record<string, unknown>>(pricing.response);
     assert.equal(pricing.response.status, 200);
+    assert.equal(pricingBody.status, 'ok');
   });
 });

@@ -22,7 +22,10 @@ This file records documentation health and consistency checks for the plan. It i
 - Preserved full README: `README_FULL_ORIGINAL.md`
 - Current snapshot: `current-app-game-snapshot.md`
 - Implementation checklist present: true
-- Workpacks indexed: 214
+- Workpacks indexed: 220
+- Reviewed workpack code/test maps: 220/220
+- Phase 1 source/test status: 172 code+test complete, 20 reviewed no-code,
+  28 with concrete writing gaps
 
 ## Consistency warnings
 
@@ -31,6 +34,10 @@ This file records documentation health and consistency checks for the plan. It i
 - Central app/game contracts belong in `schema-domain` when the shape crosses package, crate, app, or plan boundaries. Do not repair stale app/game work by recreating shared contracts in sibling feature domains.
 - Direct runtime coupling from app/game to AI, policy, enforcement, notification, portal, child-runtime, LAN, remote, setup, payment, or data-custody owners is unhealthy unless the selected workpack records a temporary compatibility reason and a handoff replacement route.
 - Use `WORKPACK_FAMILIES.md` to classify the selected workpack owner path when the `WORKPACK_INDEX.md` row is generated, long, or ambiguous.
+- Historical workpack source lists still name removed `activity-domain`,
+  `parent-domain`, `agent-protocol-domain`, `text-domain`, and missing
+  `scripts/test/app-game-*` runners. `CODE_AUDIT.md` plus the executable graph
+  is the current replacement ownership map.
 
 ## Required hygiene before PR_READY
 

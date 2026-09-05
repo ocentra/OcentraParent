@@ -90,7 +90,7 @@ All docs in this plan folder, grouped by role. Use this for lookup, not default 
 - [workpacks/23-policy-compiler-for-screen-derived-evidence.md](workpacks/23-policy-compiler-for-screen-derived-evidence.md) (547 bytes)
 - [workpacks/24-enforcement-handoff-guard.md](workpacks/24-enforcement-handoff-guard.md) (1,510 bytes)
 - [workpacks/25-parent-portal-summary-ui.md](workpacks/25-parent-portal-summary-ui.md) (1,840 bytes)
-- [workpacks/26-child-disclosure-ux.md](workpacks/26-child-disclosure-ux.md) (1,132 bytes)
+- [workpacks/26-child-disclosure-ux.md](workpacks/26-child-disclosure-ux.md) (2,681 bytes)
 - [workpacks/27-screenshot-retention-optional-mode.md](workpacks/27-screenshot-retention-optional-mode.md) (1,789 bytes)
 - [workpacks/28-live-view-optional-mode.md](workpacks/28-live-view-optional-mode.md) (5,886 bytes)
 - [workpacks/29-proof-tiers-and-proof-packs.md](workpacks/29-proof-tiers-and-proof-packs.md) (629 bytes)

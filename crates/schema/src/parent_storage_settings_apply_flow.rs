@@ -1,3 +1,4 @@
+mod apply_binding_types;
 mod constants;
 mod enums;
 mod identifiers;
@@ -11,6 +12,8 @@ pub const PARENT_STORAGE_SETTINGS_APPLY_FLOW_SCHEMA_VERSION: &str =
 pub type ParentStorageContractVersion = text_types::ParentStorageContractVersion;
 pub type ParentStorageSettingsRowId = text_types::ParentStorageSettingsRowId;
 pub type ParentStoragePreviewId = text_types::ParentStoragePreviewId;
+pub type ParentStorageHouseholdRef = apply_binding_types::ParentStorageHouseholdRef;
+pub type ParentStorageApplyIntentDigest = apply_binding_types::ParentStorageApplyIntentDigest;
 pub type ParentStorageApplyId = text_types::ParentStorageApplyId;
 pub type ParentStorageActionId = text_types::ParentStorageActionId;
 pub type ParentStorageTimestamp = text_types::ParentStorageTimestamp;

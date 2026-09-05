@@ -1,21 +1,40 @@
+#[path = "passive_discovery/capability_store.rs"]
+pub(crate) mod capability_store;
 #[path = "passive_discovery/change_triggers.rs"]
 mod change_triggers;
+#[path = "passive_discovery/listener_runtime.rs"]
+mod listener_runtime;
+#[path = "passive_discovery/pipeline_health.rs"]
+mod pipeline_health;
+#[path = "passive_discovery/reconciliation.rs"]
+mod reconciliation;
 #[path = "passive_discovery/runtime_slice.rs"]
 mod runtime_slice;
+#[path = "passive_discovery/service_owner.rs"]
+mod service_owner;
+#[path = "passive_discovery/start.rs"]
+mod start;
 
-use std::time::Duration;
+use std::{sync::Arc, time::Duration};
 
 use ocentra_lan_core::network_inventory::passive_discovery::{
     LanPassiveDiscoverySource, LanPassiveDiscoveryTriggerReason,
 };
 use ocentra_lan_core::network_inventory::LanPassiveRuntimeLocalNetworkIdentity;
-use ocentra_parent_agent_protocol::constants::lan_pairing as lan_pairing_constants;
+use tokio::sync::watch;
 
 use crate::lan_pairing::LanPairingRuntime;
+
+use self::service_owner::LanPassiveDiscoveryServiceOwner;
 
 const PASSIVE_DISCOVERY_INTERVAL: Duration = Duration::from_secs(180);
 const PASSIVE_DISCOVERY_READ_TIMEOUT: Duration = Duration::from_millis(50);
 const PASSIVE_DISCOVERY_MAX_DATAGRAMS_PER_SOURCE: usize = 8;
+const PASSIVE_DISCOVERY_MAX_DATAGRAMS_PER_CYCLE: usize = 48;
+const PASSIVE_DISCOVERY_MAX_CYCLE_DURATION: Duration = Duration::from_millis(50);
+const PASSIVE_DISCOVERY_RETRY_BASE: Duration = Duration::from_secs(1);
+const PASSIVE_DISCOVERY_RETRY_MAX: Duration = Duration::from_secs(60);
+const PASSIVE_DISCOVERY_RECONCILIATION_MIN_INTERVAL: Duration = Duration::from_secs(120);
 
 const PASSIVE_DISCOVERY_UDP_SOURCES: [LanPassiveDiscoverySource; 6] = [
     LanPassiveDiscoverySource::Dhcp,
@@ -38,25 +57,57 @@ pub(crate) struct LanPassiveDiscoveryLocalNetworkChangeTrigger {
     pub(crate) summary: String,
 }
 
-pub(crate) fn spawn_lan_passive_discovery_runtime(runtime: LanPairingRuntime) {
-    tokio::spawn(async move {
-        let mut interval = tokio::time::interval(PASSIVE_DISCOVERY_INTERVAL);
-        interval.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Skip);
-        let mut observed_state = LanPassiveDiscoveryRuntimeObservedState::default();
-        runtime.record_passive_rescan_trigger(
-            LanPassiveDiscoveryTriggerReason::AppResumed,
-            lan_pairing_constants::PASSIVE_DISCOVERY_RUNTIME_STARTED_SUMMARY,
-        );
-        if !runtime.collect_passive_discovery_runtime_slice(&mut observed_state) {
-            return;
-        }
-        loop {
-            interval.tick().await;
-            if !runtime.collect_passive_discovery_runtime_slice(&mut observed_state) {
-                break;
-            }
-        }
-    });
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(crate) struct LanPassiveDiscoveryRefreshSignal {
+    sequence: u64,
+    source: Option<LanPassiveDiscoverySource>,
+    trigger_reason: LanPassiveDiscoveryTriggerReason,
+    observed_at: String,
+}
+
+struct LanPassiveDiscoveryRefreshSignalSender {
+    deliberate: watch::Sender<Option<LanPassiveDiscoveryRefreshSignal>>,
+    passive: watch::Sender<Option<LanPassiveDiscoveryRefreshSignal>>,
+}
+
+struct LanPassiveDiscoveryRefreshSignalReceiver {
+    deliberate: watch::Receiver<Option<LanPassiveDiscoveryRefreshSignal>>,
+    passive: watch::Receiver<Option<LanPassiveDiscoveryRefreshSignal>>,
+}
+
+pub(super) struct LanPassiveDiscoveryRuntimeSliceOutcome {
+    running: bool,
+    network_changed: bool,
+    refresh_signals: Vec<LanPassiveDiscoveryRefreshSignal>,
+}
+
+#[derive(Clone)]
+pub(crate) struct LanPassiveDiscoveryServiceRuntime {
+    _owner: Arc<LanPassiveDiscoveryServiceOwner>,
+}
+
+pub(crate) fn start_lan_passive_discovery_service_runtime(
+    runtime: &LanPairingRuntime,
+) -> std::io::Result<LanPassiveDiscoveryServiceRuntime> {
+    start::start(runtime)
+}
+
+fn refresh_signal_channel() -> (
+    LanPassiveDiscoveryRefreshSignalSender,
+    LanPassiveDiscoveryRefreshSignalReceiver,
+) {
+    let (deliberate_sender, deliberate_receiver) = watch::channel(None);
+    let (passive_sender, passive_receiver) = watch::channel(None);
+    (
+        LanPassiveDiscoveryRefreshSignalSender {
+            deliberate: deliberate_sender,
+            passive: passive_sender,
+        },
+        LanPassiveDiscoveryRefreshSignalReceiver {
+            deliberate: deliberate_receiver,
+            passive: passive_receiver,
+        },
+    )
 }
 
 pub(crate) fn local_network_change_triggers(
@@ -68,4 +119,30 @@ pub(crate) fn local_network_change_triggers(
 
 pub(crate) fn passive_discovery_udp_sources() -> &'static [LanPassiveDiscoverySource] {
     &PASSIVE_DISCOVERY_UDP_SOURCES
+}
+
+impl LanPassiveDiscoveryRefreshSignal {
+    fn is_coherent_after(&self, previous_sequence: u64) -> bool {
+        if self.sequence <= previous_sequence || self.observed_at.trim().is_empty() {
+            return false;
+        }
+        match self.trigger_reason {
+            LanPassiveDiscoveryTriggerReason::PassivePacketObserved => self.source.is_some(),
+            _ => self.source.is_none(),
+        }
+    }
+}
+
+impl LanPassiveDiscoveryRefreshSignalSender {
+    fn send_replace(
+        &self,
+        signal: Option<LanPassiveDiscoveryRefreshSignal>,
+    ) -> Option<LanPassiveDiscoveryRefreshSignal> {
+        match signal.as_ref().map(|signal| &signal.trigger_reason) {
+            Some(LanPassiveDiscoveryTriggerReason::PassivePacketObserved) => {
+                self.passive.send_replace(signal)
+            }
+            _ => self.deliberate.send_replace(signal),
+        }
+    }
 }

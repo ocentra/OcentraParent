@@ -22,6 +22,16 @@ pub(super) fn verify_lan_signed_child_agent_envelope(
     context: &LanSignedChildAgentVerificationContext,
     replay_guard: &mut LanSignedChildAgentReplayGuard,
 ) -> Result<LanSignedChildAgentClaim, LanSignedChildAgentVerificationError> {
+    let claim = verify_lan_signed_child_agent_authenticity(envelope, observed_at, context)?;
+    validate_signed_child_agent_replay(&claim, replay_guard)?;
+    Ok(claim)
+}
+
+pub(super) fn verify_lan_signed_child_agent_authenticity(
+    envelope: &LanSignedChildAgentEnvelope,
+    observed_at: &str,
+    context: &LanSignedChildAgentVerificationContext,
+) -> Result<LanSignedChildAgentClaim, LanSignedChildAgentVerificationError> {
     validate_signed_child_agent_schema(envelope)?;
     validate_signed_child_agent_required_fields(envelope)?;
     validate_signed_child_agent_time_window(&envelope.claim, observed_at)?;
@@ -31,7 +41,6 @@ pub(super) fn verify_lan_signed_child_agent_envelope(
     validate_signed_child_agent_public_key_id(envelope, &verifying_key)?;
     verify_signed_child_agent_signature(envelope, &verifying_key)?;
     validate_signed_child_agent_context(&envelope.claim, context)?;
-    validate_signed_child_agent_replay(&envelope.claim, replay_guard)?;
 
     Ok(envelope.claim.clone())
 }
@@ -42,6 +51,10 @@ pub(super) fn signed_child_agent_public_key_id(verifying_key: &VerifyingKey) -> 
         .iter()
         .map(|byte| format!("{byte:02x}"))
         .collect()
+}
+
+pub(super) fn signed_child_agent_public_key_sha256(verifying_key: &VerifyingKey) -> String {
+    format!("{:x}", Sha256::digest(verifying_key.as_bytes()))
 }
 
 fn validate_signed_child_agent_schema(

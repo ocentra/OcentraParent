@@ -9,14 +9,17 @@ use tokio::sync::{RwLock, Semaphore};
 use crate::queue::policy::NoSubscriberQueuePolicy;
 use crate::{
     AggregateKey, DomainEvent, EventQueue, EventType, EventingError, ExpectValue,
-    HandlerExecutionPolicy, JournalMode, JournalPolicy, RequestRegistry, SharedEventClock,
-    SharedEventJournal, StoredEventEnvelope,
+    HandlerExecutionPolicy, JournalMode, JournalPolicy, RequestCompletionReport, RequestRegistry,
+    SharedEventClock, SharedEventJournal, StoredEventEnvelope,
 };
 
 mod active_dispatch;
 mod aggregate_gate;
 mod builders;
 mod dispatch;
+mod dispatch_chain;
+mod handler_scope;
+mod identity;
 mod journaling;
 mod lifecycle;
 mod publish;
@@ -27,9 +30,9 @@ pub mod subscriber;
 
 use subscriber::{insert_subscriber, record_for, remove_subscriber, SubscriberRecord};
 
-use active_dispatch::ActiveDispatchTracker;
+use active_dispatch::{ActiveDispatchGuard, ActiveDispatchTracker};
 
-use publisher::{EventContext, EventPublisher};
+use publisher::{EventContext, EventPublisher, RootEventPublisher};
 use reports::dead_letter::DeadLetter;
 use reports::handler::{EventMetricsSnapshot, HandlerReport, PublishReport, QueueDrainReport};
 use subscriber::{EventSubscriber, SubscriptionHandle, SubscriptionReport};
@@ -54,6 +57,7 @@ pub struct EventBusClearReport {
     pub pending_request_count: usize,
     pub completed_request_count: usize,
     pub timed_out_request_count: usize,
+    pub cancelled_request_reports: Vec<RequestCompletionReport>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -78,10 +82,12 @@ pub struct EventBusShutdownReport {
     pub pending_request_count: usize,
     pub completed_request_count: usize,
     pub timed_out_request_count: usize,
+    pub cancelled_request_reports: Vec<RequestCompletionReport>,
 }
 
 #[derive(Clone)]
 pub struct EventBus {
+    identity: identity::EventBusIdentity,
     registry: Arc<Mutex<BTreeMap<EventType, Vec<SubscriberRecord>>>>,
     stored_journal: Arc<RwLock<Vec<StoredEventEnvelope>>>,
     dead_letters: Arc<RwLock<Vec<DeadLetter>>>,
@@ -94,6 +100,51 @@ pub struct EventBus {
     clock: SharedEventClock,
     shutdown: Arc<Mutex<EventBusLifecycleState>>,
     active_dispatches: ActiveDispatchTracker,
+}
+
+impl RootEventPublisher {
+    pub async fn subscribe<E, F, Fut>(
+        &self,
+        subscriber: EventSubscriber,
+        handler: F,
+    ) -> Result<SubscriptionReport, EventingError>
+    where
+        E: DomainEvent,
+        F: Fn(EventContext<E>) -> Fut + Send + Sync + 'static,
+        Fut: Future<Output = Result<(), EventingError>> + Send + 'static,
+    {
+        self.bus
+            .subscribe_internal::<E, _, _>(subscriber, handler)
+            .await
+    }
+
+    pub async fn subscribe_with_handle<E, F, Fut>(
+        &self,
+        subscriber: EventSubscriber,
+        handler: F,
+    ) -> Result<SubscriptionHandle, EventingError>
+    where
+        E: DomainEvent,
+        F: Fn(EventContext<E>) -> Fut + Send + Sync + 'static,
+        Fut: Future<Output = Result<(), EventingError>> + Send + 'static,
+    {
+        self.bus
+            .subscribe_with_handle_internal::<E, _, _>(subscriber, handler)
+            .await
+    }
+
+    pub async fn subscribe_sync<E, F>(
+        &self,
+        subscriber: EventSubscriber,
+        handler: F,
+    ) -> Result<SubscriptionReport, EventingError>
+    where
+        E: DomainEvent,
+        F: Fn(EventContext<E>) -> Result<(), EventingError> + Send + Sync + 'static,
+    {
+        self.subscribe::<E, _, _>(subscriber, move |context| ready(handler(context)))
+            .await
+    }
 }
 
 impl EventBus {
@@ -122,7 +173,7 @@ impl EventBus {
         self.queue.policy().no_subscriber()
     }
 
-    pub async fn subscribe<E, F, Fut>(
+    async fn subscribe_internal<E, F, Fut>(
         &self,
         subscriber: EventSubscriber,
         handler: F,
@@ -132,6 +183,7 @@ impl EventBus {
         F: Fn(EventContext<E>) -> Fut + Send + Sync + 'static,
         Fut: Future<Output = Result<(), EventingError>> + Send + 'static,
     {
+        let _active_dispatch = self.admit_active_dispatch()?;
         let report = SubscriptionReport {
             subscriber_id: subscriber.id.clone(),
             event_type: subscriber.event_type.clone(),
@@ -147,7 +199,7 @@ impl EventBus {
         Ok(report)
     }
 
-    pub async fn subscribe_with_handle<E, F, Fut>(
+    async fn subscribe_with_handle_internal<E, F, Fut>(
         &self,
         subscriber: EventSubscriber,
         handler: F,
@@ -157,6 +209,7 @@ impl EventBus {
         F: Fn(EventContext<E>) -> Fut + Send + Sync + 'static,
         Fut: Future<Output = Result<(), EventingError>> + Send + 'static,
     {
+        let _active_dispatch = self.admit_active_dispatch()?;
         let report = SubscriptionReport {
             subscriber_id: subscriber.id.clone(),
             event_type: subscriber.event_type.clone(),
@@ -170,19 +223,6 @@ impl EventBus {
             ..report
         };
         Ok(SubscriptionHandle::new(Arc::clone(&self.registry), report))
-    }
-
-    pub async fn subscribe_sync<E, F>(
-        &self,
-        subscriber: EventSubscriber,
-        handler: F,
-    ) -> Result<SubscriptionReport, EventingError>
-    where
-        E: DomainEvent,
-        F: Fn(EventContext<E>) -> Result<(), EventingError> + Send + Sync + 'static,
-    {
-        self.subscribe::<E, _, _>(subscriber, move |context| ready(handler(context)))
-            .await
     }
 
     fn insert_subscriber(&self, record: SubscriberRecord) -> Result<(), EventingError> {
@@ -232,6 +272,16 @@ impl EventBus {
         Ok(())
     }
 
+    fn admit_active_dispatch(&self) -> Result<ActiveDispatchGuard, EventingError> {
+        // Hold lifecycle state while incrementing the tracker so shutdown
+        // cannot observe an idle bus between admission and registration.
+        let shutdown = self.shutdown.lock().expect_value("event bus shutdown lock");
+        if *shutdown != EventBusLifecycleState::Active {
+            return Err(EventingError::BusShutdown);
+        }
+        Ok(self.active_dispatches.enter())
+    }
+
     fn begin_shutdown(&self) -> bool {
         let mut shutdown = self.shutdown.lock().expect_value("event bus shutdown lock");
         match *shutdown {
@@ -246,13 +296,6 @@ impl EventBus {
     fn mark_shutdown(&self) {
         *self.shutdown.lock().expect_value("event bus shutdown lock") =
             EventBusLifecycleState::Shutdown;
-    }
-
-    fn rollback_shutdown(&self) {
-        let mut shutdown = self.shutdown.lock().expect_value("event bus shutdown lock");
-        if *shutdown == EventBusLifecycleState::ShuttingDown {
-            *shutdown = EventBusLifecycleState::Active;
-        }
     }
 }
 

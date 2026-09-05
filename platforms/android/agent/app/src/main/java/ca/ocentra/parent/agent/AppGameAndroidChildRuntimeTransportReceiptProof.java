@@ -62,7 +62,10 @@ public final class AppGameAndroidChildRuntimeTransportReceiptProof {
         status.putString("schemaVersion", SCHEMA_VERSION);
         status.putString("packageId", PACKAGE_ID);
         status.putString("nativeBridgeClass", NATIVE_BRIDGE_CLASS);
-        status.putString(FIELD_TRANSPORT_CHANNEL_STATE, TRANSPORT_CHANNEL_ACTIVITY_VISIBLE);
+        status.putString(
+            FIELD_TRANSPORT_CHANNEL_STATE,
+            context == null ? TRANSPORT_CHANNEL_ACTIVITY_UNAVAILABLE : TRANSPORT_CHANNEL_ACTIVITY_VISIBLE
+        );
         status.putString(
             FIELD_RECEIPT_STORE_STATE,
             internalStoreAvailable ? RECEIPT_STORE_INTERNAL_AVAILABLE : RECEIPT_STORE_INTERNAL_UNAVAILABLE
@@ -120,6 +123,9 @@ public final class AppGameAndroidChildRuntimeTransportReceiptProof {
     }
 
     private static boolean internalReceiptStoreAvailable(Context context) {
+        if (context == null) {
+            return false;
+        }
         File filesDir = context.getFilesDir();
         return filesDir != null && (filesDir.exists() || filesDir.mkdirs()) && filesDir.canWrite();
     }
@@ -164,6 +170,9 @@ public final class AppGameAndroidChildRuntimeTransportReceiptProof {
     }
 
     private static File internalReceiptDirectory(Context context) {
+        if (context == null) {
+            return null;
+        }
         File filesDir = context.getFilesDir();
         if (filesDir == null || (!filesDir.exists() && !filesDir.mkdirs())) {
             return null;

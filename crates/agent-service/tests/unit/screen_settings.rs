@@ -20,8 +20,16 @@ mod screen_settings_runtime;
 mod screen_settings_runtime_tests;
 #[path = "../../src/screen_settings_store.rs"]
 mod screen_settings_store;
-#[path = "../support/test_invariants.rs"]
-mod test_invariants;
+#[path = "../support/test_invariants/require_json_decode.rs"]
+mod test_require_json_decode;
+#[path = "../support/test_invariants/require_log_string_field.rs"]
+mod test_require_log_string_field;
+#[path = "../support/test_invariants/require_ok.rs"]
+mod test_require_ok;
+#[path = "../support/test_invariants/require_some.rs"]
+mod test_require_some;
+#[path = "../support/test_invariants/serialize_test_json.rs"]
+mod test_serialize_json;
 #[path = "../../src/time.rs"]
 mod time;
 

@@ -37,22 +37,27 @@ enforcement.
 - No adapter dispatch, platform enforcement, provider delivery, child-device
   delivery, Device Owner/Profile Owner, or Play policy proof.
 
-## Files
+## Current source and test prerequisites
 
-- `packages/parent-domain/src/app-game-android-usage-events-package-runtime-proof.ts`
-- `packages/parent-domain/tests/app-game-android-usage-events-package-runtime-proof.test.ts`
-- `scripts/test/app-game-android-usage-events-package-runtime-proof.mjs`
+- `platforms/android/agent/app/src/main/AndroidManifest.xml`
+- `platforms/android/agent/app/src/main/java/ca/ocentra/child/agent/ChildAgentActivity.java`
+- `platforms/android/agent/app/src/main/java/ca/ocentra/child/agent/ChildAgentCompositionService.java`
+- WP190/WP200 focused JVM and instrumentation test roots.
 
-## Validation
+Independent review at canonical `f2d485b20` found no missing owned production
+or behavioral test source. Historical `packages/parent-domain` and
+`scripts/test/app-game-*` paths were removed by Rust-first convergence and are
+not current owners.
 
-- `cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-android-usage-events-package-runtime-proof`
-- `cmd /c node --check scripts/test/app-game-android-usage-events-package-runtime-proof.mjs`
-- `cmd /c node scripts/test/app-game-android-usage-events-package-runtime-proof.mjs`
+## Validation state
+
+This is now a physical-proof-only workpack. No Samsung S9 Wi-Fi ADB install,
+launch, AppOps, or redacted UI capture was run in the code/test-source phase.
 
 ## Done Criteria
 
 - Physical Android target is explicitly selected with Wi-Fi ADB.
 - Debug APK is installed and MainActivity is launched.
 - AppOps and UI state are captured as parent-safe proof refs.
-- Parent-domain rejects missing UI/AppOps evidence, raw data custody, dispatch,
+- Captured proof rejects missing UI/AppOps evidence, raw data custody, dispatch,
   enforcement, and child delivery claims.

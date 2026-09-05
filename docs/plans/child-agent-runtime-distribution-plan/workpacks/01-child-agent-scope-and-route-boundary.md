@@ -73,6 +73,9 @@ platform scaffold/manual-required rows being counted as READY
 - The setup-device-trust path remains a handoff boundary into child distribution rather than package/install/runtime proof.
 - The historical parent-client folder path remains compatibility-only: `docs/plans/parent-desktop-runtime-package-plan/`. Canonical parent distribution ownership stays in `parent-client-runtime-distribution-plan`.
 - Proof for this scope correction is stored only under `output/child-agent-runtime-distribution-plan-proof/01-child-agent-scope-and-route-boundary/`.
+- Focused source now exists at `tests/repo-tooling/child-agent-runtime-distribution-route.test.mjs`. It loads the generated graph and reviewed code map, accepts only the reviewed route-only WP01 validation shape, and behaviorally rejects parent-client ownership, runtime/package roots, promotion beyond validation, missing or misrouted retained proof, and a wrong proof root.
+- The cohesive runner at `scripts/test/child-agent-scope-and-route-boundary-proof.mjs` ran graph validation plus that focused test and wrote exactly the four required files below.
+- Retained proof now exists at the canonical WP01 proof root. Tests, proof, and checklist evidence are reviewed, while normal graph completion remains blocked on the mandatory implementation requirement: this workpack is `no-code-required`, and neither planning docs nor test/proof scripts are legal production implementation evidence. Runtime/package behavior, validation aggregation, CI, PR, release readiness, and plan-wide DONE remain open.
 
 ## Required proof files
 
@@ -81,6 +84,19 @@ output/child-agent-runtime-distribution-plan-proof/01-child-agent-scope-and-rout
 output/child-agent-runtime-distribution-plan-proof/01-child-agent-scope-and-route-boundary/01-negative-case-proof.md
 output/child-agent-runtime-distribution-plan-proof/01-child-agent-scope-and-route-boundary/02-no-claim-boundary.md
 output/child-agent-runtime-distribution-plan-proof/01-child-agent-scope-and-route-boundary/16-validation-commands.log
+```
+
+## Focused source validation
+
+```text
+node --test tests/repo-tooling/child-agent-runtime-distribution-route.test.mjs
+npm run --silent graph:validate
+```
+
+Retained proof execution:
+
+```text
+node scripts/test/child-agent-scope-and-route-boundary-proof.mjs
 ```
 
 ## Failure conditions

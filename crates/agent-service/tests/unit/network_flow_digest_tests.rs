@@ -144,6 +144,7 @@ fn observation(input: NetworkObservationInput) -> ActivityNetworkFlowObservation
         },
         process_id: input.process_id,
         process_name: input.process_name.map(str::to_string),
+        associated_pid_count: Some(1),
         counters: ActivityNetworkFlowCounters {
             connection_count: input.connection_count,
             bytes_sent: input.bytes_sent,

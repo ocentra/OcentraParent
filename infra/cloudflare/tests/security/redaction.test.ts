@@ -1,6 +1,15 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { redactHeaders, redactPayload } from '../../src/security/redaction.js';
+import { Logger } from '@ocentra-parent/logging-domain/core/logger';
+import {
+  redactHeaders,
+  redactPayload,
+  sanitizeProviderMetadata,
+  sanitizeProviderMetadataForMode,
+} from '../../src/security/redaction.js';
+
+const log = Logger.instance;
+log.register(import.meta.url);
 
 describe('security redaction', () => {
   it('redacts provider secrets, signing refs, child-data markers, and evidence references', () => {
@@ -50,6 +59,85 @@ describe('security redaction', () => {
       'stripe-signature': '[redacted]',
       'x-request-id': 'req-123',
       'x-session-token': '[redacted]',
+    });
+  });
+
+  it('redacts provider credential identifiers and key references by field name', () => {
+    const value = redactPayload({
+      RAZORPAY_KEY_ID: 'rzp-live-key-id',
+      PAYPAL_CLIENT_ID: 'paypal-client-id',
+      APPLE_STORE_KEY_REF: 'apple-store-key-ref',
+      GOOGLE_PLAY_SERVICE_ACCOUNT_REF: 'google-service-account-ref',
+      ENTITLEMENT_SIGNING_KEY_REF: 'entitlement-signing-key-ref',
+    }) as Record<string, unknown>;
+
+    assert.deepEqual(value, {
+      RAZORPAY_KEY_ID: '[redacted]',
+      PAYPAL_CLIENT_ID: '[redacted]',
+      APPLE_STORE_KEY_REF: '[redacted]',
+      GOOGLE_PLAY_SERVICE_ACCOUNT_REF: '[redacted]',
+      ENTITLEMENT_SIGNING_KEY_REF: '[redacted]',
+    });
+  });
+
+  it('accepts only billing reconciliation metadata and rejects child, policy, and secret fields', () => {
+    assert.deepEqual(
+      sanitizeProviderMetadata({
+        plan_reference: 'family-core',
+        accountReference: 'account-123',
+        testLiveMarker: 'test',
+      }),
+      {
+        accepted: true,
+        metadata: {
+          planReference: 'family-core',
+          accountReference: 'account-123',
+          testLiveMarker: 'test',
+        },
+      }
+    );
+    assert.deepEqual(sanitizeProviderMetadata({ childName: 'Ari' }), {
+      accepted: false,
+      reason: 'metadata-key-denied',
+    });
+    assert.deepEqual(sanitizeProviderMetadata({ policyDetails: 'restricted' }), {
+      accepted: false,
+      reason: 'metadata-key-denied',
+    });
+    assert.deepEqual(sanitizeProviderMetadata({ invoiceReference: 'sk_live_not-a-reference' }), {
+      accepted: false,
+      reason: 'metadata-value-invalid',
+    });
+    assert.deepEqual(sanitizeProviderMetadata({ providerSpecificField: 'not-approved' }), {
+      accepted: false,
+      reason: 'metadata-key-not-allowed',
+    });
+    assert.deepEqual(sanitizeProviderMetadata({ testLiveMarker: 'preview' }), {
+      accepted: false,
+      reason: 'metadata-value-invalid',
+    });
+  });
+
+  it('rejects explicit provider metadata that contradicts the Worker test or live mode', () => {
+    assert.deepEqual(sanitizeProviderMetadataForMode({ testLiveMarker: 'test' }, 'test'), {
+      accepted: true,
+      metadata: { testLiveMarker: 'test' },
+    });
+    assert.deepEqual(sanitizeProviderMetadataForMode({ testLiveMarker: 'live' }, 'live'), {
+      accepted: true,
+      metadata: { testLiveMarker: 'live' },
+    });
+    assert.deepEqual(sanitizeProviderMetadataForMode({ testLiveMarker: 'live' }, 'test'), {
+      accepted: false,
+      reason: 'metadata-test-live-mismatch',
+    });
+    assert.deepEqual(sanitizeProviderMetadataForMode({ testLiveMarker: 'test' }, 'live'), {
+      accepted: false,
+      reason: 'metadata-test-live-mismatch',
+    });
+    assert.deepEqual(sanitizeProviderMetadataForMode({ invoiceReference: 'invoice-123' }, 'live'), {
+      accepted: true,
+      metadata: { invoiceReference: 'invoice-123' },
     });
   });
 });

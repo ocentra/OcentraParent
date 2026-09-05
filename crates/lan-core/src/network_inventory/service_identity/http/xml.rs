@@ -28,7 +28,7 @@ pub(super) fn first_xml_text_by_local_name(text: &str, local_name: &str) -> Opti
     None
 }
 
-fn strip_xml_tags(text: &str) -> String {
+pub(super) fn strip_xml_tags(text: &str) -> String {
     let mut stripped = String::new();
     let mut inside_tag = false;
     for character in text.chars() {

@@ -1,11 +1,20 @@
-import type { ComponentProps, ReactElement } from 'react';
-import { PARENT_PORTAL_ROUTE, parentPortalRouteContext } from '@ocentra-parent/portal-domain/parent-portal-data';
+import { type ReactElement, useEffect, useRef } from 'react';
+import {
+  PARENT_PORTAL_ROUTE,
+  latestParentAssistantResponse,
+  parentPortalRouteContext,
+} from '@ocentra-parent/portal-domain/parent-portal-data';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import {
   type ParentBrowserPanelSnapshot,
+  type ParentPolicyPreviewPanelSnapshot,
+  ParentAgentCommand,
+  ParentAgentEvent,
   ParentBridgeConnectionState,
   ParentHostBridgeRuntime,
   ParentRoute,
-  type ParentSetupFirstRunPanelSnapshot,
+  type ParentScreenSummaryPanelSnapshot,
+  parentRouteFromHashPath,
   parentRouteHashPath,
   type ParentBridgeConnectionState as ParentBridgeConnectionStateValue,
   type ParentRouteId,
@@ -17,10 +26,32 @@ import { resolveSnapshotLiveActivityState } from './route-live-activity-state';
 import { PortalDeveloperRoutePanel, shouldRenderPortalDeveloperRoute } from './PortalDeveloperRoutePanel';
 import { openPortalFrameTunerWindow } from './portal-dev-tool-window';
 import { PortalDiagnosticsRoutePanel } from './PortalDiagnosticsRoutePanel';
+import { PolicyPreviewRoutePanel, shouldRenderPolicyPreviewRoute } from './PolicyPreviewRoutePanel';
 import { PortalProofPanelsRoutePanel } from './PortalProofPanelsRoutePanel';
 import type { PortalRenderActions } from './portal-actions';
 import type { PortalRuntimeState } from './portal-state';
 import { SetupFirstRunRoutePanel, shouldRenderSetupFirstRunRoute } from './SetupFirstRunRoutePanel';
+import { ScreenSummaryRoutePanelMount } from './ScreenSummaryRoutePanel';
+import { ScreenSettingsRoutePanel, shouldRenderScreenSettingsRoute } from './ScreenSettingsRoutePanel';
+import { AppGameSessionsRoutePanel, shouldRenderAppGameSessionsRoutePanel } from './AppGameSessionsRoutePanel';
+import { ScheduleRouteUnavailablePanel } from './ScheduleRouteUnavailablePanel';
+import { AiRuntimeRoutePanel, shouldRenderAiRuntimeRoute } from './AiRuntimeRoutePanel';
+import { TrackingStatusRoutePanel, shouldRenderTrackingStatusRoute } from './TrackingStatusRoutePanel';
+import {
+  ParentDesktopDistributionRoutePanel,
+  resolveParentDesktopDistributionPanelState,
+  shouldRenderParentDesktopDistributionRoute,
+} from './ParentDesktopDistributionRoutePanel';
+import { BrowserActivityRoutePanel, shouldRenderBrowserActivityRoute } from './BrowserActivityRoutePanel';
+import { BrowserReviewRoutePanel, shouldRenderBrowserReviewRoute } from './BrowserReviewRoutePanel';
+import {
+  NetworkEvidenceDrawerRoutePanel,
+  shouldRenderNetworkEvidenceDrawerRoute,
+} from './NetworkEvidenceDrawerRoutePanel';
+import { CapabilityStatusRoutePanel, shouldRenderCapabilityStatusRoute } from './CapabilityStatusRoutePanel';
+import { parentPortalWorkspaceIsVisible } from './parent-portal-workspace-visibility';
+import { PolicyCategoryRoutePanel, shouldRenderPolicyCategoryRoute } from './PolicyCategoryRoutePanel';
+import { RemoteAccessRoutePanel, shouldRenderRemoteAccessRoute } from './RemoteAccessRoutePanel';
 
 type ParentPortalRouteProps = {
   readonly actions: PortalRenderActions;
@@ -28,12 +59,10 @@ type ParentPortalRouteProps = {
   readonly lanPairingAutoScanSequence: number;
   readonly onProductSurfaceReady: () => void;
   readonly route: ParentRouteId;
+  readonly screenSummaryPanel: ParentScreenSummaryPanelSnapshot | null;
   readonly state: PortalRuntimeState;
 };
 
-type ParentPortalSurfaceActivityState = NonNullable<
-  ComponentProps<typeof ParentPortalSvgSurface>['activityState']
-> | null;
 type ParentPortalRouteContext = ReturnType<typeof parentPortalRouteContext>;
 type ParentPortalServiceState = ReturnType<typeof resolveParentPortalServiceState>;
 type ParentPortalLiveActivity = ReturnType<typeof resolveSnapshotLiveActivityState>;
@@ -48,38 +77,178 @@ type ParentBrowserPanelKey =
   | 'browserSocialProviderReceiptStreamStatus'
   | 'browserSocialProviderReceiptIngestionReadinessStatus';
 
+const BROWSER_PRODUCT_ROUTE_STACK_CLASS = 'browser-product-route-stack';
+
 export function ParentPortalRoute({
   actions,
   controls,
   lanPairingAutoScanSequence,
   onProductSurfaceReady,
   route,
+  screenSummaryPanel,
   state,
 }: ParentPortalRouteProps): ReactElement {
+  const routeSurfaceRef = useRef<HTMLDivElement>(null);
   const routeContext = parentPortalRouteContext(route);
+  const desktopDistributionRoute = shouldRenderParentDesktopDistributionRoute(route);
+  const appGameSessionsRoute = shouldRenderAppGameSessionsRoutePanel(route);
+  const trackingStatusRoute = shouldRenderTrackingStatusRoute(route);
+  const browserActivityRoute = shouldRenderBrowserActivityRoute(route);
+  const browserReviewRoute = shouldRenderBrowserReviewRoute(route);
+  const networkEvidenceRoute = shouldRenderNetworkEvidenceDrawerRoute(route);
+  const capabilityStatusRoute = shouldRenderCapabilityStatusRoute(route);
+  const screenSettingsRoute = shouldRenderScreenSettingsRoute(route);
+  const policyCategoryRoute = shouldRenderPolicyCategoryRoute(route);
+  const remoteAccessRoute = shouldRenderRemoteAccessRoute(route);
   const routeLiveActivity = state.routeSnapshot?.liveActivity ?? null;
-  const activityState = resolveSnapshotLiveActivityState(routeLiveActivity);
-  const surfaceActivityState = activityState as unknown as ParentPortalSurfaceActivityState;
+  const activityState = resolveSnapshotLiveActivityState(routeLiveActivity, state.events);
   const serviceState = resolveParentPortalServiceState({
     connectionState: state.connectionState,
     events: [],
     snapshotRows: state.routeSnapshot?.parentPortalRows ?? null,
   });
+  const assistantResponse = latestParentAssistantResponse(state.events);
   const commandEnabled = state.commandEnabled;
   const panels = parentPortalRoutePanels(state, activityState);
+  const scheduleRouteUnavailable = shouldRenderScheduleUnavailablePanel(route, panels.policyPreviewPanel);
+  const workspaceVisible = parentPortalWorkspaceIsVisible(route);
+  const activityReportHistoryRequestRef = useRef<string | null>(null);
+  const latestSavedActivityReportEventId = state.events.find(
+    (event) => event.event === ParentAgentEvent.ActivityReportSaved
+  )?.eventId;
+  useEffect(() => {
+    routeSurfaceRef.current?.scrollTo({ behavior: 'auto', left: 0, top: 0 });
+    window.scrollTo({ behavior: 'auto', left: 0, top: 0 });
+  }, [route]);
+  useEffect(() => {
+    const reportRoute = route === ParentRoute.Activity || route === ParentRoute.ReportCompiler;
+    if (!reportRoute || !state.commandEnabled) {
+      activityReportHistoryRequestRef.current = null;
+      return;
+    }
+    const requestKey = `${route}:${latestSavedActivityReportEventId ?? 'initial'}`;
+    if (activityReportHistoryRequestRef.current === requestKey) return;
+    activityReportHistoryRequestRef.current = requestKey;
+    void actions.sendCommand(ParentAgentCommand.ActivityReportHistoryList, {});
+  }, [actions, latestSavedActivityReportEventId, route, state.commandEnabled]);
   return (
-    <div className={PARENT_PORTAL_ROUTE.ClassName}>
-      <ParentPortalRouteSurface
+    <div ref={routeSurfaceRef} className={PARENT_PORTAL_ROUTE.ClassName}>
+      {appGameSessionsRoute ? (
+        <AppGameSessionsRoutePanel
+          actions={actions}
+          commandEnabled={commandEnabled}
+          notificationPanel={panels.appGameNotificationParentSurfacePanel}
+          policyPanel={panels.appGamePolicyReadinessPanel}
+        />
+      ) : null}
+      <div className={PortalDom.Classes.ParentPortalRouteSurface}>
+        <ParentPortalRouteSurface
+          actions={actions}
+          activityState={activityState}
+          controls={controls}
+          lanPairingAutoScanSequence={lanPairingAutoScanSequence}
+          onProductSurfaceReady={onProductSurfaceReady}
+          route={route}
+          routeContext={routeContext}
+          serviceState={serviceState}
+          state={state}
+          assistantResponse={assistantResponse}
+          workspaceVisible={workspaceVisible}
+        />
+      </div>
+      <ScreenSummaryRoutePanelMount
         actions={actions}
-        activityState={surfaceActivityState}
-        controls={controls}
-        lanPairingAutoScanSequence={lanPairingAutoScanSequence}
-        onProductSurfaceReady={onProductSurfaceReady}
+        commandEnabled={commandEnabled}
+        panel={screenSummaryPanel}
         route={route}
-        routeContext={routeContext}
-        serviceState={serviceState}
-        state={state}
       />
+      {screenSettingsRoute ? (
+        <ScreenSettingsRoutePanel
+          actions={actions}
+          commandEnabled={commandEnabled}
+          serviceResponseSnapshot={state.routeSnapshot?.screenSettingsServiceResponse ?? null}
+        />
+      ) : null}
+      {shouldRenderPolicyPreviewRoute(route) ? (
+        <PolicyPreviewRoutePanel
+          actions={actions}
+          commandEnabled={commandEnabled}
+          panel={panels.policyPreviewPanel}
+          route={route}
+        />
+      ) : null}
+      {scheduleRouteUnavailable ? (
+        <ScheduleRouteUnavailablePanel onNavigate={handleParentRouteNavigate} />
+      ) : desktopDistributionRoute ? (
+        <ParentDesktopDistributionRoutePanel
+          onNavigate={handleParentRouteNavigate}
+          route={route}
+          state={resolveParentDesktopDistributionPanelState(state.routeSnapshot)}
+        />
+      ) : (
+        <>
+          {policyCategoryRoute ? (
+            <PolicyCategoryRoutePanel onNavigate={handleParentRouteNavigate} route={route} />
+          ) : null}
+          {remoteAccessRoute ? <RemoteAccessRoutePanel onNavigate={handleParentRouteNavigate} /> : null}
+          {shouldRenderAiRuntimeRoute(route) ? (
+            <AiRuntimeRoutePanel actions={actions} commandEnabled={commandEnabled} liveActivity={activityState} />
+          ) : null}
+          {networkEvidenceRoute ? (
+            <NetworkEvidenceDrawerRoutePanel
+              actions={actions}
+              commandEnabled={commandEnabled}
+              liveActivity={activityState}
+              networkEvidenceSummary={panels.networkEvidenceSummary}
+              route={route}
+            />
+          ) : null}
+          {browserActivityRoute || browserReviewRoute ? (
+            <div className={BROWSER_PRODUCT_ROUTE_STACK_CLASS}>
+              {browserActivityRoute ? (
+                <BrowserActivityRoutePanel
+                  actions={actions}
+                  commandEnabled={commandEnabled}
+                  liveActivity={activityState}
+                />
+              ) : null}
+              {browserReviewRoute ? (
+                <BrowserReviewRoutePanel
+                  actions={actions}
+                  commandEnabled={commandEnabled}
+                  browserParentExplanationPanel={panels.browserParentExplanationPanel}
+                  socialAuditExplanationPanel={panels.socialAuditExplanationPanel}
+                  socialDashboardPanel={panels.socialDashboardPanel}
+                  socialAlertReportPanel={panels.socialAlertReportPanel}
+                  socialAlertReportParentSurfacePanel={panels.socialAlertReportParentSurfacePanel}
+                  socialParentNotificationDeliveryPanel={panels.socialParentNotificationDeliveryPanel}
+                  browserActionIntentStreamStatusPanel={panels.browserActionIntentStreamStatusPanel}
+                  browserSocialProviderReceiptStreamStatusPanel={panels.browserSocialProviderReceiptStreamStatusPanel}
+                  browserSocialProviderReceiptIngestionReadinessStatusPanel={
+                    panels.browserSocialProviderReceiptIngestionReadinessStatusPanel
+                  }
+                />
+              ) : null}
+            </div>
+          ) : null}
+          {trackingStatusRoute ? (
+            <TrackingStatusRoutePanel
+              actions={actions}
+              commandEnabled={commandEnabled}
+              liveActivity={activityState}
+              surface="product"
+            />
+          ) : null}
+          {capabilityStatusRoute ? (
+            <CapabilityStatusRoutePanel
+              actions={actions}
+              commandEnabled={commandEnabled}
+              liveActivity={activityState}
+              shellStatus={state.routeSnapshot?.parentPortalShellStatus ?? null}
+            />
+          ) : null}
+        </>
+      )}
       {route === ParentRoute.Diagnostics ? <PortalDiagnosticsRoutePanel state={state} /> : null}
       <ParentPortalProofPanels
         actions={actions}
@@ -91,14 +260,24 @@ export function ParentPortalRoute({
       {shouldRenderPortalDeveloperRoute(route) ? (
         <PortalDeveloperRoutePanel actions={actions} route={route} state={state} />
       ) : null}
-      {shouldRenderSetupFirstRunRoute(route) ? <SetupFirstRunRoutePanel panel={panels.setupFirstRunPanel} /> : null}
+      {shouldRenderSetupFirstRunRoute(route) ? (
+        <SetupFirstRunRoutePanel actions={actions} panel={panels.setupFirstRunPanel} />
+      ) : null}
     </div>
   );
+}
+
+export function shouldRenderScheduleUnavailablePanel(
+  route: ParentRouteId,
+  policyPanel: ParentPolicyPreviewPanelSnapshot | null
+): boolean {
+  return route === ParentRoute.Schedules && policyPanel === null;
 }
 
 function ParentPortalRouteSurface({
   actions,
   activityState,
+  assistantResponse,
   controls,
   lanPairingAutoScanSequence,
   onProductSurfaceReady,
@@ -106,9 +285,11 @@ function ParentPortalRouteSurface({
   routeContext,
   serviceState,
   state,
+  workspaceVisible,
 }: {
   readonly actions: PortalRenderActions;
-  readonly activityState: ParentPortalSurfaceActivityState;
+  readonly activityState: ParentPortalLiveActivity;
+  readonly assistantResponse: ReturnType<typeof latestParentAssistantResponse>;
   readonly controls: ParentPortalSvgControls;
   readonly lanPairingAutoScanSequence: number;
   readonly onProductSurfaceReady: () => void;
@@ -116,6 +297,7 @@ function ParentPortalRouteSurface({
   readonly routeContext: ParentPortalRouteContext;
   readonly serviceState: ParentPortalServiceState;
   readonly state: PortalRuntimeState;
+  readonly workspaceVisible: boolean;
 }): ReactElement {
   return (
     <ParentPortalSvgSurface
@@ -127,6 +309,8 @@ function ParentPortalRouteSurface({
       userEntry={serviceState.userEntry}
       nearbyAbove={[]}
       nearbyBelow={[]}
+      error={null}
+      statusMessage={state.lastHostMessage}
       content={serviceState.content}
       controls={controls}
       initialNavLabel={routeContext.navLabel}
@@ -134,13 +318,16 @@ function ParentPortalRouteSurface({
       assistantRouteActive={route === ParentRoute.Assistant}
       assistantRoutePath={parentRouteHashPath(ParentRoute.Assistant)}
       assistantReturnRoutePath={parentRouteHashPath(ParentRoute.Overview)}
+      assistantCommandAvailable={route === ParentRoute.Assistant && state.commandEnabled}
+      assistantResponse={assistantResponse}
       activityState={activityState}
       lanPairingAutoScanSequence={lanPairingAutoScanSequence}
+      workspaceVisible={workspaceVisible}
       onInitialLayoutReady={onProductSurfaceReady}
       onRefreshParentPortal={actions.reconnect}
       onMatchmaking={actions.reconnect}
       onNavigate={handleParentRouteNavigate}
-      onAssistantCommand={actions.sendCommand}
+      {...(state.commandEnabled ? { onAssistantCommand: actions.sendCommand } : {})}
     />
   );
 }
@@ -174,17 +361,6 @@ function ParentPortalProofPanels({
       appGameChildRuntimeTransportReceiptPanel={panels.appGameChildRuntimeTransportReceiptPanel}
       appGameAdapterDispatchPanel={panels.appGameAdapterDispatchPanel}
       appGameTimerParentSurfacePanel={panels.appGameTimerParentSurfacePanel}
-      browserParentExplanationPanel={panels.browserParentExplanationPanel}
-      socialAuditExplanationPanel={panels.socialAuditExplanationPanel}
-      socialDashboardPanel={panels.socialDashboardPanel}
-      socialAlertReportPanel={panels.socialAlertReportPanel}
-      socialAlertReportParentSurfacePanel={panels.socialAlertReportParentSurfacePanel}
-      socialParentNotificationDeliveryPanel={panels.socialParentNotificationDeliveryPanel}
-      browserActionIntentStreamStatusPanel={panels.browserActionIntentStreamStatusPanel}
-      browserSocialProviderReceiptStreamStatusPanel={panels.browserSocialProviderReceiptStreamStatusPanel}
-      browserSocialProviderReceiptIngestionReadinessStatusPanel={
-        panels.browserSocialProviderReceiptIngestionReadinessStatusPanel
-      }
     />
   );
 }
@@ -214,8 +390,7 @@ function parentPortalRoutePanels(state: PortalRuntimeState, activityState: Paren
       state,
       'browserSocialProviderReceiptIngestionReadinessStatus'
     ),
-    setupFirstRunPanel:
-      (state.routeSnapshot?.setupFirstRunPanel as ParentSetupFirstRunPanelSnapshot | null | undefined) ?? null,
+    setupFirstRunPanel: state.routeSnapshot?.setupFirstRunPanel ?? null,
   };
 }
 
@@ -223,22 +398,19 @@ function browserPanelSnapshot(
   state: PortalRuntimeState,
   key: ParentBrowserPanelKey
 ): ParentBrowserPanelSnapshot | null {
-  const browserPanels = state.routeSnapshot?.browserPanels as
-    | Record<ParentBrowserPanelKey, ParentBrowserPanelSnapshot | null | undefined>
-    | null
-    | undefined;
-  return browserPanels?.[key] ?? null;
+  return state.routeSnapshot?.browserPanels?.[key] ?? null;
 }
 
-function handleParentRouteNavigate(routePath: string): void {
+function handleParentRouteNavigate(routePath: string): boolean {
   if (!routePath.startsWith(ParentHostBridgeRuntime.RouteHashPrefix)) {
-    return;
+    return false;
   }
-  if (routePath === parentRouteHashPath(ParentRoute.FrameTuner)) {
-    void openPortalFrameTunerWindow();
-    return;
+  if (parentRouteFromHashPath(routePath) === ParentRoute.FrameTuner) {
+    void openPortalFrameTunerWindow(routePath);
+    return false;
   }
   window.location.hash = routePath;
+  return true;
 }
 
 function latestReportedAt(state: PortalRuntimeState): string {

@@ -36,4 +36,15 @@ impl EventJournal for NdjsonEventJournal {
     ) -> JournalAppendFuture<'a> {
         Box::pin(async move { self.append_entry(envelope, phase).await })
     }
+
+    fn append_phase_idempotent<'a>(
+        &'a self,
+        envelope: &'a StoredEventEnvelope,
+        phase: JournalDispatchPhase,
+    ) -> JournalAppendFuture<'a> {
+        Box::pin(async move {
+            self.append_phase_idempotent_by_event_id(envelope, phase)
+                .await
+        })
+    }
 }

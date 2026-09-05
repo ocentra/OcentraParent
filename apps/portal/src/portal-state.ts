@@ -55,6 +55,7 @@ export function beginParentRouteLoad(state: PortalRuntimeState, route: ParentRou
   }
   state.connectionState = ParentBridgeConnectionState.Connecting;
   state.commandEnabled = false;
+  state.lastHostMessage = null;
 }
 
 export function applyParentRouteSnapshot(state: PortalRuntimeState, snapshot: ParentRouteSnapshot): void {
@@ -62,7 +63,6 @@ export function applyParentRouteSnapshot(state: PortalRuntimeState, snapshot: Pa
   state.agentEndpoint = snapshot.agentEndpoint;
   state.connectionState = snapshot.connectionState;
   state.commandEnabled = snapshot.commandEnabled;
-  state.lastHostMessage = snapshot.summary.routeCapability;
 }
 
 export function applyParentRouteEvents(

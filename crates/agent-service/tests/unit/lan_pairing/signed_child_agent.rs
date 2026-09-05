@@ -22,7 +22,7 @@ use crate::{
     app::{lan_pairing::LanPairingRuntime, websocket::handle_command_text_for_test},
     lan_pairing_test_assertions::assert_rejection,
     lan_pairing_test_commands::{command_for_target, local_network_target, serialize_command},
-    test_invariants::require_ok,
+    test_require_ok::require_ok,
     test_text::TestText,
 };
 

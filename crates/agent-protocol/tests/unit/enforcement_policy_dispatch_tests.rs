@@ -10,7 +10,7 @@ use crate::{
     PolicyTarget, PolicyTargetType, V08EnforcementProductControlParentAction,
     V08EnforcementProductControlSurface,
 };
-use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_eventing::expect_value::{ExpectErrValue, ExpectValue};
 
 #[test]
 fn serializes_policy_dispatch_read_model_with_stable_fields() {
@@ -29,6 +29,22 @@ fn serializes_policy_dispatch_read_model_with_stable_fields() {
     assert_eq!(
         json["entries"][0]["intent"]["evidenceReferences"][0]["evidenceReferenceId"],
         "evidence-app-session-owned-process"
+    );
+    assert_eq!(
+        json["entries"][0]["intent"]["evidenceReferences"][0]["kind"],
+        "activity-event"
+    );
+    assert_eq!(
+        json["entries"][0]["intent"]["policyDecisionId"],
+        "policy-dispatch-owned-process-time-limit"
+    );
+    assert_eq!(
+        json["entries"][0]["intent"]["policyDecisionRef"],
+        "decision-dispatch-owned-process-time-limit"
+    );
+    assert_eq!(
+        json["entries"][0]["auditRefs"][0],
+        "audit-dispatch-owned-process-time-limit"
     );
     assert_eq!(
         json["entries"][1]["matrixRow"]["proofLevel"],
@@ -62,6 +78,19 @@ fn deserializes_report_only_and_scaffold_states_without_claim_upgrade() {
     );
 }
 
+#[test]
+fn rejects_missing_evidence_references_at_wire_boundary() {
+    let mut json = serde_json::to_value(proof_read_model()).expect_value("read model serializes");
+    let intent = json["entries"][0]["intent"]
+        .as_object_mut()
+        .expect_value("intent is an object");
+    intent.remove("evidenceReferences");
+
+    let error = serde_json::from_value::<EnforcementPolicyDispatchReadModel>(json)
+        .expect_err_value("missing evidence references must fail closed at the wire boundary");
+    assert!(error.to_string().contains("missing field"));
+}
+
 fn proof_read_model() -> EnforcementPolicyDispatchReadModel {
     EnforcementPolicyDispatchReadModel {
         schema_version: "v0.6".to_string(),
@@ -88,11 +117,11 @@ fn proof_read_model() -> EnforcementPolicyDispatchReadModel {
                 approval_state: EnforcementPolicyDispatchApprovalState::ManualRequired,
                 timer_state: EnforcementPolicyDispatchTimerState::NotRequired,
                 audit_refs: vec!["audit-dispatch-network-domain-manual-required".to_string()],
-                timer_refs: vec!["timer-dispatch-network-domain-manual-required".to_string()],
+                timer_refs: Vec::new(),
                 child_reason_code: dispatch::CHILD_REASON_MANUAL_REQUIRED.to_string(),
                 reason_codes: vec![dispatch::CHILD_REASON_MANUAL_REQUIRED.to_string()],
-                dispatched_at: Some(dispatch::GENERATED_AT.to_string()),
-                next_check_at: Some(dispatch::GENERATED_AT.to_string()),
+                dispatched_at: None,
+                next_check_at: None,
             },
         ],
     }

@@ -70,7 +70,7 @@ pub async fn request_network_runtime_review_for_observation(
     observation: NetworkObservation,
     observed_at: &str,
 ) -> Result<NetworkRuntimeReviewReport, EventingError> {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     bus.subscribe::<NetworkRuntimeReviewRequest, _, _>(
         EventSubscriber::new(
             SubscriberId::parse(constants::network_flow::SUBSCRIBER_NETWORK_REVIEW)?,

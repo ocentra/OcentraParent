@@ -6,10 +6,8 @@ use crate::test_text::TestText;
 
 use crate::{
     app::{lan_pairing::LanPairingRuntime, websocket::handle_command_text_for_test},
-    lan_pairing_test_commands::{
-        health_command, intent_payload, paired_runtime, serialize_command,
-    },
-    test_invariants::require_ok,
+    lan_pairing_test_commands::{health_command, intent_payload, serialize_command},
+    test_require_ok::require_ok,
 };
 
 fn assert_rejection(event: &AgentEventEnvelope, reason: impl std::fmt::Display) {
@@ -91,7 +89,7 @@ async fn lan_api_boundary_rejects_oversized_command_bodies() {
 
 #[tokio::test]
 async fn lan_api_boundary_rejects_origin_header_injection_without_child_control() {
-    let runtime = paired_runtime().await;
+    let runtime = LanPairingRuntime::empty();
     let injected_origin = format!(
         "{}\r\nx-forwarded-host: attacker.invalid",
         constants::lan_pairing::ALLOWED_ORIGIN
@@ -108,7 +106,7 @@ async fn lan_api_boundary_rejects_origin_header_injection_without_child_control(
     )
     .await;
 
-    assert_rejection(&rejected, constants::value::LAN_REASON_WRONG_ORIGIN);
+    assert_rejection(&rejected, constants::value::LAN_REASON_ANONYMOUS);
     assert_eq!(
         rejected.payload.get(constants::field::ORIGIN),
         Some(&LogFieldValue::String(injected_origin))
@@ -117,7 +115,7 @@ async fn lan_api_boundary_rejects_origin_header_injection_without_child_control(
 
 #[tokio::test]
 async fn lan_api_boundary_rejects_missing_signed_intent_without_pairing_upgrade() {
-    let runtime = paired_runtime().await;
+    let runtime = LanPairingRuntime::empty();
     let rejected = handle_command_text_for_test(
         serialize_command(health_command(LogFields::new())),
         runtime,

@@ -24,12 +24,15 @@ use ocentra_policy_control_core::policy_contract_helpers::preview::{
     PolicyContractPreviewBudgetBoundaryState, PolicyContractPreviewConfirmationState,
 };
 use ocentra_policy_control_core::policy_contract_helpers::schedule::{
-    validate_policy_schedule_boundary, PolicyContractScheduleBoundary,
-    PolicyContractScheduleBoundaryState, PolicyContractScheduleClockSource,
-    PolicyContractScheduleDstBoundary, PolicyContractScheduleDstResolution,
-    PolicyContractScheduleDstTransition, PolicyContractScheduleExpiry,
-    PolicyContractScheduleOfflineRecoveryState, PolicyContractScheduleOfflineRecoveryStatus,
-    PolicyContractScheduleTimeBudgetStatus,
+    validate_policy_schedule, validate_policy_schedule_boundary, PolicyContractSchedule,
+    PolicyContractScheduleBoundary, PolicyContractScheduleBoundaryState,
+    PolicyContractScheduleBudgetCarryover, PolicyContractScheduleBudgetCarryoverMode,
+    PolicyContractScheduleBudgetReset, PolicyContractScheduleBudgetResetKind,
+    PolicyContractScheduleClockSource, PolicyContractScheduleDstBoundary,
+    PolicyContractScheduleDstResolution, PolicyContractScheduleDstTransition,
+    PolicyContractScheduleExpiry, PolicyContractScheduleOfflineRecoveryState,
+    PolicyContractScheduleOfflineRecoveryStatus, PolicyContractScheduleTimeBudget,
+    PolicyContractScheduleTimeBudgetStatus, PolicyContractScheduleWindow,
 };
 use ocentra_policy_control_core::policy_contract_helpers::screen_ai::{
     screen_ai_stricter_parent_rule_input_is_ready, screen_ai_stricter_parent_rule_proof_is_honest,
@@ -66,6 +69,31 @@ fn sample_time_budget() -> PolicyContractScheduleTimeBudgetStatus {
         bonus_time_minutes: None,
         bonus_time_remaining_minutes: None,
         bonus_time_expires_at: None,
+    }
+}
+
+fn sample_schedule() -> PolicyContractSchedule {
+    PolicyContractSchedule {
+        windows: vec![PolicyContractScheduleWindow {
+            day_count: 5,
+            start_local_time: "21:00".to_string(),
+            end_local_time: "07:00".to_string(),
+        }],
+        time_budget: PolicyContractScheduleTimeBudget {
+            budget_window_minutes: 60,
+            grace_period_minutes: 5,
+            reset: PolicyContractScheduleBudgetReset {
+                kind: PolicyContractScheduleBudgetResetKind::Daily,
+                local_time: "00:00".to_string(),
+                day: None,
+            },
+            effective_from: "2026-06-29T00:00:00Z".to_string(),
+            effective_until: None,
+            carryover: PolicyContractScheduleBudgetCarryover {
+                mode: PolicyContractScheduleBudgetCarryoverMode::DiscardUnused,
+                max_minutes: None,
+            },
+        },
     }
 }
 
@@ -129,6 +157,49 @@ fn preview_budget_boundary_and_schedule_validation_follow_rust_owned_rules() {
         Err(
             ocentra_policy_control_core::policy_contract_helpers::PolicyContractValidationError(
                 "non-expired schedule boundaries cannot be evaluated after expiry",
+            )
+        )
+    );
+}
+
+#[test]
+fn schedule_definition_rejects_zero_budget_and_zero_carry_forward_cap() {
+    let mut schedule = sample_schedule();
+    schedule.time_budget.budget_window_minutes = 0;
+    assert_eq!(
+        validate_policy_schedule(&schedule),
+        Err(
+            ocentra_policy_control_core::policy_contract_helpers::PolicyContractValidationError(
+                "timeBudget.budgetWindowMinutes must be a positive number",
+            )
+        )
+    );
+
+    let mut schedule = sample_schedule();
+    schedule.time_budget.carryover = PolicyContractScheduleBudgetCarryover {
+        mode: PolicyContractScheduleBudgetCarryoverMode::CarryForward,
+        max_minutes: Some(0),
+    };
+    assert_eq!(
+        validate_policy_schedule(&schedule),
+        Err(
+            ocentra_policy_control_core::policy_contract_helpers::PolicyContractValidationError(
+                "carry-forward carryover cannot set a zero timeBudget.carryover.maxMinutes",
+            )
+        )
+    );
+}
+
+#[test]
+fn schedule_boundary_rejects_impossible_calendar_dates() {
+    let mut boundary = sample_boundary();
+    boundary.evaluated_at = "2026-02-29T14:00:00Z".to_string();
+
+    assert_eq!(
+        validate_policy_schedule_boundary(&boundary),
+        Err(
+            ocentra_policy_control_core::policy_contract_helpers::PolicyContractValidationError(
+                "policy contract timestamps must be ISO-8601 UTC values",
             )
         )
     );

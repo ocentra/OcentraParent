@@ -29,16 +29,41 @@ This file is the short resume list for the next worker. It is derived from open 
 Checkbox count is no longer used to choose the next code slice. The retained
 source audit is [CODE_AUDIT.md](CODE_AUDIT.md). Work in this order:
 
-1. WP03/WP04 contract ownership and parity.
-2. WP07 general durable AI work lifecycle.
-3. WP09 context builder and WP12 prompt registry.
-4. WP14-WP17 local text execution, parser, and degraded boundary.
-5. WP19 AI result journal/SQLite ingest, then WP18/WP20 integration.
-6. WP21-WP23/WP25 memory and graph closure.
-7. WP40-WP42 artifact/runtime governance.
-8. WP30/WP31/WP38 screen OCR/VLM execution.
-9. WP33-WP36 feature bridges, then WP43-WP47 product/security/performance.
-10. WP48 rollout only after all Phase 1 gaps are closed.
+1. Keep the independently accepted WP03 neutral leaf at source commit
+   `6318d5e3d` stable: `crates/ai-contracts` (`ocentra-ai-contracts`) owns the
+   Rust contract family and `crates/schema` is its only current consumer,
+   consuming it directly for schema export and generated TypeScript. No general
+   `agent-protocol` or `agent-service` consumer/provider-owner composition is
+   present. Do not add a public re-export or authority constructor.
+2. Write WP03's owned contract/parity tests together:
+   `crates/ai-contracts/tests/contract/ai_contracts.rs`,
+   `crates/ai-contracts/tests/contract/ai_contracts_negative.rs`, and
+   `packages/schema-domain/tests/contract/ai-contracts.test.ts`. Establish and
+   review a real production caller before focused execution. These tests remain
+   WP03-owned; they do not close the WP04 adapter route.
+3. WP04's explicit agent-protocol adapter is source-integrated and reviewed at
+   canonical source commit `d72e1617d`: it consumes the neutral leaf through
+   public constructors, rejects prompt/runtime attachments without owner
+   capability, and preserves the EvidenceOnly/Durable and digest semantics.
+   Canonical `191e0d8a0` now registers the real Rust contract test for work-
+   request round-trip and exact shape, schema/version linkage, canonical enum
+   values, malformed input, caller prompt/runtime injection, unknown fields,
+   timestamps, retries, work kinds, and authority fields. Context/result/
+   journal construction and negative encoding remain blocked because the
+   neutral leaf exposes no public constructor/deserializer and no real owner
+   composition exists; do not add a test-only or caller-mintable seam. Compose
+   the owner first, then finish those tests and run the full packet. Execution,
+   proof, CI, PR, READY, and DONE remain open. WP04 must not duplicate WP03's
+   leaf/TypeScript tests or schema ownership.
+4. WP07 general durable AI work lifecycle.
+5. WP09 context builder and WP12 prompt registry.
+6. WP14-WP17 local text execution, parser, and degraded boundary.
+7. WP19 AI result journal/SQLite ingest, then WP18/WP20 integration.
+8. WP21-WP23/WP25 memory and graph closure.
+9. WP40-WP42 artifact/runtime governance.
+10. WP30/WP31/WP38 screen OCR/VLM execution.
+11. WP33-WP36 feature bridges, then WP43-WP47 product/security/performance.
+12. WP48 rollout only after all Phase 1 gaps are closed.
 
 ## PR readiness guard
 

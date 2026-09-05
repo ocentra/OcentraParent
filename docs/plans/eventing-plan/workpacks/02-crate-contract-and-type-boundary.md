@@ -2,6 +2,15 @@
 
 Scope: define the typed public contract for event kinds, IDs, envelopes, event sources, runtime roles, custody, and serialization boundaries.
 
+Status: `validation — code-and-test source complete; execution/proof open`.
+
+Canonical checkpoint: `d23e2d60a` retains the reviewed four implementation
+roots, real production callers, and the complete five-root contract/unit/
+version-skew test packet. The packet covers malformed taxonomy, strong-ID serde
+validation, full source metadata, current-schema round-trip, duplicate registry
+identity, and typed envelope identity. No test was executed in the code-first
+phase; the expected proof artifact and checklist acceptance remain absent.
+
 Source rows: `05-implementation-workpacks.md` rows 6-10.
 
 Read next:
@@ -33,3 +42,6 @@ Failure conditions:
 - No naked domain strings for event types, IDs, role, custody, or source values.
 - No proof based only on compile success.
 - No product-specific payload contract belongs here unless it is routed through WP07.
+- Do not infer runtime durability/currentness, authorization, transport,
+  consumer behavior, proof, READY, or DONE from the reusable contract/test
+  source alone.

@@ -98,6 +98,17 @@ npm run test --workspace @ocentra-parent/logging-domain
 npm run test:query --workspace @ocentra-parent/logging-domain -- stats --scope=parent-test
 ```
 
+After those focused commands pass, the dedicated retained-artifact command is:
+
+```bash
+npm run proof:logging-domain-wp02 -- --base=<reviewed-base-ref>
+```
+
+The runner writes only the five WP02 artifacts routed by `PROOF_INDEX.md` and
+records explicit failed, blocked, and local-package-only no-claim states. Its
+presence is source/test evidence only; do not check the proof row until the
+command has actually run successfully against the reviewed base.
+
 Expected TypeScript coverage:
 
 ```text

@@ -1,7 +1,7 @@
 use ocentra_child_runtime::tracking_runtime_flow::TrackingRuntimeEventFlow;
 use ocentra_eventing::{
-    bus::EventBus, envelope::EventMetadata, error::EventingError, request::RequestCompletionReport,
-    request::RequestReport,
+    bus::publisher::RootEventPublisher, bus::EventBus, envelope::EventMetadata,
+    error::EventingError, request::RequestCompletionReport, request::RequestReport,
 };
 use ocentra_parent_agent_protocol::tracking::runtime_event::{
     TrackingChildCheckInRequestReceipt, TrackingChildCheckInRequestedEvent,
@@ -24,14 +24,14 @@ pub struct ParentTrackingChildCheckInRequestEventFlowReport {
 }
 
 pub struct ParentTrackingChildCheckInRequestEventFlow {
-    bus: EventBus,
+    bus: RootEventPublisher,
     child_runtime_flow: TrackingRuntimeEventFlow,
     dispatch_request: ParentRuntimeChangeRequest,
 }
 
 impl ParentTrackingChildCheckInRequestEventFlow {
     pub async fn new(dispatch_request: ParentRuntimeChangeRequest) -> Result<Self, EventingError> {
-        let bus = EventBus::new();
+        let bus = EventBus::root();
         let child_runtime_flow = TrackingRuntimeEventFlow::with_bus(bus.clone()).await?;
         Ok(Self {
             bus,

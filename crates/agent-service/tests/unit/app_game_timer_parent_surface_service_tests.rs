@@ -1,5 +1,15 @@
-#[path = "../support/test_invariants.rs"]
-mod test_invariants;
+#[path = "../support/test_invariants/log_field.rs"]
+mod test_log_field;
+#[path = "../support/test_invariants/require_json_decode.rs"]
+mod test_require_json_decode;
+#[path = "../support/test_invariants/require_log_string_field.rs"]
+mod test_require_log_string_field;
+#[path = "../support/test_invariants/require_ok.rs"]
+mod test_require_ok;
+#[path = "../support/test_invariants/require_some.rs"]
+mod test_require_some;
+#[path = "../support/test_invariants/serialize_test_json.rs"]
+mod test_serialize_json;
 
 use std::fs::{remove_file, write};
 use std::path::{Path as TestPath, PathBuf as TestPathBuf};
@@ -41,7 +51,7 @@ use ocentra_parent_agent_protocol::enforcement::{
     EnforcementResult, EnforcementResultStatus, EnforcementRollbackState, EnforcementTimerEvent,
     EnforcementTimerEventKind, ParentActionReference, ParentPlatform,
 };
-use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields, LogLevel};
 use ocentra_parent_agent_protocol::policy_constants;
 use ocentra_parent_agent_protocol::transport::{
     AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget, AgentPeer,
@@ -53,12 +63,9 @@ use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 use ocentra_parent_agent_service::test_support::handle_local_command_text_for_test;
 
 use crate::{
-    activity_report_env_lock::REPORT_ENV_LOCK,
-    test_invariants::{
-        require_json_decode, require_log_string_field, require_ok, require_some,
-        serialize_test_json,
-    },
-    test_text::TestText,
+    activity_report_env_lock::REPORT_ENV_LOCK, test_require_json_decode::require_json_decode,
+    test_require_log_string_field::require_log_string_field, test_require_ok::require_ok,
+    test_require_some::require_some, test_serialize_json::serialize_test_json, test_text::TestText,
 };
 
 const APP_GAME_EVIDENCE_CLAIM_KIND_INVENTORY: &TestStr = "inventory";
@@ -87,7 +94,7 @@ async fn app_game_timer_parent_surface_command_reports_service_backed_rows() {
     let body = serialize_test_json(&command_envelope());
     let event =
         handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await;
-    let read_model = timer_parent_surface_payload(&crate::test_invariants::log_field(
+    let read_model = timer_parent_surface_payload(&crate::test_log_field::log_field(
         &event.payload,
         constants::field::APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL,
         constants::error::AGENT_EVENT_SERIALIZES,
@@ -100,6 +107,14 @@ async fn app_game_timer_parent_surface_command_reports_service_backed_rows() {
         event.event,
         AgentEventName::AgentActivityAppGameTimerParentSurfaceReadModelReported
     );
+    assert_eq!(
+        event.correlation_id,
+        constants::event_id::ACTIVITY_APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL_REPORTED
+    );
+    assert_eq!(event.source.peer_id, constants::peer::LOCAL_DEV_AGENT);
+    assert_eq!(event.source.role, AgentPeerRole::AgentService);
+    assert_eq!(event.target.peer_id, constants::peer::PORTAL_DEV);
+    assert_eq!(event.target.role, AgentPeerRole::Portal);
     assert_eq!(
         read_model.capability_status,
         APP_GAME_TIMER_PARENT_SURFACE_STATUS_PARTIAL
@@ -137,7 +152,7 @@ async fn app_game_timer_parent_surface_command_reports_service_backed_rows() {
 }
 
 #[tokio::test]
-async fn app_game_timer_parent_surface_reports_existing_active_timer_state_store() {
+async fn app_game_timer_parent_surface_reports_state_refs_without_scheduler_claims() {
     let _guard = REPORT_ENV_LOCK.lock().await;
     let store_path = temp_path(constants::activity_store::TEST_STORE_SUFFIX);
     let timer_state_path = temp_path(constants::enforcement::TIMER_STATE_ID_PREFIX);
@@ -163,7 +178,7 @@ async fn app_game_timer_parent_surface_reports_existing_active_timer_state_store
     let body = serialize_test_json(&command_envelope());
     let event =
         handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await;
-    let read_model = timer_parent_surface_payload(&crate::test_invariants::log_field(
+    let read_model = timer_parent_surface_payload(&crate::test_log_field::log_field(
         &event.payload,
         constants::field::APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL,
         constants::error::AGENT_EVENT_SERIALIZES,
@@ -178,9 +193,13 @@ async fn app_game_timer_parent_surface_reports_existing_active_timer_state_store
         event.event,
         AgentEventName::AgentActivityAppGameTimerParentSurfaceReadModelReported
     );
-    assert!(read_model.timer_runtime_claimed);
-    assert!(read_model.scheduler_persistence_claimed);
-    assert!(read_model.durable_scheduler_storage_claimed);
+    assert_eq!(
+        event.correlation_id,
+        constants::event_id::ACTIVITY_APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL_REPORTED
+    );
+    assert!(!read_model.timer_runtime_claimed);
+    assert!(!read_model.scheduler_persistence_claimed);
+    assert!(!read_model.durable_scheduler_storage_claimed);
     assert!(read_model.audit_runtime_claimed);
     assert!(read_model.rollback_runtime_claimed);
     assert_empty_control_child_ux_rows(&read_model);
@@ -191,7 +210,45 @@ async fn app_game_timer_parent_surface_reports_existing_active_timer_state_store
 }
 
 #[tokio::test]
-async fn app_game_timer_parent_surface_timer_state_helpers_are_linked() -> Result<(), TestString> {
+async fn app_game_timer_parent_surface_command_fails_closed_without_store() {
+    let _guard = REPORT_ENV_LOCK.lock().await;
+    let store_path = temp_path(constants::activity_store::TEST_STORE_SUFFIX);
+    cleanup_path(&store_path);
+    std::env::set_var(constants::env_var::ACTIVITY_DB_PATH, &store_path);
+    std::env::remove_var(constants::env_var::AGENT_ENFORCEMENT_TIMER_STATE_PATH);
+
+    let command = command_envelope();
+    let expected_correlation_id = command.message_id.clone();
+    let event = handle_local_command_text_for_test(crate::test_text::TestText::from_display(
+        serialize_test_json(&command),
+    ))
+    .await;
+
+    std::env::remove_var(constants::env_var::ACTIVITY_DB_PATH);
+    cleanup_path(&store_path);
+
+    assert_eq!(
+        event.event,
+        AgentEventName::AgentActivityAppGameTimerParentSurfaceReadModelReported
+    );
+    assert_eq!(event.correlation_id, expected_correlation_id);
+    assert_eq!(event.severity, LogLevel::Error);
+    assert_eq!(event.source.role, AgentPeerRole::AgentService);
+    assert_eq!(event.target.role, AgentPeerRole::Portal);
+    assert!(event
+        .payload
+        .get(constants::field::APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL)
+        .is_none());
+    assert_eq!(
+        event.payload.get(constants::field::REASON),
+        Some(&LogFieldValue::String(
+            constants::value::ACTIVITY_STORE_UNAVAILABLE.to_string()
+        ))
+    );
+}
+
+#[tokio::test]
+async fn app_game_timer_parent_surface_round_trips_active_timer_state() -> Result<(), TestString> {
     let _guard = REPORT_ENV_LOCK.lock().await;
     let timer_state_path = temp_path(constants::enforcement::TIMER_STATE_ID_PREFIX);
     cleanup_path(&timer_state_path);

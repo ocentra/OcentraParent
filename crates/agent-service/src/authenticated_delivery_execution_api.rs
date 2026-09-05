@@ -1,26 +1,26 @@
 use std::path::PathBuf;
 
 use ocentra_parent_agent_core::{
-    authenticated_delivery_execution::{
-        AuthenticatedDeliveryExecutionReceipt, AuthenticatedDeliveryExecutionState,
-        AuthenticatedDeliveryExecutionStore,
-    },
+    authenticated_delivery_execution::AuthenticatedDeliveryExecutionReceipt,
     authenticated_delivery_grant::{
-        execution_validation::{
-            redacted_delivery_nonce_digest, validate_authenticated_delivery_grant,
-        },
         AuthenticatedDeliveryGrantExpectation, AuthenticatedDeliveryGrantTrustedIssuer,
     },
-    enforcement_adapter::OwnedProcessTerminationTarget,
 };
-use ocentra_schema::authenticated_delivery_grant::AuthenticatedDeliveryGrant;
+use ocentra_schema::{
+    authenticated_delivery_grant::AuthenticatedDeliveryGrant,
+    authenticated_delivery_managed_process::AuthenticatedManagedProcessTargetBinding,
+};
+
+#[path = "authenticated_delivery_execution_api_flow.rs"]
+mod authenticated_delivery_execution_api_flow;
 
 pub struct AuthenticatedDeliveryExecutionRequest {
-    pub store_path: PathBuf,
     pub issuer_key_id: String,
     pub nonce: String,
     pub correlation_id: String,
     pub completed_at: String,
+    pub delivered_payload: Vec<u8>,
+    pub managed_process_binding: AuthenticatedManagedProcessTargetBinding,
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum AuthenticatedDeliveryExecutionApiError {
@@ -28,43 +28,32 @@ pub enum AuthenticatedDeliveryExecutionApiError {
     StoreRejected,
     ExecutionRejected,
     ReplayRejected,
+    TargetBindingRejected,
 }
-pub fn execute_authenticated_owned_process_delivery(
-    request: AuthenticatedDeliveryExecutionRequest,
-    grant: &AuthenticatedDeliveryGrant,
-    expected: &AuthenticatedDeliveryGrantExpectation,
-    trusted_issuer: &AuthenticatedDeliveryGrantTrustedIssuer,
-    target: OwnedProcessTerminationTarget,
-) -> Result<AuthenticatedDeliveryExecutionReceipt, AuthenticatedDeliveryExecutionApiError> {
-    validate_authenticated_delivery_grant(grant, expected, trusted_issuer)
-        .map_err(|_error| AuthenticatedDeliveryExecutionApiError::GrantRejected)?;
-    if request.issuer_key_id != grant.issuer_key_id || request.nonce != grant.nonce {
-        return Err(AuthenticatedDeliveryExecutionApiError::GrantRejected);
-    }
-    let mut store = AuthenticatedDeliveryExecutionStore::open(request.store_path)
-        .map_err(|_error| AuthenticatedDeliveryExecutionApiError::StoreRejected)?;
-    let receipt = AuthenticatedDeliveryExecutionReceipt {
-        correlation_id: request.correlation_id,
-        nonce_digest: redacted_delivery_nonce_digest(&grant.nonce),
-        state: AuthenticatedDeliveryExecutionState::Pending,
-        adapter_result: None,
-        rollback_required: false,
-    };
-    if store
-        .persist_intent(&grant.issuer_key_id, &grant.nonce, &receipt)
-        .map_err(|_error| AuthenticatedDeliveryExecutionApiError::StoreRejected)?
-    {
-        store
-            .execute_owned_process(
-                &grant.issuer_key_id,
-                &grant.nonce,
-                target,
-                &request.completed_at,
-            )
-            .map_err(|_error| AuthenticatedDeliveryExecutionApiError::ExecutionRejected)
-    } else {
-        store
-            .recover_pending(&grant.issuer_key_id, &grant.nonce)
-            .map_err(|_error| AuthenticatedDeliveryExecutionApiError::ReplayRejected)
+
+struct AuthenticatedDeliveryExecutionContext {
+    store_path: PathBuf,
+    activity_store_path: PathBuf,
+}
+
+pub struct AuthenticatedDeliveryExecutionExecutor {
+    context: AuthenticatedDeliveryExecutionContext,
+}
+
+impl AuthenticatedDeliveryExecutionExecutor {
+    pub fn execute_authenticated_owned_process_delivery(
+        &self,
+        request: AuthenticatedDeliveryExecutionRequest,
+        grant: &AuthenticatedDeliveryGrant,
+        expected: &AuthenticatedDeliveryGrantExpectation,
+        trusted_issuer: &AuthenticatedDeliveryGrantTrustedIssuer,
+    ) -> Result<AuthenticatedDeliveryExecutionReceipt, AuthenticatedDeliveryExecutionApiError> {
+        authenticated_delivery_execution_api_flow::execute(
+            &self.context,
+            request,
+            grant,
+            expected,
+            trusted_issuer,
+        )
     }
 }

@@ -1,4 +1,6 @@
+use chrono::{Duration, SecondsFormat, Utc};
 use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingRejectionReason;
 use ocentra_parent_agent_protocol::logging::LogFieldValue;
 use ocentra_parent_agent_protocol::logging::LogFields;
 use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
@@ -11,21 +13,19 @@ use crate::{
         websocket::handle_command_text_for_test,
     },
     lan_pairing_test_assertions::{
-        assert_accepted_control, assert_rejection, assert_status_selection,
-        assert_status_support_surface,
+        assert_rejection, assert_rejection_with_audit, assert_status_support_surface,
     },
     lan_pairing_test_commands::{
         health_command, health_command_for_target, intent_payload, intent_payload_for_pairing,
-        paired_runtime, pairing_command, pairing_command_for_target, proof_payload,
-        proof_payload_for_pairing, route_select_command, route_select_command_for_target,
-        serialize_command, status_command,
+        pairing_command, pairing_command_for_target, proof_payload, proof_payload_for_pairing,
+        route_select_command, route_select_command_for_target, serialize_command, status_command,
     },
     lan_pairing_test_multidevice_commands::second_proof_payload,
     test_text::TestText,
 };
 
 #[tokio::test]
-async fn lan_pairing_proof_reports_trusted_but_unselected_state() {
+async fn lan_pairing_proof_without_owner_authority_stays_unpaired() {
     let runtime = LanPairingRuntime::empty();
     let proof_event = handle_command_text_for_test(
         serialize_command(pairing_command(proof_payload())),
@@ -49,17 +49,10 @@ async fn lan_pairing_proof_reports_trusted_but_unselected_state() {
     )
     .await;
 
-    assert_eq!(
-        proof_event.event,
-        AgentEventName::AgentLanPairingStatusReported
-    );
-    assert_eq!(
-        proof_event
-            .payload
-            .get(constants::field::LAN_AUDIT_EVENT_TYPE),
-        Some(&LogFieldValue::String(
-            constants::value::LAN_AUDIT_PAIRING_PROOF_ACCEPTED.to_string()
-        ))
+    assert_rejection_with_audit(
+        &proof_event,
+        constants::value::LAN_REASON_ANONYMOUS,
+        constants::value::LAN_AUDIT_PAIRING_PROOF_REJECTED,
     );
     assert_eq!(
         proof_event
@@ -69,18 +62,10 @@ async fn lan_pairing_proof_reports_trusted_but_unselected_state() {
             constants::lan_pairing::EVIDENCE_REFERENCE_ID.to_string()
         ))
     );
-    assert_status_support_surface(&proof_event);
-    assert_status_selection(
-        &proof_event,
-        constants::value::LAN_AUTH_UNPAIRED,
-        constants::value::EMPTY,
-        constants::value::EMPTY,
-        constants::lan_pairing::CHILD_DEVICE_ID,
-    );
-    assert_eq!(runtime.trusted_device_count(), 1);
+    assert_eq!(runtime.trusted_device_count(), 0);
     assert_rejection(
         &health_before_selection,
-        constants::value::LAN_REASON_UNSELECTED_DEVICE,
+        constants::value::LAN_REASON_ANONYMOUS,
     );
 }
 
@@ -125,9 +110,9 @@ async fn lan_pairing_rejected_proof_keeps_audit_evidence_reference() {
 }
 
 #[tokio::test]
-async fn lan_pairing_route_select_allows_selected_child_control() {
+async fn unpaired_route_selection_and_control_both_fail_closed() {
     let runtime = LanPairingRuntime::empty();
-    let _ = handle_command_text_for_test(
+    let proof_event = handle_command_text_for_test(
         serialize_command(pairing_command(proof_payload())),
         runtime.clone(),
         Some(TestText::from_display(
@@ -151,19 +136,49 @@ async fn lan_pairing_route_select_allows_selected_child_control() {
     )
     .await;
 
-    assert_route_selected(
-        &select_event,
-        constants::lan_pairing::CHILD_DEVICE_ID,
-        constants::lan_pairing::CHILD_DEVICE_ID,
+    assert_rejection_with_audit(
+        &proof_event,
+        constants::value::LAN_REASON_ANONYMOUS,
+        constants::value::LAN_AUDIT_PAIRING_PROOF_REJECTED,
     );
-    assert_eq!(health_event.event, AgentEventName::AgentHealthReported);
-    assert_accepted_control(&health_event);
+    for event in [&select_event, &health_event] {
+        assert_rejection(event, constants::value::LAN_REASON_ANONYMOUS);
+    }
 }
 
 #[tokio::test]
-async fn lan_pairing_route_select_makes_multi_device_control_explicit() {
-    let runtime = paired_runtime().await;
-    pair_second_child_and_select_it(runtime.clone()).await;
+async fn unpaired_multi_device_commands_cannot_manufacture_selected_control() {
+    let runtime = LanPairingRuntime::empty();
+    let second_proof = handle_command_text_for_test(
+        serialize_command(pairing_command_for_target(
+            constants::lan_pairing::SECOND_CHILD_DEVICE_ID,
+            second_proof_payload(),
+        )),
+        runtime.clone(),
+        Some(TestText::from_display(
+            constants::lan_pairing::ALLOWED_ORIGIN,
+        )),
+    )
+    .await;
+    let second_select = handle_command_text_for_test(
+        serialize_command(route_select_command_for_target(
+            constants::lan_pairing::SECOND_CHILD_DEVICE_ID,
+            intent_payload_for_pairing(
+                constants::lan_pairing::SECOND_SELECT_INTENT_ID,
+                constants::lan_pairing::SECOND_PAIRING_ID,
+                constants::lan_pairing::SECOND_CHILD_DEVICE_ID,
+                constants::lan_pairing::ROUTE_ID_SECOND_LOCAL_NETWORK,
+                constants::lan_pairing::SECOND_PROOF_DIGEST,
+                constants::lan_pairing::EXPIRES_AT,
+                constants::value::LAN_INTENT_CONFIGURATION_UPDATE,
+            ),
+        )),
+        runtime.clone(),
+        Some(TestText::from_display(
+            constants::lan_pairing::ALLOWED_ORIGIN,
+        )),
+    )
+    .await;
     let first_before_selection = health_for_first_child(runtime.clone()).await;
     let select_first = select_first_child(
         runtime.clone(),
@@ -173,30 +188,20 @@ async fn lan_pairing_route_select_makes_multi_device_control_explicit() {
     let first_after_selection = health_for_first_child(runtime.clone()).await;
     let second_after_selection = health_for_second_child(runtime).await;
 
-    assert_rejection(
+    assert_rejection_with_audit(
+        &second_proof,
+        constants::value::LAN_REASON_ANONYMOUS,
+        constants::value::LAN_AUDIT_PAIRING_PROOF_REJECTED,
+    );
+    for event in [
+        &second_select,
         &first_before_selection,
-        constants::value::LAN_REASON_UNSELECTED_DEVICE,
-    );
-    let device_id_delimiter = constants::delimiter::LIST.to_string();
-    assert_route_selected(
         &select_first,
-        constants::lan_pairing::CHILD_DEVICE_ID,
-        [
-            constants::lan_pairing::CHILD_DEVICE_ID,
-            constants::lan_pairing::SECOND_CHILD_DEVICE_ID,
-        ]
-        .join(device_id_delimiter.as_str()),
-    );
-    assert_eq!(
-        first_after_selection.event,
-        AgentEventName::AgentHealthReported
-    );
-    assert_accepted_control(&first_after_selection);
-    assert_rejection(
+        &first_after_selection,
         &second_after_selection,
-        constants::value::LAN_REASON_UNSELECTED_DEVICE,
-    );
-    assert_second_child_unselected_rejection(&second_after_selection);
+    ] {
+        assert_rejection(event, constants::value::LAN_REASON_ANONYMOUS);
+    }
 }
 
 #[tokio::test]
@@ -263,8 +268,7 @@ async fn lan_pairing_local_child_identity_rejects_wrong_agent_port_before_execut
 async fn lan_pairing_status_issues_challenge_preview_before_pairing_proof() {
     let runtime = LanPairingRuntime::empty();
     let challenge = issued_challenge(runtime.clone()).await;
-    let proof_payload =
-        proof_payload_from_challenge(&challenge, constants::lan_pairing::EXPIRES_AT);
+    let proof_payload = proof_payload_from_challenge(&challenge);
     let proof_event = handle_command_text_for_test(
         serialize_command(pairing_command(proof_payload)),
         runtime.clone(),
@@ -293,15 +297,17 @@ async fn lan_pairing_status_issues_challenge_preview_before_pairing_proof() {
             constants::value::LAN_AUDIT_PAIRING_CHALLENGE_ISSUED.to_string()
         ))
     );
-    assert_eq!(
-        proof_event.event,
-        AgentEventName::AgentLanPairingStatusReported
+    assert_rejection_with_audit(
+        &proof_event,
+        constants::value::LAN_REASON_SIGNED_CHILD_AGENT_CONTEXT_UNAVAILABLE,
+        constants::value::LAN_AUDIT_PAIRING_PROOF_REJECTED,
     );
-    assert_eq!(runtime.trusted_device_count(), 1);
+    assert_eq!(runtime.trusted_device_count(), 0);
 }
 
 #[tokio::test]
-async fn lan_pairing_challenge_preview_rejects_wrong_origin_stale_and_malformed_proofs() {
+async fn lan_pairing_challenge_preview_rejects_wrong_origin_stale_and_malformed_proofs(
+) -> Result<(), LanPairingRejectionReason> {
     macro_rules! assert_pairing_rejection {
         ($event:expr, $reason:expr) => {{
             assert_eq!($event.event, AgentEventName::AgentCommandRejected);
@@ -320,77 +326,44 @@ async fn lan_pairing_challenge_preview_rejects_wrong_origin_stale_and_malformed_
 
     let runtime = LanPairingRuntime::empty();
     let challenge = issued_challenge(runtime.clone()).await;
-    let mut wrong_origin =
-        proof_payload_from_challenge(&challenge, constants::lan_pairing::EXPIRES_AT);
+    let mut wrong_origin = proof_payload_from_challenge(&challenge);
     wrong_origin.insert(
         constants::field::ORIGIN.to_string(),
         LogFieldValue::String(constants::lan_pairing::WRONG_ORIGIN.to_string()),
     );
-    let mut malformed =
-        proof_payload_from_challenge(&challenge, constants::lan_pairing::EXPIRES_AT);
+    let mut malformed = proof_payload_from_challenge(&challenge);
     malformed = without_fields(
         malformed,
         [TestText::from_display(constants::field::LAN_PROOF_DIGEST)],
     );
-    let stale = proof_payload_from_challenge(&challenge, constants::lan_pairing::EXPIRED_AT);
-    let accepted = proof_payload_from_challenge(&challenge, constants::lan_pairing::EXPIRES_AT);
+    let stale = proof_payload_from_challenge(&challenge);
+    let accepted = proof_payload_from_challenge(&challenge);
+    let stale_observed_at =
+        (Utc::now() + Duration::seconds(120)).to_rfc3339_opts(SecondsFormat::Millis, true);
+    let stale_proof = crate::lan_pairing_payload::parse_pairing_proof(&stale)?;
+    let stale_reason = runtime.validate_challenge_proof(&stale_proof, &stale_observed_at);
     let wrong_origin_event = submit_proof(runtime.clone(), wrong_origin).await;
     let malformed_event = submit_proof(runtime.clone(), malformed).await;
-    let stale_event = submit_proof(runtime.clone(), stale).await;
     let accepted_event = submit_proof(runtime.clone(), accepted.clone()).await;
-    let replayed_event = submit_proof(runtime, accepted).await;
+    let replayed_event = submit_proof(runtime.clone(), accepted).await;
 
     assert_pairing_rejection!(
         wrong_origin_event,
         constants::value::LAN_REASON_WRONG_ORIGIN
     );
     assert_pairing_rejection!(malformed_event, constants::value::LAN_REASON_MALFORMED);
-    assert_pairing_rejection!(stale_event, constants::value::LAN_REASON_STALE);
-    assert_eq!(
-        accepted_event.event,
-        AgentEventName::AgentLanPairingStatusReported
+    assert_eq!(stale_reason, Err(LanPairingRejectionReason::Stale));
+    assert_pairing_rejection!(
+        accepted_event,
+        constants::value::LAN_REASON_SIGNED_CHILD_AGENT_CONTEXT_UNAVAILABLE
     );
     assert_pairing_rejection!(replayed_event, constants::value::LAN_REASON_REPLAYED);
-}
-
-async fn pair_second_child_and_select_it(runtime: LanPairingRuntime) {
-    let _ = handle_command_text_for_test(
-        serialize_command(pairing_command_for_target(
-            constants::lan_pairing::SECOND_CHILD_DEVICE_ID,
-            second_proof_payload(),
-        )),
-        runtime.clone(),
-        Some(TestText::from_display(
-            constants::lan_pairing::ALLOWED_ORIGIN,
-        )),
-    )
-    .await;
-    let _ = handle_command_text_for_test(
-        serialize_command(route_select_command_for_target(
-            constants::lan_pairing::SECOND_CHILD_DEVICE_ID,
-            intent_payload_for_pairing(
-                constants::lan_pairing::SECOND_SELECT_INTENT_ID,
-                constants::lan_pairing::SECOND_PAIRING_ID,
-                constants::lan_pairing::SECOND_CHILD_DEVICE_ID,
-                constants::lan_pairing::ROUTE_ID_SECOND_LOCAL_NETWORK,
-                constants::lan_pairing::SECOND_PROOF_DIGEST,
-                constants::lan_pairing::EXPIRES_AT,
-                constants::value::LAN_INTENT_CONFIGURATION_UPDATE,
-            ),
-        )),
-        runtime,
-        Some(TestText::from_display(
-            constants::lan_pairing::ALLOWED_ORIGIN,
-        )),
-    )
-    .await;
+    Ok(())
 }
 
 async fn issued_challenge(runtime: LanPairingRuntime) -> AgentEventEnvelope {
     handle_command_text_for_test(
-        serialize_command(status_command(challenge_request_payload(
-            constants::lan_pairing::EXPIRES_AT,
-        ))),
+        serialize_command(status_command(challenge_request_payload())),
         runtime,
         Some(TestText::from_display(
             constants::lan_pairing::ALLOWED_ORIGIN,
@@ -410,8 +383,11 @@ async fn submit_proof(runtime: LanPairingRuntime, payload: LogFields) -> AgentEv
     .await
 }
 
-fn challenge_request_payload(expires_at: impl Display) -> LogFields {
-    let expires_at = TestText::from_display(expires_at);
+fn challenge_request_payload() -> LogFields {
+    let issued_at = Utc::now();
+    let expires_at = issued_at + Duration::seconds(60);
+    let issued_at = issued_at.to_rfc3339_opts(SecondsFormat::Millis, true);
+    let expires_at = expires_at.to_rfc3339_opts(SecondsFormat::Millis, true);
     fields_from_pairs(vec![
         (
             constants::field::LAN_CHILD_DEVICE_ID,
@@ -431,17 +407,19 @@ fn challenge_request_payload(expires_at: impl Display) -> LogFields {
         ),
         (
             constants::field::STARTED_AT,
-            LogFieldValue::String(constants::lan_pairing::ISSUED_AT.to_string()),
+            LogFieldValue::String(issued_at),
         ),
         (
             constants::field::STALE_AT,
-            LogFieldValue::String(expires_at.to_string()),
+            LogFieldValue::String(expires_at),
         ),
     ])
 }
 
-fn proof_payload_from_challenge(event: &AgentEventEnvelope, expires_at: impl Display) -> LogFields {
+fn proof_payload_from_challenge(event: &AgentEventEnvelope) -> LogFields {
+    let expires_at = payload_string(event, constants::field::STALE_AT);
     let expires_at = TestText::from_display(expires_at);
+    let issued_at = payload_string(event, constants::field::STARTED_AT);
     let challenge_id = payload_string(event, constants::field::LAN_CHALLENGE_ID);
     let proof_digest = payload_string(event, constants::field::LAN_PROOF_DIGEST);
     let mut payload = proof_payload_for_pairing(
@@ -450,6 +428,10 @@ fn proof_payload_from_challenge(event: &AgentEventEnvelope, expires_at: impl Dis
         constants::lan_pairing::CHILD_DEVICE_ID,
         constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK,
         proof_digest.0.as_str(),
+    );
+    payload.insert(
+        constants::field::STARTED_AT.to_string(),
+        LogFieldValue::String(issued_at.to_string()),
     );
     payload.insert(
         constants::field::STALE_AT.to_string(),
@@ -526,58 +508,6 @@ async fn health_for_second_child(
         )),
     )
     .await
-}
-
-fn assert_route_selected(
-    event: &AgentEventEnvelope,
-    child_device_id: impl Display,
-    trusted_device_ids: impl Display,
-) {
-    let child_device_id = TestText::from_display(child_device_id);
-    let trusted_device_ids = TestText::from_display(trusted_device_ids);
-    assert_eq!(event.event, AgentEventName::AgentLanPairingStatusReported);
-    assert_status_selection(
-        event,
-        constants::value::LAN_AUTH_PAIRED,
-        child_device_id.0.as_str(),
-        constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK,
-        trusted_device_ids.0.as_str(),
-    );
-    assert_eq!(
-        event.payload.get(constants::field::LAN_AUDIT_EVENT_TYPE),
-        Some(&LogFieldValue::String(
-            constants::value::LAN_AUDIT_ROUTE_SELECTED.to_string()
-        ))
-    );
-}
-
-fn assert_second_child_unselected_rejection(event: &AgentEventEnvelope) {
-    assert_eq!(
-        event.payload.get(constants::field::LAN_INTENT_ID),
-        Some(&LogFieldValue::String(
-            constants::lan_pairing::SECOND_INTENT_ID.to_string()
-        ))
-    );
-    assert_eq!(
-        event.payload.get(constants::field::LAN_PAIRING_ID),
-        Some(&LogFieldValue::String(
-            constants::lan_pairing::SECOND_PAIRING_ID.to_string()
-        ))
-    );
-    assert_eq!(
-        event.payload.get(constants::field::LAN_ROUTE_ID),
-        Some(&LogFieldValue::String(
-            constants::lan_pairing::ROUTE_ID_SECOND_LOCAL_NETWORK.to_string()
-        ))
-    );
-    assert_eq!(
-        event
-            .payload
-            .get(constants::field::LAN_EVIDENCE_REFERENCE_IDS),
-        Some(&LogFieldValue::String(
-            constants::lan_pairing::EVIDENCE_REFERENCE_ID.to_string()
-        ))
-    );
 }
 
 fn without_fields<I, T>(payload: LogFields, keys: I) -> LogFields

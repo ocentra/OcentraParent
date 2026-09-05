@@ -1,0 +1,125 @@
+#[cfg(windows)]
+use ocentra_protected_capability_custody_core::broker_admission::BrokerProcessIdentity;
+use ocentra_protected_capability_custody_core::broker_admission::{
+    account_issuer_request::ProtectedAccountIssuerRequestAdmission,
+    BrokerAuthorizedClientTranscript, BrokerPeerAdmissionObservation, BrokerPlatformSessionState,
+};
+use ocentra_protected_capability_custody_protocol::account_issuer_session::AuthenticatedAccountIssuerRequest;
+use ocentra_protected_capability_custody_protocol::bootstrap::BootstrapPacket;
+use ocentra_protected_capability_custody_protocol::handshake::UntrustedClientHello;
+use ocentra_protected_capability_custody_protocol::request::authenticated::AuthenticatedRequest;
+use ocentra_protected_capability_custody_protocol::response::UntrustedResponse;
+use ocentra_protected_capability_custody_protocol::types::BootstrapAuthenticator;
+#[cfg(windows)]
+use widestring::U16CString;
+
+use crate::BrokerError;
+
+mod response;
+mod runtime;
+
+#[cfg(windows)]
+pub(crate) struct BrokerPipeSecurityDescriptor(pub(crate) U16CString);
+
+pub(crate) struct BrokerCustodyService {
+    state: runtime::RuntimeState,
+    account_issuer: super::account_issuer_rpc::BrokerAccountIssuerRpc,
+}
+
+impl BrokerCustodyService {
+    #[cfg(windows)]
+    pub(crate) fn preflight_service_start() -> Result<(), BrokerError> {
+        runtime::admission::preflight_service_start()
+    }
+
+    pub(crate) fn open() -> Self {
+        Self {
+            state: runtime::RuntimeState::open(),
+            account_issuer: super::account_issuer_rpc::BrokerAccountIssuerRpc::open(),
+        }
+    }
+
+    pub(crate) fn platform_session_state(&self) -> Result<BrokerPlatformSessionState, BrokerError> {
+        self.state.platform_session_state()
+    }
+
+    #[cfg(windows)]
+    pub(crate) fn observe_impersonated_named_pipe_client(
+        &self,
+        pipe_process_id: u32,
+        pipe_session_id: u32,
+    ) -> Result<BrokerPeerAdmissionObservation, BrokerError> {
+        self.state
+            .observe_impersonated_named_pipe_client(pipe_process_id, pipe_session_id)
+    }
+
+    #[cfg(windows)]
+    pub(crate) fn authorize_client_peer(
+        &self,
+        observation: &BrokerPeerAdmissionObservation,
+    ) -> Result<(), BrokerError> {
+        self.state.authorize_client_peer(observation)
+    }
+
+    #[cfg(windows)]
+    pub(crate) fn authorize_client_transcript(
+        &self,
+        observation: BrokerPeerAdmissionObservation,
+        bootstrap: &BootstrapPacket,
+        hello: &UntrustedClientHello,
+        pipe_process_id: u32,
+        pipe_session_id: u32,
+    ) -> Result<BrokerAuthorizedClientTranscript, BrokerError> {
+        self.state.authorize_client_transcript(
+            observation,
+            bootstrap,
+            hello,
+            pipe_process_id,
+            pipe_session_id,
+        )
+    }
+
+    #[cfg(windows)]
+    pub(crate) fn broker_pipe_sddl(&self) -> Result<BrokerPipeSecurityDescriptor, BrokerError> {
+        self.state.broker_pipe_sddl()
+    }
+
+    #[cfg(windows)]
+    pub(crate) fn peer_admission_available(&self) -> Result<(), BrokerError> {
+        self.state.peer_admission_available()
+    }
+
+    #[cfg(windows)]
+    pub(crate) fn current_process_identity(&self) -> Result<BrokerProcessIdentity, BrokerError> {
+        self.state.current_process_identity()
+    }
+
+    pub(crate) fn execute(
+        &self,
+        request: &AuthenticatedRequest,
+        authenticator: &BootstrapAuthenticator,
+    ) -> Result<UntrustedResponse, BrokerError> {
+        response::execute(&self.state, request, authenticator)
+    }
+
+    pub(crate) fn execute_account_issuer(
+        &self,
+        admission: ProtectedAccountIssuerRequestAdmission,
+        request: &AuthenticatedAccountIssuerRequest,
+    ) -> Result<
+        ocentra_protected_capability_custody_protocol::account_issuer::AccountIssuerReceipt,
+        BrokerError,
+    > {
+        self.account_issuer.execute(admission, request)
+    }
+
+    #[cfg(windows)]
+    pub(crate) fn authorize_account_issuer_request(
+        &self,
+        transcript: BrokerAuthorizedClientTranscript,
+        request: &AuthenticatedAccountIssuerRequest,
+    ) -> Result<ProtectedAccountIssuerRequestAdmission, BrokerError> {
+        self.state
+            .authorize_account_issuer_request(transcript, request)
+    }
+}

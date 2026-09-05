@@ -3,6 +3,8 @@ use std::{
     sync::atomic::{AtomicU64, Ordering},
 };
 
+use ocentra_eventing::error::EventingError;
+
 use ocentra_eventing::journal::ndjson::{NdjsonEventJournal, NdjsonJournalOptions};
 use ocentra_eventing::replay::ReplayFilter;
 use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
@@ -21,16 +23,15 @@ use ocentra_parent_agent_protocol::screen_evidence::SCREEN_PROVIDER_LOCAL_OCR;
 use ocentra_parent_agent_protocol::screen_evidence::SCREEN_PROVIDER_LOCAL_VISION;
 
 use super::screen_ai_service_event_bridge::{
-    publish_screen_capture_queue_event_chain, publish_screen_degraded_event_chain,
-    publish_screen_service_row_event_chain, screen_runtime_capture_input_from_service_row,
-    screen_runtime_degraded_input_from_service_row, screen_runtime_deletion_input_from_service_row,
-    screen_runtime_input_from_service_row, ScreenAiServiceEventBridgeError,
-    ScreenAiServiceEventBridgeRefs,
+    publish_screen_capture_queue_event_chain, publish_screen_capture_queue_events_for_queue_job,
+    screen_runtime_capture_input_from_service_row, screen_runtime_degraded_input_from_service_row,
+    screen_runtime_deletion_input_from_service_row, screen_runtime_input_from_service_row,
+    ScreenAiQueueJobId, ScreenAiServiceEventBridgeError, ScreenAiServiceEventBridgeRefs,
 };
 use super::screen_ai_service_event_subscription::{
     ActionRefText, ObservedAtText, ScreenAiServiceEventRuntime,
 };
-use crate::test_invariants::require_ok;
+use crate::test_require_ok::require_ok;
 
 static SCREEN_SERVICE_EVENT_TEST_SEQUENCE: AtomicU64 = AtomicU64::new(0);
 
@@ -76,34 +77,32 @@ fn screen_service_event_bridge_maps_service_row_to_existing_screen_runtime_input
 }
 
 #[tokio::test]
-async fn screen_service_event_bridge_publishes_ordered_chain_from_service_read_model_row() {
-    let report = publish_screen_service_row_event_chain(
-        service_screen_row(),
-        ObservedAtText(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string()),
-        service_bridge_refs(),
-    )
-    .await;
-    let report = require_ok(
-        report,
+async fn screen_service_event_bridge_requires_runtime_owner_before_chain(
+) -> Result<(), &'static str> {
+    let runtime = require_ok(
+        ScreenAiServiceEventRuntime::start().await,
         constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES,
     );
-    let phases = report
-        .stored_events
-        .iter()
-        .map(|event| {
-            require_ok(
-                event.decode::<ScreenRuntimeEventPayload>(),
-                constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES,
-            )
-            .payload
-            .phase
-        })
-        .collect::<Vec<_>>();
-
-    assert_eq!(phases, ScreenRuntimePhase::ordered_chain());
-    assert_eq!(report.publish_reports.len(), phases.len());
-    assert_eq!(report.dead_letters.len(), 0);
-    assert!(!report.raw_image_escaped());
+    let publish = runtime
+        .publish_row_ready(
+            service_screen_row(),
+            ActionRefText(constants::screen_flow::TEST_SCREEN_ACTION_REF.to_string()),
+            ObservedAtText(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string()),
+        )
+        .await;
+    let error = match publish {
+        Err(error) => error,
+        Ok(_) => return Err("missing runtime owner must stop before root publication"),
+    };
+    assert_eq!(
+        error,
+        EventingError::InvalidValue {
+            field: constants::screen_flow::FIELD_SCREEN_SERVICE_ROW_READY,
+            value: constants::screen_flow::ERROR_SCREEN_RUNTIME_OWNER_UNAVAILABLE_MANUAL_REQUIRED
+                .to_string(),
+        }
+    );
+    Ok(())
 }
 
 #[tokio::test]
@@ -125,7 +124,7 @@ async fn screen_service_event_bridge_publishes_capture_queue_events_from_capture
                 event.decode::<ScreenRuntimeEventPayload>(),
                 constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES,
             )
-            .payload
+            .payload()
             .phase
         })
         .collect::<Vec<_>>();
@@ -140,6 +139,28 @@ async fn screen_service_event_bridge_publishes_capture_queue_events_from_capture
     assert_eq!(report.publish_reports.len(), phases.len());
     assert_eq!(report.dead_letters.len(), 0);
     assert!(!report.raw_image_escaped());
+}
+
+#[tokio::test]
+async fn screen_service_event_bridge_returns_no_report_for_missing_queue_job(
+) -> Result<(), &'static str> {
+    let store_path = screen_deletion_journal_path("missing-queue-job").with_extension("db");
+    let _ = fs::remove_file(&store_path);
+    let report = require_ok(
+        publish_screen_capture_queue_events_for_queue_job(
+            &store_path,
+            ScreenAiQueueJobId(constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID.to_string()),
+            ObservedAtText(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string()),
+        )
+        .await,
+        constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES,
+    );
+    let _ = fs::remove_file(&store_path);
+
+    match report {
+        None => Ok(()),
+        Some(_) => Err("missing queue job must not publish a screen runtime report"),
+    }
 }
 
 #[tokio::test]
@@ -165,7 +186,7 @@ async fn screen_service_event_bridge_publishes_deletion_event_from_retention_row
         report.stored_events[0].decode::<ScreenRuntimeEventPayload>(),
         constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES,
     )
-    .payload;
+    .into_payload();
     let _ = fs::remove_file(&journal_path);
 
     assert_eq!(payload.phase, ScreenRuntimePhase::DeletionCommitted);
@@ -304,12 +325,12 @@ async fn screen_service_event_runtime_isolates_concurrent_deletion_publication_r
         first.stored_events[0].decode::<ScreenRuntimeEventPayload>(),
         constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES,
     )
-    .payload;
+    .into_payload();
     let second_payload = require_ok(
         second.stored_events[0].decode::<ScreenRuntimeEventPayload>(),
         constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES,
     )
-    .payload;
+    .into_payload();
 
     assert_eq!(first.stored_events.len(), 1);
     assert_eq!(second.stored_events.len(), 1);
@@ -327,58 +348,32 @@ fn screen_deletion_journal_path(suffix: &str) -> std::path::PathBuf {
 }
 
 #[tokio::test]
-async fn screen_service_event_bridge_publishes_degraded_ai_event_path() {
-    let report = publish_screen_degraded_event_chain(
-        degraded_service_screen_row(),
-        ObservedAtText(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string()),
-    )
-    .await;
-    let report = require_ok(
-        report,
+async fn screen_service_event_bridge_rejects_degraded_without_runtime_owner(
+) -> Result<(), &'static str> {
+    let runtime = require_ok(
+        ScreenAiServiceEventRuntime::start().await,
         constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES,
     );
-    let payloads = report
-        .stored_events
-        .iter()
-        .map(|event| {
-            require_ok(
-                event.decode::<ScreenRuntimeEventPayload>(),
-                constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES,
-            )
-            .payload
-        })
-        .collect::<Vec<_>>();
-    let phases = payloads
-        .iter()
-        .map(|payload| payload.phase)
-        .collect::<Vec<_>>();
-
+    let publish = runtime
+        .publish_row_ready(
+            degraded_service_screen_row(),
+            ActionRefText(constants::screen_flow::TEST_SCREEN_ACTION_REF.to_string()),
+            ObservedAtText(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string()),
+        )
+        .await;
+    let error = match publish {
+        Err(error) => error,
+        Ok(_) => return Err("degraded row must stop without a runtime owner"),
+    };
     assert_eq!(
-        phases,
-        vec![
-            ScreenRuntimePhase::CaptureObserved,
-            ScreenRuntimePhase::QueueEncrypted,
-            ScreenRuntimePhase::AiAnalysisRequested,
-            ScreenRuntimePhase::AiAnalysisCompleted,
-            ScreenRuntimePhase::DeletionCommitted,
-            ScreenRuntimePhase::PortalReadModelUpdated,
-        ]
+        error,
+        EventingError::InvalidValue {
+            field: constants::screen_flow::FIELD_SCREEN_SERVICE_ROW_READY,
+            value: constants::screen_flow::ERROR_SCREEN_RUNTIME_OWNER_UNAVAILABLE_MANUAL_REQUIRED
+                .to_string(),
+        }
     );
-    assert!(payloads.iter().all(|payload| {
-        payload.policy_decision_ref.is_none()
-            && payload.policy_action.is_none()
-            && payload.parent_rule_ref.is_none()
-            && payload.action_ref.is_none()
-    }));
-    assert_eq!(
-        payloads
-            .last()
-            .and_then(|payload| payload.portal_read_model_ref.clone()),
-        Some(constants::activity_store::TEST_SCREEN_RESULT_ID.to_string())
-    );
-    assert_eq!(report.publish_reports.len(), phases.len());
-    assert_eq!(report.dead_letters.len(), 0);
-    assert!(!report.raw_image_escaped());
+    Ok(())
 }
 
 #[test]

@@ -33,6 +33,32 @@ describe('enforcement schema surface', () => {
     expect(parsed.capabilityState).toBe(EnforcementCapabilityState.Supported);
   });
 
+  it('rejects unknown enforcement fields instead of silently stripping them', () => {
+    const capability = EnforcementCapabilityStatusSchema.parse({
+      schemaVersion: ParentContractSchemaVersion.V0_6,
+      platform: ParentPlatform.Windows,
+      adapterKind: EnforcementAdapterKind.ProcessControl,
+      capabilityState: EnforcementCapabilityState.Supported,
+      permissionState: 'allowed',
+      dependencyState: 'installed',
+      supportedActions: [EnforcementMode.TerminateProcess],
+      degradedReason: null,
+      lastCheckedAt: '2026-07-01T19:00:00.000Z',
+    });
+    const rejected = EnforcementCapabilityStatusSchema.safeParse({
+      ...capability,
+      untrustedExtension: true,
+    });
+
+    expect(rejected.success).toBe(false);
+    if (rejected.success) {
+      throw new Error('unknown enforcement fields must fail closed');
+    }
+    expect(rejected.error.issues).toHaveLength(1);
+    expect(rejected.error.issues[0]?.path).toEqual(['untrustedExtension']);
+    expect(rejected.error.issues[0]?.message).toContain('is unexpected');
+  });
+
   it('rejects degraded capability status without a typed degraded reason', () => {
     expect(() =>
       EnforcementCapabilityStatusSchema.parse({
@@ -48,7 +74,9 @@ describe('enforcement schema surface', () => {
       })
     ).toThrow('Expected unavailable and degraded enforcement capabilities to include typed degraded reason');
   });
+});
 
+describe('enforcement result schema surface', () => {
   it('rejects unavailable results that omit the typed unavailable status', () => {
     expect(() =>
       EnforcementResultSchema.parse({

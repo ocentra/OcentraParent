@@ -5,10 +5,14 @@
 //! This crate owns generic custody/delete/export decisions. Evidence crates own
 //! evidence identity; feature crates own feature-specific interpretation.
 
+use std::path::PathBuf;
+
 use serde::{Deserialize, Serialize};
 
 #[path = "storage_custody_decision.rs"]
 mod storage_custody_decision;
+#[path = "storage_custody_effect.rs"]
+mod storage_custody_effect;
 #[path = "storage_custody_event_impls.rs"]
 mod storage_custody_event_impls;
 #[path = "storage_custody_events.rs"]
@@ -211,6 +215,67 @@ pub struct StorageCustodyActionPlannedEvent {
     pub action_plan_id: StorageCustodyActionPlanId,
     pub source_decision_id: StorageCustodyDecisionId,
     pub action_plan: StorageCustodyActionPlan,
+}
+
+/// The concrete effect that a trusted custody producer asks the owning
+/// runtime to perform.  This is intentionally not a serde/TypeScript DTO:
+/// callers may request an effect, but the runtime derives the aggregate,
+/// action-plan identity, and authority binding from its non-serializable
+/// current-authority handoff.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum StorageCustodyEffect {
+    /// Delete one explicitly named local payload after the durable custody
+    /// action has been journaled.  The executor rejects absolute paths,
+    /// traversal, and symlink targets.
+    DeleteLocal { relative_path: PathBuf },
+    /// Queue a parent-owned sync operation.  Connector execution remains
+    /// owned by the provider plan and is manual-required until that adapter
+    /// exists.
+    ParentOwnedSync,
+    /// Build/queue an encrypted parent-owned export.
+    Export,
+    /// Validate/queue an import or restore request.  Applying it remains
+    /// manual-required until a real restore executor is composed.
+    Import,
+    /// Queue a parent-owned backup request.
+    Backup,
+    /// Queue a parent-owned delete request. Provider-side deletion remains
+    /// manual-required until its parent/provider adapter is composed.
+    ParentOwnedDelete,
+    /// Record a parent-authorized report/query request without exposing raw
+    /// child evidence to the runtime command boundary.
+    ReportQuery,
+    /// Apply a parent storage setting through the owning parent service.
+    SettingsApply,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum StorageCustodyEffectKind {
+    #[serde(rename = "local-delete")]
+    LocalDelete,
+    #[serde(rename = "parent-owned-sync")]
+    ParentOwnedSync,
+    #[serde(rename = "export")]
+    Export,
+    #[serde(rename = "import")]
+    Import,
+    #[serde(rename = "backup")]
+    Backup,
+    #[serde(rename = "parent-owned-delete")]
+    ParentOwnedDelete,
+    #[serde(rename = "report-query")]
+    ReportQuery,
+    #[serde(rename = "settings-apply")]
+    SettingsApply,
+}
+
+/// Source-facing command for a custody effect.  It deliberately carries no
+/// member, role, provider-subject, generation, or authority fields.  Those
+/// values are supplied by the family-owned opaque authority source held by
+/// the service composition boundary.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct StorageCustodyExecutionRequest {
+    pub effect: StorageCustodyEffect,
 }
 
 pub fn evaluate_storage_custody(input: StorageCustodyInput) -> StorageCustodyDecision {

@@ -1,3 +1,4 @@
+use super::apply_binding_types::ParentStorageApplyIntentDigest;
 use super::constants::*;
 use super::enums::{
     ParentStorageApplyState, ParentStorageCopyKey, ParentStorageDeleteActionKind,
@@ -5,7 +6,7 @@ use super::enums::{
     ParentStorageNoClaim, ParentStoragePreviewState, ParentStorageUiState,
 };
 use super::identifiers::{
-    action_id, apply_id, contract_version, owned_text, preview_id, row_id, timestamp,
+    action_id, apply_id, contract_version, household_ref, owned_text, preview_id, row_id, timestamp,
 };
 use super::proof_types::{
     ParentStorageApplyDecision, ParentStorageClaimSafeCopyRow, ParentStorageDeleteActionRow,
@@ -122,6 +123,7 @@ fn sample_mode_card() -> ParentStorageModeCard {
 fn sample_restore_preview() -> ParentStorageRestorePreview {
     ParentStorageRestorePreview {
         preview_id: preview_id(PARENT_STORAGE_RESTORE_PREVIEW_ID_VALUE),
+        household_ref: household_ref(PARENT_STORAGE_HOUSEHOLD_REF_VALUE),
         preview_state: ParentStoragePreviewState::PartialRestore,
         created_at: timestamp(PARENT_STORAGE_RESTORE_PREVIEW_CREATED_AT_VALUE),
         product_version: owned_text(PARENT_STORAGE_PRODUCT_VERSION_VALUE),
@@ -148,7 +150,11 @@ fn sample_restore_preview() -> ParentStorageRestorePreview {
 fn sample_apply_decision() -> ParentStorageApplyDecision {
     ParentStorageApplyDecision {
         apply_id: apply_id(PARENT_STORAGE_APPLY_DECISION_ID_VALUE),
-        apply_state: ParentStorageApplyState::ApplyRequiresConfirmation,
+        apply_intent_digest: crate::schema_option_or_unreachable(
+            ParentStorageApplyIntentDigest::parse(PARENT_STORAGE_APPLY_INTENT_DIGEST_VALUE),
+            PARENT_STORAGE_EXPECT_APPLY_INTENT_DIGEST,
+        ),
+        apply_state: ParentStorageApplyState::BlockedManualRequired,
         confirmation_required: true,
         will_change: vec![
             ParentOwnedSyncExportDataClass::EncryptedJournalSegment,
@@ -160,7 +166,7 @@ fn sample_apply_decision() -> ParentStorageApplyDecision {
             PARENT_STORAGE_CONFLICT_NOTIFICATION_HISTORY_TOMBSTONE_CONFLICT,
         )],
         rollback_available: false,
-        manual_required_note: None,
+        manual_required_note: Some(owned_text(PARENT_STORAGE_MANUAL_REVIEW_REQUIRED_NOTE)),
     }
 }
 

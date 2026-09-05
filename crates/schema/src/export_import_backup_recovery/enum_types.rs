@@ -45,6 +45,42 @@ export_import_string_enums!(
         RequiredSupported,
         RequiredUnsupported,
     },
+    ExportImportBackupCadence, "kebab-case" {
+        Manual,
+        Scheduled,
+    },
+    ExportImportBackupState, "camelCase" {
+        Authorized,
+        ManualRequired,
+    },
+    ExportImportMigrationExecutionState, "camelCase" {
+        NotRequired,
+        ManualRequired,
+    },
+    ExportImportBackupJobLifecycle, "camelCase" {
+        Scheduled,
+        Claimed,
+        Running,
+        Succeeded,
+        Retryable,
+        Failed,
+        ManualRequired,
+        Reconciled,
+    },
+    ExportImportMigrationOutcome, "camelCase" {
+        Planned,
+        Applied,
+        RolledBack,
+        Reconciled,
+        Partial,
+        Failed,
+        ManualRequired,
+    },
+    ExportImportMigrationExecutionDependency, "kebab-case" {
+        BundleMigrationReference,
+        SupportedMigrationPath,
+        DurableMigrationStoreAndExecutor,
+    },
     ExportImportPreflightState, "camelCase" {
         AcceptedPreview,
         PartialPreview,
@@ -169,6 +205,81 @@ export_import_string_enum_as_str_values!(
             EXPORT_IMPORT_MIGRATION_STATE_NOT_REQUIRED,
             EXPORT_IMPORT_MIGRATION_STATE_REQUIRED_SUPPORTED,
             EXPORT_IMPORT_MIGRATION_STATE_REQUIRED_UNSUPPORTED,
+        ],
+    },
+    ExportImportBackupCadence {
+        variants: [Manual, Scheduled],
+        values: [
+            EXPORT_IMPORT_BACKUP_CADENCE_MANUAL,
+            EXPORT_IMPORT_BACKUP_CADENCE_SCHEDULED
+        ],
+    },
+    ExportImportBackupState {
+        variants: [Authorized, ManualRequired],
+        values: [
+            EXPORT_IMPORT_BACKUP_STATE_AUTHORIZED,
+            EXPORT_IMPORT_BACKUP_STATE_MANUAL_REQUIRED,
+        ],
+    },
+    ExportImportMigrationExecutionState {
+        variants: [NotRequired, ManualRequired],
+        values: [
+            EXPORT_IMPORT_MIGRATION_EXECUTION_STATE_NOT_REQUIRED,
+            EXPORT_IMPORT_MIGRATION_EXECUTION_STATE_MANUAL_REQUIRED,
+        ],
+    },
+    ExportImportBackupJobLifecycle {
+        variants: [
+            Scheduled,
+            Claimed,
+            Running,
+            Succeeded,
+            Retryable,
+            Failed,
+            ManualRequired,
+            Reconciled,
+        ],
+        values: [
+            EXPORT_IMPORT_BACKUP_JOB_LIFECYCLE_SCHEDULED,
+            EXPORT_IMPORT_BACKUP_JOB_LIFECYCLE_CLAIMED,
+            EXPORT_IMPORT_BACKUP_JOB_LIFECYCLE_RUNNING,
+            EXPORT_IMPORT_BACKUP_JOB_LIFECYCLE_SUCCEEDED,
+            EXPORT_IMPORT_BACKUP_JOB_LIFECYCLE_RETRYABLE,
+            EXPORT_IMPORT_BACKUP_JOB_LIFECYCLE_FAILED,
+            EXPORT_IMPORT_BACKUP_JOB_LIFECYCLE_MANUAL_REQUIRED,
+            EXPORT_IMPORT_BACKUP_JOB_LIFECYCLE_RECONCILED,
+        ],
+    },
+    ExportImportMigrationOutcome {
+        variants: [
+            Planned,
+            Applied,
+            RolledBack,
+            Reconciled,
+            Partial,
+            Failed,
+            ManualRequired
+        ],
+        values: [
+            EXPORT_IMPORT_MIGRATION_OUTCOME_PLANNED,
+            EXPORT_IMPORT_MIGRATION_OUTCOME_APPLIED,
+            EXPORT_IMPORT_MIGRATION_OUTCOME_ROLLED_BACK,
+            EXPORT_IMPORT_MIGRATION_OUTCOME_RECONCILED,
+            EXPORT_IMPORT_MIGRATION_OUTCOME_PARTIAL,
+            EXPORT_IMPORT_MIGRATION_OUTCOME_FAILED,
+            EXPORT_IMPORT_MIGRATION_OUTCOME_MANUAL_REQUIRED,
+        ],
+    },
+    ExportImportMigrationExecutionDependency {
+        variants: [
+            BundleMigrationReference,
+            SupportedMigrationPath,
+            DurableMigrationStoreAndExecutor,
+        ],
+        values: [
+            EXPORT_IMPORT_MIGRATION_DEPENDENCY_BUNDLE_REFERENCE,
+            EXPORT_IMPORT_MIGRATION_DEPENDENCY_SUPPORTED_PATH,
+            EXPORT_IMPORT_MIGRATION_DEPENDENCY_DURABLE_OWNER,
         ],
     },
     ExportImportPreflightState {

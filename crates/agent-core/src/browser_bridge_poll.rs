@@ -54,6 +54,7 @@ pub enum BrowserBridgePollError {
     UntrustedProcess,
     UntrustedProfile,
     UntrustedSession,
+    ManualRequired,
     Io,
     InvalidHttpResponse,
     InvalidJson,

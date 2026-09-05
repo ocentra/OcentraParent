@@ -20,6 +20,11 @@ pub(crate) fn schema_result_or_unreachable<T, E>(value: Result<T, E>, _context: 
     }
 }
 
+pub mod account_identity_authority;
+pub mod account_identity_authority_producer;
+pub mod account_identity_authority_producer_v2;
+pub mod account_identity_authority_ts;
+pub mod account_identity_parent_local_bridge;
 pub mod activity_event_kind_ts;
 pub mod app_game_preview_source_freshness;
 pub mod app_game_preview_source_freshness_ts;
@@ -30,6 +35,7 @@ pub mod app_game_timer_service_readiness_ts;
 pub mod app_risk_detection;
 pub mod app_risk_detection_ts;
 pub mod authenticated_delivery_grant;
+pub mod authenticated_delivery_managed_process;
 pub mod billing_checkout_portal_boundary_values_ts;
 pub mod billing_contracts_ts;
 pub mod billing_entitlement_proof;
@@ -59,6 +65,7 @@ pub mod family_reference_primitives_ts;
 pub mod family_references_ts;
 pub mod logging_contracts;
 pub mod logging_contracts_ts;
+pub mod managed_browser_cdp_capture;
 pub mod notification_local_outbox_ts;
 pub mod notification_v3_provider_retry_ts;
 mod parent_agent_protocol_bridge_ts;
@@ -71,6 +78,7 @@ pub mod parent_storage_settings_apply_flow;
 pub mod parent_storage_settings_apply_flow_ts;
 pub mod parent_ui_bridge;
 pub mod parent_ui_bridge_ts;
+pub mod phone_qr_approval;
 pub mod policy_enforcement_ts;
 pub mod remote_capability_fabric;
 pub mod report_query_custody;

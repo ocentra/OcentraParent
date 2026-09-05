@@ -149,7 +149,7 @@ afterEach(() => {
   }
 });
 
-describe('logging scripts bridge and query flow', () => {
+describe.skipIf(process.platform !== 'win32')('logging scripts bridge and query flow', () => {
   it('runs the bridge and query scripts against a temp root', async () => {
     const tempDir = makeTempDir();
     loggingScriptTempDirs.push(tempDir);

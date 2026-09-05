@@ -2,16 +2,16 @@ use crate::{
     activity_network_flow_payload::network_flow_read_model_payload_with_runtime_delivery,
     activity_payload::{ingest_status_payload, recent_summary_payload},
     activity_store_path::activity_db_path,
-    activity_surface_store::load_app_game_model,
+    activity_surface_store::app_game::load_app_game_model,
     browser_evidence_payload::browser_evidence_read_model_payload,
     browser_inventory_read_model::{
+        browser_inventory_read_model_from_platform_inventory,
         browser_inventory_read_model_from_windows_inventory, BrowserInventoryGeneratedAtText,
     },
     browser_payload::browser_inventory_read_model_payload,
     browser_runtime_paths::system_browser_candidate_paths,
     event_builder::build_event,
-    network_product_path_bridge::prove_network_product_path_for_read_model,
-    network_runtime_delivery::deliver_network_runtime_for_read_model,
+    network_runtime_delivery::read_network_runtime_delivery_for_read_model,
     network_runtime_stream_payload::{
         network_runtime_event_chain_stream_payload,
         stream_network_runtime_event_chain_for_read_model,
@@ -20,7 +20,9 @@ use crate::{
 };
 use ocentra_parent_agent_core::{
     activity_store::ActivityStore,
-    browser_windows_inventory::windows_browser_inventory_observations,
+    browser_platform_inventory::{
+        browser_platform_inventory_observations, BrowserPlatformInventoryObservation,
+    },
     browser_windows_package_inventory::windows_browser_package_observations,
     browser_windows_package_source::live_windows_browser_package_entries_with_limit,
     process_capture::{collect_process_snapshot, ProcessObservation},
@@ -54,6 +56,8 @@ pub(crate) mod app_game_adapter_dispatch_result_payload;
 pub(crate) mod app_game_adapter_execution_readiness_payload;
 #[path = "activity_api/app_game_adapter_host_capabilities.rs"]
 mod app_game_adapter_host_capabilities;
+#[path = "activity_api/app_game_adapter_host_capabilities_linux.rs"]
+mod app_game_adapter_host_capabilities_linux;
 #[path = "activity_api/app_game_adapter_host_capabilities_paths.rs"]
 mod app_game_adapter_host_capabilities_paths;
 #[path = "activity_api/app_game_boundary_read_model_payload.rs"]
@@ -62,10 +66,44 @@ mod app_game_boundary_read_model_payload;
 mod app_game_boundary_read_model_payload_rows;
 #[path = "activity_api/app_game_child_runtime_transport_receipt_payload.rs"]
 pub(crate) mod app_game_child_runtime_transport_receipt_payload;
+#[path = "activity_api/app_game_linux_docker_host_preflight.rs"]
+mod app_game_linux_docker_host_preflight;
+#[path = "activity_api/app_game_linux_docker_host_preflight_cleanup.rs"]
+mod app_game_linux_docker_host_preflight_cleanup;
+#[path = "activity_api/app_game_linux_docker_host_preflight_cleanup_owner.rs"]
+mod app_game_linux_docker_host_preflight_cleanup_owner;
+#[path = "activity_api/app_game_linux_docker_host_preflight_cleanup_process.rs"]
+mod app_game_linux_docker_host_preflight_cleanup_process;
+#[path = "activity_api/app_game_linux_docker_host_preflight_cleanup_worker.rs"]
+mod app_game_linux_docker_host_preflight_cleanup_worker;
+#[path = "activity_api/app_game_linux_docker_host_preflight_group.rs"]
+mod app_game_linux_docker_host_preflight_group;
+#[path = "activity_api/app_game_linux_docker_host_preflight_output.rs"]
+mod app_game_linux_docker_host_preflight_output;
+#[path = "activity_api/app_game_linux_docker_host_preflight_path_security.rs"]
+mod app_game_linux_docker_host_preflight_path_security;
+#[path = "activity_api/app_game_linux_docker_host_preflight_paths.rs"]
+mod app_game_linux_docker_host_preflight_paths;
+#[path = "activity_api/app_game_linux_docker_host_preflight_process.rs"]
+mod app_game_linux_docker_host_preflight_process;
+#[path = "activity_api/app_game_linux_docker_host_preflight_state.rs"]
+mod app_game_linux_docker_host_preflight_state;
+#[path = "activity_api/app_game_linux_docker_host_preflight_supervisor.rs"]
+mod app_game_linux_docker_host_preflight_supervisor;
+#[path = "activity_api/app_game_linux_docker_host_preflight_wait.rs"]
+mod app_game_linux_docker_host_preflight_wait;
 #[path = "activity_api/app_game_notification_readiness_payload.rs"]
 mod app_game_notification_readiness_payload;
+#[path = "activity_api/app_game_notification_readiness_report.rs"]
+mod app_game_notification_readiness_report;
+#[path = "activity_api/app_game_platform_probe_cache.rs"]
+pub(crate) mod app_game_platform_probe_cache;
+#[path = "activity_api/app_game_platform_probe_runtime.rs"]
+pub(crate) mod app_game_platform_probe_runtime;
 #[path = "activity_api/app_game_platform_proof_status_payload.rs"]
 pub(crate) mod app_game_platform_proof_status_payload;
+#[path = "activity_api/app_game_platform_proof_status_transport.rs"]
+pub(crate) mod app_game_platform_proof_status_transport;
 #[path = "activity_api/app_game_policy_readiness_payload.rs"]
 mod app_game_policy_readiness_payload;
 #[path = "activity_api/app_game_policy_readiness_sources.rs"]
@@ -82,6 +120,8 @@ mod app_game_timer_parent_preference_setup_request_status;
 mod app_game_timer_parent_surface_action_results;
 #[path = "activity_api/app_game_timer_parent_surface_payload.rs"]
 pub(crate) mod app_game_timer_parent_surface_payload;
+#[path = "activity_api/app_game_timer_parent_surface_report.rs"]
+pub(crate) mod app_game_timer_parent_surface_report;
 #[path = "activity_api/browser_intervention_payload.rs"]
 mod browser_intervention_payload;
 #[path = "activity_api/browser_intervention_report.rs"]
@@ -102,13 +142,13 @@ pub(crate) mod social_source_custody_mutation_payload;
 use self::app_game_boundary_read_model_payload::{
     app_game_boundary_read_model_from_service_model, app_game_boundary_read_model_payload,
 };
-use self::app_game_notification_readiness_payload::{
-    app_game_notification_readiness_from_service_model, app_game_notification_readiness_payload,
+use self::app_game_notification_readiness_report::{
+    app_game_notification_readiness_report_from_service_model,
+    app_game_notification_readiness_report_payload,
 };
 use self::app_game_policy_readiness_payload::{
     app_game_policy_readiness_from_service_model, app_game_policy_readiness_payload,
 };
-use self::app_game_timer_parent_preference_setup_request_outbox::setup_outbox_has_records;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) struct ActivityEventId(pub(crate) &'static str);
@@ -174,19 +214,14 @@ pub async fn build_network_flow_read_model_report(
 ) -> AgentEventEnvelope {
     match load_network_flow_read_model().await {
         Some(read_model) => {
-            let delivery = deliver_network_runtime_for_read_model(&read_model).await;
-            let product_path = prove_network_product_path_for_read_model(&read_model);
+            let delivery = read_network_runtime_delivery_for_read_model(&read_model).await;
             build_event(
                 constants::event_id::NETWORK_FLOW_READ_MODEL_REPORTED,
                 &command.message_id,
                 command.source,
                 AgentEventName::AgentNetworkFlowReadModelReported,
                 LogLevel::Info,
-                network_flow_read_model_payload_with_runtime_delivery(
-                    &read_model,
-                    Some(&delivery),
-                    Some(&product_path),
-                ),
+                network_flow_read_model_payload_with_runtime_delivery(&read_model, Some(&delivery)),
                 None,
             )
         }
@@ -281,16 +316,11 @@ pub async fn build_activity_app_game_notification_readiness_report(
         ),
         AgentEventName::AgentActivityAppGameNotificationReadinessReadModelReported,
         async {
-            load_app_game_model().await.map(|model| {
-                let local_outbox_runtime_claimed =
-                    setup_outbox_has_records(&std::path::PathBuf::from(activity_db_path()));
-                app_game_notification_readiness_from_service_model(
-                    model,
-                    local_outbox_runtime_claimed,
-                )
-            })
+            load_app_game_model()
+                .await
+                .map(app_game_notification_readiness_report_from_service_model)
         },
-        app_game_notification_readiness_payload,
+        app_game_notification_readiness_report_payload,
     )
     .await
 }
@@ -340,12 +370,16 @@ pub(crate) fn browser_inventory_read_model_from_service_defaults(
 ) -> BrowserInventoryReadModel {
     let candidate_paths = system_browser_candidate_paths();
     let mut observations =
-        windows_browser_inventory_observations(&candidate_paths.0, process_observations, None);
+        browser_platform_inventory_observations(&candidate_paths.0, process_observations, None);
     let package_identities = live_windows_browser_package_entries_with_limit(
         constants::browser::PACKAGE_SCAN_LIMIT_BROWSER_DISCOVERY,
     );
-    observations.extend(windows_browser_package_observations(&package_identities));
-    browser_inventory_read_model_from_windows_inventory(
+    observations.extend(
+        windows_browser_package_observations(&package_identities)
+            .iter()
+            .map(BrowserPlatformInventoryObservation::from),
+    );
+    browser_inventory_read_model_from_platform_inventory(
         BrowserInventoryGeneratedAtText(generated_at.0),
         &observations,
     )

@@ -43,6 +43,8 @@ export const AppObservationIntent = {
   InventoryObservationOnly: 'InventoryObservationOnly',
 } as const;
 
+const STRICT_APP_RUNTIME_DECISION_PARSER_OPTIONS = { onExcessProperty: 'error' } as const;
+
 const AppRuntimeInputSchema = Schema.Struct({
   capability_state: Schema.Literal(...Object.values(AppCapabilityState)),
   foreground_state: Schema.Literal(...Object.values(AppForegroundState)),
@@ -99,7 +101,8 @@ export const AppRuntimeDecisionRecordedEventSchema = withParser(
       (event) =>
         appRuntimeDecisionHasSafeBoundary(event, AppRuntimeDecisionSchemaVersion) || 'Invalid app runtime boundary'
     )
-  )
+  ),
+  STRICT_APP_RUNTIME_DECISION_PARSER_OPTIONS
 );
 
 export const AppRuntimeDecisionRecordedEventEnvelopeSchema = withParser(
@@ -111,7 +114,8 @@ export const AppRuntimeDecisionRecordedEventEnvelopeSchema = withParser(
           appRuntimeDecisionHasSafeBoundary(envelope.payload, envelope.contract.schemaVersion)) ||
         'Invalid app runtime boundary'
     )
-  )
+  ),
+  STRICT_APP_RUNTIME_DECISION_PARSER_OPTIONS
 );
 
 export function decodeAppRuntimeDecisionRecordedEvent(input: unknown): AppRuntimeDecisionRecordedEvent {

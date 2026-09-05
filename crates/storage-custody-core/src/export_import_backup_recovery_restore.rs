@@ -1,56 +1,15 @@
 use ocentra_schema::export_import_backup_recovery as contracts;
 
-use super::RestoreApplyRequest;
-
-pub(super) fn apply_restore(
-    preflight: &contracts::ExportImportImportPreflight,
-    request: &RestoreApplyRequest,
-) -> contracts::ExportImportRestoreApplyResult {
-    let state = restore_state(preflight.state, request.confirmed);
-
+pub(super) fn blocked_restore() -> contracts::ExportImportRestoreApplyResult {
     contracts::ExportImportRestoreApplyResult {
-        explicit_confirmation_required: state
-            == contracts::ExportImportRestoreApplyState::ApplyPending,
-        local_truth_authoritative: true,
-        tombstones_preserved: preflight.tombstones_preserved,
-        idempotent: matches!(
-            state,
-            contracts::ExportImportRestoreApplyState::Applied
-                | contracts::ExportImportRestoreApplyState::Partial
-                | contracts::ExportImportRestoreApplyState::ApplyPending
-        ),
-        accepted_sections: preflight.accepted_sections.clone(),
-        rejected_sections: preflight.rejected_sections.clone(),
+        state: contracts::ExportImportRestoreApplyState::Blocked,
+        explicit_confirmation_required: true,
+        local_truth_authoritative: false,
+        tombstones_preserved: false,
+        idempotent: false,
+        accepted_sections: Vec::new(),
+        rejected_sections: Vec::new(),
         duplicates_created: false,
-        no_default_support_decrypt: preflight.no_default_support_decrypt,
-        state,
-    }
-}
-
-fn restore_state(
-    preflight_state: contracts::ExportImportPreflightState,
-    confirmed: bool,
-) -> contracts::ExportImportRestoreApplyState {
-    match (preflight_state, confirmed) {
-        (contracts::ExportImportPreflightState::AcceptedPreview, true) => {
-            contracts::ExportImportRestoreApplyState::Applied
-        }
-        (contracts::ExportImportPreflightState::PartialPreview, true) => {
-            contracts::ExportImportRestoreApplyState::Partial
-        }
-        (contracts::ExportImportPreflightState::AcceptedPreview, false)
-        | (contracts::ExportImportPreflightState::PartialPreview, false) => {
-            contracts::ExportImportRestoreApplyState::ApplyPending
-        }
-        (contracts::ExportImportPreflightState::HouseholdMismatch, _) => {
-            contracts::ExportImportRestoreApplyState::WrongHousehold
-        }
-        (contracts::ExportImportPreflightState::KeyUnavailable, _) => {
-            contracts::ExportImportRestoreApplyState::WrongKey
-        }
-        (contracts::ExportImportPreflightState::BundleCorrupt, _) => {
-            contracts::ExportImportRestoreApplyState::Corrupt
-        }
-        _ => contracts::ExportImportRestoreApplyState::Blocked,
+        no_default_support_decrypt: true,
     }
 }

@@ -14,14 +14,48 @@ Focused tests, Enforcer acceptance, physical-device proof, generated proof, CI,
 and merge state are later phases. Historical `output/` artifacts and checked
 Markdown boxes were not used as implementation evidence.
 
+## Production reachability pass (2026-08-16)
+
+This pass followed the shipped agent/child/parent entrypoints rather than
+counting mapped files as runtime completion. No production slice was accepted:
+the smallest honest WP37 change requires an existing composition owner for the
+tracking journal, event-to-`ActivityEvent` mapping, durable key/path
+configuration, startup replay, and idempotent projection. That owner was
+absent; WP40 now records the required route without claiming implementation.
+
+| Workpacks | Reachable production path | Effect and remaining gap |
+| --- | --- | --- |
+| WP01-WP02 | Plan/source reconciliation only | Documentation scope; no product entrypoint or runtime effect. |
+| WP03-WP06 | `agent-protocol` contracts and `tracking-core` validation/status decisions | Typed inputs and fail-closed model decisions exist; no platform capture caller. |
+| WP07 | `agent-service` retention-settings write plus `tracking-core` transforms | Settings/value transformations only; no production cleanup/export worker or end-to-end custody path. |
+| WP08-WP10 | Neutral `tracking-core` location/status/geofence logic | No Android acquisition or lifecycle caller. Android package/JNI/service/test ownership routes through reviewed Child WP10 -> Child WP05; WP09 also consumes reviewed WP40 durable ingress. |
+| WP11-WP13 | Neutral `tracking-core` location/status/geofence logic and portal manual/unsupported states | No iOS/desktop acquisition or lifecycle caller; platform claims remain manual-required. |
+| WP14-WP19 | `tracking-core` geofence, schedule, acknowledgement, check-in, and provider-abstraction functions | Process-local decisions only; no durable runtime/provider owner. |
+| WP20 | `tracking-core` nearby-place abstraction/generated placeholder | No concrete POI/HTTP provider, credential boundary, or delivery caller. |
+| WP21 | `tracking-core` local taxonomy/ambiguity model | Value classification only; no provider-backed product effect. |
+| WP22 | `tracking-core::local_place_store::Store` | In-memory store; no durable parent-defined-place owner or reopen path. |
+| WP23-WP24 | `child-ai-core`/`tracking-core` evidence boundary and deterministic helper | Evidence/decision contracts only; no selected provider execution, retry, or receipt owner. |
+| WP25-WP26 | Policy compiler/evaluation and notification-intent conversion | Compile/evaluate/intent effects only; no delivery or enforcement authority. |
+| WP27-WP29 | Alerting, escalation/live-mode/missing-device decision functions | No durable timer/session/lifecycle owner or authority-controlled platform action. |
+| WP30-WP33 | Rust snapshots, portal presentation, coordination/proof routing | Presentation and proof routing do not create runtime capture, mutation, or delivery. |
+| WP34-WP36 | `parent-runtime-core`/`child-runtime` config and detection flows; `TrackingRuntimeEventFlow::new` creates `EventBus::new` | Typed process-local cascades and receipts exist; no durable tracking journal or store projection. |
+| WP37 | `child-runtime::tracking_runtime_flow` -> `tracking-core::read_model`; separate `agent-core::ActivityStore::ingest_journal` capture path | Blocked behind WP40: no tracking-event serializer, configured journal owner, startup replay, or idempotent cascade-to-SQLite composition. |
+| WP38 | `child-runtime::tracking_runtime_flow::subscriptions` emits notification intent into in-memory state | Blocked: no durable outbox, provider receipt, quiet-hours/escalation timer, retry, dead-letter, or acknowledgement lifecycle. |
+| WP39 | `agent-service::build_activity_tracking_read_model_report` reads `ActivityStore`; portal renders the Rust-owned snapshot | Blocked: the live tracking cascade never feeds that store, so restart-safe event-to-portal reachability is absent. |
+| WP40 | No shipped owner; required child/service runtime composition is absent | **Incomplete / route only** | New dependency owner required for trusted tracking ingress, durable journal configuration, startup replay, and idempotent projection. No code, tests, proof, or product claim exists. |
+
+The existing matrix below remains the detailed Phase 1 model/test audit. Its
+“Complete for Phase 1” rows must not be read as shipped capture, durability,
+provider delivery, or product readiness.
+
 ## Result
 
-- 42/42 workpacks have exact reviewed code/test topology in the engineering
+- 43/43 workpacks have exact reviewed code/test topology in the engineering
   graph.
-- 24/42 have no Phase 1 source/test-writing gap in their bounded scope. Three of
+- 24/43 have no Phase 1 source/test-writing gap in their bounded scope. Three of
   those are imported reference packets and four are coordination/proof-routing
   packets with no product-code owner.
-- 18/42 retain a concrete production-code or expected-test gap.
+- 19/43 retain a concrete production-code or expected-test gap.
 - The live Tracking implementation is Rust-first. The former
   `packages/tracking-domain` owner and the advertised
   `scripts/test/tracking-*.mjs` suite do not exist in this checkout.
@@ -37,9 +71,9 @@ Markdown boxes were not used as implementation evidence.
 | WP05 Device status model | Rust device status covers freshness, heartbeat, sync, battery, connectivity, radio, backlog, and explicit service states with focused tests. | **Complete for Phase 1** | OS collection belongs to platform adapters. |
 | WP06 Permission/capability model | Rust capability evaluation distinguishes foreground/background, approximate-only, denied, restricted, unsupported, unavailable, and manual-required states with tests. | **Complete for Phase 1** | OS permission acquisition belongs to platform adapters. |
 | WP07 Retention/custody | Rust delete/export transformations, a local settings file, SQLite read-model tombstones, service write responses, and tests exist. | **Incomplete** | There is no production tracking evidence-store cleanup/export worker, atomic/concurrent settings-store hardening, or end-to-end delete propagation across journal/projection/UI. |
-| WP08 Android foreground adapter | Neutral location/status validation can consume Android-shaped observations. | **Incomplete** | No Android Fused Location/foreground service production adapter or platform integration test exists. |
-| WP09 Android background/geofence adapter | Neutral geofence/capability logic and tests exist. | **Incomplete** | No Android background permission/system geofence registration, delivery, restart, or denial-path adapter/test exists. |
-| WP10 Android battery/connectivity/status adapter | Neutral battery/connectivity/status evaluation is tested. | **Incomplete** | No Android OS battery/connectivity collector or live status-to-runtime integration test exists. |
+| WP08 Android foreground adapter | Neutral location/status validation can consume Android-shaped observations. | **Blocked / incomplete** | No Android Fused Location producer or platform integration test exists. Package/JNI/service/test ownership is Child WP05 after reviewed Child WP10, not an independent Tracking lane. |
+| WP09 Android background/geofence adapter | Neutral geofence/capability logic and tests exist. | **Blocked / incomplete** | No Android background permission/system geofence registration, delivery, restart, or denial-path adapter/test exists. It must consume reviewed Child WP05 and reviewed WP40 durable ingress. |
+| WP10 Android battery/connectivity/status adapter | Neutral battery/connectivity/status evaluation is tested. | **Blocked / incomplete** | No Android OS battery/connectivity collector or live status-to-runtime integration test exists. Package/JNI/service/test ownership is Child WP05 after reviewed Child WP10. |
 | WP11 iOS foreground adapter | Neutral location/status validation can represent iOS capability states. | **Incomplete** | No Core Location foreground adapter, authorization flow, or simulator/device integration test exists. |
 | WP12 iOS background/region adapter | Neutral geofence/capability logic exists. | **Incomplete** | No iOS Always/region/significant-change registration, relaunch delivery, denial, or lifecycle integration test exists. |
 | WP13 Desktop presence hints | The UI and status model preserve manual/unsupported states. | **Incomplete** | No Windows/macOS/Linux presence-hint adapter or test proves hint provenance while forbidding precise-location claims. |
@@ -66,25 +100,32 @@ Markdown boxes were not used as implementation evidence.
 | WP34 Event contracts/constants | Canonical Rust tracking event registry, runtime event contracts, identifiers, constants, schema negatives, and contract tests are written. | **Complete for Phase 1** | Runtime durability belongs to WP37. |
 | WP35 Parent config command flow | Parent approval/rejection chain, typed events, child apply/persist response, audit/read-model hops, and focused parent/child tests are written. | **Complete for Phase 1** | Physical child service delivery remains later proof. |
 | WP36 Detection cascade | Child event-bus cascade covers location validation, evidence, geofence, expected place, AI, policy, alert, notification, and check-in branches with integration tests. | **Complete for Phase 1** | The flow is process-local; persistence belongs to WP37 and delivery/escalation to WP38. |
-| WP37 Journal replay/projection | Process-local EventBus journal snapshots and separate SQLite read-model querying exist. | **Incomplete** | `TrackingRuntimeEventFlow` uses a fresh in-memory bus; no durable append/restart replay/idempotent projection chain connects runtime events to SQLite. |
+| WP37 Journal replay/projection | Process-local EventBus journal snapshots and separate SQLite read-model querying exist. | **Incomplete** | `TrackingRuntimeEventFlow` uses a fresh in-memory bus; no durable append/restart replay/idempotent projection chain connects runtime events to SQLite. WP40 is the reviewed composition dependency. |
 | WP38 Notification/escalation event flow | Notification intent is emitted from the in-memory detection cascade and tracking event schemas reserve notification/escalation families. | **Incomplete** | No durable outbox/provider receipt/quiet-hours/escalation timer/retry/dead-letter/ack lifecycle or integrated tests exist. |
 | WP39 Portal event read-model proof | Portal renders Rust-owned tracking snapshots and ActivityStore-backed rows with focused presentation/service tests. | **Incomplete** | The live tracking cascade is not durably projected into that read model, and no end-to-end event-to-portal restart test closes the chain. |
+| WP40 Trusted runtime ingress/journal composition | No production owner exists; this packet records the missing boundary and required outcome only. | **Incomplete** | Must be implemented in the real child/service lifecycle before WP37 can be legally selected. |
 | Device location tracking capability guide | Imported reference packet; no product code belongs to it. | **Complete for bounded Phase 1** | It remains design/reference input. |
 | Device location tracking schema proposal | Imported reference packet; Rust owners supersede its historical TypeScript-like proposal shapes. | **Complete for bounded Phase 1** | It remains design/reference input. |
 | Tracking control settings inventory | Imported settings inventory; no product runtime belongs in the document. | **Complete for bounded Phase 1** | Individual controls still require their owning workpacks. |
 
 ## Highest-impact implementation order after Phase 1
 
-1. WP37: durable tracking journal replay and idempotent SQLite projection. This
-   turns the already-written WP35/WP36 event flows into restart-safe product
-   state and unblocks an honest WP39 portal chain.
-2. WP38 and WP27: durable notification outbox/receipt plus escalation timer and
+1. Child WP10 -> Child WP05: trusted startup first, then the shipped Android
+   package/JNI/service lifecycle and real platform-test owner.
+2. WP40: trusted tracking runtime ingress and durable journal composition. This
+   is the missing production owner required before WP37.
+3. WP08/WP10 consume reviewed Child WP05; WP09 consumes reviewed Child WP05
+   plus reviewed WP40. No parallel Android service or dead handoff is legal.
+4. WP37: durable tracking journal replay and idempotent SQLite projection. This
+   consumes WP40 and turns the already-written WP35/WP36 event flows into
+   restart-safe product state.
+5. WP38 and WP27: durable notification outbox/receipt plus escalation timer and
    acknowledgement lifecycle.
-3. WP22 and WP07: durable parent-defined places and evidence retention/custody
+6. WP22 and WP07: durable parent-defined places and evidence retention/custody
    execution.
-4. WP08-WP12: real platform acquisition adapters and lifecycle tests.
-5. WP20/WP24: real POI and AI provider routing boundaries.
-6. WP28-WP30/WP39: live/missing-device runtime composition and complete
+7. WP11-WP12: real iOS acquisition adapters and lifecycle tests.
+8. WP20/WP24: real POI and AI provider routing boundaries.
+9. WP28-WP30/WP39: live/missing-device runtime composition and complete
    parent/child product surfaces.
 
 ## Phase boundary

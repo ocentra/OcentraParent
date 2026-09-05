@@ -28,14 +28,33 @@ claiming UI or delivery.
 - Child-device delivery, policy evaluator execution, broad app blocking,
   adapter dispatch, or platform support.
 
+## Current Code Audit (2026-08-15)
+
+- `app_game_child_ux_preference_preflight` validates one scheduler row against
+  its persisted local-outbox source record and rejects identity, evidence, and
+  unsafe-claim mismatches.
+- Due-local rows require distinct parent-preference, notification-frequency,
+  and quiet-hours refs; manual and unavailable states remain blocked.
+- Focused Rust contract tests cover due/manual/unavailable, unpersisted,
+  mismatched, claimed, and duplicate-requirement paths.
+- The shared WP62 bridge now consumes the complete WP59 read model, verifies
+  exact scheduled rows against the durable scheduler store, generates
+  deterministic requirements, and retains blocked rows. This production code
+  was drafted at `a93b45f33`; dedicated bridge tests and all execution/
+  validation are intentionally deferred to later global phases.
+
 ## Proof
 
-- Shared source:
-  `packages/parent-domain/src/app-game-notification-preference-preflight.ts`
-- Shared test:
-  `packages/parent-domain/tests/app-game-notification-preference-preflight.test.ts`
-- Harness:
-  `scripts/test/app-game-notification-preference-preflight-proof.mjs`
+- Current implementation:
+  `crates/app-game-core/src/app_game_child_ux_preference_preflight.rs`
+- Current types:
+  `crates/app-game-core/src/app_game_child_ux_preference_preflight_types.rs`
+- Shared bridge:
+  `crates/app-game-core/src/app_game_notification_preference_preflight_bridge.rs`
+- Shared bridge types:
+  `crates/app-game-core/src/app_game_notification_preference_preflight_bridge_types.rs`
+- Current focused tests:
+  `crates/app-game-core/tests/contract/app_game_child_ux_outbox.rs`
 - Native app proof pack:
   `output/app-plan-proof/62-notification-preference-preflight/`
 

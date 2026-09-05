@@ -1,8 +1,75 @@
 {
   "schemaVersion": 2,
   "profileName": "ocentra-parent",
+  "boundaryOwnerNote": "The Android JNI module is the reviewed Java ABI and path-conversion boundary; no product authority is accepted there.",
   "languages": ["rust", "typescript", "python", "common"],
   "failOn": ["error"],
+  "rawTypeBoundaryGlobs": [
+    "src/bin/**",
+    "src/main.rs",
+    "src/**/boundary/**",
+    "src/**/boundaries/**",
+    "src/**/adapter/**",
+    "src/**/adapters/**",
+    "src/**/ffi/**",
+    "src/**/serde/**",
+    "src/**/transport/**",
+    "crates/**/src/bin/**",
+    "crates/**/src/main.rs",
+    "crates/**/src/**/boundary/**",
+    "crates/**/src/**/boundaries/**",
+    "crates/**/src/**/adapter/**",
+    "crates/**/src/**/adapters/**",
+    "crates/**/src/**/ffi/**",
+    "crates/**/src/**/serde/**",
+    "crates/**/src/**/transport/**",
+    "crates/child-runtime-android-bridge/src/ffi/**"
+  ],
+  "rawStringOwnerGlobs": [
+    "crates/agent-protocol/src/**",
+    "crates/ocentra-eventing/src/**",
+    "crates/ocentra-evidence/src/**",
+    "crates/ocentra-network-evidence/src/**",
+    "crates/agent-updater/src/**",
+    "crates/logging-core/src/**",
+    "crates/schema/src/**",
+    "crates/ai-contracts/src/**",
+    "crates/*-core/src/**",
+    "crates/*-adapter/src/**",
+    "crates/*-runtime/src/**"
+  ],
+  "domainPrimitiveOwnerGlobs": [
+    "crates/agent-protocol/src/**",
+    "crates/ocentra-eventing/src/**",
+    "crates/ocentra-evidence/src/**",
+    "crates/ocentra-network-evidence/src/**",
+    "crates/agent-updater/src/**",
+    "crates/logging-core/src/**",
+    "crates/ai-contracts/src/**"
+  ],
+  "serializedDomainOwnerGlobs": [
+    "crates/agent-protocol/src/**",
+    "crates/ocentra-eventing/src/**",
+    "crates/ocentra-evidence/src/**",
+    "crates/ocentra-network-evidence/src/**",
+    "crates/agent-updater/src/**",
+    "crates/logging-core/src/**",
+    "crates/ai-contracts/src/**"
+  ],
+  "runtimeStringOwnerGlobs": [
+    "crates/agent-protocol/src/**",
+    "crates/ocentra-eventing/src/**",
+    "crates/ocentra-evidence/src/**",
+    "crates/ocentra-network-evidence/src/**",
+    "crates/agent-updater/src/**",
+    "crates/logging-core/src/**",
+    "crates/schema/src/**",
+    "crates/ai-contracts/src/**",
+    "crates/*-core/src/**",
+    "crates/*-adapter/src/**",
+    "crates/*-runtime/src/**",
+    "crates/child-runtime-android-bridge/src/ffi/jni_exports.rs"
+  ],
   "ignoreDirs": [
     ".git",
     ".agents",
@@ -45,6 +112,8 @@
   "generatedArtifactsMode": "tracked",
   "generatedArtifactsAllowlist": [
     "apps/portal/generated/parent-ui-bridge.ts",
+    "apps/portal/generated/parent-ui-bridge-validation.ts",
+    "apps/portal/generated/parent-ui-bridge-validation-primitives.ts",
     "apps/portal/generated/parent-ui-screen-bridge.ts",
     "crates/app-game-core/tests/generated/app-game-notification-parent-surface-intent.ts",
     "crates/app-game-core/tests/generated/app-game-source-freshness-preview-gate.ts",
@@ -119,6 +188,7 @@
     {
       "globs": [
         "crates/schema/src/*_ts.rs",
+        "crates/ai-contracts/src/ai_contracts_ts.rs",
         "crates/schema/src/parent_ui_bridge.rs",
         "crates/tracking-core/src/generated_bridge.rs"
       ],

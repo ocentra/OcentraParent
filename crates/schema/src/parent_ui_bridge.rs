@@ -94,10 +94,11 @@ pub const PARENT_DEV_BRIDGE_ROUTE_LOAD_ROUTE: &str = "load-route";
 pub const PARENT_DEV_BRIDGE_ROUTE_DISPATCH: &str = "dispatch";
 pub const PARENT_DEV_BRIDGE_LOAD_ROUTE_PATH: &str = "/api/parent-ui/load-route";
 pub const PARENT_DEV_BRIDGE_DISPATCH_PATH: &str = "/api/parent-ui/dispatch";
-pub const PARENT_ROUTE_HASH_PREFIX: &str = "#";
+pub const PARENT_ROUTE_HASH_PREFIX: &str = "#/";
 pub const PARENT_ROUTE_HASH_QUERY_SEPARATOR: &str = "?";
 pub const PARENT_ROUTE_SUBSCRIPTION_EVENT_PREFIX: &str = "parent-route-subscription-";
 pub const PARENT_ROUTE_SUBSCRIPTION_POLL_INTERVAL_MS: u64 = 1000;
+pub const PARENT_DEV_BRIDGE_REQUEST_TIMEOUT_MS: u64 = 5000;
 pub const PARENT_SCREEN_SETTINGS_COMMAND_SCHEMA_VERSION: u16 = 1;
 pub const PARENT_SCREEN_SETTINGS_REQUEST_ID_PREFIX: &str = "screen-settings-request-";
 pub const PARENT_SCREEN_SETTINGS_UPDATE_KIND_GET: &str = "get";
@@ -774,6 +775,76 @@ pub struct ParentPortalShellStatusSnapshot {
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum ParentServiceHealthState {
+    Ready,
+    Degraded,
+    Unavailable,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum ParentServiceHealthRoute {
+    Localhost,
+    LocalNetwork,
+    CloudRelay,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum ParentServiceHealthTransport {
+    #[serde(rename = "websocket")]
+    WebSocket,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum ParentServiceHealthAuthenticationState {
+    Authenticated,
+    Unauthenticated,
+    Unavailable,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum ParentServiceHealthReason {
+    Ready,
+    TransportUnavailable,
+    RouteDependencyUnavailable,
+    ResponseSchemaMismatch,
+    ResponseIdentityMismatch,
+    ResponsePayloadMismatch,
+    ResponseNonceMismatch,
+    ResponseEventIdMismatch,
+    ResponseTimestampMissing,
+    ResponseTimestampStale,
+    ServiceVersionMissing,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ParentServiceHealthTraceSnapshot {
+    pub request_id: Option<String>,
+    pub correlation_id: Option<String>,
+    pub response_event_id: Option<String>,
+    pub request_sent_at: Option<String>,
+    pub response_sent_at: Option<String>,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ParentServiceHealthSnapshot {
+    pub state: ParentServiceHealthState,
+    pub route: Option<ParentServiceHealthRoute>,
+    pub protocol_schema_version: Option<u16>,
+    pub service_version: Option<String>,
+    pub transport: Option<ParentServiceHealthTransport>,
+    pub authentication_state: ParentServiceHealthAuthenticationState,
+    pub reason: ParentServiceHealthReason,
+    pub trace: ParentServiceHealthTraceSnapshot,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ParentCommandResultDetailSnapshot {
     pub label: String,
@@ -1302,10 +1373,7 @@ pub struct ParentNetworkRuntimeEventValueSnapshot {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ParentNetworkEvidenceSummarySnapshot {
-    pub analyzer_alert_ref: Option<ParentContractReferenceId>,
-    pub detection_result_ref: Option<ParentContractReferenceId>,
     pub ai_audit_ref: Option<ParentContractReferenceId>,
-    pub risk_budget_ref: Option<ParentContractReferenceId>,
     pub policy_decision_ref: Option<ParentContractReferenceId>,
     pub network_evidence_grade: Option<String>,
     pub intervention_result_ref: Option<ParentContractReferenceId>,
@@ -1326,6 +1394,28 @@ pub struct ParentNetworkRuntimeEventChainStreamSnapshot {
     pub streamed_event_count: Option<u64>,
     pub events: Vec<ParentNetworkRuntimeEventResultSnapshot>,
     pub invalid_event_count: u64,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ParentPolicyPreviewConfirmationContext {
+    pub request_id: Option<String>,
+    pub submission_key: Option<String>,
+    pub household_id: Option<String>,
+    pub child_profile_id: Option<String>,
+    pub device_id: Option<String>,
+    pub source_document_id: Option<String>,
+    pub policy_version: Option<u64>,
+    pub target_reference_id: Option<String>,
+    pub rule_id: Option<String>,
+    pub requested_at: Option<String>,
+    pub expires_at: Option<String>,
+    pub assistant_preview_id: Option<String>,
+    pub audit_reference_ids: Option<String>,
+    pub actor_id: Option<String>,
+    pub actor_role: Option<String>,
+    pub actor_state: Option<String>,
+    pub confirmation_audit_reference_id: Option<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -1376,6 +1466,7 @@ pub struct ParentPolicyPreviewReadModelSnapshot {
     pub network_policy_mapping_mode: Option<String>,
     pub network_adapter_action_authorized: Option<bool>,
     pub network_enforcement_command_authorized: Option<bool>,
+    pub confirmation_context: Option<ParentPolicyPreviewConfirmationContext>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -1395,6 +1486,24 @@ pub struct ParentPolicyPreviewPanelCardSnapshot {
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct ParentPolicyPreviewActionSnapshot {
+    pub action: ParentUiActionKind,
+    pub label: String,
+    pub payload: Option<Value>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ParentPolicyPreviewAuthoringSnapshot {
+    pub target_value: String,
+    pub requested_action: String,
+    pub stage_action: ParentPolicyPreviewActionSnapshot,
+    pub confirm_action: Option<ParentPolicyPreviewActionSnapshot>,
+    pub cancel_action: ParentPolicyPreviewActionSnapshot,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ParentPolicyPreviewPanelSnapshot {
     pub title: String,
     pub body: String,
@@ -1403,6 +1512,7 @@ pub struct ParentPolicyPreviewPanelSnapshot {
     pub cards: Vec<ParentPolicyPreviewPanelCardSnapshot>,
     pub empty_message: String,
     pub product_claim: String,
+    pub authoring: Option<ParentPolicyPreviewAuthoringSnapshot>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -1462,6 +1572,7 @@ pub struct ParentAppGameTimerParentSurfacePanelSnapshot {
     pub summary_details: Vec<ParentAppGamePanelDetailSnapshot>,
     pub parent_action_rows: Vec<ParentAppGamePanelRowSnapshot>,
     pub parent_preference_setup_rows: Vec<ParentAppGameActionRowSnapshot>,
+    pub local_handoff_artifact_rows: Vec<ParentAppGamePanelRowSnapshot>,
     pub rows: Vec<ParentAppGamePanelRowSnapshot>,
     pub empty_message: String,
     pub product_claim: String,
@@ -1605,7 +1716,15 @@ pub struct ParentRouteLiveActivitySnapshot {
     pub recent_summary: Option<Value>,
     pub ingest_status: Option<Value>,
     pub activity_screen_read_model: Option<Value>,
+    pub activity_app_use_read_model: Option<Value>,
+    pub activity_app_game_platform_extension_read_model: Option<Value>,
+    pub activity_browser_read_model: Option<Value>,
+    pub activity_games_read_model: Option<Value>,
     pub screen_summary_panel: Option<ParentScreenSummaryPanelSnapshot>,
+    pub browser_inventory_event: Option<ParentRouteEventSnapshot>,
+    pub browser_inventory_read_model: Option<Value>,
+    pub browser_evidence_event: Option<ParentRouteEventSnapshot>,
+    pub browser_evidence_read_model: Option<Value>,
     pub browser_managed_event: Option<ParentRouteEventSnapshot>,
     pub browser_managed_status: Option<Value>,
     pub local_ai_runtime_status_event: Option<ParentRouteEventSnapshot>,
@@ -1649,6 +1768,28 @@ pub struct ParentRouteBrowserPanelsSnapshot {
         Option<ParentBrowserPanelSnapshot>,
 }
 
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ParentDesktopDistributionSnapshot {
+    pub payload_source: String,
+    pub source_custody_state: String,
+    pub product_claim_state: String,
+    pub no_claim: String,
+    pub package_frontend_state: String,
+    pub package_service_manager_state: String,
+    pub package_health_probe_state: String,
+    pub package_preview_state: String,
+    pub update_channel_state: String,
+    pub rollback_state: String,
+    pub signing_state: String,
+    pub notarization_state: String,
+    pub store_distribution_state: String,
+    pub platform_matrix_state: String,
+    pub release_branch_state: String,
+    pub artifact_proof_state: String,
+    pub actions_available: bool,
+}
+
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ParentRouteSnapshot {
@@ -1662,6 +1803,10 @@ pub struct ParentRouteSnapshot {
     pub agent_endpoint: String,
     pub data_source: ParentRouteDataSource,
     pub summary: ParentRouteSummary,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub service_health: Option<ParentServiceHealthSnapshot>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub parent_desktop_distribution: Option<ParentDesktopDistributionSnapshot>,
     pub diagnostic_panels_enabled: bool,
     pub parent_portal_rows: Option<Vec<ParentPortalRowSnapshot>>,
     pub parent_portal_shell_status: Option<ParentPortalShellStatusSnapshot>,
@@ -1687,6 +1832,8 @@ pub enum ParentUiActionKind {
     RefreshRoute,
     Reconnect,
     AgentCommandRequested,
+    PolicyPreviewAuthoringDraftStaged,
+    PolicyPreviewAuthoringDraftCancelled,
     PolicyRequestAssistantPreviewConfirmRequested,
     PolicyRequestParentResolutionRequested,
     LanPairingBrowserDiscoveryScanRequested,

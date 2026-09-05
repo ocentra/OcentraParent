@@ -56,7 +56,7 @@ function parseIsoOrDuration(value) {
   return Number.isNaN(timestamp) ? null : timestamp;
 }
 
-function normalizeEvidenceDiagnostic(diagnostic) {
+function normalizeEvidenceDiagnostic(diagnostic, run = {}) {
   return {
     recordType: 'diagnostic',
     scope: 'parent-codex',
@@ -65,8 +65,8 @@ function normalizeEvidenceDiagnostic(diagnostic) {
     source: null,
     context: diagnostic.kind,
     message: diagnostic.message,
-    runId: null,
-    commandId: null,
+    runId: run.runId ?? diagnostic.runId ?? null,
+    commandId: run.commandId ?? diagnostic.commandId ?? null,
     file: diagnostic.file,
     filePath: diagnostic.file,
     line: diagnostic.line,
@@ -159,18 +159,51 @@ function normalizeRustDevLog(scope, entry) {
   };
 }
 
+function isPathWithin(rootPath, candidatePath) {
+  const relative = path.relative(rootPath, candidatePath);
+  return relative === '' || (relative !== '..' && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative));
+}
+
+function getAllowedLogRoots() {
+  return [getLogRoot(), getStructuredLogBaseRoot()].map((entry) => path.resolve(entry));
+}
+
+function localPathIdentifier(filePath) {
+  const absolute = path.resolve(filePath);
+  const workspaceRoot = path.resolve(getWorkspaceRoot());
+  if (isPathWithin(workspaceRoot, absolute)) {
+    return path.relative(workspaceRoot, absolute).replace(/\\/g, '/') || '.';
+  }
+
+  const rootIndex = getAllowedLogRoots().findIndex((root) => isPathWithin(root, absolute));
+  if (rootIndex >= 0) {
+    const relative = path.relative(getAllowedLogRoots()[rootIndex], absolute).replace(/\\/g, '/');
+    return `[local-log-root-${rootIndex + 1}]/${relative || '.'}`;
+  }
+  return '[local-log-path]';
+}
+
 function readNdjsonFile(filePath) {
   if (!fs.existsSync(filePath)) {
     return [];
   }
-  const content = fs.readFileSync(filePath, 'utf8').trim();
+  const safeFilePath = ensureLocalPath(filePath);
+  const content = fs.readFileSync(safeFilePath, 'utf8').trim();
   if (content.length === 0) {
     return [];
   }
-  return content
-    .split(/\r?\n/)
-    .filter((line) => line.trim().length > 0)
-    .map((line) => JSON.parse(line));
+  return content.split(/\r?\n/).reduce((entries, line, index) => {
+    if (line.trim().length === 0) {
+      return entries;
+    }
+    try {
+      entries.push(JSON.parse(line));
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error);
+      throw new Error(`Invalid NDJSON in ${localPathIdentifier(safeFilePath)} at line ${index + 1}: ${reason}`);
+    }
+    return entries;
+  }, []);
 }
 
 function listNdjsonFiles(rootPath) {
@@ -178,17 +211,22 @@ function listNdjsonFiles(rootPath) {
     return [];
   }
   const files = [];
-  const stack = [rootPath];
+  const safeRoot = ensureLocalPath(rootPath);
+  const stack = [safeRoot];
   while (stack.length > 0) {
     const current = stack.pop();
     for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
       const fullPath = path.join(current, entry.name);
+      if (entry.isSymbolicLink()) {
+        throw new Error(`Symbolic links are not allowed in local logging roots (${localPathIdentifier(fullPath)}).`);
+      }
+      const safePath = ensureLocalPath(fullPath);
       if (entry.isDirectory()) {
-        stack.push(fullPath);
+        stack.push(safePath);
         continue;
       }
-      if (entry.name.endsWith('.ndjson')) {
-        files.push(fullPath);
+      if (entry.isFile() && entry.name.endsWith('.ndjson')) {
+        files.push(safePath);
       }
     }
   }
@@ -691,13 +729,31 @@ async function tryDb(work) {
 
 function ensureLocalPath(candidatePath) {
   const absolute = path.resolve(candidatePath);
-  const allowedRoots = [getLogRoot(), getStructuredLogBaseRoot()].map((entry) => path.resolve(entry));
-
-  const allowed = allowedRoots.some((root) => absolute.startsWith(root));
-  if (!allowed) {
+  const lexicalRoot = getAllowedLogRoots().find((root) => isPathWithin(root, absolute));
+  if (lexicalRoot == null) {
     throw new Error('Artifact path must stay inside local logging roots.');
   }
-  return absolute;
+  if (!fs.existsSync(absolute)) {
+    throw new Error(`Local logging path does not exist (${localPathIdentifier(absolute)}).`);
+  }
+
+  let current = lexicalRoot;
+  for (const segment of path.relative(lexicalRoot, absolute).split(path.sep).filter(Boolean)) {
+    if (fs.lstatSync(current).isSymbolicLink()) {
+      throw new Error(`Symbolic links are not allowed in local logging roots (${localPathIdentifier(current)}).`);
+    }
+    current = path.join(current, segment);
+  }
+  if (fs.lstatSync(current).isSymbolicLink()) {
+    throw new Error(`Symbolic links are not allowed in local logging roots (${localPathIdentifier(current)}).`);
+  }
+
+  const realRoot = fs.realpathSync.native(lexicalRoot);
+  const realPath = fs.realpathSync.native(absolute);
+  if (!isPathWithin(realRoot, realPath)) {
+    throw new Error('Artifact path must stay inside its resolved local logging root.');
+  }
+  return realPath;
 }
 
 export async function getLatestFailures(options = {}) {
@@ -779,9 +835,7 @@ export async function getErrors(options = {}) {
     const failures = await getLatestFailures({ limit });
     return failures.flatMap((failure) =>
       failure.diagnostics.map((diagnostic) => ({
-        runId: failure.runId,
-        commandId: failure.commandId,
-        ...normalizeEvidenceDiagnostic(diagnostic),
+        ...normalizeEvidenceDiagnostic(diagnostic, failure),
       }))
     );
   }
@@ -806,9 +860,7 @@ export async function getRecentLogs(options = {}) {
     const failures = await getLatestFailures({ limit });
     const logs = failures.flatMap((failure) =>
       failure.diagnostics.map((diagnostic) => ({
-        runId: failure.runId,
-        commandId: failure.commandId,
-        ...normalizeEvidenceDiagnostic(diagnostic),
+        ...normalizeEvidenceDiagnostic(diagnostic, failure),
       }))
     );
     return level == null ? logs.slice(0, limit) : logs.filter((log) => log.level === level).slice(0, limit);
@@ -861,9 +913,7 @@ export async function queryLogs(options = {}) {
     const failures = await getLatestFailures({ limit });
     const logs = failures.flatMap((failure) =>
       failure.diagnostics.map((diagnostic) => ({
-        runId: failure.runId,
-        commandId: failure.commandId,
-        ...normalizeEvidenceDiagnostic(diagnostic),
+        ...normalizeEvidenceDiagnostic(diagnostic, failure),
       }))
     );
     return filterLogs(logs, {

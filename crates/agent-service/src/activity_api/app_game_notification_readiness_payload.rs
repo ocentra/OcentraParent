@@ -12,9 +12,8 @@ use crate::fields::fields_from_pairs;
 
 pub fn app_game_notification_readiness_from_service_model(
     model: AppGameServiceReadModel,
-    local_outbox_runtime_claimed: bool,
 ) -> AppGameNotificationReadinessReadModel {
-    logic::app_game_notification_readiness_from_service_model(model, local_outbox_runtime_claimed)
+    logic::app_game_notification_readiness_from_service_model(model)
 }
 
 pub fn app_game_notification_readiness_payload(

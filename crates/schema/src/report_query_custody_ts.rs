@@ -1,11 +1,12 @@
 use super::report_query_custody::{
     report_query_custody_known_gaps, sample_report_query_custody_contract_proof,
-    REPORT_QUERY_CUSTODY_SCHEMA_VERSION,
+    REPORT_QUERY_CUSTODY_MAX_PAGE_SIZE, REPORT_QUERY_CUSTODY_SCHEMA_VERSION,
 };
 
 const REPORT_QUERY_CUSTODY_PROOF_JSON_EXPECT: &str = "report query custody proof json";
 const REPORT_QUERY_CUSTODY_KNOWN_GAPS_SEPARATOR: &str = "\n";
 const REPORT_QUERY_CUSTODY_SCHEMA_VERSION_TOKEN: &str = "__REPORT_QUERY_CUSTODY_SCHEMA_VERSION__";
+const REPORT_QUERY_CUSTODY_MAX_PAGE_SIZE_TOKEN: &str = "__REPORT_QUERY_CUSTODY_MAX_PAGE_SIZE__";
 const REPORT_QUERY_CUSTODY_PROOF_JSON_TOKEN: &str = "__REPORT_QUERY_CUSTODY_PROOF_JSON__";
 const REPORT_QUERY_CUSTODY_KNOWN_GAPS_TOKEN: &str = "__REPORT_QUERY_CUSTODY_KNOWN_GAPS__";
 const REPORT_QUERY_CUSTODY_CONTRACTS_TEMPLATE: &str =
@@ -47,6 +48,10 @@ pub fn report_query_custody_contracts_typescript() -> String {
         .replace(
             REPORT_QUERY_CUSTODY_SCHEMA_VERSION_TOKEN,
             REPORT_QUERY_CUSTODY_SCHEMA_VERSION,
+        )
+        .replace(
+            REPORT_QUERY_CUSTODY_MAX_PAGE_SIZE_TOKEN,
+            &REPORT_QUERY_CUSTODY_MAX_PAGE_SIZE.to_string(),
         )
         .replace(REPORT_QUERY_CUSTODY_PROOF_JSON_TOKEN, &proof_typescript)
         .replace(REPORT_QUERY_CUSTODY_KNOWN_GAPS_TOKEN, &known_gaps)

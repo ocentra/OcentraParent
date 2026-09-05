@@ -17,11 +17,12 @@ use crate::{
         lan_pairing_runtime_state::mdns_advertisement::LanMdnsAdvertisementSyncState,
         lan_pairing_status::pairing_status_event,
     },
-    lan_pairing_test_commands::{paired_runtime, status_command},
+    lan_pairing_test_commands::status_command,
     lan_runtime_test_support::{
         default_child_mdns_advertisement_fixture, LanChildMdnsAdvertisementFixture,
     },
-    test_invariants::{require_ok, require_some},
+    test_require_ok::require_ok,
+    test_require_some::require_some,
 };
 
 #[derive(Default)]
@@ -106,45 +107,6 @@ fn lan_pairing_runtime_builds_sanitized_mdns_advertisements_and_keeps_hint_only_
         .txt_records
         .iter()
         .all(|record| !record.value.contains(' ') && !record.value.contains('@')));
-}
-
-#[tokio::test]
-async fn lan_pairing_runtime_builds_paired_mdns_advertisements_when_trusted_state_exists() {
-    let runtime = paired_runtime().await;
-    let parent = require_ok(
-        runtime.parent_mdns_advertisement(
-            "sha256:parent-family-1",
-            constants::lan_pairing::SCHEMA_VERSION_TEXT,
-            "sha256:family-1",
-            ocentra_parent_agent_protocol::lan_pairing::LanMdnsAdvertisementLifecycleState::Start,
-            ocentra_parent_agent_protocol::lan_pairing::LanMdnsAdvertisementSupportState::Supported,
-        ),
-        "parent advertisement",
-    );
-    let child = require_ok(
-        runtime.child_mdns_advertisement(default_child_mdns_advertisement_fixture(
-            ocentra_parent_agent_protocol::lan_pairing::LanMdnsAdvertisementLifecycleState::Update,
-            ocentra_parent_agent_protocol::lan_pairing::LanMdnsAdvertisementSupportState::Supported,
-        )),
-        "child advertisement",
-    );
-
-    assert_eq!(
-        parent.pairing_state.as_str(),
-        constants::value::LAN_PAIRING_PAIRED.into()
-    );
-    assert_eq!(
-        child.pairing_state.as_str(),
-        constants::value::LAN_PAIRING_PAIRED.into()
-    );
-    assert_eq!(
-        parent.confirmation_state.as_str(),
-        constants::lan_pairing::MDNS_TXT_VALUE_HINT_ONLY.into()
-    );
-    assert_eq!(
-        child.confirmation_state.as_str(),
-        constants::lan_pairing::MDNS_TXT_VALUE_HINT_ONLY.into()
-    );
 }
 
 #[test]

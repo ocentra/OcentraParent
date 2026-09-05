@@ -1,7 +1,5 @@
-import type {
-  PortalLiveActivityState as PortalDomainPortalLiveActivityState,
-  PortalNetworkRuntimeEventChainStream as PortalDomainPortalNetworkRuntimeEventChainStream,
-} from '@ocentra-parent/portal-domain/live-activity-state';
+import type { DecodedPortalNetworkRuntimeEventChainStream } from '@ocentra-parent/portal-domain/route-live-activity-network-decoder';
+import type { ResolvedPortalLiveActivityState } from './route-live-activity-state';
 
-export type PortalLiveActivityState = PortalDomainPortalLiveActivityState;
-export type PortalNetworkRuntimeEventChainStream = PortalDomainPortalNetworkRuntimeEventChainStream;
+export type PortalLiveActivityState = ResolvedPortalLiveActivityState;
+export type PortalNetworkRuntimeEventChainStream = DecodedPortalNetworkRuntimeEventChainStream;

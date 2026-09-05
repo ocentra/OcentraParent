@@ -36,7 +36,8 @@ async function assertSocialDashboardRoute(page: Page): Promise<void> {
   await page.goto('/#/browser');
   const socialRegion = page.getByRole('region', { name: 'Social review' });
   await expect(socialRegion).toBeVisible({ timeout: portalShellReadyTimeoutMs });
-  await expect(socialRegion.getByRole('heading', { name: 'Social review' })).toBeVisible();
+  await assertBrowserPanelsDoNotOverlap(page);
+  await expect(socialRegion.getByRole('heading', { name: 'Browser & social review' })).toBeVisible();
   await expect(socialRegion.getByRole('heading', { name: '0 social dashboard rows' })).toBeVisible();
   await expect(
     socialRegion.getByRole('heading', { name: 'No social dashboard snapshot has been reported yet.' })
@@ -53,7 +54,8 @@ async function assertSocialDashboardRoute(page: Page): Promise<void> {
 
 async function requestSocialDashboardReadModel(page: Page): Promise<void> {
   const socialRegion = page.getByRole('region', { name: 'Social review' });
-  await socialRegion.getByRole('button', { name: 'Social review' }).click();
+  const dashboardRegion = socialRegion.getByRole('region', { exact: true, name: 'Social dashboard' });
+  await dashboardRegion.getByRole('button', { exact: true, name: 'Social dashboard' }).click();
   await expect(socialRegion.getByRole('heading', { name: '7 social dashboard rows' })).toBeVisible({
     timeout: portalShellReadyTimeoutMs,
   });
@@ -84,7 +86,22 @@ async function captureSocialDashboardScreenshots(page: Page): Promise<void> {
   await page.screenshot({ fullPage: true, path: desktopScreenshotPath });
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(page.getByRole('region', { name: 'Social review' })).toBeVisible();
+  await assertBrowserPanelsDoNotOverlap(page);
   await page.screenshot({ fullPage: true, path: mobileScreenshotPath });
+}
+
+async function assertBrowserPanelsDoNotOverlap(page: Page): Promise<void> {
+  const activityBounds = await page.getByRole('region', { name: 'Browser activity status' }).boundingBox();
+  const reviewBounds = await page.getByRole('region', { name: 'Social review' }).boundingBox();
+  if (activityBounds === null || reviewBounds === null) {
+    throw new Error('Browser activity and social review regions must both have measurable layout bounds.');
+  }
+  const activityBottom = activityBounds.y + activityBounds.height;
+  const activityRight = activityBounds.x + activityBounds.width;
+  const reviewRight = reviewBounds.x + reviewBounds.width;
+  expect(reviewBounds.y).toBeGreaterThanOrEqual(activityBottom - 1);
+  expect(reviewBounds.x).toBeGreaterThanOrEqual(activityBounds.x - 1);
+  expect(reviewRight).toBeLessThanOrEqual(activityRight + 1);
 }
 
 async function collectAccessibilitySummary(page: Page): Promise<{
@@ -120,7 +137,7 @@ async function writeAccessibilitySummary(
 ): Promise<void> {
   expect(summary.hasNamedRegion).toBe(true);
   expect(summary.unlabeledButtons).toBe(0);
-  expect(summary.headings).toContain('Social review');
+  expect(summary.headings).toContain('Browser & social review');
   expect(summary.headings).toContain('7 social dashboard rows');
   expect(summary.headings).toContain('Account approvals');
   expect(summary.headings).toContain('Feed and video route gates');
@@ -146,7 +163,8 @@ async function writeAccessibilitySummary(
         route: '#/browser',
         assertions: [
           'named-region',
-          'visible-social-review-heading',
+          'visible-browser-social-review-heading',
+          'browser-activity-and-social-review-do-not-overlap',
           'zero-row-before-command-visible',
           'service-backed-seven-row-summary-visible',
           'account-approval-row-visible',

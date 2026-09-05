@@ -1,31 +1,29 @@
 #![forbid(unsafe_code)]
 
-#[path = "../support/activity_capture_mod.rs"]
+#[path = "../../src/activity_capture/errors.rs"]
 mod activity_capture;
-#[path = "../../src/activity_store_path.rs"]
+#[path = "../../src/activity_capture/persistence.rs"]
+mod activity_capture_persistence;
+#[path = "../support/activity_store_activity_path.rs"]
 mod activity_store_path;
-#[path = "../../src/activity_surface_read_model_states.rs"]
-mod activity_surface_read_model_states;
-#[path = "../support/activity_surface_read_models_mod.rs"]
+#[path = "../../src/activity_surface_read_models/screen_row.rs"]
 mod activity_surface_read_models;
-#[path = "../../src/dev_log.rs"]
-pub mod dev_log;
-#[path = "../../src/event_builder.rs"]
-mod event_builder;
 #[path = "../../src/fields.rs"]
 mod fields;
-#[path = "../../src/json_contract.rs"]
-mod json_contract;
 #[path = "screen_ai_analysis_runtime_tests.rs"]
 mod screen_ai_analysis_runtime_tests;
-#[path = "../../src/screen_ai_cadence_runtime.rs"]
-mod screen_ai_cadence_runtime;
 #[path = "../../src/screen_ai_cadence_runtime_event.rs"]
 mod screen_ai_cadence_runtime_event;
 #[path = "screen_ai_cadence_runtime_tests.rs"]
 mod screen_ai_cadence_runtime_tests;
-#[path = "../../src/screen_ai_foreground_runtime.rs"]
-mod screen_ai_foreground_runtime;
+mod screen_ai_foreground_runtime {
+    pub(crate) mod types {
+        include!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/src/screen_ai_foreground_runtime/types.rs"
+        ));
+    }
+}
 #[path = "../../src/screen_ai_foreground_runtime_config.rs"]
 mod screen_ai_foreground_runtime_config;
 #[path = "screen_ai_foreground_runtime_tests.rs"]
@@ -36,10 +34,10 @@ mod screen_ai_retention_sweeper_deletion_events;
 mod screen_ai_retention_sweeper_deletion_events_tests;
 #[path = "../../src/screen_ai_retention_sweeper_runtime.rs"]
 mod screen_ai_retention_sweeper_runtime;
+#[path = "screen_ai_retention_sweeper_runtime_startup_tests.rs"]
+mod screen_ai_retention_sweeper_runtime_startup_tests;
 #[path = "screen_ai_retention_sweeper_runtime_tests.rs"]
 mod screen_ai_retention_sweeper_runtime_tests;
-#[path = "screen_ai_runtime_clippy_linkage_tests.rs"]
-mod screen_ai_runtime_clippy_linkage_tests;
 #[path = "../screen_ai_runtime/service_capture_event_builder.rs"]
 mod screen_ai_service_capture_event_builder;
 #[path = "../../src/screen_ai_service_event_bridge.rs"]
@@ -50,49 +48,16 @@ mod screen_ai_service_event_bridge_tests;
 pub(crate) mod screen_ai_service_event_subscription;
 #[path = "screen_ai_service_event_subscription_tests.rs"]
 mod screen_ai_service_event_subscription_tests;
-#[path = "../support/test_invariants.rs"]
-mod test_invariants;
-#[path = "../support/test_text.rs"]
+#[path = "../support/test_invariants/require_json_decode.rs"]
+mod test_require_json_decode;
+#[path = "../support/test_invariants/require_ok.rs"]
+mod test_require_ok;
+#[path = "../support/test_invariants/require_some.rs"]
+mod test_require_some;
+#[path = "../screen_ai_runtime/text.rs"]
 mod test_text;
 #[path = "../../src/time.rs"]
 mod time;
-
-const _: () = {
-    let _ = activity_capture::spawn_startup_activity_capture;
-    let _ = activity_capture::startup_activity_capture_enabled;
-    let _ = activity_capture::startup_activity_capture_enabled_for_value;
-    let _ = activity_capture::record_activity_capture_once;
-    let _ = activity_capture::record_activity_capture_to_paths;
-    let _ = activity_capture::record_activity_capture_to_paths_at;
-
-    let _ = activity_surface_read_model_states::request_targets_remote_device;
-    let _ = activity_surface_read_model_states::empty_screen_read_model;
-    let _ = activity_surface_read_model_states::unavailable_screen_read_model;
-    let _ = activity_surface_read_model_states::offline_screen_read_model;
-    let _ = activity_surface_read_model_states::empty_app_use_read_model;
-    let _ = activity_surface_read_model_states::unavailable_app_use_read_model;
-    let _ = activity_surface_read_model_states::offline_app_use_read_model;
-    let _ = activity_surface_read_model_states::unavailable_games_read_model;
-    let _ = activity_surface_read_model_states::offline_games_read_model;
-    let _ = activity_surface_read_model_states::unavailable_browser_read_model;
-    let _ = activity_surface_read_model_states::offline_browser_read_model;
-    let _ = activity_surface_read_model_states::unavailable_network_read_model;
-    let _ = activity_surface_read_model_states::offline_network_read_model;
-
-    let _ = activity_surface_read_models::screen_read_model;
-    let _ = activity_surface_read_models::browser_read_model;
-    let _ = activity_surface_read_models::network_read_model;
-    let _ = activity_surface_read_models::app_use::app_use_read_model::<
-        Option<ocentra_parent_agent_protocol::activity_query::ActivityRecentSummary>,
-    >;
-    let _ = activity_surface_read_models::games::games_read_model;
-
-    let _ = screen_ai_service_capture_event_builder::screen_queue_job;
-    let _ = screen_ai_service_capture_event_builder::screen_analysis_event;
-
-    let _ = event_builder::build_event::<&str, &str>;
-    let _ = event_builder::portal_peer;
-};
 
 mod screen_ai_analysis_runtime {
     pub(crate) mod adapter {
@@ -162,7 +127,8 @@ mod screen_ai_analysis_runtime {
     use ocentra_parent_agent_protocol::screen_evidence::SCREEN_PROVIDER_SERVICE_METADATA;
 
     use crate::{
-        activity_capture::{record_activity_events_to_paths, ActivityCaptureError},
+        activity_capture::ActivityCaptureError,
+        activity_capture_persistence::record_activity_events_to_paths,
         activity_surface_read_models::activity_screen_row_from_result,
         screen_ai_service_event_subscription,
         screen_ai_service_event_subscription::ScreenAiServiceEventRuntime,

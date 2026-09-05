@@ -93,7 +93,7 @@ async fn metrics_snapshot_reports_queue_dead_letter_journal_and_request_counts()
 
 #[tokio::test]
 async fn metrics_snapshot_reports_bounded_in_memory_event_retention() {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     for index in 0..IN_MEMORY_RETENTION_PROBE_COUNT {
         bus.publish(
             test_event_with_idempotency(

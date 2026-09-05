@@ -12,86 +12,6 @@ use std::string::String as TestString;
 
 type TestText = TestString;
 
-pub(crate) fn assert_accepted_control(event: &AgentEventEnvelope) {
-    assert_accepted_control_for_intent(event, constants::lan_pairing::INTENT_ID);
-}
-pub(crate) fn assert_accepted_control_for_intent(
-    event: &AgentEventEnvelope,
-    intent_id: impl Display,
-) {
-    let intent_id = intent_id.to_string();
-    assert_eq!(
-        event.payload.get(constants::field::LAN_CONTROL_STATE),
-        Some(&LogFieldValue::String(
-            constants::value::LAN_CONTROL_ACCEPTED.to_string()
-        ))
-    );
-    assert_eq!(
-        event.payload.get(constants::field::LAN_AUDIT_EVENT_ID),
-        Some(&LogFieldValue::String(intent_id))
-    );
-    assert_eq!(
-        event.payload.get(constants::field::LAN_AUDIT_EVENT_TYPE),
-        Some(&LogFieldValue::String(
-            constants::value::LAN_AUDIT_CONTROL_ACCEPTED.to_string()
-        ))
-    );
-    assert_eq!(
-        event.payload.get(constants::field::LAN_ROUTE_ID),
-        Some(&LogFieldValue::String(
-            constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK.to_string()
-        ))
-    );
-    assert_eq!(
-        event.payload.get(constants::field::ORIGIN),
-        Some(&LogFieldValue::String(
-            constants::lan_pairing::ALLOWED_ORIGIN.to_string()
-        ))
-    );
-    assert_eq!(
-        event.payload.get(constants::field::LAN_CONTROLLER_LEASE_ID),
-        Some(&LogFieldValue::String(
-            constants::lan_pairing::CONTROLLER_LEASE_ID.to_string()
-        ))
-    );
-    assert_eq!(
-        event
-            .payload
-            .get(constants::field::LAN_CONTROLLER_DEVICE_ID),
-        Some(&LogFieldValue::String(
-            constants::lan_pairing::PARENT_DEVICE_ID.to_string()
-        ))
-    );
-    assert_eq!(
-        event.payload.get(constants::field::LAN_PARENT_ACTOR_ID),
-        Some(&LogFieldValue::String(
-            constants::lan_pairing::PARENT_ACTOR_ID.to_string()
-        ))
-    );
-    assert_eq!(
-        event
-            .payload
-            .get(constants::field::LAN_AUTHENTICATION_STATE),
-        Some(&LogFieldValue::String(
-            constants::value::LAN_AUTH_PAIRED.to_string()
-        ))
-    );
-    assert_eq!(
-        event
-            .payload
-            .get(constants::field::LAN_EVIDENCE_REFERENCE_COUNT),
-        Some(&LogFieldValue::Number(1.0))
-    );
-    assert_eq!(
-        event
-            .payload
-            .get(constants::field::LAN_EVIDENCE_REFERENCE_IDS),
-        Some(&LogFieldValue::String(
-            constants::lan_pairing::EVIDENCE_REFERENCE_ID.to_string()
-        ))
-    );
-}
-
 pub(crate) fn assert_status_support_surface(event: &AgentEventEnvelope) {
     assert_status_support_surface_with_persistence(
         event,
@@ -105,14 +25,6 @@ pub(crate) fn assert_persistent_status_support_surface(event: &AgentEventEnvelop
         event,
         constants::value::LAN_PERSISTENCE_LOCAL_JSON_REGISTRY,
         constants::value::LAN_RESTART_RESTORE_TRUSTED_REGISTRY_UNSELECTED,
-    );
-}
-
-pub(crate) fn assert_persistent_selected_route_support_surface(event: &AgentEventEnvelope) {
-    assert_status_support_surface_with_persistence(
-        event,
-        constants::value::LAN_PERSISTENCE_LOCAL_JSON_REGISTRY,
-        constants::value::LAN_RESTART_RESTORE_TRUSTED_REGISTRY_SELECTED_ROUTE,
     );
 }
 
@@ -302,18 +214,6 @@ fn assert_lan_ai_provider_support_surface(event: &AgentEventEnvelope) {
         Some(&LogFieldValue::String(
             constants::lan_pairing::SUPPORT_WEBSOCKET_DIRECT.to_string()
         ))
-    );
-}
-
-pub(crate) fn assert_selected_device_reachability(
-    event: &AgentEventEnvelope,
-    reachability: TestText,
-) {
-    assert_eq!(
-        event
-            .payload
-            .get(constants::field::LAN_SELECTED_DEVICE_REACHABILITY),
-        Some(&LogFieldValue::String(reachability))
     );
 }
 

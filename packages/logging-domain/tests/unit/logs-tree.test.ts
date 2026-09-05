@@ -4,20 +4,22 @@ import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { getDefaultLogRoot } from '../../src/test-log/ndjsonPaths';
 import { buildLogsTree, getDirPath, listFileKeysInScope, tryGet } from '../../src/test-log/logsTree';
+import { closeLocalArtifactMutationProvider } from '../../src/local-artifact-mutation-provider';
 
-describe('logsTree', () => {
+describe.skipIf(process.platform !== 'win32')('logsTree', () => {
   const tempDirs: string[] = [];
 
-  afterEach(() => {
-    for (const tempDir of tempDirs.splice(0, tempDirs.length)) {
-      fs.rmSync(tempDir, { force: true, recursive: true });
+  afterEach(async () => {
+    for (const root of tempDirs.splice(0, tempDirs.length)) {
+      await closeLocalArtifactMutationProvider(root);
+      fs.rmSync(path.dirname(root), { force: true, recursive: true });
     }
   });
 
   it('lists file keys and resolves stored NDJSON paths from a temp root', () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'logging-domain-logs-tree-'));
-    tempDirs.push(tempDir);
     const root = path.join(tempDir, 'output');
+    tempDirs.push(root);
     const scopePath = path.join(root, 'test-logs', 'parent-test', 'single', 'unit');
     fs.mkdirSync(scopePath, { recursive: true });
     const filePath = path.join(scopePath, 'sample.ndjson');

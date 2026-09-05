@@ -1,14 +1,13 @@
-// @ts-nocheck
-import { schema } from '@ocentra-parent/vendor-schema/effect-builder';
+import { schema, type Infer } from '@ocentra-parent/vendor-schema/effect-builder';
 
 export const ParentPortalToneSchema = schema.enum(['cyan', 'gold', 'purple', 'red', 'muted']);
-export type ParentPortalTone = schema.infer<typeof ParentPortalToneSchema>;
+export type ParentPortalTone = Infer<typeof ParentPortalToneSchema>;
 
 export const ParentPortalTabIdSchema = schema.enum(['overall', 'controls', 'aiStatus', 'routines', 'support']);
-export type ParentPortalTabId = schema.infer<typeof ParentPortalTabIdSchema>;
+export type ParentPortalTabId = Infer<typeof ParentPortalTabIdSchema>;
 
 export const ParentPortalModeSchema = schema.enum(['parentOverview', 'parentManage', 'parentGuide']);
-export type ParentPortalMode = schema.infer<typeof ParentPortalModeSchema>;
+export type ParentPortalMode = Infer<typeof ParentPortalModeSchema>;
 
 export const ParentPortalIconNameSchema = schema.enum([
   'quick-glance',
@@ -45,7 +44,7 @@ export const ParentPortalIconNameSchema = schema.enum([
   'account',
   'enforcement',
 ]);
-export type ParentPortalIconName = schema.infer<typeof ParentPortalIconNameSchema>;
+export type ParentPortalIconName = Infer<typeof ParentPortalIconNameSchema>;
 
 const ParentPortalTabSchema = schema
   .object({
@@ -54,7 +53,7 @@ const ParentPortalTabSchema = schema
     title: schema.string().min(1),
   })
   .strict();
-export type ParentPortalTab = schema.infer<typeof ParentPortalTabSchema>;
+export type ParentPortalTab = Infer<typeof ParentPortalTabSchema>;
 
 const ParentPortalNavItemSchema = schema
   .object({
@@ -68,7 +67,7 @@ const ParentPortalNavItemSchema = schema
     routePath: schema.string().optional(),
   })
   .strict();
-export type ParentPortalNavItem = schema.infer<typeof ParentPortalNavItemSchema>;
+export type ParentPortalNavItem = Infer<typeof ParentPortalNavItemSchema>;
 
 const ParentPortalNavGroupSchema = schema
   .object({
@@ -77,7 +76,7 @@ const ParentPortalNavGroupSchema = schema
     detail: schema.string(),
   })
   .strict();
-export type ParentPortalNavGroup = schema.infer<typeof ParentPortalNavGroupSchema>;
+export type ParentPortalNavGroup = Infer<typeof ParentPortalNavGroupSchema>;
 
 const ParentPortalTabDetailSchema = schema
   .object({
@@ -90,7 +89,7 @@ const ParentPortalTabDetailSchema = schema
     tone: ParentPortalToneSchema,
   })
   .strict();
-export type ParentPortalTabDetail = schema.infer<typeof ParentPortalTabDetailSchema>;
+export type ParentPortalTabDetail = Infer<typeof ParentPortalTabDetailSchema>;
 
 const ParentPortalControlAreaSchema = schema
   .object({
@@ -106,7 +105,7 @@ const ParentPortalControlAreaSchema = schema
     routePath: schema.string().optional(),
   })
   .strict();
-export type ParentPortalControlArea = schema.infer<typeof ParentPortalControlAreaSchema>;
+export type ParentPortalControlArea = Infer<typeof ParentPortalControlAreaSchema>;
 
 const ParentPortalQuickControlSchema = schema
   .object({
@@ -121,7 +120,7 @@ const ParentPortalQuickControlSchema = schema
     routePath: schema.string().optional(),
   })
   .strict();
-export type ParentPortalQuickControl = schema.infer<typeof ParentPortalQuickControlSchema>;
+export type ParentPortalQuickControl = Infer<typeof ParentPortalQuickControlSchema>;
 
 const ParentPortalGuidePageSchema = schema
   .object({
@@ -131,7 +130,7 @@ const ParentPortalGuidePageSchema = schema
     steps: schema.array(schema.string()),
   })
   .strict();
-export type ParentPortalGuidePage = schema.infer<typeof ParentPortalGuidePageSchema>;
+export type ParentPortalGuidePage = Infer<typeof ParentPortalGuidePageSchema>;
 
 const ParentPortalGuideNoteSchema = schema
   .object({
@@ -144,7 +143,7 @@ const ParentPortalGuideNoteSchema = schema
     targetRoutePath: schema.string().optional(),
   })
   .strict();
-export type ParentPortalGuideNote = schema.infer<typeof ParentPortalGuideNoteSchema>;
+export type ParentPortalGuideNote = Infer<typeof ParentPortalGuideNoteSchema>;
 
 const ParentPortalGuideTopicSchema = schema
   .object({
@@ -162,7 +161,7 @@ const ParentPortalGuideTopicSchema = schema
     actions: schema.array(ParentPortalGuideNoteSchema),
   })
   .strict();
-export type ParentPortalGuideTopic = schema.infer<typeof ParentPortalGuideTopicSchema>;
+export type ParentPortalGuideTopic = Infer<typeof ParentPortalGuideTopicSchema>;
 
 const ParentPortalRowSchema = schema
   .object({
@@ -176,7 +175,7 @@ const ParentPortalRowSchema = schema
     tone: ParentPortalToneSchema.optional(),
   })
   .strict();
-export type ParentPortalContentRow = schema.infer<typeof ParentPortalRowSchema>;
+export type ParentPortalContentRow = Infer<typeof ParentPortalRowSchema>;
 
 const ParentPortalSeasonStatSchema = schema
   .object({
@@ -196,7 +195,7 @@ const ParentPortalSeasonSchema = schema
     stats: schema.array(ParentPortalSeasonStatSchema),
   })
   .strict();
-export type ParentPortalSeason = schema.infer<typeof ParentPortalSeasonSchema>;
+export type ParentPortalSeason = Infer<typeof ParentPortalSeasonSchema>;
 
 const ParentPortalModeContentSchema = schema
   .object({
@@ -207,7 +206,7 @@ const ParentPortalModeContentSchema = schema
     rowSource: schema.enum(['api', 'fallbackRows', 'aiBenchmarkRows']),
   })
   .strict();
-export type ParentPortalModeContent = schema.infer<typeof ParentPortalModeContentSchema>;
+export type ParentPortalModeContent = Infer<typeof ParentPortalModeContentSchema>;
 
 const ParentPortalMetricLabelsSchema = schema
   .object({
@@ -274,7 +273,7 @@ export const ParentPortalContentDataSchema = schema
       .strict(),
   })
   .strict();
-export type ParentPortalContentData = schema.infer<typeof ParentPortalContentDataSchema>;
+export type ParentPortalContentData = Infer<typeof ParentPortalContentDataSchema>;
 
 export const PartialParentPortalContentDataSchema = ParentPortalContentDataSchema.partial();
-export type PartialParentPortalContentData = schema.infer<typeof PartialParentPortalContentDataSchema>;
+export type PartialParentPortalContentData = Infer<typeof PartialParentPortalContentDataSchema>;

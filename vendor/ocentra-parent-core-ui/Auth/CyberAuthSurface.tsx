@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components -- auth SVG controls are shared with the asset editor panel */
 import React from 'react';
 import { parentPortalLogoImageUrl } from '@ocentra-parent/portal-assets/common';
 
@@ -1222,7 +1221,7 @@ function makeFramePath(config: CyberAuthConfig, inset = 0, useInsetControls = fa
   ]);
 }
 
-function chamferRectPath(x: number, y: number, w: number, h: number, cut = 24, _radius = 0) {
+function chamferRectPath(x: number, y: number, w: number, h: number, cut = 24) {
   const safeCut = Math.max(0, Math.min(cut, w / 2, h / 2));
   return makePath([
     [x + safeCut, y],
@@ -1543,33 +1542,32 @@ function CyberButtonFrame({
     faceY + edgeInset,
     Math.max(0, faceW - edgeInset * 2),
     Math.max(0, faceH - edgeInset * 2),
-    cut - 6,
-    config.ctaRadius
+    cut - 6
   );
 
   return (
     <g filter={`url(#${glowFilterId})`}>
       <path
-        d={chamferRectPath(x, y, w, h, cut + 10, config.ctaRadius)}
+        d={chamferRectPath(x, y, w, h, cut + 10)}
         fill={config.buttonBaseFill}
         stroke={config.ctaDarkStroke}
         strokeWidth={config.ctaDarkStrokeW}
         opacity="0.98"
       />
       <path
-        d={chamferRectPath(x + 5, y + 5, w - 10, h - 10, cut + 4, config.ctaRadius)}
+        d={chamferRectPath(x + 5, y + 5, w - 10, h - 10, cut + 4)}
         fill={config.buttonShellFill}
         stroke={config.ctaOuterStroke}
         strokeWidth={config.ctaOuterStrokeW}
         opacity="0.98"
       />
       <path
-        d={chamferRectPath(innerX, innerY, innerW, innerH, cut, config.ctaRadius)}
+        d={chamferRectPath(innerX, innerY, innerW, innerH, cut)}
         fill="url(#authActionGrad)"
         stroke={config.ctaInnerStroke}
         strokeWidth={config.ctaInnerStrokeW}
       />
-      <path d={chamferRectPath(faceX, faceY, faceW, faceH, cut - 6, config.ctaRadius)} fill={faceFill} opacity="0.72" />
+      <path d={chamferRectPath(faceX, faceY, faceW, faceH, cut - 6)} fill={faceFill} opacity="0.72" />
       {config.ctaShowInnerGlow ? (
         <path
           d={edgePath}
@@ -1828,6 +1826,7 @@ function AuthField({
 }) {
   const c = useAuthPageSvgControls();
   const config = makeFieldButtonConfig(c, Boolean(hasError));
+  const inputId = `login-cyber-${name}`;
   return (
     <CyberButtonFrame
       x={x}
@@ -1870,12 +1869,17 @@ function AuthField({
             width={Math.max(10, faceW - c.fieldIconW - c.fieldTextX - 12)}
             height={Math.max(10, faceH - 4)}
           >
+            <label className="login-cyber-visually-hidden" htmlFor={inputId}>
+              {label}
+            </label>
             <input
+              id={inputId}
               className="login-cyber-input"
               name={name}
               type={type}
               value={value}
               placeholder={label}
+              aria-invalid={hasError ? true : undefined}
               onChange={(event) => onChange(event.target.value)}
               disabled={disabled}
               autoComplete={name === 'confirmPassword' ? 'new-password' : name}
@@ -1919,14 +1923,7 @@ function CtaButton({ x, y, label, disabled }: { x: number; y: number; label: str
       {({ faceX, faceY, faceW, faceH }) => (
         <>
           <path
-            d={chamferRectPath(
-              faceX + 14,
-              faceY + 12,
-              c.ctaIconBoxW - 30,
-              faceH - 24,
-              10,
-              Math.max(0, c.ctaRadius - 10)
-            )}
+            d={chamferRectPath(faceX + 14, faceY + 12, c.ctaIconBoxW - 30, faceH - 24, 10)}
             fill={c.ctaDarkStroke}
             stroke={c.ctaInnerEdgeColor}
             strokeWidth="1.5"
@@ -2256,15 +2253,14 @@ function SocialLoginPanel({ cx, y, options }: { cx: number; y: number; options: 
   }
   const x = cx + c.socialPanelX - c.socialPanelW / 2;
   const panelY = y + c.socialPanelY;
-  const panelPath = chamferRectPath(x, panelY, c.socialPanelW, c.socialPanelH, c.socialPanelCut, c.socialPanelRadius);
+  const panelPath = chamferRectPath(x, panelY, c.socialPanelW, c.socialPanelH, c.socialPanelCut);
   const inner = c.socialPanelInnerInset;
   const innerPath = chamferRectPath(
     x + inner,
     panelY + inner,
     c.socialPanelW - inner * 2,
     c.socialPanelH - inner * 2,
-    c.socialPanelCut - 8,
-    Math.max(0, c.socialPanelRadius - 4)
+    c.socialPanelCut - 8
   );
   const clipId = 'loginCyberSocialPanelClip';
   const buttonY = panelY + c.socialPanelH / 2 + c.socialChildY;
@@ -2340,7 +2336,7 @@ function BottomDock() {
   const panelY = y + c.bottomDockPanelInsetY;
   const panelH = Math.max(12, h - c.bottomDockPanelInsetY - c.bottomDockPanelBottomPad);
   const panelCut = Math.min(c.bottomDockPanelCut, panelW / 2, panelH / 2);
-  const panel = chamferRectPath(panelX, panelY, panelW, panelH, panelCut, c.bottomDockPanelRadius);
+  const panel = chamferRectPath(panelX, panelY, panelW, panelH, panelCut);
   const ventCount = Math.max(0, Math.round(c.bottomDockVentCount));
   const totalVentW = ventCount * c.bottomDockVentW + Math.max(0, ventCount - 1) * c.bottomDockVentGap;
   const ventX = c.frameW / 2 + c.bottomDockX - totalVentW / 2;
@@ -2442,6 +2438,7 @@ function CloseButton({ onClose, label }: { onClose?: (() => void) | undefined; l
         style={onClose ? { cursor: 'pointer' } : undefined}
         {...handlers}
       >
+        <rect x={x} y={y} width={w} height={h} fill="transparent" pointerEvents="all" />
         <path
           d={outer}
           fill={c.closeOuterFill}
@@ -2487,6 +2484,14 @@ function CloseButton({ onClose, label }: { onClose?: (() => void) | undefined; l
       style={onClose ? { cursor: 'pointer' } : undefined}
       {...handlers}
     >
+      <rect
+        x={-c.closeR}
+        y={-c.closeR}
+        width={c.closeR * 2}
+        height={c.closeR * 2}
+        fill="transparent"
+        pointerEvents="all"
+      />
       <circle
         cx="0"
         cy="0"
@@ -3219,7 +3224,6 @@ export function CyberAuthSurface(props: CyberAuthSurfaceProps) {
         </defs>
         <g transform={`translate(${tx} ${ty}) scale(${finalScale})`}>
           <BottomDock />
-          <CloseButton onClose={props.onClose} label={props.closeAriaLabel} />
           {c.showOuterGlow ? (
             <path
               d={outerPath}
@@ -3307,6 +3311,7 @@ export function CyberAuthSurface(props: CyberAuthSurfaceProps) {
             : null}
           {c.showDecor ? <FrameDetailsLayer /> : null}
           <AuthLayer {...props} />
+          <CloseButton onClose={props.onClose} label={props.closeAriaLabel} />
         </g>
       </svg>
     </AuthPageSvgControlsContext.Provider>

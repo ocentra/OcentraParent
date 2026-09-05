@@ -1,37 +1,24 @@
-use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
 use ocentra_parent_agent_protocol::app_game::{AppGameServiceReadModel, APP_GAME_SCHEMA_VERSION};
-use ocentra_parent_agent_protocol::app_game_authority_classifier::{
-    APP_GAME_CONTROL_ACTION_STATUS_ENFORCED, APP_GAME_ENFORCEMENT_RESULT_ACTUALLY_ENFORCED,
-};
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 use ocentra_parent_agent_protocol::AppGamePolicyReadinessReadModel;
-use ocentra_parent_agent_protocol::AppGamePolicyReadinessRow;
 use ocentra_parent_agent_protocol::APP_GAME_POLICY_READINESS_CUSTODY_CHILD_DEVICE_QUERY_STORE;
-use ocentra_parent_agent_protocol::APP_GAME_POLICY_READINESS_KIND_AI_CLASSIFIER_CONTEXT;
-use ocentra_parent_agent_protocol::APP_GAME_POLICY_READINESS_KIND_APPROVAL_ACTION_RESULT;
-use ocentra_parent_agent_protocol::APP_GAME_POLICY_READINESS_KIND_APPROVAL_AUTHORITY;
-use ocentra_parent_agent_protocol::APP_GAME_POLICY_READINESS_KIND_CATEGORY_CANDIDATE;
-use ocentra_parent_agent_protocol::APP_GAME_POLICY_READINESS_KIND_PLATFORM_AUTHORITY;
-use ocentra_parent_agent_protocol::APP_GAME_POLICY_READINESS_KIND_POLICY_EVIDENCE;
-use ocentra_parent_agent_protocol::APP_GAME_POLICY_READINESS_KIND_UNKNOWN_REVIEW;
-use ocentra_parent_agent_protocol::APP_GAME_POLICY_READINESS_STATE_MANUAL_REQUIRED;
-use ocentra_parent_agent_protocol::APP_GAME_POLICY_READINESS_STATE_MISSING;
 use ocentra_parent_agent_protocol::APP_GAME_POLICY_READINESS_STATE_READY;
 use ocentra_parent_agent_protocol::APP_GAME_POLICY_READINESS_STATUS_NO_ROWS;
 use ocentra_parent_agent_protocol::APP_GAME_POLICY_READINESS_STATUS_PARTIAL;
 use ocentra_parent_agent_protocol::APP_GAME_POLICY_READINESS_STATUS_READY;
 
+#[path = "app_game_policy_readiness_payload/rows.rs"]
+mod rows;
+
 use super::app_game_policy_readiness_sources::{
-    ai_classifier_refs, app_game_boundary_row_count, approval_action_result_refs,
-    approval_authority_refs, category_candidate_refs, category_candidate_row_count,
-    platform_authority_row_count, platform_authority_row_refs, policy_evidence_refs,
-    unknown_review_refs, unknown_review_row_count,
+    app_game_boundary_row_count, category_candidate_row_count, platform_authority_row_count,
+    unknown_review_row_count,
 };
 use crate::fields::fields_from_pairs;
 
 #[derive(Clone, Copy)]
-struct PolicyReadinessTextRef<'a>(&'a str);
+pub(super) struct PolicyReadinessTextRef<'a>(&'a str);
 
 pub fn app_game_policy_readiness_from_service_model(
     model: AppGameServiceReadModel,
@@ -39,7 +26,7 @@ pub fn app_game_policy_readiness_from_service_model(
     let platform_authority_row_count = platform_authority_row_count(&model);
     let category_candidate_row_count = category_candidate_row_count(&model);
     let unknown_review_row_count = unknown_review_row_count(&model);
-    let rows = readiness_rows(&model);
+    let rows = rows::readiness_rows(&model);
     let returned = rows.len() as u64;
     let policy_evaluation_ready = !model.evidence_claim_rows.is_empty()
         && !model.identity_rows.is_empty()
@@ -53,8 +40,6 @@ pub fn app_game_policy_readiness_from_service_model(
     let capability_status = policy_readiness_status(&model, policy_evaluation_ready)
         .0
         .to_string();
-    let adapter_dispatch_claimed = adapter_dispatch_claimed(&model);
-
     AppGamePolicyReadinessReadModel {
         schema_version: APP_GAME_SCHEMA_VERSION,
         generated_at: model.generated_at,
@@ -65,7 +50,7 @@ pub fn app_game_policy_readiness_from_service_model(
         category_routing_ready,
         unknown_review_required,
         manual_review_required,
-        adapter_dispatch_claimed,
+        adapter_dispatch_claimed: false,
         evidence_claim_row_count: model.evidence_claim_rows.len() as u64,
         identity_row_count: model.identity_rows.len() as u64,
         approval_authority_row_count: model.approval_authority_rows.len() as u64,
@@ -76,15 +61,6 @@ pub fn app_game_policy_readiness_from_service_model(
         unknown_review_row_count,
         rows,
     }
-}
-
-fn adapter_dispatch_claimed(model: &AppGameServiceReadModel) -> bool {
-    model.approval_action_result_rows.iter().any(|row| {
-        row.result_status == APP_GAME_CONTROL_ACTION_STATUS_ENFORCED
-            && row.enforcement_result.as_ref().is_some_and(|result| {
-                result.status == APP_GAME_ENFORCEMENT_RESULT_ACTUALLY_ENFORCED
-            })
-    })
 }
 
 pub fn app_game_policy_readiness_payload(
@@ -116,102 +92,6 @@ fn read_model_fields(read_model: &AppGamePolicyReadinessReadModel) -> LogFields 
             LogFieldValue::String(serde_json::to_string(read_model).unwrap_or_default()),
         ),
     ])
-}
-
-fn readiness_rows(model: &AppGameServiceReadModel) -> Vec<AppGamePolicyReadinessRow> {
-    let policy_evidence_count =
-        model.evidence_claim_rows.len() as u64 + model.identity_rows.len() as u64;
-    let has_policy_evidence =
-        !model.evidence_claim_rows.is_empty() && !model.identity_rows.is_empty();
-    vec![
-        readiness_row(
-            PolicyReadinessTextRef(APP_GAME_POLICY_READINESS_KIND_POLICY_EVIDENCE),
-            if has_policy_evidence {
-                PolicyReadinessTextRef(APP_GAME_POLICY_READINESS_STATE_READY)
-            } else {
-                PolicyReadinessTextRef(APP_GAME_POLICY_READINESS_STATE_MISSING)
-            },
-            policy_evidence_count,
-            policy_evidence_refs(model),
-        ),
-        readiness_row(
-            PolicyReadinessTextRef(APP_GAME_POLICY_READINESS_KIND_APPROVAL_AUTHORITY),
-            if model.approval_authority_rows.is_empty() {
-                PolicyReadinessTextRef(APP_GAME_POLICY_READINESS_STATE_MISSING)
-            } else {
-                PolicyReadinessTextRef(APP_GAME_POLICY_READINESS_STATE_READY)
-            },
-            model.approval_authority_rows.len() as u64,
-            approval_authority_refs(model),
-        ),
-        readiness_row(
-            PolicyReadinessTextRef(APP_GAME_POLICY_READINESS_KIND_APPROVAL_ACTION_RESULT),
-            if model.approval_action_result_rows.is_empty() {
-                PolicyReadinessTextRef(APP_GAME_POLICY_READINESS_STATE_MANUAL_REQUIRED)
-            } else {
-                PolicyReadinessTextRef(APP_GAME_POLICY_READINESS_STATE_READY)
-            },
-            model.approval_action_result_rows.len() as u64,
-            approval_action_result_refs(model),
-        ),
-        readiness_row(
-            PolicyReadinessTextRef(APP_GAME_POLICY_READINESS_KIND_PLATFORM_AUTHORITY),
-            if platform_authority_row_count(model) == 0 {
-                PolicyReadinessTextRef(APP_GAME_POLICY_READINESS_STATE_MISSING)
-            } else {
-                PolicyReadinessTextRef(APP_GAME_POLICY_READINESS_STATE_READY)
-            },
-            platform_authority_row_count(model),
-            platform_authority_row_refs(model),
-        ),
-        readiness_row(
-            PolicyReadinessTextRef(APP_GAME_POLICY_READINESS_KIND_AI_CLASSIFIER_CONTEXT),
-            if model.ai_classifier_result_rows.is_empty() {
-                PolicyReadinessTextRef(APP_GAME_POLICY_READINESS_STATE_MANUAL_REQUIRED)
-            } else {
-                PolicyReadinessTextRef(APP_GAME_POLICY_READINESS_STATE_READY)
-            },
-            model.ai_classifier_result_rows.len() as u64,
-            ai_classifier_refs(model),
-        ),
-        readiness_row(
-            PolicyReadinessTextRef(APP_GAME_POLICY_READINESS_KIND_CATEGORY_CANDIDATE),
-            if category_candidate_row_count(model) == 0 {
-                PolicyReadinessTextRef(APP_GAME_POLICY_READINESS_STATE_MISSING)
-            } else {
-                PolicyReadinessTextRef(APP_GAME_POLICY_READINESS_STATE_READY)
-            },
-            category_candidate_row_count(model),
-            category_candidate_refs(model),
-        ),
-        readiness_row(
-            PolicyReadinessTextRef(APP_GAME_POLICY_READINESS_KIND_UNKNOWN_REVIEW),
-            if unknown_review_row_count(model) == 0 {
-                PolicyReadinessTextRef(APP_GAME_POLICY_READINESS_STATE_READY)
-            } else {
-                PolicyReadinessTextRef(APP_GAME_POLICY_READINESS_STATE_MANUAL_REQUIRED)
-            },
-            unknown_review_row_count(model),
-            unknown_review_refs(model),
-        ),
-    ]
-}
-
-fn readiness_row(
-    readiness_kind: PolicyReadinessTextRef<'static>,
-    readiness_state: PolicyReadinessTextRef<'static>,
-    row_count: u64,
-    evidence: Vec<ActivityEvidenceRef>,
-) -> AppGamePolicyReadinessRow {
-    AppGamePolicyReadinessRow {
-        schema_version: APP_GAME_SCHEMA_VERSION,
-        row_id: readiness_kind.0.to_string(),
-        readiness_kind: readiness_kind.0.to_string(),
-        readiness_state: readiness_state.0.to_string(),
-        row_count,
-        evidence_reference_ids: evidence.iter().map(|row| row.evidence_id.clone()).collect(),
-        evidence,
-    }
 }
 
 fn policy_readiness_status(

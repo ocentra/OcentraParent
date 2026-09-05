@@ -24,6 +24,7 @@
     "destinationDomain": "example-network.test",
     "domainAttributionStatus": "domain-observed",
     "processAttributionStatus": "process-attributed",
+    "associatedPidCount": 1,
     "pid": 4242,
     "processName": "notepad.exe"
   },

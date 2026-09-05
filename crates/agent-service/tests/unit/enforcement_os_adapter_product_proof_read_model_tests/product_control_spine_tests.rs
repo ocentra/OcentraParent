@@ -3,7 +3,12 @@ use std::primitive::str as TestStr;
 use std::string::String as TestString;
 
 use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::constants::v08_cross_platform_enforcement_capability_proof as cross_proof;
 use ocentra_parent_agent_protocol::constants::v08_enforcement_product_control_spine as spine;
+use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformEnforcementCapabilityProofEntry;
+use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformEnforcementCapabilityProofReadModel;
+use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformEnforcementCapabilitySurface;
+use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlCapabilityStatus;
 use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlClaimState;
 use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlDevicePolicyState;
 use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlExecutionState;
@@ -14,8 +19,11 @@ use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08Enforce
 use ocentra_parent_agent_protocol::policy_constants;
 
 use crate::{
+    enforcement_cross_platform_capability_proof_read_model::{
+        v08_cross_platform_enforcement_capability_proof_read_model, GeneratedAtTextRef,
+    },
     enforcement_os_adapter_product_proof_read_model::product_control_spine::v08_enforcement_product_control_spine_read_model,
-    test_invariants::require_some,
+    test_require_some::require_some,
 };
 
 type TestResult = Result<(), TestString>;
@@ -31,22 +39,22 @@ fn product_control_service_read_model_wires_runtime_sources() {
     assert_eq!(read_model.entries.len(), 15);
     assert_eq!(
         claim_count(&claim_counts, spine::CLAIM_IMPLEMENTED_BOUNDARY),
-        6
+        4
     );
     assert_eq!(
         claim_count(&claim_counts, spine::CLAIM_DEGRADED_BOUNDARY),
         1
     );
     assert_eq!(claim_count(&claim_counts, spine::CLAIM_DRY_RUN_ONLY), 1);
-    assert_eq!(claim_count(&claim_counts, spine::CLAIM_MANUAL_REQUIRED), 6);
+    assert_eq!(claim_count(&claim_counts, spine::CLAIM_MANUAL_REQUIRED), 8);
     assert_eq!(claim_count(&claim_counts, spine::CLAIM_NOT_CLAIMED), 1);
     assert_eq!(
         policy_count(&policy_counts, spine::DEVICE_POLICY_CONTROL_CAPABLE),
-        5
+        3
     );
     assert_eq!(
         policy_count(&policy_counts, spine::DEVICE_POLICY_MANUAL_REQUIRED),
-        6
+        8
     );
     assert!(read_model
         .source_read_model_ids
@@ -66,6 +74,10 @@ fn product_control_service_read_model_keeps_action_boundaries_exact() {
     let owned_process = entry_for(
         &read_model,
         V08EnforcementProductControlSurface::WindowsOwnedProcessTimeLimit,
+    );
+    let app_time_limit = entry_for(
+        &read_model,
+        V08EnforcementProductControlSurface::WindowsAppTimeLimitLifecycle,
     );
     let unmanaged_browser = entry_for(
         &read_model,
@@ -93,6 +105,29 @@ fn product_control_service_read_model_keeps_action_boundaries_exact() {
         ]
     );
     assert_eq!(
+        app_time_limit.capability_status,
+        V08EnforcementProductControlCapabilityStatus::ManualRequired
+    );
+    assert_eq!(
+        app_time_limit.product_claim_state,
+        V08EnforcementProductControlClaimState::ManualRequired
+    );
+    assert_eq!(
+        app_time_limit.adapter_execution_state,
+        V08EnforcementProductControlExecutionState::ReturnsManualRequired
+    );
+    assert_eq!(
+        app_time_limit.device_policy_state,
+        V08EnforcementProductControlDevicePolicyState::ManualRequired
+    );
+    assert_eq!(
+        app_time_limit.parent_visible_actions,
+        vec![V08EnforcementProductControlParentAction::ReportOnly]
+    );
+    assert!(app_time_limit
+        .manual_proof_requirements
+        .contains(&constants::enforcement::ARTIFACT_APP_TIME_LIMIT_EXECUTOR.to_string()));
+    assert_eq!(
         unmanaged_browser.product_claim_state,
         V08EnforcementProductControlClaimState::DegradedBoundary
     );
@@ -112,6 +147,55 @@ fn product_control_service_read_model_keeps_action_boundaries_exact() {
         network_domain.parent_visible_actions,
         vec![V08EnforcementProductControlParentAction::ReportOnly]
     );
+}
+
+#[test]
+fn product_control_app_time_limit_tracks_cross_platform_runtime_state() {
+    let generated_at = policy_constants::TEST_EVALUATED_AT;
+    let product_read_model = v08_enforcement_product_control_spine_read_model(generated_at);
+    let cross_read_model = v08_cross_platform_enforcement_capability_proof_read_model(
+        GeneratedAtTextRef(generated_at),
+    );
+    let product_entry = entry_for(
+        &product_read_model,
+        V08EnforcementProductControlSurface::WindowsAppTimeLimitLifecycle,
+    );
+    let cross_entry = cross_entry_for(
+        &cross_read_model,
+        V08CrossPlatformEnforcementCapabilitySurface::WindowsAppTimeLimitLifecycle,
+    );
+
+    assert_eq!(product_entry.platform, cross_entry.platform);
+    assert_eq!(
+        product_entry.capability_status.as_protocol_str(),
+        cross_entry.capability_status.as_protocol_str()
+    );
+    assert_eq!(
+        product_entry.product_claim_state.as_protocol_str(),
+        cross_entry.product_claim_state.as_protocol_str()
+    );
+    assert_eq!(
+        product_entry.adapter_execution_state.as_protocol_str(),
+        cross_entry.adapter_execution_state.as_protocol_str()
+    );
+    assert_eq!(
+        product_entry.manual_proof_requirements,
+        cross_entry.manual_proof_requirements
+    );
+    assert_eq!(
+        product_entry.linked_proof_commands,
+        cross_entry.linked_proof_commands
+    );
+    assert_eq!(
+        product_entry.linked_proof_artifacts,
+        cross_entry.linked_proof_artifacts
+    );
+    assert_eq!(product_entry.claim_boundary, cross_entry.claim_boundary);
+    assert_eq!(
+        product_entry.fallback_behavior,
+        cross_entry.fallback_behavior
+    );
+    assert_eq!(product_entry.last_checked_at, cross_entry.last_checked_at);
 }
 
 #[test]
@@ -207,6 +291,19 @@ fn entry_for(
             .iter()
             .find(|entry| entry.surface == surface),
         spine::READ_MODEL_ID,
+    )
+}
+
+fn cross_entry_for(
+    read_model: &V08CrossPlatformEnforcementCapabilityProofReadModel,
+    surface: V08CrossPlatformEnforcementCapabilitySurface,
+) -> &V08CrossPlatformEnforcementCapabilityProofEntry {
+    require_some(
+        read_model
+            .entries
+            .iter()
+            .find(|entry| entry.surface == surface),
+        cross_proof::READ_MODEL_ID,
     )
 }
 

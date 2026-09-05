@@ -5,44 +5,64 @@ use super::routing::{
 };
 use super::state::ChildDomainRuntimeFlowState;
 use ocentra_eventing::{
-    bus::subscriber::EventSubscriber, bus::subscriber::SubscriptionReport, bus::EventBus,
-    error::EventingError, ids::EventType, ids::SubscriberId, ids::TargetHandler,
+    bus::publisher::RootEventPublisher, bus::subscriber::EventSubscriber,
+    bus::subscriber::SubscriptionReport, error::EventingError, ids::EventType, ids::SubscriberId,
+    ids::TargetHandler,
 };
 use ocentra_parent_agent_protocol::child_domain_runtime::{
     child_domain_notification_requested_event,
     child_domain_policy_evaluation_requested_from_ai_result_event_if_required,
     ChildDomainAiAnalysisCompletedEvent, ChildDomainAiAnalysisRequestedEvent, ChildDomainEventType,
-    ChildDomainObservedEvent, ChildDomainPolicyEvaluationRequestedEvent,
-    ChildDomainPolicyViolationDetectedEvent,
+    ChildDomainEvidenceRecordedEvent, ChildDomainObservedEvent,
+    ChildDomainPolicyEvaluationRequestedEvent, ChildDomainPolicyViolationDetectedEvent,
+    ChildRuntimeDomain,
 };
 use ocentra_parent_agent_protocol::constants;
 
 pub(super) async fn subscribe_child_domain_observer(
-    bus: &EventBus,
-    event: &ChildDomainObservedEvent,
-    state: ChildDomainRuntimeFlowState,
+    bus: &RootEventPublisher,
+    domain: ChildRuntimeDomain,
 ) -> Result<SubscriptionReport, EventingError> {
     bus.subscribe::<ChildDomainObservedEvent, _, _>(
         EventSubscriber::new(
-            SubscriberId::parse(event.domain.observer_subscriber_id())?,
-            EventType::parse(event.event_type.as_str())?,
+            SubscriberId::parse(domain.observer_subscriber_id())?,
+            EventType::parse(domain.observed_event_type().as_str())?,
+            TargetHandler::parse(constants::child_domain_runtime::TARGET_HANDLER_DOMAIN_OBSERVER)?,
+        ),
+        move |context| async move {
+            let evidence = child_domain_evidence_recorded_event(context.payload())?;
+            context
+                .publisher()
+                .publish(
+                    evidence.clone(),
+                    child_domain_runtime_metadata(
+                        ChildDomainRuntimeHop::EvidenceRecorded(&evidence.evidence_ref),
+                        &evidence.source_observed_at,
+                    )?,
+                )
+                .await?;
+            Ok(())
+        },
+    )
+    .await
+}
+
+pub(super) async fn subscribe_child_domain_evidence(
+    bus: &RootEventPublisher,
+    domain: ChildRuntimeDomain,
+    state: ChildDomainRuntimeFlowState,
+) -> Result<SubscriptionReport, EventingError> {
+    bus.subscribe::<ChildDomainEvidenceRecordedEvent, _, _>(
+        EventSubscriber::new(
+            SubscriberId::parse(domain.observer_subscriber_id())?,
+            EventType::parse(domain.evidence_recorded_event_type().as_str())?,
             TargetHandler::parse(constants::child_domain_runtime::TARGET_HANDLER_DOMAIN_OBSERVER)?,
         ),
         move |context| {
             let state = state.clone();
             async move {
-                let evidence = child_domain_evidence_recorded_event(context.payload())?;
+                let evidence = context.payload().clone();
                 state.record_evidence(evidence.clone());
-                context
-                    .publisher()
-                    .publish(
-                        evidence.clone(),
-                        child_domain_runtime_metadata(
-                            ChildDomainRuntimeHop::EvidenceRecorded(&evidence.evidence_ref),
-                            &evidence.source_observed_at,
-                        )?,
-                    )
-                    .await?;
                 if let Some(ai_request) = child_domain_ai_analysis_requested_event(&evidence)? {
                     state.record_ai_analysis_request(ai_request.clone());
                     context
@@ -81,14 +101,14 @@ pub(super) async fn subscribe_child_domain_observer(
 }
 
 pub(super) async fn subscribe_child_domain_ai(
-    bus: &EventBus,
-    event: &ChildDomainObservedEvent,
+    bus: &RootEventPublisher,
+    domain: ChildRuntimeDomain,
     state: ChildDomainRuntimeFlowState,
 ) -> Result<SubscriptionReport, EventingError> {
     bus.subscribe::<ChildDomainAiAnalysisRequestedEvent, _, _>(
         EventSubscriber::new(
             SubscriberId::parse(constants::child_domain_runtime::SUBSCRIBER_CHILD_AI_ANALYZER)?,
-            EventType::parse(event.domain.ai_analysis_requested_event_type().as_str())?,
+            EventType::parse(domain.ai_analysis_requested_event_type().as_str())?,
             TargetHandler::parse(
                 constants::child_domain_runtime::TARGET_HANDLER_CHILD_AI_ANALYZER,
             )?,
@@ -121,7 +141,7 @@ pub(super) async fn subscribe_child_domain_ai(
 }
 
 pub(super) async fn subscribe_child_domain_ai_policy_bridge(
-    bus: &EventBus,
+    bus: &RootEventPublisher,
     state: ChildDomainRuntimeFlowState,
 ) -> Result<SubscriptionReport, EventingError> {
     bus.subscribe::<ChildDomainAiAnalysisCompletedEvent, _, _>(
@@ -164,8 +184,8 @@ pub(super) async fn subscribe_child_domain_ai_policy_bridge(
 }
 
 pub(super) async fn subscribe_child_domain_policy(
-    bus: &EventBus,
-    event: &ChildDomainObservedEvent,
+    bus: &RootEventPublisher,
+    domain: ChildRuntimeDomain,
     state: ChildDomainRuntimeFlowState,
 ) -> Result<SubscriptionReport, EventingError> {
     bus.subscribe::<ChildDomainPolicyEvaluationRequestedEvent, _, _>(
@@ -173,12 +193,7 @@ pub(super) async fn subscribe_child_domain_policy(
             SubscriberId::parse(
                 constants::child_domain_runtime::SUBSCRIBER_CHILD_POLICY_EVALUATOR,
             )?,
-            EventType::parse(
-                event
-                    .domain
-                    .policy_evaluation_requested_event_type()
-                    .as_str(),
-            )?,
+            EventType::parse(domain.policy_evaluation_requested_event_type().as_str())?,
             TargetHandler::parse(
                 constants::child_domain_runtime::TARGET_HANDLER_CHILD_POLICY_EVALUATOR,
             )?,
@@ -211,7 +226,7 @@ pub(super) async fn subscribe_child_domain_policy(
 }
 
 pub(super) async fn subscribe_child_domain_notification(
-    bus: &EventBus,
+    bus: &RootEventPublisher,
     state: ChildDomainRuntimeFlowState,
 ) -> Result<SubscriptionReport, EventingError> {
     bus.subscribe::<ChildDomainPolicyViolationDetectedEvent, _, _>(

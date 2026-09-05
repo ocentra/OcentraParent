@@ -1,4 +1,5 @@
-import { afterEach, describe } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
+import { localArtifactDirectoryDurability } from '@ocentra-parent/logging-domain/local-artifact-path';
 import { registerPortalProofTracePipelineSuite } from './portal-proof-trace-pipeline.test.helpers';
 
 describe('portal proof trace pipeline', () => {
@@ -13,5 +14,11 @@ describe('portal proof trace pipeline', () => {
     }
   });
 
-  registerPortalProofTracePipelineSuite(tempDirs);
+  if (localArtifactDirectoryDurability() === 'mutation-unsupported') {
+    it('reports unavailable local artifact mutation instead of fabricating pipeline proof', () => {
+      expect(localArtifactDirectoryDurability()).toBe('mutation-unsupported');
+    });
+  } else {
+    registerPortalProofTracePipelineSuite(tempDirs);
+  }
 });

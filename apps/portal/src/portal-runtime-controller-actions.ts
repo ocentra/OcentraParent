@@ -85,15 +85,11 @@ function createDispatchActionWithPayload(
   return createDispatchAction(action, deps, dispatchHostAction, payload);
 }
 
-export function createPortalRuntimeActions(
+function createPortalRuntimeRequestActions(
   deps: PortalRuntimeActionDeps,
   dispatchHostAction: (action: ParentUiAction) => Promise<ParentUiActionResult | null>
-): PortalRenderActions {
+) {
   return {
-    reconnect: createReconnectAction(deps, dispatchHostAction),
-    selectCommandResult: createSelectCommandResultAction(deps),
-    sendCommand: createSendCommandAction(deps, dispatchHostAction),
-    refreshRouteSnapshot: createRefreshRouteSnapshotAction(deps, dispatchHostAction),
     requestLanPairingBrowserDiscoveryScan: () =>
       createDispatchActionWithPayload(
         ParentUiActionKind.LanPairingBrowserDiscoveryScanRequested,
@@ -114,6 +110,20 @@ export function createPortalRuntimeActions(
         deps,
         dispatchHostAction,
         {}
+      ),
+    stagePolicyPreviewAuthoringDraft: (payload: ParentUiActionPayload) =>
+      createDispatchActionWithPayload(
+        ParentUiActionKind.PolicyPreviewAuthoringDraftStaged,
+        deps,
+        dispatchHostAction,
+        payload
+      ),
+    cancelPolicyPreviewAuthoringDraft: (payload: ParentUiActionPayload) =>
+      createDispatchActionWithPayload(
+        ParentUiActionKind.PolicyPreviewAuthoringDraftCancelled,
+        deps,
+        dispatchHostAction,
+        payload
       ),
     requestPolicyRequestAssistantPreviewConfirm: (payload: ParentUiActionPayload) =>
       createDispatchActionWithPayload(
@@ -152,5 +162,18 @@ export function createPortalRuntimeActions(
         dispatchHostAction,
         payload
       ),
+  };
+}
+
+export function createPortalRuntimeActions(
+  deps: PortalRuntimeActionDeps,
+  dispatchHostAction: (action: ParentUiAction) => Promise<ParentUiActionResult | null>
+): PortalRenderActions {
+  return {
+    reconnect: createReconnectAction(deps, dispatchHostAction),
+    selectCommandResult: createSelectCommandResultAction(deps),
+    sendCommand: createSendCommandAction(deps, dispatchHostAction),
+    refreshRouteSnapshot: createRefreshRouteSnapshotAction(deps, dispatchHostAction),
+    ...createPortalRuntimeRequestActions(deps, dispatchHostAction),
   };
 }

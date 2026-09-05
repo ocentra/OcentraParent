@@ -10,11 +10,11 @@ use super::ParentAssistantPayloadFieldName;
 use super::ParentAssistantText;
 use super::ParentAssistantTextRef;
 use crate::activity_surface_request::report_document_from_command;
-use crate::activity_surface_store::ActivitySurfaceStoreSnapshot;
+use crate::parent_assistant_activity_snapshot::ParentAssistantActivitySnapshot;
 
 pub(super) fn allowed_summary_from_command(
     command: &AgentCommandEnvelope,
-    activity_snapshot: Option<&ActivitySurfaceStoreSnapshot>,
+    activity_snapshot: Option<&ParentAssistantActivitySnapshot>,
 ) -> ParentAssistantText {
     string_payload_field(
         command,
@@ -24,7 +24,7 @@ pub(super) fn allowed_summary_from_command(
 }
 
 pub(super) fn activity_summary_from_snapshot(
-    snapshot: Option<&ActivitySurfaceStoreSnapshot>,
+    snapshot: Option<&ParentAssistantActivitySnapshot>,
 ) -> ParentAssistantText {
     match snapshot {
         Some(snapshot)
@@ -46,7 +46,7 @@ pub(super) fn activity_summary_from_snapshot(
 }
 
 pub(super) fn activity_read_model_summary(
-    snapshot: &ActivitySurfaceStoreSnapshot,
+    snapshot: &ParentAssistantActivitySnapshot,
 ) -> ParentAssistantText {
     let mut summary = constants::parent_assistant::ACTIVITY_CONTEXT_PREFIX.to_string();
     summary.push_str(constants::parent_assistant::ACTIVITY_CONTEXT_RECENT_LABEL);
@@ -63,7 +63,7 @@ pub(super) fn activity_read_model_summary(
 }
 
 pub(super) fn activity_event_context(
-    snapshot: Option<&ActivitySurfaceStoreSnapshot>,
+    snapshot: Option<&ParentAssistantActivitySnapshot>,
     observed_at: &ParentAssistantText,
 ) -> Option<ParentAssistantEvidenceContext> {
     let snapshot = snapshot?;

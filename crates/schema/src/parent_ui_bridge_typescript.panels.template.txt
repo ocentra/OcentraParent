@@ -43,13 +43,22 @@
   readonly networkPolicyMappingMode?: string | null;
   readonly networkAdapterActionAuthorized?: boolean | null;
   readonly networkEnforcementCommandAuthorized?: boolean | null;
+  readonly confirmationContext?: ParentPolicyPreviewConfirmationContext | null;
 }
 
 export interface ParentRouteLiveActivitySnapshot {
   readonly recentSummary?: ParentUnknownRecord | null;
   readonly ingestStatus?: ParentUnknownRecord | null;
   readonly activityScreenReadModel?: ParentUnknownRecord | null;
+  readonly activityAppUseReadModel?: ParentUnknownRecord | null;
+  readonly activityAppGamePlatformExtensionReadModel?: ParentUnknownRecord | null;
+  readonly activityBrowserReadModel?: ParentUnknownRecord | null;
+  readonly activityGamesReadModel?: ParentUnknownRecord | null;
   readonly screenSummaryPanel?: ParentScreenSummaryPanelSnapshot | null;
+  readonly browserInventoryEvent?: ParentRouteEventSnapshot | null;
+  readonly browserInventoryReadModel?: ParentUnknownRecord | null;
+  readonly browserEvidenceEvent?: ParentRouteEventSnapshot | null;
+  readonly browserEvidenceReadModel?: ParentUnknownRecord | null;
   readonly browserManagedEvent?: ParentRouteEventSnapshot | null;
   readonly browserManagedStatus?: ParentUnknownRecord | null;
   readonly localAiRuntimeStatusEvent?: ParentRouteEventSnapshot | null;
@@ -88,6 +97,20 @@ export interface ParentPolicyPreviewPanelCardSnapshot {
   readonly details: readonly ParentPolicyPreviewPanelDetailSnapshot[];
 }
 
+export interface ParentPolicyPreviewActionSnapshot {
+  readonly action: ParentUiActionKind;
+  readonly label: string;
+  readonly payload?: ParentUiActionPayload | null;
+}
+
+export interface ParentPolicyPreviewAuthoringSnapshot {
+  readonly targetValue: string;
+  readonly requestedAction: string;
+  readonly stageAction: ParentPolicyPreviewActionSnapshot;
+  readonly confirmAction?: ParentPolicyPreviewActionSnapshot | null;
+  readonly cancelAction: ParentPolicyPreviewActionSnapshot;
+}
+
 export interface ParentPolicyPreviewPanelSnapshot {
   readonly title: string;
   readonly body: string;
@@ -96,6 +119,7 @@ export interface ParentPolicyPreviewPanelSnapshot {
   readonly cards: readonly ParentPolicyPreviewPanelCardSnapshot[];
   readonly emptyMessage: string;
   readonly productClaim: string;
+  readonly authoring?: ParentPolicyPreviewAuthoringSnapshot | null;
 }
 
 export interface ParentAppGamePanelDetailSnapshot {
@@ -143,6 +167,7 @@ export interface ParentAppGameTimerParentSurfacePanelSnapshot {
   readonly summaryDetails: readonly ParentAppGamePanelDetailSnapshot[];
   readonly parentActionRows: readonly ParentAppGamePanelRowSnapshot[];
   readonly parentPreferenceSetupRows: readonly ParentAppGameActionRowSnapshot[];
+  readonly localHandoffArtifactRows: readonly ParentAppGamePanelRowSnapshot[];
   readonly rows: readonly ParentAppGamePanelRowSnapshot[];
   readonly emptyMessage: string;
   readonly productClaim: string;

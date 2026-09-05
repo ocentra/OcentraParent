@@ -12,8 +12,20 @@ function getFlag(name: string): string | undefined {
     ?.slice(prefix.length);
 }
 
+function parseKeepNewest(value: string | undefined): number {
+  const normalized = value?.trim() ?? '10';
+  if (!/^\d+$/u.test(normalized)) {
+    throw new Error('keep must be a non-negative integer');
+  }
+  const keepNewest = Number(normalized);
+  if (!Number.isSafeInteger(keepNewest)) {
+    throw new Error('keep must be a non-negative integer');
+  }
+  return keepNewest;
+}
+
 const scope = parseTestLogScopeOrDefault(getFlag('scope'));
-const keepNewest = Number.parseInt(getFlag('keep') ?? '10', 10);
+const keepNewest = parseKeepNewest(getFlag('keep'));
 const rootDir = getFlag('root-dir');
 
 process.stdout.write(

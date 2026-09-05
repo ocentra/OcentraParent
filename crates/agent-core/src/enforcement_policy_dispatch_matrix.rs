@@ -1,12 +1,37 @@
-use ocentra_parent_agent_protocol::enforcement::EnforcementCapabilityState;
 use ocentra_parent_agent_protocol::enforcement_policy_dispatch::{
     EnforcementPolicyDispatchOutcomeState, EnforcementPolicyDispatchReadModelEntry,
     EnforcementPolicyDispatchRejectionReason,
 };
 
+#[path = "enforcement_policy_dispatch_matrix_action.rs"]
+mod enforcement_policy_dispatch_matrix_action;
+#[path = "enforcement_policy_dispatch_matrix_outcome.rs"]
+mod enforcement_policy_dispatch_matrix_outcome;
+
 pub(super) fn validate_entry_matrix(
     entry: &EnforcementPolicyDispatchReadModelEntry,
 ) -> Result<(), EnforcementPolicyDispatchRejectionReason> {
+    if entry.matrix_row.source_state != entry.intent.source_state {
+        return Err(EnforcementPolicyDispatchRejectionReason::SourceNotReady);
+    }
+    if entry.matrix_row.platform.as_protocol_str() != entry.intent.device.platform.as_str() {
+        return Err(EnforcementPolicyDispatchRejectionReason::WrongDevice);
+    }
+    if entry.matrix_row.requested_action != entry.intent.requested_parent_action {
+        return Err(EnforcementPolicyDispatchRejectionReason::BroadClaimNotProved);
+    }
+    if entry.intent.requested_policy_action
+        != enforcement_policy_dispatch_matrix_action::policy_action_for(
+            entry.matrix_row.requested_action,
+        )
+    {
+        return Err(EnforcementPolicyDispatchRejectionReason::BroadClaimNotProved);
+    }
+    if entry.child_reason_code.trim().is_empty()
+        || !entry.reason_codes.contains(&entry.child_reason_code)
+    {
+        return Err(EnforcementPolicyDispatchRejectionReason::BroadClaimNotProved);
+    }
     if entry.child_reason_code != entry.matrix_row.child_reason_code {
         return Err(EnforcementPolicyDispatchRejectionReason::BroadClaimNotProved);
     }
@@ -16,30 +41,5 @@ pub(super) fn validate_entry_matrix(
         return Err(EnforcementPolicyDispatchRejectionReason::BroadClaimNotProved);
     }
 
-    match entry.matrix_row.outcome_state {
-        EnforcementPolicyDispatchOutcomeState::DispatchReady => {
-            if entry.matrix_row.capability_state != EnforcementCapabilityState::Supported {
-                return Err(EnforcementPolicyDispatchRejectionReason::AdapterUnavailable);
-            }
-            if entry.matrix_row.rejection_reason != EnforcementPolicyDispatchRejectionReason::None {
-                return Err(entry.matrix_row.rejection_reason);
-            }
-        }
-        EnforcementPolicyDispatchOutcomeState::ManualRequired => {
-            if entry.matrix_row.capability_state != EnforcementCapabilityState::ManualRequired {
-                return Err(EnforcementPolicyDispatchRejectionReason::AdapterManualRequired);
-            }
-        }
-        EnforcementPolicyDispatchOutcomeState::Rejected => {
-            if entry.matrix_row.rejection_reason == EnforcementPolicyDispatchRejectionReason::None {
-                return Err(EnforcementPolicyDispatchRejectionReason::BroadClaimNotProved);
-            }
-        }
-        EnforcementPolicyDispatchOutcomeState::ReportOnly
-        | EnforcementPolicyDispatchOutcomeState::DryRunOnly
-        | EnforcementPolicyDispatchOutcomeState::Degraded
-        | EnforcementPolicyDispatchOutcomeState::Unavailable => {}
-    }
-
-    Ok(())
+    enforcement_policy_dispatch_matrix_outcome::validate_outcome(entry)
 }

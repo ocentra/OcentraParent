@@ -9,10 +9,13 @@ use ocentra_parent_agent_protocol::constants::policy_control;
 use super::{
     approval::assert_parent_actor_authority,
     status::{duplicate_submission_key_value, policy_request_status_name},
-    validation::{child_requests_match, validate_child_policy_request},
+    validation::{
+        child_requests_match, validate_child_policy_request, validate_policy_temporary_override,
+    },
     AssistantPolicyRequestConfirmation, ChildPolicyRequest, PolicyAuditReferenceId,
-    PolicyRequestTimestamp,
+    PolicyOverrideState, PolicyRequestTimestamp, PolicyTemporaryOverride,
 };
+use crate::policy_source::assert_policy_utc_timestamp;
 
 pub(crate) fn register_child_policy_request(
     existing: Option<&ChildPolicyRequest>,
@@ -95,6 +98,10 @@ pub(crate) fn expire_child_policy_request(
     audit_reference_id: PolicyAuditReferenceId,
 ) -> Result<ChildPolicyRequest, EventingError> {
     validate_child_policy_request(request)?;
+    assert_policy_utc_timestamp(
+        policy_control::request::FIELD_TIMESTAMP,
+        expired_at.as_str(),
+    )?;
     if matches!(
         request.status,
         PolicyRequestStatus::Approved | PolicyRequestStatus::Denied | PolicyRequestStatus::Modified
@@ -107,11 +114,44 @@ pub(crate) fn expire_child_policy_request(
     if request.status == PolicyRequestStatus::Expired {
         return Ok(request.clone());
     }
+    if expired_at.as_str() < request.expires_at.as_str() {
+        return Err(EventingError::InvalidValue {
+            field: policy_control::request::FIELD_TIMESTAMP,
+            value: "request-not-yet-expired".to_string(),
+        });
+    }
 
     let mut expired = request.clone();
     expired.status = PolicyRequestStatus::Expired;
     expired.resolved_at = Some(expired_at);
     expired.audit_reference_ids.push(audit_reference_id);
     validate_child_policy_request(&expired)?;
+    Ok(expired)
+}
+
+pub(crate) fn expire_policy_temporary_override(
+    override_record: &PolicyTemporaryOverride,
+    expired_at: &PolicyRequestTimestamp,
+    audit_reference_id: PolicyAuditReferenceId,
+) -> Result<PolicyTemporaryOverride, EventingError> {
+    validate_policy_temporary_override(override_record)?;
+    assert_policy_utc_timestamp(
+        policy_control::request::FIELD_TIMESTAMP,
+        expired_at.as_str(),
+    )?;
+    if override_record.state == PolicyOverrideState::Expired {
+        return Ok(override_record.clone());
+    }
+    if expired_at.as_str() < override_record.expires_at.as_str() {
+        return Err(EventingError::InvalidValue {
+            field: policy_control::request::FIELD_TIMESTAMP,
+            value: "override-not-yet-expired".to_string(),
+        });
+    }
+
+    let mut expired = override_record.clone();
+    expired.state = PolicyOverrideState::Expired;
+    expired.audit_reference_ids.push(audit_reference_id);
+    validate_policy_temporary_override(&expired)?;
     Ok(expired)
 }

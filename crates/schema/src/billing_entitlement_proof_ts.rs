@@ -24,12 +24,20 @@ export function billingEntitlementProofIsHonest(proof: {
   readonly billingSyncEvents: ReadonlyArray<{ readonly failureState: BillingFailureState | null }>;
   readonly failureStates: ReadonlyArray<BillingFailureState>;
   readonly nonClaims: ReadonlyArray<string>;
-  readonly subscriptionStatusProofRows: ReadonlyArray<{ readonly subscriptionStatus: string }>;
+  readonly subscriptionStatusProofRows: ReadonlyArray<{
+    readonly subscriptionStatus: string;
+    readonly parentVisibleState: string;
+    readonly localSafetyBehavior: string;
+    readonly deviceActivationBehavior: string;
+  }>;
   readonly deviceLimitDecisions: ReadonlyArray<{
     readonly decision: string;
     readonly reasonCode: string;
     readonly activeDeviceCount: number;
     readonly planDeviceLimit: number;
+    readonly requestedDeviceAlreadyTrusted: boolean;
+    readonly deviceActivationBehavior: string;
+    readonly existingLocalSafetyBehavior: string;
   }>;
 }): boolean {
   return (
@@ -39,11 +47,35 @@ export function billingEntitlementProofIsHonest(proof: {
       proof.subscriptionStatusProofRows.some((row) => row.subscriptionStatus === status)
     ) &&
     proof.failureStates.length >= 3 &&
+    proof.failureStates.every((failure) => failure.retainEvidenceExportAccess) &&
+    proof.subscriptionStatusProofRows.some(
+      (row) =>
+        row.subscriptionStatus === 'grace' &&
+        row.parentVisibleState === 'grace' &&
+        row.localSafetyBehavior === 'grace-with-local-safety' &&
+        row.deviceActivationBehavior === 'grace-existing-devices'
+    ) &&
     proof.deviceLimitDecisions.some(
       (decision) =>
+        decision.planDeviceLimit > 0 &&
         decision.decision === 'denied' &&
         decision.reasonCode === 'limit-exceeded' &&
-        decision.activeDeviceCount >= decision.planDeviceLimit
+        decision.activeDeviceCount >= decision.planDeviceLimit &&
+        !decision.requestedDeviceAlreadyTrusted &&
+        decision.deviceActivationBehavior === 'deny-new-device' &&
+        ['local-only', 'grace-with-local-safety', 'manual-review-with-local-safety'].includes(
+          decision.existingLocalSafetyBehavior
+        )
+    ) &&
+    proof.deviceLimitDecisions.some(
+      (decision) =>
+        decision.planDeviceLimit > 0 &&
+        decision.decision === 'grace' &&
+        decision.reasonCode === 'limit-exceeded' &&
+        decision.activeDeviceCount >= decision.planDeviceLimit &&
+        decision.requestedDeviceAlreadyTrusted &&
+        decision.deviceActivationBehavior === 'grace-existing-devices' &&
+        decision.existingLocalSafetyBehavior === 'grace-with-local-safety'
     ) &&
     proof.billingSyncEvents.every(
       (event) => event.failureState === null || event.failureState.retainEvidenceExportAccess

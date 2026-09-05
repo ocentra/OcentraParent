@@ -1,5 +1,10 @@
 # WP216 App/Game Android Child Runtime Local Delivery Intake Proof
 
+> **Current status (2026-08-29): BLOCKED / NO-CHANGE.** Existing Java code
+> validates only a static broadcast action and writes package-local markers.
+> It has no authenticated target/intent, generation/currentness, replay,
+> idempotency, or durable service consumer.
+
 <!-- agent-capsule -->
 
 > Agent Capsule
@@ -28,6 +33,11 @@ ingestion, provider delivery, platform delivery outside the package, adapter
 dispatch, platform enforcement, or raw private row custody.
 
 ## Implementation
+
+The current launched child service has no delivery ingress and legacy
+`MainActivity` is undeclared. The legal source order is WP207 durable writer,
+WP208 typed transport/receipt boundary, then WP209 authenticated service
+ingestion. Tests before that seam would certify marker theater, not delivery.
 
 - Added
   `platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeDeliveryProof.java`.

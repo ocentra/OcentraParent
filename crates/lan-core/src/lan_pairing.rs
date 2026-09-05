@@ -6,6 +6,7 @@ pub mod observed_events;
 mod mdns_lifecycle;
 mod signed_child_agent;
 mod signed_child_agent_metadata;
+pub mod signed_household_mesh_ingress;
 
 use std::collections::BTreeSet;
 

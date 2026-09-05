@@ -1,0 +1,284 @@
+use std::convert::TryInto;
+
+use chrono::{DateTime, Utc};
+use ocentra_family_identity_core::account_identity_authority_issuer_client::AccountIdentityAuthorityIssuerClient;
+use ocentra_family_identity_core::account_identity_authority_producer_v2::{
+    expected_key_id, verify, AccountIdentityAuthorityProducerV2Error,
+};
+use ocentra_schema::account_identity_authority_producer_v2::{
+    AccountIdentityAuthorityProducerV2Claims, AccountIdentityAuthorityProducerV2Operation,
+    ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_AUDIENCE,
+    ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_ENVIRONMENT,
+    ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_INNER_DOMAIN,
+    ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SCHEMA_VERSION,
+    ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE,
+    ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SIGNATURE_ALGORITHM,
+};
+use ring::rand::SystemRandom;
+use ring::signature::{EcdsaKeyPair, KeyPair, ECDSA_P256_SHA256_FIXED_SIGNING};
+
+const NOW: &str = "2026-08-28T19:01:00.000Z";
+
+type TestResult<T> = Result<T, String>;
+
+fn with_context<T, E: std::fmt::Debug>(result: Result<T, E>, context: &str) -> TestResult<T> {
+    result.map_err(|error| format!("{context}: {error:?}"))
+}
+
+struct SignedWire {
+    wire: Vec<u8>,
+    public_key: [u8; 65],
+}
+
+fn now() -> TestResult<DateTime<Utc>> {
+    Ok(with_context(DateTime::parse_from_rfc3339(NOW), "test time")?.with_timezone(&Utc))
+}
+
+fn canonical_claims() -> TestResult<Vec<u8>> {
+    with_context(
+        serde_json::to_vec(&AccountIdentityAuthorityProducerV2Claims {
+            account_id: "account-1".to_owned(),
+            household_id: "household-1".to_owned(),
+            provider: "firebase".to_owned(),
+            provider_subject: "provider-subject-1".to_owned(),
+            member_id: "member-1".to_owned(),
+            device_id: "device-1".to_owned(),
+            session_id: "session-1".to_owned(),
+        }),
+        "canonical claims JSON",
+    )
+}
+
+fn signed_wire(
+    operation: AccountIdentityAuthorityProducerV2Operation,
+    payload: &[u8],
+    issued_at: &str,
+    expires_at: &str,
+) -> TestResult<SignedWire> {
+    let rng = SystemRandom::new();
+    let pkcs8 = with_context(
+        EcdsaKeyPair::generate_pkcs8(&ECDSA_P256_SHA256_FIXED_SIGNING, &rng),
+        "generate test signing key",
+    )?;
+    let key_pair = with_context(
+        EcdsaKeyPair::from_pkcs8(&ECDSA_P256_SHA256_FIXED_SIGNING, pkcs8.as_ref(), &rng),
+        "parse test signing key",
+    )?;
+    let public_key: [u8; 65] = with_context(
+        key_pair.public_key().as_ref().try_into(),
+        "P-256 public key length",
+    )?;
+    let key_id = expected_key_id(&public_key);
+    let signing_bytes = signing_bytes(operation, &key_id, issued_at, expires_at, payload);
+    let signature = with_context(key_pair.sign(&rng, &signing_bytes), "sign test transport")?;
+    let mut signature: [u8; 64] =
+        with_context(signature.as_ref().try_into(), "P-256 signature length")?;
+    normalize_signature_to_low_s(&mut signature);
+    let mut wire = signing_bytes;
+    wire.extend_from_slice(&signature);
+    Ok(SignedWire { wire, public_key })
+}
+
+fn signing_bytes(
+    operation: AccountIdentityAuthorityProducerV2Operation,
+    key_id: &str,
+    issued_at: &str,
+    expires_at: &str,
+    payload: &[u8],
+) -> Vec<u8> {
+    let key_generation = 1_u64.to_be_bytes();
+    let enrollment_generation = 2_u64.to_be_bytes();
+    let authority_generation = 3_u64.to_be_bytes();
+    let session_generation = 4_u64.to_be_bytes();
+    let fields: [&[u8]; 16] = [
+        ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SCHEMA_VERSION.as_bytes(),
+        ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_AUDIENCE.as_bytes(),
+        ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_ENVIRONMENT.as_bytes(),
+        ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SIGNATURE_ALGORITHM.as_bytes(),
+        ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE.as_bytes(),
+        b"sha256:receipt:unit-test",
+        key_id.as_bytes(),
+        b"sha256:binding:unit-test",
+        &key_generation,
+        &enrollment_generation,
+        &authority_generation,
+        &session_generation,
+        b"correlation-unit-test",
+        b"idempotency-unit-test",
+        issued_at.as_bytes(),
+        expires_at.as_bytes(),
+    ];
+    let mut bytes = Vec::new();
+    bytes.extend_from_slice(ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_INNER_DOMAIN);
+    bytes.push(operation.message_kind());
+    for field in fields {
+        append_field(&mut bytes, field);
+    }
+    append_field(&mut bytes, payload);
+    bytes
+}
+
+fn append_field(target: &mut Vec<u8>, field: &[u8]) {
+    target.extend_from_slice(&(field.len() as u32).to_be_bytes());
+    target.extend_from_slice(field);
+}
+
+fn normalize_signature_to_low_s(signature: &mut [u8; 64]) {
+    const P256_HALF_ORDER: [u8; 32] = [
+        0x7f, 0xff, 0xff, 0xff, 0x80, 0x00, 0x00, 0x00, 0x7f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+        0xff, 0xde, 0x73, 0x7d, 0x56, 0xd3, 0x8b, 0xcf, 0x42, 0x79, 0xdc, 0xe5, 0x61, 0x7e, 0x31,
+        0x92, 0xa8,
+    ];
+    const P256_ORDER: [u8; 32] = [
+        0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+        0xff, 0xbc, 0xe6, 0xfa, 0xad, 0xa7, 0x17, 0x9e, 0x84, 0xf3, 0xb9, 0xca, 0xc2, 0xfc, 0x63,
+        0x25, 0x51,
+    ];
+
+    if signature[32..].cmp(P256_HALF_ORDER.as_slice()) != std::cmp::Ordering::Greater {
+        return;
+    }
+
+    let mut low_s = [0u8; 32];
+    let mut borrow = 0_i16;
+    for index in (0..32).rev() {
+        let difference = P256_ORDER[index] as i16 - signature[32 + index] as i16 - borrow;
+        if difference < 0 {
+            low_s[index] = (difference + 256) as u8;
+            borrow = 1;
+        } else {
+            low_s[index] = difference as u8;
+            borrow = 0;
+        }
+    }
+    signature[32..].copy_from_slice(&low_s);
+}
+
+#[test]
+fn canonical_millisecond_utc_timestamps_are_accepted() -> TestResult<()> {
+    let payload = canonical_claims()?;
+    let fixture = signed_wire(
+        AccountIdentityAuthorityProducerV2Operation::IssueCurrentAuthority,
+        &payload,
+        NOW,
+        "2026-08-28T19:06:00.000Z",
+    )?;
+
+    let verified = with_context(
+        verify(&fixture.wire, &fixture.public_key, now()?),
+        "canonical UTC-millisecond timestamps verify",
+    )?;
+    assert_eq!(verified.issued_at(), NOW);
+    assert_eq!(verified.expires_at(), "2026-08-28T19:06:00.000Z");
+    Ok(())
+}
+
+#[test]
+fn noncanonical_rfc3339_timestamp_forms_are_rejected() -> TestResult<()> {
+    let payload = canonical_claims()?;
+    for (issued_at, expires_at) in [
+        ("2026-08-28T19:00:00Z", "2026-08-28T19:06:00.000Z"),
+        ("2026-08-28T19:00:00.000+00:00", "2026-08-28T19:06:00.000Z"),
+        (NOW, "2026-08-28T19:06:00Z"),
+    ] {
+        let fixture = signed_wire(
+            AccountIdentityAuthorityProducerV2Operation::IssueCurrentAuthority,
+            &payload,
+            issued_at,
+            expires_at,
+        )?;
+
+        assert!(matches!(
+            verify(&fixture.wire, &fixture.public_key, now()?),
+            Err(AccountIdentityAuthorityProducerV2Error::InvalidWire)
+        ));
+    }
+    Ok(())
+}
+
+#[test]
+fn malformed_wire_is_rejected_before_any_authority_result() -> TestResult<()> {
+    let payload = canonical_claims()?;
+    let fixture = signed_wire(
+        AccountIdentityAuthorityProducerV2Operation::IssueCurrentAuthority,
+        &payload,
+        NOW,
+        "2026-08-28T19:06:00.000Z",
+    )?;
+    let malformed = &fixture.wire[..64];
+
+    assert!(matches!(
+        verify(malformed, &fixture.public_key, now()?),
+        Err(AccountIdentityAuthorityProducerV2Error::InvalidWire)
+    ));
+    Ok(())
+}
+
+#[test]
+fn canonical_claim_bytes_are_required_even_with_a_valid_signature() -> TestResult<()> {
+    let noncanonical = br#"{"sessionId":"session-1","deviceId":"device-1","memberId":"member-1","providerSubject":"provider-subject-1","provider":"firebase","householdId":"household-1","accountId":"account-1"}"#.to_vec();
+    let fixture = signed_wire(
+        AccountIdentityAuthorityProducerV2Operation::IssueCurrentAuthority,
+        &noncanonical,
+        NOW,
+        "2026-08-28T19:06:00.000Z",
+    )?;
+
+    assert!(matches!(
+        verify(&fixture.wire, &fixture.public_key, now()?),
+        Err(AccountIdentityAuthorityProducerV2Error::InvalidWire)
+    ));
+    Ok(())
+}
+
+#[test]
+fn expired_and_future_issue_times_are_rejected() -> TestResult<()> {
+    let payload = canonical_claims()?;
+    let expired = signed_wire(
+        AccountIdentityAuthorityProducerV2Operation::IssueCurrentAuthority,
+        &payload,
+        "2026-08-28T18:00:00.000Z",
+        "2026-08-28T18:05:00.000Z",
+    )?;
+    assert!(matches!(
+        verify(&expired.wire, &expired.public_key, now()?),
+        Err(AccountIdentityAuthorityProducerV2Error::AuthorityExpired)
+    ));
+
+    let too_far_ahead = signed_wire(
+        AccountIdentityAuthorityProducerV2Operation::IssueCurrentAuthority,
+        &payload,
+        "2026-08-28T19:01:31.000Z",
+        "2026-08-28T19:06:31.000Z",
+    )?;
+    assert!(matches!(
+        verify(&too_far_ahead.wire, &too_far_ahead.public_key, now()?),
+        Err(AccountIdentityAuthorityProducerV2Error::AuthorityExpired)
+    ));
+    Ok(())
+}
+
+#[test]
+fn unsupported_acknowledgement_operation_cannot_be_verified_as_authority() -> TestResult<()> {
+    let fixture = signed_wire(
+        AccountIdentityAuthorityProducerV2Operation::AcknowledgeReceipt,
+        b"acknowledgement-payload",
+        NOW,
+        "2026-08-28T19:06:00.000Z",
+    )?;
+
+    assert!(matches!(
+        verify(&fixture.wire, &fixture.public_key, now()?),
+        Err(AccountIdentityAuthorityProducerV2Error::UnsupportedOperation)
+    ));
+    Ok(())
+}
+
+#[test]
+fn account_owned_issuer_mount_remains_typed_unavailable_without_custody() {
+    assert!(matches!(
+        AccountIdentityAuthorityIssuerClient::mount_account_owned(),
+        Err(ocentra_family_identity_core::account_identity_authority_issuer_client::
+            AccountIdentityAuthorityIssuerClientError::Unavailable)
+    ));
+}

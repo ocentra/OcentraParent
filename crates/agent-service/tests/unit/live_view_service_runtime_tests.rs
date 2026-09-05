@@ -11,14 +11,17 @@ use ocentra_screen_live_view_core::live_view_worker::{
     ScreenLiveViewWorkerStartupBlockReason, ScreenLiveViewWorkerStartupState,
 };
 
-use super::live_view_service_runtime::run_screen_live_view_worker_runtime;
-use crate::test_invariants::require_ok;
+use super::live_view_service_runtime::{
+    run_screen_live_view_worker_runtime, spawn_screen_live_view_worker_runtime,
+};
+use crate::test_require_ok::require_ok;
 
 static LIVE_VIEW_ENV_LOCK: Mutex<()> = Mutex::new(());
 
 #[test]
 fn service_runtime_defaults_to_disabled_without_env_gates() {
     with_clean_live_view_env(|| {
+        spawn_screen_live_view_worker_runtime();
         let record = run_screen_live_view_worker_runtime();
 
         assert_eq!(

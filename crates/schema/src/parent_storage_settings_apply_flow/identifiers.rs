@@ -1,7 +1,9 @@
+use super::apply_binding_types::ParentStorageHouseholdRef;
 use super::constants::{
     PARENT_STORAGE_EXPECT_ACTION_ID, PARENT_STORAGE_EXPECT_APPLY_ID,
-    PARENT_STORAGE_EXPECT_CONTRACT_VERSION, PARENT_STORAGE_EXPECT_PREVIEW_ID,
-    PARENT_STORAGE_EXPECT_ROW_ID, PARENT_STORAGE_EXPECT_TIMESTAMP,
+    PARENT_STORAGE_EXPECT_CONTRACT_VERSION, PARENT_STORAGE_EXPECT_HOUSEHOLD_REF,
+    PARENT_STORAGE_EXPECT_PREVIEW_ID, PARENT_STORAGE_EXPECT_ROW_ID,
+    PARENT_STORAGE_EXPECT_TIMESTAMP,
 };
 use super::text_types::{
     ParentStorageActionId, ParentStorageApplyId, ParentStorageContractVersion,
@@ -34,6 +36,11 @@ parent_storage_identifier!(
     preview_id,
     ParentStoragePreviewId,
     PARENT_STORAGE_EXPECT_PREVIEW_ID
+);
+parent_storage_identifier!(
+    household_ref,
+    ParentStorageHouseholdRef,
+    PARENT_STORAGE_EXPECT_HOUSEHOLD_REF
 );
 parent_storage_identifier!(
     apply_id,

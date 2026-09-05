@@ -13,6 +13,21 @@ Use this file to select exactly one workpack. Use `WORKPACK_FAMILIES.md` only wh
 
 Workpack 03 is retained for future control expansion and is not part of the current live-view pass.
 
+## Production reachability audit (2026-08-16)
+
+WP01 and WP04 contain Rust/schema contracts and lifecycle/replay rules, but no
+shipped remote-access service owns their trusted inputs, persistence, or relay
+dispatch. WP02 has an agent-service startup caller, but it only consumes
+environment-shaped readiness flags and produces a decision/worker record; no
+screen capture or relay effect occurs. WP03 is explicitly deferred. WP05 has
+no relay abuse/security runtime owner, and WP06 has no production source.
+
+This is an implementation reachability finding, not completion evidence. Do
+not promote tests, proof/status adapters, synthetic grants/receipts, generic
+JSON, copied RustDesk/reference code, or public DTO fields into authority. The
+next legal slice is the verified account/device-trust producer plus durable
+remote grant adapter required before relay/session execution can be wired.
+
 ## Default execution order
 
 ```text

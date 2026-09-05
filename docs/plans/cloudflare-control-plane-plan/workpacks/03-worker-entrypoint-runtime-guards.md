@@ -28,25 +28,40 @@ Freeze the shared guard chain for env validation, CORS, request-size limits, kil
 
 ## Status
 
-- `blocked / proof-present`
-- Proof root: `output/cloudflare-control-plane-plan-proof/03-worker-entrypoint-runtime-guards/`
+- `code-and-test-source complete / execution-and-proof open`
+- Reviewed canonical source/test commit: `61c98efa8`
+- Expected proof root remains absent:
+  `output/cloudflare-control-plane-plan-proof/03-worker-entrypoint-runtime-guards/`
 
 ## Execution truth
 
-- The shared worker entrypoint still owns env validation, CORS fail-fast, request-size limits, kill switch behavior, safe errors, and scheduled hook shape.
-- Unit suites that do not require `src/index.ts` boot passed.
-- Unit and integration suites that require the real worker entrypoint remain deferred while WP01's resolver graph is absent; `npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types` currently reports an empty dependency tree.
-- The scheduled hook shape is explicit in source but not runtime-proven.
+- The shared worker entrypoint owns env validation, origin rejection before a
+  successful OPTIONS response, request framing and size limits, kill-switch
+  behavior, route/auth-boundary rejection, safe handler errors, and scheduled
+  reconciliation failure logging.
+- The structured guard logs are redacted, and the redaction owner covers the
+  planned provider credential identifiers and key references.
+- The graph maps three implementation roots and seven real test roots. The
+  current packet adds the missing-environment, disallowed/allowlisted
+  preflight, and provider-identifier redaction cases without test doubles.
+- No WP03 test was executed in this code-first phase. The scheduled hook shape
+  is explicit in source but is not runtime-proven.
 
 ## Exact blocker set
 
-- Current blocker: restore the WP01 module dependency environment, then rerun the entrypoint-dependent suite and record any resulting exact failure.
+- Current next gate: run the complete mapped WP03 unit/security/integration
+  packet during the repository execution phase, then retain the exact positive,
+  negative, scheduled-runtime, and teardown result. Deployment and consumer
+  runtime remain separate later gates.
 
-## Validations run
+## Deferred validations
 
-- `cmd /c npm --prefix infra/cloudflare run test:unit`
-- `cmd /c npm --prefix infra/cloudflare run test:integration`
-- `npm run lint:architecture -- --files infra/cloudflare/src/index.ts`
+- `npm --prefix infra/cloudflare run test:unit`
+- `npm --prefix infra/cloudflare run test:integration`
+- `npm run lint:architecture -- --files infra/cloudflare`
+
+These commands describe the later execution gate; they were not run for
+canonical `61c98efa8`.
 
 ## No-claim boundary
 

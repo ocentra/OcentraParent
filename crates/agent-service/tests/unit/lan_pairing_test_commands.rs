@@ -12,88 +12,8 @@ use ocentra_parent_agent_protocol::transport::AgentPeerRole;
 use ocentra_parent_agent_protocol::transport::AgentRoute;
 use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
-use crate::app::{
-    fields::fields_from_pairs, lan_pairing::LanPairingRuntime,
-    websocket::handle_command_text_for_test,
-};
+use crate::app::fields::fields_from_pairs;
 use crate::test_text::TestText;
-
-const PAIRED_RUNTIME_LEASE_INTENT_ID: &str = "intent-paired-runtime-lease";
-
-pub(crate) async fn paired_runtime() -> LanPairingRuntime {
-    let runtime = LanPairingRuntime::empty();
-    let pairing_event = handle_command_text_for_test(
-        serialize_command(pairing_command(proof_payload())),
-        runtime.clone(),
-        Some(TestText::from_display(
-            constants::lan_pairing::ALLOWED_ORIGIN,
-        )),
-    )
-    .await;
-    assert_eq!(
-        pairing_event.event,
-        ocentra_parent_agent_protocol::transport::AgentEventName::AgentLanPairingStatusReported,
-        "pairing ceremony failed: {:?}",
-        pairing_event.payload
-    );
-    assert_eq!(
-        runtime.trusted_device_count(),
-        1,
-        "pairing ceremony did not establish trusted registry: {:?}",
-        pairing_event.payload
-    );
-    let mut lease_payload = intent_payload_for_kind(
-        PAIRED_RUNTIME_LEASE_INTENT_ID,
-        constants::lan_pairing::CHILD_DEVICE_ID,
-        constants::lan_pairing::PROOF_DIGEST,
-        constants::lan_pairing::EXPIRES_AT,
-        constants::value::LAN_INTENT_CONTROLLER_LEASE_RENEW,
-    );
-    lease_payload.insert(
-        constants::field::LAN_INTENT_KIND.to_string(),
-        LogFieldValue::String(constants::value::LAN_INTENT_CONTROLLER_LEASE_RENEW.to_string()),
-    );
-    let mut lease_command = command_for_target(
-        AgentCommandName::AgentLanPairingControllerLeaseRenew,
-        local_network_target(constants::lan_pairing::CHILD_DEVICE_ID),
-        lease_payload,
-    );
-    lease_command.message_id = PAIRED_RUNTIME_LEASE_INTENT_ID.to_string();
-    let lease_event = handle_command_text_for_test(
-        serialize_command(lease_command),
-        runtime.clone(),
-        Some(TestText::from_display(
-            constants::lan_pairing::ALLOWED_ORIGIN,
-        )),
-    )
-    .await;
-    assert_eq!(
-        lease_event.event,
-        ocentra_parent_agent_protocol::transport::AgentEventName::AgentLanPairingStatusReported,
-        "controller lease setup failed: {:?}",
-        lease_event.payload
-    );
-    let route_event = handle_command_text_for_test(
-        serialize_command(route_select_command(intent_payload(
-            constants::lan_pairing::SELECT_INTENT_ID,
-            constants::lan_pairing::CHILD_DEVICE_ID,
-            constants::lan_pairing::PROOF_DIGEST,
-            constants::lan_pairing::EXPIRES_AT,
-        ))),
-        runtime.clone(),
-        Some(TestText::from_display(
-            constants::lan_pairing::ALLOWED_ORIGIN,
-        )),
-    )
-    .await;
-    assert_eq!(
-        route_event.event,
-        ocentra_parent_agent_protocol::transport::AgentEventName::AgentLanPairingStatusReported,
-        "route selection failed: {:?}",
-        route_event.payload
-    );
-    runtime
-}
 
 pub(crate) fn pairing_command(payload: LogFields) -> AgentCommandEnvelope {
     pairing_command_for_target(constants::lan_pairing::CHILD_DEVICE_ID, payload)

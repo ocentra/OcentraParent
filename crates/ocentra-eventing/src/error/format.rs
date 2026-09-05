@@ -4,6 +4,7 @@ use super::EventingError;
 
 mod config;
 mod contract;
+mod dispatch;
 mod journal;
 mod queue;
 mod request;
@@ -36,9 +37,21 @@ pub(super) fn fmt_eventing_error(
         | EventingError::DuplicateEventId { .. }
         | EventingError::DuplicateInFlight { .. }
         | EventingError::DuplicateIdempotencyKey { .. } => queue::fmt_queue_error(error, formatter),
+        EventingError::OrderedDispatchCycle { .. }
+        | EventingError::OrderedDispatchDepthExceeded { .. }
+        | EventingError::OrderedDispatchLockOrderViolation { .. }
+        | EventingError::OrderedDispatchChainExpired { .. }
+        | EventingError::CausalDispatchCancelled
+        | EventingError::CausalPublicationOutsideHandlerTask
+        | EventingError::CausalPublicationRequiresRootAuthority { .. }
+        | EventingError::CallerSuppliedCausation { .. } => {
+            dispatch::fmt_dispatch_error(error, formatter)
+        }
         EventingError::InvalidRequestOptions { .. }
         | EventingError::DuplicateRequest { .. }
+        | EventingError::RequestTypeMismatch { .. }
         | EventingError::RequestTimedOut { .. }
+        | EventingError::RequestCancelled { .. }
         | EventingError::RequestResponseEncode { .. }
         | EventingError::RequestResponseDecode { .. }
         | EventingError::BusShutdown => request::fmt_request_error(error, formatter),

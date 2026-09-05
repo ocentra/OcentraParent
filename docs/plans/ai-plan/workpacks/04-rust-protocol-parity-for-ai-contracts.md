@@ -22,8 +22,11 @@ values, serialization tests, and TypeScript parity proof.
 ## Where We Are
 
 Rust service has local AI runtime, provider scheduler, chat generation, parent
-assistant, policy preview, and memory graph pieces. AI result/context parity must
-be explicit before runtime consumers grow.
+assistant, policy preview, and memory graph pieces. The canonical shared family
+is being routed to the neutral `ocentra-ai-contracts` leaf selected by
+ADR-AI-001; WP04 must consume that crate through an explicit adapter rather than
+copying contracts or re-exporting them. AI result/context parity must be
+explicit before runtime consumers grow.
 
 ## Checklist
 
@@ -37,3 +40,25 @@ be explicit before runtime consumers grow.
 
 - `cargo test -p ocentra-parent-agent-protocol`
 - focused service/core tests for touched Rust AI shapes.
+
+## Graph ownership correction — 2026-08-25
+
+WP04 owns the Rust protocol parity source, its explicit adapter over
+`ocentra-ai-contracts`, and `crates/agent-protocol/tests/contract/ai_contracts.rs`. The
+reviewed source adapter is integrated at canonical source commit `d72e1617d`.
+Its only real leaf constructor caller is `AiWorkRequest::new`; the result,
+context, journal, and remote-assistant adapter paths carry already
+owner-materialized values through safe public validation/read/encoding APIs
+and preserve existing digests. It rejects prompt/runtime attachments without
+owner capability. Owner and digest issuance is not composed in the neutral
+leaf and remains deferred/manual-required. Canonical `191e0d8a0` now registers
+the required Rust contract test and covers the publicly constructible work-
+request/schema/enum wire boundary plus hostile caller prompt/runtime/authority
+and malformed input. Result, context, and journal construction/negative
+encoding remain blocked because those values are owner-materialized, the
+neutral leaf exposes no caller constructor or deserializer, and no general
+production caller/provider-owner runtime composition exists. Do not create a
+test-only or caller-mintable seam. The shared `packages/schema-domain/tests/contract/ai-contracts.test.ts`
+parity test is owned by AI WP03; WP04 consumes it through the reviewed
+`WP04 -> WP03` dependency and does not claim a second copy. Tests, proof, CI,
+PR, READY, and DONE remain open; none of the new tests has been executed.

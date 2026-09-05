@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   GRAPH_PATH,
+  GRAPH_SCHEMA_VERSION,
   buildCodeInventory,
   buildBootstrapGraph,
   buildProgressReport,
@@ -11,6 +12,7 @@ import {
   explainBlocked,
   flattenProgressReport,
   graphSourceDrift,
+  implementationPhase,
   loadGraph,
   nextWork,
   planId,
@@ -21,7 +23,7 @@ import {
   writeGraph,
 } from './engineering-graph-lib.mjs';
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const defaultRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 function usage() {
   console.log(`Engineering graph control plane
@@ -35,13 +37,15 @@ Usage:
   npm run graph:matrix [scope-id] [--state <state>] [--json]
   npm run graph:ready [scope-id]
   npm run graph:parallel [scope-id]
-  npm run graph:next [scope-id]
+  npm run graph:next [scope-id] [--phase implementation]
   npm run graph:blocked [scope-id]
   npm run graph:inspect <id>
   npm run graph:deps <id>
   npm run graph:dependents <id>
-  npm run graph:why <id>
+  npm run graph:why <id> [--phase implementation]
   npm run graph:validate
+
+Global option: --root <repo> (defaults to the repository containing this script)
 `);
 }
 
@@ -50,7 +54,7 @@ function flag(args, name) {
 }
 
 function positionalArg(args) {
-  const valueFlags = new Set(['--state', '--limit']);
+  const valueFlags = new Set(['--state', '--limit', '--phase', '--root']);
   for (let index = 0; index < args.length; index += 1) {
     const argument = args[index];
     if (valueFlags.has(argument)) {
@@ -82,6 +86,19 @@ function printNode(node, states) {
     console.log('Completion gaps:');
     for (const gap of node.metadata.completionGaps) console.log(`  - ${gap}`);
   }
+  const workspaceRequirements = node.completion?.workspaceRequirements ?? node.metadata?.workspaceRequirements;
+  if (workspaceRequirements) {
+    console.log('Workspace requirements:');
+    console.log(`  root manifest: ${workspaceRequirements.rootManifest}`);
+    for (const packageRequirement of workspaceRequirements.packages ?? []) {
+      const targets = (packageRequirement.requiredTargets ?? [])
+        .map((target) => `${target.kind}:${target.path}`)
+        .join(', ');
+      console.log(
+        `  ${packageRequirement.package}: ${packageRequirement.manifest} activeMember=${packageRequirement.activeMember} targets=${targets}`
+      );
+    }
+  }
 }
 
 function printList(nodes, states, { limit = Number.POSITIVE_INFINITY } = {}) {
@@ -95,9 +112,67 @@ function printList(nodes, states, { limit = Number.POSITIVE_INFINITY } = {}) {
   if (nodes.length > limit) console.log(`... ${nodes.length - limit} more; scope or use a focused command.`);
 }
 
+function implementationBlockerText(blocker) {
+  if (blocker.kind === 'dependency') {
+    const gaps = blocker.gaps?.length ? `: ${blocker.gaps.join('; ')}` : '';
+    return `${blocker.id} requires ${blocker.gate}, observed ${blocker.state}${gaps}`;
+  }
+  return blocker.reason ?? `${blocker.kind} blocker`;
+}
+
+function implementationIndependentDependencyText(dependencies) {
+  return (dependencies ?? [])
+    .map(
+      (dependency) =>
+        `${dependency.id}[${dependency.state}] gate=${dependency.gate} normalGate=${dependency.normalGate}`
+    )
+    .join(',');
+}
+
+function printImplementationRows(rows, { limit = Number.POSITIVE_INFINITY } = {}) {
+  if (rows.length === 0) {
+    console.log('(none)');
+    return;
+  }
+  for (const row of rows.slice(0, limit)) {
+    const gaps = row.authorization?.gaps?.length ? ` gaps=${row.authorization.gaps.join('; ')}` : '';
+    const independentDependencies = implementationIndependentDependencyText(
+      row.authorization?.implementationIndependentDependencies
+    );
+    const independent = independentDependencies ? ` independentDeps=${independentDependencies}` : '';
+    console.log(`${row.node.id} [IMPLEMENTATION-ONLY] ${row.node.title}${independent}${gaps}`);
+  }
+  if (rows.length > limit) console.log(`... ${rows.length - limit} more; scope or use a focused command.`);
+}
+
 async function run(command, args) {
   if (command === 'help' || command === undefined) {
     usage();
+    return;
+  }
+  const rootRequested = flag(args, '--root');
+  const rootOption = option(args, '--root');
+  if (rootRequested && (!rootOption || rootOption.startsWith('--'))) {
+    console.error('Missing value for --root.');
+    process.exitCode = 1;
+    return;
+  }
+  const root = path.resolve(rootOption ?? defaultRoot);
+  const phaseRequested = flag(args, '--phase');
+  const phase = option(args, '--phase');
+  if (phaseRequested && phase === undefined) {
+    console.error('Missing value for --phase; supported value: implementation');
+    process.exitCode = 1;
+    return;
+  }
+  if (phase !== undefined && phase !== 'implementation') {
+    console.error(`Unsupported graph phase: ${phase}`);
+    process.exitCode = 1;
+    return;
+  }
+  if (phase !== undefined && !['next', 'why'].includes(command)) {
+    console.error(`--phase implementation is supported only by graph:next and graph:why, not ${command}`);
+    process.exitCode = 1;
     return;
   }
   if (command === 'bootstrap') {
@@ -178,10 +253,16 @@ async function run(command, args) {
     console.log('\nReviewed workpack code/test expectations:');
     for (const workpack of inventory.workpacks) {
       const missing = workpack.missingRoots.length ? ` missing=${workpack.missingRoots.join(',')}` : '';
+      const missingExpectedTests = workpack.missingExpectedTestRoots.length
+        ? ` missingExpectedTestRoots=${workpack.missingExpectedTestRoots.join(',')}`
+        : '';
+      const workspaceGaps = workpack.workspaceRequirementGaps.length
+        ? ` workspaceGaps=${workpack.workspaceRequirementGaps.join(';')}`
+        : '';
       console.log(
         `${workpack.workpackId} [${workpack.state}] expectation=${workpack.codeExpectation} ` +
           `satisfied=${workpack.codeExpectationSatisfied} implementation=${workpack.implementationFiles} ` +
-          `tests=${workpack.testFiles} roots=${workpack.roots.length}${missing}`
+          `tests=${workpack.testFiles} roots=${workpack.roots.length}${missing}${missingExpectedTests}${workspaceGaps}`
       );
     }
     console.log('\nCounts are live file topology only; they do not claim acceptance, proof, CI, or merge.');
@@ -222,13 +303,21 @@ async function run(command, args) {
       );
       for (const workpack of exceptions.slice(0, 8)) {
         const gaps = workpack.completionContract.gaps.length ? ` gaps=${workpack.completionContract.gaps.length}` : '';
+        const independentDependencies = implementationIndependentDependencyText(
+          workpack.implementationIndependentDependencies
+        );
         const topology =
           typeof workpack.codeTestTopology === 'string'
             ? workpack.codeTestTopology
             : `${workpack.codeTestTopology.state} ${workpack.codeTestTopology.implementationFiles}/${workpack.codeTestTopology.testFiles} ` +
               `expected=${workpack.codeTestTopology.codeExpectation} ` +
-              `satisfied=${workpack.codeTestTopology.codeExpectationSatisfied}`;
-        console.log(`  - ${workpack.id} [${workpack.state}] code=${topology}${gaps}`);
+              `satisfied=${workpack.codeTestTopology.codeExpectationSatisfied} ` +
+              `workspaceGaps=${workpack.codeTestTopology.workspaceRequirementGaps?.length ?? 0}`;
+        console.log(
+          `  - ${workpack.id} [${workpack.state}] code=${topology} ` +
+            `implementation=${workpack.implementationAuthorization.status}` +
+            `${independentDependencies ? ` independentDeps=${independentDependencies}` : ''}${gaps}`
+        );
       }
       if (exceptions.length > 8) console.log(`  - ... ${exceptions.length - 8} more non-planned rows`);
     }
@@ -247,7 +336,7 @@ async function run(command, args) {
       console.log(
         JSON.stringify(
           {
-            schemaVersion: 1,
+            schemaVersion: GRAPH_SCHEMA_VERSION,
             scope: report.scope,
             totals: report.totals,
             rows,
@@ -273,7 +362,9 @@ async function run(command, args) {
       );
     }
     console.log('\nWorkpack matrix:');
-    console.log('PLAN | WORKPACK | STATE | CODE/TEST | GAPS | DEPENDS ON | BLOCKERS | UNLOCKS');
+    console.log(
+      'PLAN | WORKPACK | STATE | IMPLEMENTATION AUTH | IMPLEMENTATION BLOCKERS | IMPLEMENTATION-INDEPENDENT DEPS | CODE/TEST | GAPS | DEPENDS ON | BLOCKERS | UNLOCKS'
+    );
     for (const row of rows) {
       const topology =
         row.implementationFiles === null
@@ -281,8 +372,12 @@ async function run(command, args) {
           : `${row.codeState} ${row.implementationFiles}/${row.testFiles} ` +
             `expected=${row.codeExpectation} satisfied=${row.codeExpectationSatisfied}`;
       const blockerText = row.blockers.map((blocker) => `${blocker.id}[${blocker.state}]`).join(',') || '-';
+      const implementationBlockers = row.implementationBlockers.map(implementationBlockerText).join(',') || '-';
+      const independentDependencies =
+        implementationIndependentDependencyText(row.implementationIndependentDependencies) || '-';
       console.log(
-        `${row.planId} | ${row.workpackId} | ${row.state} | ${topology} | ${row.completionGapCount} | ` +
+        `${row.planId} | ${row.workpackId} | ${row.state} | ${row.implementationAuthorization} | ` +
+          `${implementationBlockers} | ${independentDependencies} | ${topology} | ${row.completionGapCount} | ` +
           `${row.dependsOn.join(',') || '-'} | ${blockerText} | ${row.unlocks.join(',') || '-'}`
       );
     }
@@ -293,6 +388,15 @@ async function run(command, args) {
   }
 
   const states = deriveStates(graph, { root });
+  if (phase === 'implementation' && command === 'next') {
+    const queue = await implementationPhase.next(graph, { root, scope });
+    console.log('IMPLEMENTATION-ONLY authorization; normal READY, tests, proof, PR readiness, and DONE are unchanged.');
+    printImplementationRows(queue.authorized, {
+      limit: Number(option(args, '--limit') ?? Number.POSITIVE_INFINITY),
+    });
+    console.log(`\n${queue.recommendation}`);
+    return;
+  }
   if (command === 'status') {
     const summary = summarizeGraph(graph, scope, { root });
     console.log(`Scope: ${summary.scope}`);
@@ -357,6 +461,13 @@ async function run(command, args) {
           console.log(`  Test files: ${topology.testFiles}`);
           console.log(`  Roots: ${topology.roots.join(', ')}`);
           if (topology.missingRoots.length > 0) console.log(`  Missing roots: ${topology.missingRoots.join(', ')}`);
+          if (topology.missingExpectedTestRoots.length > 0) {
+            console.log(`  missingExpectedTestRoots: ${topology.missingExpectedTestRoots.join(', ')}`);
+          }
+          if (topology.workspaceRequirements) {
+            console.log(`  Workspace root manifest: ${topology.workspaceRequirements.rootManifest}`);
+            console.log(`  Workspace requirement gaps: ${topology.workspaceRequirementGaps.join('; ') || 'none'}`);
+          }
         } else {
           console.log('Code/test topology: unknown-workpack-ownership');
           console.log('  Plan-root counts are available from graph:report; no reviewed workpack map exists yet.');
@@ -370,7 +481,7 @@ async function run(command, args) {
           const refs = node.completion.references?.[requirement] ?? [];
           const expected = node.completion.expected?.[requirement] ?? [];
           console.log(`  ${requirement}: ${refs.join(', ') || 'missing'}`);
-          if (refs.length === 0 && expected.length > 0) {
+          if (expected.length > 0) {
             console.log(`    expected: ${expected.join(', ')}`);
           }
         }
@@ -383,6 +494,31 @@ async function run(command, args) {
       return;
     }
     if (command === 'why') {
+      if (phase === 'implementation') {
+        const explanation = await implementationPhase.explain(graph, scope, { root });
+        console.log(`${scope} implementation phase is ${explanation.status}.`);
+        const independentDependencies = implementationIndependentDependencyText(
+          explanation.implementationIndependentDependencies
+        );
+        if (independentDependencies) {
+          console.log(
+            `- implementation-independent dependencies (not implementation blockers; normalGate=done): ${independentDependencies}`
+          );
+        }
+        if (explanation.authorized) {
+          console.log(
+            '- IMPLEMENTATION-ONLY source edits are authorized; normal READY and completion remain unchanged.'
+          );
+          for (const gap of explanation.gaps ?? []) console.log(`- implementation gap: ${gap}`);
+        } else if (explanation.blockers.length === 0) {
+          console.log('- No implementation work remains for this workpack.');
+        } else {
+          for (const blocker of explanation.blockers) {
+            console.log(`- ${implementationBlockerText(blocker)}`);
+          }
+        }
+        return;
+      }
       const explanation = explainBlocked(graph, scope, { root });
       console.log(`${scope} is ${explanation.state}.`);
       for (const reason of explanation.reasons) console.log(`- ${reason}`);

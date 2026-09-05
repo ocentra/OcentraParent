@@ -25,6 +25,7 @@ pub mod env_var {
     pub const ACTIVITY_DB_PATH: &str = "OCENTRA_PARENT_ACTIVITY_DB_PATH";
     pub const ACTIVITY_JOURNAL_KEY_PATH: &str = "OCENTRA_PARENT_ACTIVITY_JOURNAL_KEY_PATH";
     pub const ACTIVITY_JOURNAL_PATH: &str = "OCENTRA_PARENT_ACTIVITY_JOURNAL_PATH";
+    pub const NETWORK_RUNTIME_JOURNAL_PATH: &str = "OCENTRA_PARENT_NETWORK_RUNTIME_JOURNAL_PATH";
     pub const APP_DATA: &str = "APPDATA";
     pub const LOCAL_APP_DATA: &str = "LOCALAPPDATA";
     pub const MANAGED_BROWSER_BRIDGE_PORT: &str = "OCENTRA_PARENT_MANAGED_BROWSER_BRIDGE_PORT";
@@ -152,6 +153,8 @@ pub mod event_id {
         "browser-social-source-custody-mutation-applied";
     pub const ACTIVITY_NETWORK_READ_MODEL_REPORTED: &str = "activity-network-read-model-reported";
     pub const ACTIVITY_TRACKING_READ_MODEL_REPORTED: &str = "activity-tracking-read-model-reported";
+    pub const PARENT_RUNTIME_INTENT_INGRESS_REPORTED: &str =
+        "parent-runtime-intent-ingress-reported";
     pub const BROWSER_INVENTORY_READ_MODEL_REPORTED: &str = "browser-inventory-read-model-reported";
     pub const BROWSER_EVIDENCE_RECENT_REPORTED: &str = "browser-evidence-recent-reported";
     pub const BROWSER_MANAGED_STATUS_REPORTED: &str = "browser-managed-status-reported";

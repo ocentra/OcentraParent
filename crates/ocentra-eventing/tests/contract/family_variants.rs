@@ -71,7 +71,7 @@ impl DomainEvent for DecisionFamilyEvent {
 
 #[tokio::test]
 async fn family_subscriber_receives_typed_enum_variants_without_downcast() {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     let received = Arc::new(Mutex::new(Vec::<TestText>::new()));
 
     let approved_seen = Arc::clone(&received);

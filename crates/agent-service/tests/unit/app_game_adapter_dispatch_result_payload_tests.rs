@@ -16,7 +16,7 @@ use ocentra_parent_agent_protocol::app_game_adapter_dispatch_result::{
 use ocentra_parent_agent_protocol::constants::{self, v08_supported_adapter_runtime_proof};
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 
-use crate::test_invariants::require_some;
+use crate::test_require_some::require_some;
 
 use super::app_game_adapter_dispatch_result_payload::{
     app_game_adapter_dispatch_execution_evidence, app_game_adapter_dispatch_result_read_model,

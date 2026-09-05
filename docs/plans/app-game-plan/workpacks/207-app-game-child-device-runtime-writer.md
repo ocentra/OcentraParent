@@ -1,5 +1,10 @@
 # WP207 App/Game Child-Device Runtime Writer
 
+> **Current status (2026-08-29): BLOCKED.** Typed receipt/read-model surfaces
+> exist, but no shipped durable writer owns an authenticated child target,
+> current generation, idempotency, retry, or failure custody. A DTO or marker
+> file is not a runtime writer.
+
 <!-- agent-capsule -->
 
 > Agent Capsule
@@ -24,6 +29,12 @@ This is a boundary contract for the eventual child-device delivery path; it is
 not a transport implementation.
 
 ## Implementation
+
+The historical `packages/parent-domain` writer named below is absent. Current
+Rust receipt and status projections are read-model boundaries only. The next
+legal packet must compose the existing trusted child-runtime/Device Trust
+owner into a durable writer and add real restart, replay, wrong-target,
+currentness, and failure tests before downstream Android proof packets resume.
 
 - Added
   `packages/parent-domain/src/app-game-child-facing-ux-child-device-runtime-writer.ts`.

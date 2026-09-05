@@ -87,6 +87,40 @@ fn probe_response_parser_rejects_traversal_references_and_invalid_header_text() 
 }
 
 #[test]
+fn probe_response_parser_strips_nested_title_markup_before_weak_evidence_application() {
+    let body = "<html><head><title>Trusted <span>Panel\u{0007}\n</span><script>alert(1)</script></title></head><body>ok</body></html>";
+    let response = format!(
+        "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: {}\r\n\r\n{}",
+        body.len(),
+        body
+    );
+
+    let observation = parse_probe_observation(response.as_bytes(), None).value_or_unreachable();
+    let title = observation.title.clone().value_or_unreachable();
+    assert_eq!(title, "Trusted Panel alert(1)");
+
+    let mut device = bounded_probe_devices()
+        .into_iter()
+        .next()
+        .value_or_unreachable();
+    apply_service_identity_probe(&mut device, observation);
+
+    assert_eq!(
+        device.agent_status.as_deref(),
+        Some(constants::lan_pairing::SERVICE_IDENTITY_PROBE_AGENT_STATUS)
+    );
+    assert_eq!(device.platform, constants::lan_pairing::PLATFORM_UNKNOWN);
+    assert!(device.hostname.is_none());
+    assert!(device
+        .service_identity_probe_evidence
+        .iter()
+        .any(|evidence| {
+            evidence.evidence_kind == LanServiceIdentityProbeEvidenceKind::HtmlTitle
+                && evidence.value == title
+        }));
+}
+
+#[test]
 fn probe_response_parser_normalizes_backslash_references() {
     let observation = parse_probe_observation(
         b"HTTP/1.1 200 OK\r\nLink: <\\metadata\\service-desc>; rel=\"service-desc\"\r\nContent-Length: 0\r\n\r\n",
@@ -131,6 +165,50 @@ fn service_identity_probe_stops_when_scan_budget_is_exhausted() {
 }
 
 #[test]
+fn probe_service_identity_continues_after_refused_target() {
+    let listener = TcpListener::bind("127.0.0.1:0").value_or_unreachable();
+    let port = listener.local_addr().value_or_unreachable().port();
+    let server = thread::spawn(move || {
+        let (mut stream, _) = listener.accept().value_or_unreachable();
+        let request = read_request(&mut stream);
+        assert_eq!(request.0.lines().next(), Some("GET / HTTP/1.1"));
+        let body = "<html><head><title>Later target</title></head><body>ok</body></html>";
+        let response = format!(
+            "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: {}\r\n\r\n{}",
+            body.len(),
+            body
+        );
+        stream.write_all(response.as_bytes()).value_or_unreachable();
+    });
+    let targets = [
+        ProbeTarget {
+            port: 0,
+            transport: ProbeTransport::Http,
+            request_paths: &["/"],
+        },
+        ProbeTarget {
+            port,
+            transport: ProbeTransport::Http,
+            request_paths: &["/"],
+        },
+    ];
+
+    let observation = probe_service_identity(
+        "127.0.0.1",
+        Some("later-device"),
+        &targets,
+        ServiceIdentityProbeSettings::default(),
+        Instant::now() + Duration::from_millis(SERVICE_IDENTITY_PROBE_SCAN_BUDGET_MS),
+        None,
+    )
+    .value_or_unreachable();
+
+    server.join().value_or_unreachable();
+
+    assert_eq!(observation.title.as_deref(), Some("Later target"));
+}
+
+#[test]
 fn probe_response_parser_collects_tls_certificate_subject() {
     let cert = generate_simple_self_signed(vec!["service.local".into()]).value_or_unreachable();
     let cert_der = cert.cert.der().clone();
@@ -152,7 +230,7 @@ fn probe_response_parser_collects_tls_certificate_subject() {
 #[test]
 fn enrich_service_identity_probes_is_bounded_by_concurrency() {
     let _env_lock = agent_addr_env_lock();
-    let listener = TcpListener::bind("127.0.0.1:0").value_or_unreachable();
+    let listener = TcpListener::bind("127.0.0.2:0").value_or_unreachable();
     let port = listener.local_addr().value_or_unreachable().port();
     let active = Arc::new(AtomicUsize::new(0));
     let max_active = Arc::new(AtomicUsize::new(0));
@@ -162,6 +240,9 @@ fn enrich_service_identity_probes_is_bounded_by_concurrency() {
     env::set_var(constants::env_var::AGENT_ADDR, format!("127.0.0.1:{port}"));
 
     let mut devices = bounded_probe_devices();
+    for device in &mut devices {
+        device.ip_address = "127.0.0.2".to_string();
+    }
 
     enrich_service_identity_probes(
         &mut devices,

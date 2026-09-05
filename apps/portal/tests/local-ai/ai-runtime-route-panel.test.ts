@@ -56,6 +56,26 @@ describe('AI runtime route panel', () => {
     expect(markup).toContain('worker-only-child-agent-authority');
     expect(markup).toContain('source-cited-memory-graph-read-model-only');
     expect(markup).toContain('remote-assistant-report-only-local-policy-authority');
+    expect(markup).toContain('data-ocentra-ai-runtime-empty="false"');
+    expect(markup).not.toContain('data-ocentra-ai-runtime-disclosure');
+  });
+
+  it('keeps missing runtime details collapsed while exposing a real reconnect action', () => {
+    const markup = renderToStaticMarkup(
+      createElement(AiRuntimeRoutePanel, {
+        actions: aiRuntimeActions(),
+        commandEnabled: false,
+        liveActivity: EMPTY_ROUTE_LIVE_ACTIVITY_STATE,
+      })
+    );
+
+    expect(markup).toContain('data-ocentra-ai-runtime-empty="true"');
+    expect(markup).toContain('data-ocentra-ai-runtime-disclosure=""');
+    expect(markup).not.toContain('<details open=""');
+    expect(markup).toContain('Local AI status');
+    expect(markup).toContain('Retry status');
+    expect(markup).toContain('No local AI runtime or job event has been reported yet.');
+    expect(markup).not.toContain('<button class="command-result-tab" disabled=""');
   });
 });
 

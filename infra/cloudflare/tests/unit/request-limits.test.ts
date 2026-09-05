@@ -23,11 +23,12 @@ describe('request limits', () => {
 
   it('allows payloads at the configured limit to reach the next dispatch stage', async () => {
     const { response } = await executeRequest({
-      path: '/health',
+      path: '/not-a-route',
       method: 'POST',
       headers: {
         'content-length': '10',
       },
+      body: '0123456789',
       envOverrides: {
         REQUEST_MAX_BYTES: '10',
       },

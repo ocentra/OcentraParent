@@ -11,10 +11,10 @@ use ocentra_parent_agent_protocol::lan_pairing::{
     LanPairingTrustState,
 };
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
-    LanBrowserAddDeviceReadModel, LanCanonicalHouseholdDevice,
-    LanCanonicalHouseholdDeviceClassification, LanCanonicalHouseholdDeviceConfidence,
-    LanCanonicalHouseholdDeviceSource, LanCanonicalHouseholdNetworkIdentity,
-    LanCanonicalHouseholdRouteState, LanCanonicalHouseholdSurface, LanPairingDiscoverySource,
+    LanCanonicalHouseholdDevice, LanCanonicalHouseholdDeviceClassification,
+    LanCanonicalHouseholdDeviceConfidence, LanCanonicalHouseholdDeviceSource,
+    LanCanonicalHouseholdNetworkIdentity, LanCanonicalHouseholdRouteState,
+    LanCanonicalHouseholdSurface, LanPairingDiscoverySource,
 };
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 use ocentra_parent_agent_protocol::transport::{
@@ -31,10 +31,11 @@ use crate::{
         websocket::handle_command_text_for_test,
     },
     lan_pairing_test_commands::{
-        command_for_target, intent_payload, local_network_target, paired_runtime, pairing_command,
-        proof_payload, route_select_command, serialize_command,
+        command_for_target, intent_payload, local_network_target, pairing_command, proof_payload,
+        route_select_command, serialize_command,
     },
-    test_invariants::{require_ok, require_some},
+    test_require_ok::require_ok,
+    test_require_some::require_some,
     test_text::TestText,
 };
 
@@ -44,7 +45,7 @@ const STORED_OFFLINE_AT: &TestStr = "2026-06-02T00:00:00Z";
 mod persistent_read_model_tests;
 
 #[tokio::test]
-async fn browser_discovery_scan_reports_real_local_service_state() {
+async fn unpaired_browser_discovery_scan_reports_unavailable_service_state() {
     let event = handle_command_text_for_test(
         serialize_command(browser_discovery_scan_command(LogFields::new())),
         LanPairingRuntime::empty(),
@@ -76,7 +77,7 @@ async fn browser_discovery_scan_reports_real_local_service_state() {
     let read_model = read_model_payload(&event.payload);
     assert_eq!(
         read_model[constants::field::LAN_ADD_DEVICE_STATE],
-        serde_json::json!(constants::value::LAN_DISCOVERY_STATE_DISCOVERED)
+        serde_json::json!(constants::value::LAN_DISCOVERY_STATE_UNAVAILABLE)
     );
     assert!(
         read_model[constants::field::LAN_PHYSICAL_HOUSEHOLD_LAN_STATE]
@@ -91,9 +92,13 @@ async fn browser_discovery_scan_reports_real_local_service_state() {
         serde_json::json!(constants::value::LAN_DISCOVERY_STATE_UNAVAILABLE)
     );
     assert_eq!(
-        read_model[constants::field::LAN_DISCOVERED_DEVICES][0][constants::field::LAN_CHILD_DEVICE]
-            [constants::field::DEVICE_ID],
-        serde_json::json!(constants::lan_pairing::CHILD_DEVICE_ID)
+        read_model[constants::field::LAN_TRUSTED_DEVICE_REGISTRY],
+        serde_json::json!([])
+    );
+    assert_eq!(
+        read_model[constants::field::LAN_SELECTED_DEVICE_READINESS]
+            [constants::field::LAN_READY_FOR_CONTROL],
+        serde_json::json!(false)
     );
 }
 
@@ -125,40 +130,19 @@ async fn browser_discovery_scan_returns_before_active_refresh_completes() {
 }
 
 #[tokio::test]
-async fn add_device_request_issues_pending_challenge_event() {
+async fn stale_add_device_challenge_is_rejected_without_runtime_mutation() {
+    let runtime = LanPairingRuntime::empty();
     let event = handle_command_text_for_test(
         serialize_command(add_device_request_command(challenge_request_payload())),
-        LanPairingRuntime::empty(),
+        runtime.clone(),
         Some(TestText::from_display(
             constants::lan_pairing::ALLOWED_ORIGIN,
         )),
     )
     .await;
 
-    assert_eq!(
-        event.event,
-        AgentEventName::AgentLanPairingAddDeviceReported
-    );
-    assert_eq!(
-        event.payload.get(constants::field::LAN_ADD_DEVICE_STATE),
-        Some(&LogFieldValue::String(
-            constants::value::LAN_DISCOVERY_STATE_PENDING.to_string()
-        ))
-    );
-    let read_model = read_model_payload(&event.payload);
-    assert_eq!(
-        read_model[constants::field::LAN_ADD_DEVICE_STATE],
-        serde_json::json!(constants::value::LAN_DISCOVERY_STATE_PENDING)
-    );
-    assert_eq!(
-        read_model[constants::field::LAN_PAIRING_REQUESTS][0][constants::field::LAN_PAIRING_STATE],
-        serde_json::json!(LanPairingProductionDiscoveryState::Pending)
-    );
-    assert_eq!(
-        read_model[constants::field::LAN_PAIRING_REQUESTS][0]
-            [constants::field::LAN_CHILD_DEVICE_ID],
-        serde_json::json!(constants::lan_pairing::CHILD_DEVICE_ID)
-    );
+    assert_rejected_without_read_model(&event, constants::value::LAN_REASON_STALE);
+    assert_eq!(runtime.trusted_device_count(), 0);
 }
 
 #[tokio::test]
@@ -204,35 +188,27 @@ async fn add_device_request_rejects_malformed_payload_without_trusting_device() 
 }
 
 #[tokio::test]
-async fn add_device_request_persists_household_decision_in_read_model() {
+async fn unpaired_household_decision_is_rejected_without_registry_mutation() {
+    let runtime = LanPairingRuntime::empty();
     let event = handle_command_text_for_test(
         serialize_command(add_device_request_command(household_decision_payload())),
-        LanPairingRuntime::empty(),
+        runtime.clone(),
         Some(TestText::from_display(
             constants::lan_pairing::ALLOWED_ORIGIN,
         )),
     )
     .await;
 
-    assert_eq!(
-        event.event,
-        AgentEventName::AgentLanPairingAddDeviceReported
-    );
-    let read_model = read_model_payload(&event.payload);
-    assert_eq!(
-        read_model[constants::lan_pairing::REGISTRY_KEY_HOUSEHOLD_DEVICE_DECISIONS][0]
-            [constants::lan_pairing::HOUSEHOLD_DECISION_ACTION_KIND_FIELD],
-        serde_json::json!(constants::lan_pairing::HOUSEHOLD_ACTION_RENAME)
-    );
-    assert_eq!(
-        read_model[constants::lan_pairing::REGISTRY_KEY_HOUSEHOLD_DEVICE_DECISIONS][0]
-            [constants::lan_pairing::HOUSEHOLD_ACTION_DEVICE_KIND_FIELD],
-        serde_json::json!(constants::lan_pairing::HOUSEHOLD_DEVICE_KIND_DESKTOP)
-    );
+    assert_rejected_without_read_model(&event, constants::value::LAN_REASON_ANONYMOUS);
+    assert!(crate::lan_pairing_browser_add_device_state::registry_projection::household_device_decisions(
+        &runtime
+    )
+    .is_empty());
 }
 
 #[tokio::test]
-async fn add_device_request_persists_household_revocation_in_read_model() {
+async fn unpaired_household_revocation_is_rejected_without_registry_mutation() {
+    let runtime = LanPairingRuntime::empty();
     let event = handle_command_text_for_test(
         serialize_command(add_device_request_command(
             household_decision_payload_with_action(
@@ -240,35 +216,25 @@ async fn add_device_request_persists_household_revocation_in_read_model() {
                 Some(constants::lan_pairing::OBSERVED_AT.to_string()),
             ),
         )),
-        LanPairingRuntime::empty(),
+        runtime.clone(),
         Some(TestText::from_display(
             constants::lan_pairing::ALLOWED_ORIGIN,
         )),
     )
     .await;
 
-    assert_eq!(
-        event.event,
-        AgentEventName::AgentLanPairingAddDeviceReported
-    );
-    let read_model = read_model_payload(&event.payload);
-    assert_eq!(
-        read_model[constants::lan_pairing::REGISTRY_KEY_HOUSEHOLD_DEVICE_DECISIONS][0]
-            [constants::lan_pairing::HOUSEHOLD_DECISION_ACTION_KIND_FIELD],
-        serde_json::json!(constants::lan_pairing::HOUSEHOLD_ACTION_REVOKE)
-    );
-    assert_eq!(
-        read_model[constants::lan_pairing::REGISTRY_KEY_HOUSEHOLD_DEVICE_DECISIONS][0]
-            [constants::lan_pairing::HOUSEHOLD_ACTION_REVOKED_AT_FIELD],
-        serde_json::json!(constants::lan_pairing::OBSERVED_AT)
-    );
+    assert_rejected_without_read_model(&event, constants::value::LAN_REASON_ANONYMOUS);
+    assert!(crate::lan_pairing_browser_add_device_state::registry_projection::household_device_decisions(
+        &runtime
+    )
+    .is_empty());
 }
 
 #[tokio::test]
-async fn paired_runtime_scan_exposes_registry_and_selected_readiness() {
+async fn unpaired_runtime_scan_exposes_empty_registry_and_blocked_readiness() {
     let event = handle_command_text_for_test(
         serialize_command(browser_discovery_scan_command(LogFields::new())),
-        paired_runtime().await,
+        LanPairingRuntime::empty(),
         Some(TestText::from_display(
             constants::lan_pairing::ALLOWED_ORIGIN,
         )),
@@ -281,14 +247,13 @@ async fn paired_runtime_scan_exposes_registry_and_selected_readiness() {
     );
     let read_model = read_model_payload(&event.payload);
     assert_eq!(
-        read_model[constants::field::LAN_TRUSTED_DEVICE_REGISTRY][0]
-            [constants::field::LAN_PAIRING_ID],
-        serde_json::json!(constants::lan_pairing::PAIRING_ID)
+        read_model[constants::field::LAN_TRUSTED_DEVICE_REGISTRY],
+        serde_json::json!([])
     );
     assert_eq!(
         read_model[constants::field::LAN_SELECTED_DEVICE_READINESS]
             [constants::field::LAN_READY_FOR_CONTROL],
-        serde_json::json!(true)
+        serde_json::json!(false)
     );
 }
 
@@ -348,21 +313,19 @@ fn read_model_payload(payload: &LogFields) -> Value {
     }
 }
 
-fn typed_read_model_payload(payload: &LogFields) -> LanBrowserAddDeviceReadModel {
-    let value = require_some(
-        payload
-            .get(constants::field::LAN_ADD_DEVICE_READ_MODEL)
-            .and_then(|field| match field {
-                LogFieldValue::String(value) => Some(value.as_str()),
-                _ => None,
-            }),
-        constants::value::LAN_READ_MODEL_JSON_EXPECTATION,
+fn assert_rejected_without_read_model(
+    event: &ocentra_parent_agent_protocol::transport::AgentEventEnvelope,
+    reason: &str,
+) {
+    assert_eq!(event.event, AgentEventName::AgentCommandRejected);
+    assert_eq!(
+        event.payload.get(constants::field::LAN_REJECTION_REASON),
+        Some(&LogFieldValue::String(reason.to_string()))
     );
-
-    require_ok(
-        serde_json::from_str(value),
-        constants::value::LAN_READ_MODEL_JSON_EXPECTATION,
-    )
+    assert!(event
+        .payload
+        .get(constants::field::LAN_ADD_DEVICE_READ_MODEL)
+        .is_none());
 }
 
 fn browser_discovery_scan_command(payload: LogFields) -> AgentCommandEnvelope {
@@ -413,14 +376,6 @@ fn challenge_request_payload() -> LogFields {
 fn household_decision_payload() -> LogFields {
     household_decision_payload_for_device_with_action(
         local_agent_canonical_device_id(),
-        constants::lan_pairing::HOUSEHOLD_ACTION_RENAME,
-        None,
-    )
-}
-
-fn household_decision_payload_for_device(canonical_device_id: impl Into<TestString>) -> LogFields {
-    household_decision_payload_for_device_with_action(
-        canonical_device_id,
         constants::lan_pairing::HOUSEHOLD_ACTION_RENAME,
         None,
     )

@@ -17,7 +17,7 @@ use ocentra_parent_agent_protocol::logging::LogFieldValue;
 use ocentra_parent_agent_protocol::logging::LogFields;
 
 use crate::{
-    activity_capture::record_activity_events_to_paths,
+    activity_capture_persistence::record_activity_events_to_paths,
     enforcement_api::{
         enforcement_pre_action_journal::eventing_journal::{
             append_enforcement_audit_journal_event_phase, EnforcementEventingJournalPath,

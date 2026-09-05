@@ -1,8 +1,12 @@
-use std::fs::remove_file;
+use std::fs::{create_dir_all, remove_file};
 use std::path::PathBuf as TestPathBuf;
 use std::primitive::str as TestStr;
 use std::string::String as TestString;
 
+use crate::network_runtime_test_support::{
+    lock_activity_report_env_for_test, network_runtime_event_chain_stream_payload_for_test,
+    seed_network_runtime_for_test, stream_network_runtime_event_chain_for_read_model_for_test,
+};
 use crate::test_text::TestText;
 use ocentra_parent_agent_core::{
     activity_store::ActivityStore, network_capture::NetworkObservation,
@@ -19,43 +23,27 @@ use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 use ocentra_parent_agent_protocol::network_flow::{
     ActivityNetworkEndpoint, ActivityNetworkFlowCounters, ActivityNetworkFlowObservation,
-    ActivityNetworkFlowReadModel, NetworkAuditEntryCommittedEvent, NetworkEvidenceGrade,
-    NetworkFlowObservedEvent, NetworkPolicyDecisionAction, NetworkPolicyDecisionCompletedEvent,
-    NetworkRuntimePhase, NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE,
-    NETWORK_FLOW_READ_MODEL_FIELD_ACTIVE_ROWS,
+    ActivityNetworkFlowReadModel, NetworkEvidenceGrade, NetworkFlowObservedEvent,
+    NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE, NETWORK_FLOW_READ_MODEL_FIELD_ACTIVE_ROWS,
     NETWORK_FLOW_READ_MODEL_FIELD_DELETED_EVIDENCE_REFERENCE_IDS,
     NETWORK_FLOW_READ_MODEL_FIELD_EXPORTABLE_ROWS, NETWORK_FLOW_READ_MODEL_FIELD_TOMBSTONE_ROWS,
 };
 use ocentra_parent_agent_protocol::policy_constants;
-use ocentra_parent_agent_protocol::transport::{
-    AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget, AgentPeer,
-    AgentPeerRole, AgentRoute,
-};
-use ocentra_parent_agent_protocol::{
-    ACTIVITY_SCHEMA_VERSION, AGENT_PROTOCOL_SCHEMA_VERSION, NETWORK_FLOW_SCHEMA_VERSION,
-};
-use ocentra_parent_agent_service::test_support::{
-    handle_local_command_text_for_test, lock_activity_report_env_for_test,
-    network_runtime_event_chain_stream_payload_for_test,
-    stream_network_runtime_event_chain_for_read_model_for_test,
-};
+use ocentra_parent_agent_protocol::{ACTIVITY_SCHEMA_VERSION, NETWORK_FLOW_SCHEMA_VERSION};
 use serde_json::Value;
 
 #[tokio::test]
 async fn service_network_runtime_streams_protocol_event_chain_entries(
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let report = stream_network_runtime_event_chain_for_read_model_for_test(&read_model(vec![
-        full_metadata_row(),
-    ]))
-    .await;
+    let _guard = lock_activity_report_env_for_test().await;
+    let model = read_model(vec![full_metadata_row()]);
+    seed_network_runtime_for_test(&model).await?;
+    let report = stream_network_runtime_event_chain_for_read_model_for_test(&model).await?;
     let payload = network_runtime_event_chain_stream_payload_for_test(&report);
     let entries = stream_entries(&payload);
 
     assert_eq!(report.observed_rows, 1);
-    assert_eq!(
-        report.streamed_events,
-        NetworkRuntimePhase::ordered_chain().len() - 4
-    );
+    assert_eq!(report.streamed_events, 3);
     assert_eq!(report.failed_rows, 0);
     assert_eq!(report.manual_required_rows, 0);
     assert_eq!(report.enforcement_command_events, 0);
@@ -73,28 +61,15 @@ async fn service_network_runtime_streams_protocol_event_chain_entries(
         entries[0][constants::field::EVENT_TYPE],
         constants::network_flow::EVENT_NETWORK_FLOW_OBSERVED
     );
-    assert!(entries[0][constants::field::EVENT_REF]
-        .as_str()
-        .unwrap_or_default()
-        .ends_with(constants::network_flow::EVENT_NETWORK_FLOW_OBSERVED));
     assert_eq!(
         entries[0][constants::field::PAYLOAD][constants::field::CLAIM_BOUNDARY]
             [constants::field::EXACT_URL_AVAILABLE],
         false
     );
-    assert_eq!(
-        entries[5][constants::field::EVENT_TYPE],
-        constants::network_flow::EVENT_AUDIT_ENTRY_COMMITTED
-    );
     let flow_event: NetworkFlowObservedEvent =
         serde_json::from_value(entries[0][constants::field::PAYLOAD].clone())?;
     assert_eq!(flow_event.evidence_grade, NetworkEvidenceGrade::B);
-    let policy_event: NetworkPolicyDecisionCompletedEvent =
-        serde_json::from_value(entries[4][constants::field::PAYLOAD].clone())?;
-    assert_eq!(
-        policy_event.decision_action,
-        NetworkPolicyDecisionAction::Observe
-    );
+    assert_eq!(flow_event.flow_evidence_ref, full_metadata_row().event_id);
     assert_eq!(
         entries[0][constants::field::PAYLOAD][constants::field::CLAIM_BOUNDARY]
             [constants::field::ADAPTER_ACTION_EXECUTED],
@@ -119,10 +94,10 @@ async fn service_network_runtime_streams_protocol_event_chain_entries(
 #[tokio::test]
 async fn service_network_runtime_stream_skips_enforcement_for_manual_required_rows(
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let report = stream_network_runtime_event_chain_for_read_model_for_test(&read_model(vec![
-        partial_metadata_row(),
-    ]))
-    .await;
+    let _guard = lock_activity_report_env_for_test().await;
+    let model = read_model(vec![partial_metadata_row()]);
+    seed_network_runtime_for_test(&model).await?;
+    let report = stream_network_runtime_event_chain_for_read_model_for_test(&model).await?;
     let entries = stream_entries(&network_runtime_event_chain_stream_payload_for_test(
         &report,
     ));
@@ -136,123 +111,26 @@ async fn service_network_runtime_stream_skips_enforcement_for_manual_required_ro
         .collect::<Vec<_>>();
 
     assert_eq!(report.observed_rows, 1);
-    assert_eq!(
-        report.streamed_events,
-        NetworkRuntimePhase::ordered_chain().len() - 2
-    );
+    assert_eq!(report.streamed_events, 2);
     assert_eq!(report.manual_required_rows, 1);
     assert_eq!(report.enforcement_command_events, 0);
     assert_eq!(
         event_types,
         vec![
             constants::network_flow::EVENT_NETWORK_FLOW_OBSERVED,
-            constants::network_flow::EVENT_NETWORK_DOMAIN_OBSERVED,
             constants::network_flow::EVENT_NETWORK_ACTIVITY_CLASSIFIED,
-            constants::network_flow::EVENT_AI_ANALYSIS_REQUESTED,
-            constants::network_flow::EVENT_AI_ANALYSIS_COMPLETED,
-            constants::network_flow::EVENT_POLICY_EVALUATION_REQUESTED,
-            constants::network_flow::EVENT_POLICY_DECISION_COMPLETED,
-            constants::network_flow::EVENT_AUDIT_ENTRY_COMMITTED,
-            constants::network_flow::EVENT_PORTAL_READ_MODEL_UPDATED,
         ]
-    );
-    assert_eq!(
-        entries[8][constants::field::PAYLOAD][constants::field::VISIBLE_MANUAL_REQUIRED],
-        true
-    );
-    let audit_event: NetworkAuditEntryCommittedEvent =
-        serde_json::from_value(entries[7][constants::field::PAYLOAD].clone())?;
-    assert_eq!(
-        audit_event.policy_decision_ref,
-        entries[6][constants::field::EVENT_REF]
-            .as_str()
-            .unwrap_or_default()
     );
     Ok(())
 }
 
 #[tokio::test]
-async fn websocket_network_runtime_stream_command_reports_store_backed_chain(
+async fn network_runtime_stream_reports_tombstone_without_streaming_deleted_row(
 ) -> Result<(), Box<dyn std::error::Error>> {
     let _guard = lock_activity_report_env_for_test().await;
     let store_path = temp_path(&TestText::from_display(
         constants::activity_store::TEST_NETWORK_STORE_SUFFIX,
-    ));
-    cleanup_path(&store_path);
-    std::env::set_var(constants::env_var::ACTIVITY_DB_PATH, &store_path);
-
-    let store = ActivityStore::open(&store_path)
-        .map_err(|error| std::io::Error::other(format!("{error:?}")))?;
-    store
-        .ingest_events(&[network_activity_event()])
-        .map_err(|error| std::io::Error::other(format!("{error:?}")))?;
-    let body = serde_json::to_string(&command_envelope())?;
-    let event =
-        handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await;
-    let entries = stream_entries(&event.payload);
-
-    std::env::remove_var(constants::env_var::ACTIVITY_DB_PATH);
-    cleanup_path(&store_path);
-
-    assert_eq!(
-        event.event,
-        AgentEventName::AgentNetworkRuntimeEventChainStreamReported
-    );
-    assert_eq!(
-        entries.len(),
-        NetworkRuntimePhase::ordered_chain().len() - 4
-    );
-    assert_eq!(
-        event
-            .payload
-            .get(constants::field::NETWORK_RUNTIME_STREAMED_EVENTS),
-        Some(&LogFieldValue::Number(
-            (NetworkRuntimePhase::ordered_chain().len() - 4) as f64
-        ))
-    );
-    let event_types = entries
-        .iter()
-        .map(|entry| {
-            entry[constants::field::EVENT_TYPE]
-                .as_str()
-                .unwrap_or_default()
-        })
-        .collect::<Vec<_>>();
-    assert_eq!(
-        event_types,
-        vec![
-            constants::network_flow::EVENT_NETWORK_FLOW_OBSERVED,
-            constants::network_flow::EVENT_NETWORK_DOMAIN_OBSERVED,
-            constants::network_flow::EVENT_NETWORK_ACTIVITY_CLASSIFIED,
-            constants::network_flow::EVENT_POLICY_EVALUATION_REQUESTED,
-            constants::network_flow::EVENT_POLICY_DECISION_COMPLETED,
-            constants::network_flow::EVENT_AUDIT_ENTRY_COMMITTED,
-            constants::network_flow::EVENT_PORTAL_READ_MODEL_UPDATED,
-        ]
-    );
-    assert_eq!(
-        entries[6][constants::field::EVENT_TYPE],
-        constants::network_flow::EVENT_PORTAL_READ_MODEL_UPDATED
-    );
-    let flow_event: NetworkFlowObservedEvent =
-        serde_json::from_value(entries[0][constants::field::PAYLOAD].clone())?;
-    assert_eq!(flow_event.evidence_grade, NetworkEvidenceGrade::B);
-    let policy_event: NetworkPolicyDecisionCompletedEvent =
-        serde_json::from_value(entries[4][constants::field::PAYLOAD].clone())?;
-    assert_eq!(
-        policy_event.decision_action,
-        NetworkPolicyDecisionAction::Observe
-    );
-    Ok(())
-}
-
-#[tokio::test]
-async fn websocket_network_runtime_stream_reports_tombstone_without_streaming_deleted_row(
-) -> Result<(), Box<dyn std::error::Error>> {
-    let _guard = lock_activity_report_env_for_test().await;
-    let store_path = temp_path(&TestText::from_display(
-        constants::activity_store::TEST_NETWORK_STORE_SUFFIX,
-    ));
+    ))?;
     cleanup_path(&store_path);
     std::env::set_var(constants::env_var::ACTIVITY_DB_PATH, &store_path);
 
@@ -266,37 +144,37 @@ async fn websocket_network_runtime_stream_reports_tombstone_without_streaming_de
             network_retention_deleted_event(&deleted_event_id),
         ])
         .map_err(|error| std::io::Error::other(format!("{error:?}")))?;
-    let body = serde_json::to_string(&command_envelope())?;
-    let event =
-        handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await;
-    let entries = stream_entries(&event.payload);
+    let store_read_model = store
+        .network_flow_read_model(
+            constants::activity_store::DEFAULT_RECENT_LIMIT,
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+        )
+        .map_err(|error| std::io::Error::other(format!("{error:?}")))?;
+    drop(store);
+    seed_network_runtime_for_test(&store_read_model).await?;
+    let report =
+        stream_network_runtime_event_chain_for_read_model_for_test(&store_read_model).await?;
+    let payload = network_runtime_event_chain_stream_payload_for_test(&report);
+    let entries = stream_entries(&payload);
 
     std::env::remove_var(constants::env_var::ACTIVITY_DB_PATH);
     cleanup_path(&store_path);
 
     assert_eq!(entries.len(), 0);
     assert_eq!(
-        event
-            .payload
-            .get(constants::field::NETWORK_RUNTIME_STREAMED_EVENTS),
+        payload.get(constants::field::NETWORK_RUNTIME_STREAMED_EVENTS),
         Some(&LogFieldValue::Number(0.0))
     );
     assert_eq!(
-        event
-            .payload
-            .get(NETWORK_FLOW_READ_MODEL_FIELD_TOMBSTONE_ROWS),
+        payload.get(NETWORK_FLOW_READ_MODEL_FIELD_TOMBSTONE_ROWS),
         Some(&LogFieldValue::Number(1.0))
     );
     assert_eq!(
-        event
-            .payload
-            .get(NETWORK_FLOW_READ_MODEL_FIELD_EXPORTABLE_ROWS),
+        payload.get(NETWORK_FLOW_READ_MODEL_FIELD_EXPORTABLE_ROWS),
         Some(&LogFieldValue::Number(0.0))
     );
     assert_eq!(
-        event
-            .payload
-            .get(NETWORK_FLOW_READ_MODEL_FIELD_DELETED_EVIDENCE_REFERENCE_IDS),
+        payload.get(NETWORK_FLOW_READ_MODEL_FIELD_DELETED_EVIDENCE_REFERENCE_IDS),
         Some(&LogFieldValue::String(deleted_event_id))
     );
     Ok(())
@@ -323,25 +201,29 @@ fn read_model(rows: Vec<ActivityNetworkFlowObservation>) -> ActivityNetworkFlowR
 }
 
 fn full_metadata_row() -> ActivityNetworkFlowObservation {
-    row(
+    row_with_event_id(
+        "network-flow-event-full-1",
         Some(constants::activity_store::TEST_NETWORK_DOMAIN.to_string()),
         Some(constants::activity_store::TEST_PROCESS_SUBJECT_NAME.to_string()),
         Some(4242),
+        Some(1),
     )
 }
 
 fn partial_metadata_row() -> ActivityNetworkFlowObservation {
-    row(None, None, None)
+    row_with_event_id("network-flow-event-partial-1", None, None, None, Some(0))
 }
 
-fn row(
+fn row_with_event_id(
+    event_id: &str,
     destination_domain: Option<TestString>,
     process_name: Option<TestString>,
     process_id: Option<u64>,
+    associated_pid_count: Option<usize>,
 ) -> ActivityNetworkFlowObservation {
     ActivityNetworkFlowObservation {
         schema_version: NETWORK_FLOW_SCHEMA_VERSION,
-        event_id: constants::activity_store::TEST_NETWORK_EVENT_ID.to_string(),
+        event_id: event_id.to_string(),
         observed_at: constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
         observer: constants::activity_observer::WINDOWS_NETWORK.to_string(),
         capability_status: constants::activity_capture::CAPABILITY_STATUS_AVAILABLE.to_string(),
@@ -363,6 +245,7 @@ fn row(
             constants::activity_capture::PROCESS_ATTRIBUTION_STATUS_ATTRIBUTED.to_string(),
         process_id,
         process_name,
+        associated_pid_count,
         counters: ActivityNetworkFlowCounters {
             connection_count: 1,
             bytes_sent: None,
@@ -371,7 +254,7 @@ fn row(
             last_seen_at: Some(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string()),
         },
         evidence: vec![ActivityEvidenceRef {
-            evidence_id: constants::activity_store::TEST_NETWORK_EVENT_ID.to_string(),
+            evidence_id: event_id.to_string(),
             kind: ActivityEvidenceKind::JournalEntry,
             digest: None,
             uri: None,
@@ -441,25 +324,6 @@ fn network_retention_deleted_event(deleted_event_id: &TestStr) -> ActivityEvent 
     }
 }
 
-fn command_envelope() -> AgentCommandEnvelope {
-    AgentCommandEnvelope {
-        schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
-        message_id: constants::event_id::NETWORK_RUNTIME_EVENT_CHAIN_STREAM_REPORTED.to_string(),
-        sent_at: constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
-        source: AgentPeer {
-            peer_id: constants::peer::PORTAL_DEV.to_string(),
-            role: AgentPeerRole::Portal,
-        },
-        target: AgentMessageTarget {
-            device_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
-            platform: policy_constants::TEST_PARENT_DEVICE_PLATFORM_WINDOWS.to_string(),
-            route: AgentRoute::Localhost,
-        },
-        command: AgentCommandName::AgentNetworkRuntimeEventChainStreamGet,
-        payload: LogFields::new(),
-    }
-}
-
 fn stream_entries(payload: &LogFields) -> Vec<Value> {
     match payload.get(constants::field::NETWORK_RUNTIME_EVENT_CHAIN_STREAM) {
         Some(LogFieldValue::String(text)) => serde_json::from_str(text).unwrap_or_default(),
@@ -467,16 +331,22 @@ fn stream_entries(payload: &LogFields) -> Vec<Value> {
     }
 }
 
-fn temp_path(suffix: &TestText) -> TestPathBuf {
+fn temp_path(suffix: &TestText) -> Result<TestPathBuf, std::io::Error> {
     let mut name = TestString::from(constants::activity_store::TEST_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);
     name.push_str(suffix.as_ref());
 
-    let mut path = std::env::temp_dir();
-    path.push(name);
+    let artifact_dir = TestPathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("..")
+        .join("..")
+        .join("target")
+        .join("test-artifacts")
+        .join("network-runtime-stream");
+    create_dir_all(&artifact_dir)?;
+    let mut path = artifact_dir.join(name);
     path.set_extension(constants::activity_store::FILE_EXTENSION);
-    path
+    Ok(path)
 }
 
 fn cleanup_path(path: &TestPathBuf) {

@@ -79,20 +79,20 @@ function Get-UpdateSigningKey {
   if (-not [string]::IsNullOrWhiteSpace($SigningKeyBase64)) {
     return $SigningKeyBase64.Trim()
   }
-  if (-not [string]::IsNullOrWhiteSpace($env:OCENTRA_PARENT_UPDATE_SIGNING_KEY_BASE64)) {
-    return $env:OCENTRA_PARENT_UPDATE_SIGNING_KEY_BASE64.Trim()
+  if (-not [string]::IsNullOrWhiteSpace($env:OCENTRA_CHILD_UPDATE_SIGNING_KEY_BASE64)) {
+    return $env:OCENTRA_CHILD_UPDATE_SIGNING_KEY_BASE64.Trim()
   }
-  if ($AllowEphemeralSigningKey -or $env:OCENTRA_PARENT_ALLOW_EPHEMERAL_UPDATE_KEY -eq 'true') {
+  if ($AllowEphemeralSigningKey -or $env:OCENTRA_CHILD_ALLOW_EPHEMERAL_UPDATE_KEY -eq 'true') {
     return New-LocalUpdateSigningKey -KeyPath $KeyPath -Reason 'Generated an ephemeral preview update signing key.'
   }
   if ($env:GITHUB_ACTIONS -eq 'true') {
-    throw 'Missing OCENTRA_PARENT_UPDATE_SIGNING_KEY_BASE64. CI releases must use the production update signing key.'
+    throw 'Missing OCENTRA_CHILD_UPDATE_SIGNING_KEY_BASE64. CI releases must use the production update signing key.'
   }
   if (Test-Path -LiteralPath $KeyPath) {
     return (Get-Content -Raw -LiteralPath $KeyPath).Trim()
   }
 
-  return New-LocalUpdateSigningKey -KeyPath $KeyPath -Reason 'Generated a local-only update signing key.'
+  throw 'Missing OCENTRA_CHILD_UPDATE_SIGNING_KEY_BASE64. Supply an external signing key or explicitly use -AllowEphemeralSigningKey for a non-production preview.'
 }
 
 function New-LocalUpdateSigningKey {
@@ -135,27 +135,27 @@ try {
   $LocalSigningKeyPath = Join-Path $OutputRoot 'local-dev-update-signing-key.base64.txt'
   $UpdateSigningKeyBase64 = Get-UpdateSigningKey -KeyPath $LocalSigningKeyPath
   $UpdatePublicKeyBase64 = Get-UpdatePublicKey -PrivateKeyBase64 $UpdateSigningKeyBase64
-  $previousPublicKey = $env:OCENTRA_PARENT_UPDATE_PUBLIC_KEY_BASE64
-  $env:OCENTRA_PARENT_UPDATE_PUBLIC_KEY_BASE64 = $UpdatePublicKeyBase64
+  $previousPublicKey = $env:OCENTRA_CHILD_UPDATE_PUBLIC_KEY_BASE64
+  $env:OCENTRA_CHILD_UPDATE_PUBLIC_KEY_BASE64 = $UpdatePublicKeyBase64
 
-  & cargo build --release -p ocentra-parent-agent-service
-  Assert-Success 'Cargo service release build failed.'
+  & cargo build --release -p ocentra-child-runtime --bin ocentra-child-agent-service
+  Assert-Success 'Cargo child-agent service release build failed.'
   & cargo build --release -p ocentra-parent-agent-maintenance --bin ocentra-parent-agent-updater
   Assert-Success 'Cargo updater release build failed.'
 
-  $ArtifactName = "ocentra-parent-agent-windows-x64-v$Version.msi"
-  $LatestArtifactName = 'ocentra-parent-agent-windows-x64-latest.msi'
+  $ArtifactName = "ocentra-child-agent-windows-x64-v$Version.msi"
+  $LatestArtifactName = 'ocentra-child-agent-windows-x64-latest.msi'
   $MsiPath = Join-Path $OutputRoot $ArtifactName
   $LatestMsiPath = Join-Path $OutputRoot $LatestArtifactName
   $ManifestPath = Join-Path $OutputRoot 'latest-windows.json'
   $ManifestPayloadPath = Join-Path $OutputRoot 'latest-windows.payload.json'
   $ChecksumPath = "$MsiPath.sha256"
   $LatestChecksumPath = "$LatestMsiPath.sha256"
-  $BootstrapPath = Join-Path $OutputRoot 'install-ocentra-parent-agent-windows.ps1'
+  $BootstrapPath = Join-Path $OutputRoot 'install-ocentra-child-agent-windows.ps1'
   $WinSwCacheRoot = Join-Path $OutputRoot 'tool-cache\winsw'
   $WixIntermediateRoot = Join-Path $OutputRoot 'wix-obj'
   $WixSourcePath = Join-Path $RepoRoot 'scripts\release\windows\OcentraParentAgent.wxs'
-  $AgentBinaryPath = Join-Path $RepoRoot 'target\release\ocentra-parent-agent-service.exe'
+  $AgentBinaryPath = Join-Path $RepoRoot 'target\release\ocentra-child-agent-service.exe'
   $UpdaterBinaryPath = Join-Path $RepoRoot 'target\release\ocentra-parent-agent-updater.exe'
   $ServiceConfigPath = Join-Path $RepoRoot 'scripts\release\windows\OcentraParentAgentService.xml'
   $UpdaterConfigPath = Join-Path $RepoRoot 'scripts\release\windows\OcentraParentUpdaterService.xml'
@@ -164,9 +164,9 @@ try {
   Remove-Item -LiteralPath $MsiPath -Force -ErrorAction SilentlyContinue
   Remove-Item -LiteralPath $LatestMsiPath -Force -ErrorAction SilentlyContinue
   Remove-Item -LiteralPath $LatestChecksumPath -Force -ErrorAction SilentlyContinue
-  Remove-Item -LiteralPath (Join-Path $OutputRoot "ocentra-parent-agent-windows-x64-v$Version.zip") -Force -ErrorAction SilentlyContinue
-  Remove-Item -LiteralPath (Join-Path $OutputRoot "ocentra-parent-agent-windows-x64-v$Version.zip.sha256") -Force -ErrorAction SilentlyContinue
-  Remove-Item -LiteralPath (Join-Path $OutputRoot "ocentra-parent-agent-windows-x64-v$Version") -Recurse -Force -ErrorAction SilentlyContinue
+  Remove-Item -LiteralPath (Join-Path $OutputRoot "ocentra-child-agent-windows-x64-v$Version.zip") -Force -ErrorAction SilentlyContinue
+  Remove-Item -LiteralPath (Join-Path $OutputRoot "ocentra-child-agent-windows-x64-v$Version.zip.sha256") -Force -ErrorAction SilentlyContinue
+  Remove-Item -LiteralPath (Join-Path $OutputRoot "ocentra-child-agent-windows-x64-v$Version") -Recurse -Force -ErrorAction SilentlyContinue
   Remove-Item -LiteralPath $WixIntermediateRoot -Recurse -Force -ErrorAction SilentlyContinue
 
   Install-WixTooling
@@ -191,8 +191,8 @@ try {
 
   $ManifestPayload = [ordered]@{
     schemaVersion = 1
-    product = 'Ocentra Parent'
-    package = 'ocentra-parent-agent'
+    product = 'Ocentra Child Agent'
+    package = 'ocentra-child-agent'
     version = $Version
     channel = 'stable'
     target = 'windows-x64'
@@ -203,12 +203,12 @@ try {
       passiveArgs = '/passive /norestart'
     }
     service = [ordered]@{
-      id = 'OcentraParentAgent'
-      name = 'Ocentra Parent Agent'
+      id = 'OcentraChildAgent'
+      name = 'Ocentra Child Agent'
       wrapper = 'WinSW'
       wrapperVersion = $WinSwVersion
-      updaterId = 'OcentraParentUpdater'
-      updaterName = 'Ocentra Parent Updater'
+      updaterId = 'OcentraChildUpdater'
+      updaterName = 'Ocentra Child Updater'
     }
     artifact = [ordered]@{
       name = $ArtifactName
@@ -244,9 +244,9 @@ try {
   Write-Host "Built $BootstrapPath"
 } finally {
   if ($null -eq $previousPublicKey) {
-    Remove-Item Env:\OCENTRA_PARENT_UPDATE_PUBLIC_KEY_BASE64 -ErrorAction SilentlyContinue
+    Remove-Item Env:\OCENTRA_CHILD_UPDATE_PUBLIC_KEY_BASE64 -ErrorAction SilentlyContinue
   } else {
-    $env:OCENTRA_PARENT_UPDATE_PUBLIC_KEY_BASE64 = $previousPublicKey
+    $env:OCENTRA_CHILD_UPDATE_PUBLIC_KEY_BASE64 = $previousPublicKey
   }
   Pop-Location
 }

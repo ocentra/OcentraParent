@@ -29,12 +29,11 @@ npm run build --workspace @ocentra-parent/schema-domain
 npm run test --workspace @ocentra-parent/schema-domain -- app-game
 npm run type-check --workspace @ocentra-parent/schema-domain
 
-# App/game helper/projection scope
-npm run build --workspace @ocentra-parent/app-game-domain
-npm run test --workspace @ocentra-parent/app-game-domain
-
 # Rust app/game runtime/event scope
 cargo test -p ocentra-app-game-core app_game
+
+# Windows evidence/session/source scope when selected
+cargo test -p ocentra-parent-agent-core app_game
 
 # Protocol/service scope only when selected workpack touches wire, service handler, read API, or service read model
 cargo test -p ocentra-parent-agent-protocol app_game
@@ -44,15 +43,17 @@ cargo test -p ocentra-parent-agent-service app_game
 npm run test --workspace @ocentra-parent/portal -- app
 
 # Architecture scope: start with touched files; expand only when the workpack requires it
-npm run lint:architecture -- --files packages/schema-domain packages/app-game-domain packages/agent-protocol-domain crates/app-game-core crates/agent-protocol crates/agent-service apps/portal docs/plans/app-game-plan
+npm run lint:architecture -- --files packages/schema-domain crates/app-game-core crates/agent-protocol crates/agent-core crates/agent-service crates/parent-runtime-core apps/portal platforms/android/agent docs/plans/app-game-plan
 ```
 
 Run through `npm run agent:run --` when collecting proof if the logging/evidence wrapper is available.
 
 ## Command ownership notes
 
-- `packages/schema-domain` owns canonical shared app/game shapes when contracts cross package/crate/app/plan boundaries.
-- `packages/app-game-domain` proves helper/projection behavior only. It must not re-own shared shapes or aggregate policy, enforcement, notification, portal, or production runtime behavior.
+- The owning Rust crate owns canonical shared app/game behavior/contracts;
+  `packages/schema-domain` is a generated validation/decoder edge.
+- Removed `app-game-domain`, `activity-domain`, `parent-domain`,
+  `agent-protocol-domain`, and `text-domain` paths are not test owners.
 - `crates/app-game-core` proves child-local app/game observation, sessionization, event handoff, and source-readiness runtime behavior when selected.
 - `crates/agent-protocol` and `crates/agent-service` are protocol/service proof only when wire, service handler, read API, or service read-model behavior is selected.
 - `parent-domain`, `policy-domain`, `enforcement-domain`, `notification-domain`, `portal-domain`, and `apps/portal` are sibling/consumer scopes. Run them only when the selected workpack explicitly touches the handoff or rendered projection.
@@ -63,7 +64,7 @@ Run through `npm run agent:run --` when collecting proof if the logging/evidence
 Do not use one proof family to claim the whole app/game path. For this plan, E2E has separate meanings:
 
 ```text
-contract E2E: schema-domain app/game shape -> app-game-domain helper/projection -> TypeScript tests.
+contract E2E: Rust-owned app/game shape -> generated schema-domain edge -> Rust/TypeScript contract tests.
 Rust event E2E: app/game observation intent -> evidence-recorded event -> optional AI/policy requested event -> Rust tests.
 inventory E2E: platform inventory source -> local evidence record -> journal/SQLite row -> service/read-model row.
 runtime E2E: process/runtime source -> running-now row -> session/duration summary -> source freshness status.
@@ -78,6 +79,24 @@ platform E2E: real platform/OS/permission state -> adapter output -> cleanup/rol
 ```
 
 A workpack can be complete for one tier while other tiers remain open. Record the non-claim instead of broad DONE.
+
+## WP197 Linux Docker host preflight
+
+Run the executable proof runner after the WP197 source and real test roots are
+closed:
+
+```text
+npm run proof:app-game-wp197 -- --cargo-target-dir=<isolated-target>
+```
+
+The runner must retain exactly the scope summary, negative-case proof,
+no-claim boundary, compact validation log, and raw command logs under
+`output/app-game-plan-proof/197-app-game-linux-docker-host-preflight/`. A green
+result proves the protocol shape, bounded/redacted count projection,
+unavailable and malformed fail-closed states, cache behavior, path-security
+negatives, cleanup-owner degradation, and route rejection. It does not prove
+Docker policy execution, enforcement, provider delivery, child delivery, or
+private Docker identifier custody.
 
 ## Structured harness logging expectations
 

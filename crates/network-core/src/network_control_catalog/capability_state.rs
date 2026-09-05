@@ -4,6 +4,8 @@ pub fn capability_state_for(
     effect_status: NetworkControlEffectStatus,
 ) -> NetworkControlCapabilityState {
     match effect_status {
+        NetworkControlEffectStatus::AlreadyRepresented => NetworkControlCapabilityState::Available,
+        NetworkControlEffectStatus::NeedsEffectWiring => NetworkControlCapabilityState::Degraded,
         NetworkControlEffectStatus::ManualRequired => NetworkControlCapabilityState::ManualRequired,
         NetworkControlEffectStatus::PermissionRequired => {
             NetworkControlCapabilityState::PermissionRequired
@@ -15,6 +17,5 @@ pub fn capability_state_for(
         NetworkControlEffectStatus::Degraded => NetworkControlCapabilityState::Degraded,
         NetworkControlEffectStatus::Unavailable => NetworkControlCapabilityState::Unavailable,
         NetworkControlEffectStatus::ProofRequired => NetworkControlCapabilityState::Protected,
-        _ => NetworkControlCapabilityState::Available,
     }
 }

@@ -1,13 +1,13 @@
 use std::time::Duration;
 
 use ocentra_eventing::{
+    bus::publisher::RootEventPublisher,
     bus::reports::handler::{PublishReport, QueueDrainReport},
     bus::subscriber::EventSubscriber,
     bus::EventBus,
+    envelope::DomainEvent,
     error::EventingError,
-    ids::EventType,
-    ids::SubscriberId,
-    ids::TargetHandler,
+    ids::{EventId, EventType, IdempotencyKey, SubscriberId, TargetHandler},
     queue::policy::EventQueuePolicy,
 };
 
@@ -49,6 +49,10 @@ pub struct NetworkRuntimeQueueTtlReport {
 pub struct NetworkRuntimeQueueIdempotencyReport {
     pub first_publish_report: PublishReport,
     pub queued_duplicate_error: EventingError,
+    pub registry_duplicate_error: EventingError,
+    pub registry_event_id: EventId,
+    pub first_idempotency_key: IdempotencyKey,
+    pub registry_idempotency_key: IdempotencyKey,
     pub drain_report: QueueDrainReport,
     pub completed_duplicate_error: EventingError,
     pub stored_events: Vec<ocentra_eventing::envelope::StoredEventEnvelope>,
@@ -62,7 +66,8 @@ pub async fn queue_network_runtime_flow_until_subscriber(
     let bus = EventBus::with_queue_policy(
         EventQueuePolicy::no_subscriber_queue(1)?.with_idempotency_registry(),
     );
-    let queued_publish_report = publish_flow_observation(&bus, &observation, observed_at).await?;
+    let queued_publish_report =
+        publish_flow_observation(&bus, &observation, observed_at, None).await?;
 
     let drain_report = subscribe_flow_observer(&bus).await?;
     Ok(NetworkRuntimeQueueDrainReport {
@@ -83,9 +88,9 @@ pub async fn queue_network_runtime_flow_overflow_dead_letters(
         EventQueuePolicy::no_subscriber_queue(1)?.with_idempotency_registry(),
     );
     let first_publish_report =
-        publish_flow_observation(&bus, &first_observation, first_observed_at).await?;
+        publish_flow_observation(&bus, &first_observation, first_observed_at, None).await?;
     let overflow_publish_report =
-        publish_flow_observation(&bus, &overflow_observation, overflow_observed_at).await?;
+        publish_flow_observation(&bus, &overflow_observation, overflow_observed_at, None).await?;
     #[cfg(not(test))]
     let _ = (&first_publish_report, &overflow_publish_report);
 
@@ -108,7 +113,8 @@ pub async fn queue_network_runtime_flow_expires_before_drain(
         .with_ttl(ttl)?
         .with_idempotency_registry();
     let bus = EventBus::with_queue_policy_and_clock(policy, clock.shared());
-    let queued_publish_report = publish_flow_observation(&bus, &observation, observed_at).await?;
+    let queued_publish_report =
+        publish_flow_observation(&bus, &observation, observed_at, None).await?;
 
     clock.advance(elapsed);
     let drain_report = subscribe_flow_observer(&bus).await?;
@@ -127,19 +133,52 @@ pub async fn queue_network_runtime_flow_rejects_duplicate_idempotency(
     let bus = EventBus::with_queue_policy(
         EventQueuePolicy::no_subscriber_queue(2)?.with_idempotency_registry(),
     );
-    let first_publish_report = publish_flow_observation(&bus, &observation, observed_at).await?;
-    let queued_duplicate_error =
-        duplicate_publish_error(publish_flow_observation(&bus, &observation, observed_at).await)?;
+    let first_publish_report =
+        publish_flow_observation(&bus, &observation, observed_at, None).await?;
+    let queued_duplicate_error = duplicate_publish_error(
+        publish_flow_observation(&bus, &observation, observed_at, None).await,
+    )?;
+    let phase = NetworkRuntimePhase::FlowObserved;
+    let decision = super::network_runtime_decision_from_observation(&observation);
+    let first_payload = super::network_runtime_event_payload_from_observation(
+        phase,
+        &observation,
+        observed_at,
+        decision,
+    );
+    let first_idempotency_key = first_payload.idempotency_key()?;
+    let registry_payload = super::network_runtime_event_payload_from_observation(
+        phase,
+        &observation,
+        observed_at,
+        decision,
+    );
+    let registry_idempotency_key = registry_payload.idempotency_key()?;
+    let registry_event_id = EventId::generated();
+    let registry_duplicate_error = duplicate_publish_error(
+        publish_flow_observation(
+            &bus,
+            &observation,
+            observed_at,
+            Some(registry_event_id.clone()),
+        )
+        .await,
+    )?;
 
     let drain_report = subscribe_flow_observer(&bus).await?;
     #[cfg(not(test))]
     let _ = (&first_publish_report, &drain_report);
 
-    let completed_duplicate_error =
-        duplicate_publish_error(publish_flow_observation(&bus, &observation, observed_at).await)?;
+    let completed_duplicate_error = duplicate_publish_error(
+        publish_flow_observation(&bus, &observation, observed_at, None).await,
+    )?;
     Ok(NetworkRuntimeQueueIdempotencyReport {
         first_publish_report,
         queued_duplicate_error,
+        registry_duplicate_error,
+        registry_event_id,
+        first_idempotency_key,
+        registry_idempotency_key,
         drain_report,
         completed_duplicate_error,
         stored_events: bus.journal().await,
@@ -148,9 +187,10 @@ pub async fn queue_network_runtime_flow_rejects_duplicate_idempotency(
 }
 
 async fn publish_flow_observation(
-    bus: &EventBus,
+    bus: &RootEventPublisher,
     observation: &NetworkObservation,
     observed_at: &str,
+    event_id: Option<EventId>,
 ) -> Result<PublishReport, EventingError> {
     let phase = NetworkRuntimePhase::FlowObserved;
     let decision = super::network_runtime_decision_from_observation(observation);
@@ -160,11 +200,17 @@ async fn publish_flow_observation(
         observed_at,
         decision,
     );
-    let metadata = network_event_metadata(phase, observation, observed_at, phase.target_handler())?;
+    let mut metadata =
+        network_event_metadata(phase, observation, observed_at, phase.target_handler())?;
+    if let Some(event_id) = event_id {
+        metadata.event_id = event_id;
+    }
     bus.publish(payload, metadata).await
 }
 
-async fn subscribe_flow_observer(bus: &EventBus) -> Result<QueueDrainReport, EventingError> {
+async fn subscribe_flow_observer(
+    bus: &RootEventPublisher,
+) -> Result<QueueDrainReport, EventingError> {
     let phase = NetworkRuntimePhase::FlowObserved;
     bus.subscribe::<NetworkRuntimeEventPayload, _, _>(
         EventSubscriber::new(

@@ -20,6 +20,8 @@ const APP_RUNTIME_DECISION_CONTRACTS: &str =
 const APP_RUNTIME_DECISION_EVENT_ENVELOPE: &str =
     include_str!("fixtures/app-runtime-decision-event-envelope.json");
 
+type TestResult = Result<(), Box<dyn std::error::Error>>;
+
 #[derive(Deserialize)]
 struct RuntimeDecisionContracts {
     event_type: String,
@@ -34,28 +36,14 @@ struct RuntimeDecisionContractCase {
 }
 
 #[test]
-fn background_inventory_state_records_decision_event_with_typed_contract() {
+fn background_inventory_state_records_decision_event_with_typed_contract() -> TestResult {
     let input = AppRuntimeInput {
         capability_state: AppCapabilityState::Supported,
         foreground_state: AppForegroundState::Background,
         classification_state: AppClassificationState::InventoryOnly,
     };
-    let aggregate_id_result = AppAggregateId::parse("app.aggregate.child-device-1");
-    assert!(
-        aggregate_id_result.is_ok(),
-        "aggregate id parses: {aggregate_id_result:?}"
-    );
-    let Ok(aggregate_id) = aggregate_id_result else {
-        return;
-    };
-    let decision_id_result = AppRuntimeDecisionId::parse("app.runtime-decision-1");
-    assert!(
-        decision_id_result.is_ok(),
-        "decision id parses: {decision_id_result:?}"
-    );
-    let Ok(decision_id) = decision_id_result else {
-        return;
-    };
+    let aggregate_id = AppAggregateId::parse("app.aggregate.child-device-1")?;
+    let decision_id = AppRuntimeDecisionId::parse("app.runtime-decision-1")?;
 
     let recorded = app_runtime_decision_recorded_event(aggregate_id, decision_id, input);
 
@@ -67,14 +55,7 @@ fn background_inventory_state_records_decision_event_with_typed_contract() {
         recorded.decision.runtime_action_state,
         ocentra_app_core::runtime_decision::AppRuntimeActionState::RecordInventory
     );
-    let contract_result = recorded.contract();
-    assert!(
-        contract_result.is_ok(),
-        "app runtime contract parses: {contract_result:?}"
-    );
-    let Ok(contract) = contract_result else {
-        return;
-    };
+    let contract = recorded.contract()?;
     assert_eq!(
         contract.event_type.as_str(),
         APP_RUNTIME_DECISION_RECORDED_EVENT_TYPE
@@ -88,19 +69,14 @@ fn background_inventory_state_records_decision_event_with_typed_contract() {
         recorded.decision,
         ocentra_app_core::runtime_decision::evaluate_app_runtime(input)
     );
+
+    Ok(())
 }
 
 #[test]
-fn current_rust_contract_matrix_exhaustively_matches_runtime_evaluation() {
-    let contracts_result =
-        serde_json::from_str::<RuntimeDecisionContracts>(APP_RUNTIME_DECISION_CONTRACTS);
-    assert!(
-        contracts_result.is_ok(),
-        "Rust-owned app runtime contract matrix parses"
-    );
-    let Ok(contracts) = contracts_result else {
-        return;
-    };
+fn current_rust_contract_matrix_exhaustively_matches_runtime_evaluation() -> TestResult {
+    let contracts =
+        serde_json::from_str::<RuntimeDecisionContracts>(APP_RUNTIME_DECISION_CONTRACTS)?;
     assert_eq!(
         contracts.event_type,
         APP_RUNTIME_DECISION_RECORDED_EVENT_TYPE
@@ -116,38 +92,118 @@ fn current_rust_contract_matrix_exhaustively_matches_runtime_evaluation() {
             case.decision
         );
     }
+
+    Ok(())
 }
 
 #[test]
-fn rust_event_envelope_serializes_the_edge_decoder_contract_shape() {
+fn rust_event_envelope_serializes_the_edge_decoder_contract_shape() -> TestResult {
     let input = AppRuntimeInput {
         capability_state: AppCapabilityState::Supported,
         foreground_state: AppForegroundState::Foreground,
         classification_state: AppClassificationState::InventoryOnly,
     };
     let event = app_runtime_decision_recorded_event(
-        AppAggregateId::parse("app.aggregate.child-device-1").expect("aggregate id parses"),
-        AppRuntimeDecisionId::parse("app.runtime-decision-1").expect("decision id parses"),
+        AppAggregateId::parse("app.aggregate.child-device-1")?,
+        AppRuntimeDecisionId::parse("app.runtime-decision-1")?,
         input,
     );
     let metadata = EventMetadata::from_parts(
-        EventId::parse("event-app-runtime-decision-1").expect("event id parses"),
-        CorrelationId::parse("correlation-app-runtime-decision-1").expect("correlation id parses"),
+        EventId::parse("event-app-runtime-decision-1")?,
+        CorrelationId::parse("correlation-app-runtime-decision-1")?,
         EventSource::new(
-            EventCustody::parse("local-only").expect("custody parses"),
-            RuntimeRole::parse("parent").expect("role parses"),
-            SourceService::parse("app-core").expect("service parses"),
-            SourceComponent::parse("runtime-decision").expect("component parses"),
-            RuntimeInstanceId::parse("app-core-test").expect("instance id parses"),
+            EventCustody::parse("local-only")?,
+            RuntimeRole::parse("parent")?,
+            SourceService::parse("app-core")?,
+            SourceComponent::parse("runtime-decision")?,
+            RuntimeInstanceId::parse("app-core-test")?,
         ),
-        RecordedAt::parse("2026-07-23T00:00:00Z").expect("observed at parses"),
+        RecordedAt::parse("2026-07-23T00:00:00Z")?,
         None,
     );
-    let envelope = EventEnvelope::from_event(event, metadata).expect("event envelope builds");
-    let serialized = serde_json::to_value(envelope).expect("event envelope serializes");
-    let expected = serde_json::from_str::<serde_json::Value>(APP_RUNTIME_DECISION_EVENT_ENVELOPE)
-        .expect("Rust-owned event envelope fixture parses");
+    let envelope = EventEnvelope::from_event(event, metadata)?;
+    let serialized = serde_json::to_value(envelope)?;
+    let expected = serde_json::from_str::<serde_json::Value>(APP_RUNTIME_DECISION_EVENT_ENVELOPE)?;
     assert_eq!(serialized, expected);
+
+    Ok(())
+}
+
+#[test]
+fn serde_rejects_unknown_fields_inside_the_runtime_contract() -> TestResult {
+    let input = AppRuntimeInput {
+        capability_state: AppCapabilityState::Supported,
+        foreground_state: AppForegroundState::Background,
+        classification_state: AppClassificationState::InventoryOnly,
+    };
+    let event = app_runtime_decision_recorded_event(
+        AppAggregateId::parse("app.aggregate.child-device-1")?,
+        AppRuntimeDecisionId::parse("app.runtime-decision-1")?,
+        input,
+    );
+    let mut payload = serde_json::to_value(event)?;
+    payload["input"]["display_name"] = serde_json::json!("Chat Client");
+
+    let error = match serde_json::from_value::<AppRuntimeDecisionRecordedEvent>(payload) {
+        Err(error) => error,
+        Ok(_) => return Err(std::io::Error::other("unknown nested field was accepted").into()),
+    };
+    assert_eq!(error.classify(), serde_json::error::Category::Data);
+
+    Ok(())
+}
+
+#[test]
+fn serde_rejects_decisions_that_do_not_match_the_observed_runtime_input() -> TestResult {
+    let input = AppRuntimeInput {
+        capability_state: AppCapabilityState::Supported,
+        foreground_state: AppForegroundState::Background,
+        classification_state: AppClassificationState::InventoryOnly,
+    };
+    let event = app_runtime_decision_recorded_event(
+        AppAggregateId::parse("app.aggregate.child-device-1")?,
+        AppRuntimeDecisionId::parse("app.runtime-decision-1")?,
+        input,
+    );
+    let mut payload = serde_json::to_value(event)?;
+    payload["decision"]["policy_handoff_state"] = serde_json::json!("publish");
+
+    let error = match serde_json::from_value::<AppRuntimeDecisionRecordedEvent>(payload) {
+        Err(error) => error,
+        Ok(_) => {
+            return Err(std::io::Error::other(
+                "caller-supplied decision overrode the runtime matrix",
+            )
+            .into())
+        }
+    };
+    assert_eq!(error.classify(), serde_json::error::Category::Data);
+
+    Ok(())
+}
+
+#[test]
+fn serde_rejects_the_legacy_inventory_only_decision_without_a_version_gate() -> TestResult {
+    let input = AppRuntimeInput {
+        capability_state: AppCapabilityState::Supported,
+        foreground_state: AppForegroundState::Foreground,
+        classification_state: AppClassificationState::InventoryOnly,
+    };
+    let event = app_runtime_decision_recorded_event(
+        AppAggregateId::parse("app.aggregate.child-device-1")?,
+        AppRuntimeDecisionId::parse("app.runtime-decision-1")?,
+        input,
+    );
+    let mut payload = serde_json::to_value(event)?;
+    payload["decision"]["runtime_action_state"] = serde_json::json!("record-foreground");
+
+    let error = match serde_json::from_value::<AppRuntimeDecisionRecordedEvent>(payload) {
+        Err(error) => error,
+        Ok(_) => return Err(std::io::Error::other("stale v1 decision was accepted").into()),
+    };
+    assert_eq!(error.classify(), serde_json::error::Category::Data);
+
+    Ok(())
 }
 
 #[test]
@@ -199,25 +255,26 @@ fn runtime_ids_reject_noncanonical_or_empty_suffixes() {
 }
 
 #[test]
-fn schema_v1_runtime_decision_payload_deserializes_legacy_opaque_ids() {
+fn schema_v1_runtime_decision_payload_deserializes_legacy_opaque_ids() -> TestResult {
     let input = AppRuntimeInput {
         capability_state: AppCapabilityState::Supported,
         foreground_state: AppForegroundState::Background,
         classification_state: AppClassificationState::InventoryOnly,
     };
     let current = app_runtime_decision_recorded_event(
-        AppAggregateId::parse("app.aggregate.child-device-1").expect("aggregate id parses"),
-        AppRuntimeDecisionId::parse("app.runtime-decision-1").expect("decision id parses"),
+        AppAggregateId::parse("app.aggregate.child-device-1")?,
+        AppRuntimeDecisionId::parse("app.runtime-decision-1")?,
         input,
     );
-    let mut legacy_payload = serde_json::to_value(current).expect("event serializes");
+    let mut legacy_payload = serde_json::to_value(current)?;
     legacy_payload["aggregate_id"] = serde_json::json!("child-device-1");
     legacy_payload["decision_id"] = serde_json::json!("decision-1");
 
-    let decoded = serde_json::from_value::<AppRuntimeDecisionRecordedEvent>(legacy_payload)
-        .expect("schema-v1 runtime decision payload deserializes");
+    let decoded = serde_json::from_value::<AppRuntimeDecisionRecordedEvent>(legacy_payload)?;
 
     assert_eq!(decoded.aggregate_id.as_str(), "child-device-1");
     assert_eq!(decoded.decision_id.as_str(), "decision-1");
     assert_eq!(decoded.input, input);
+
+    Ok(())
 }

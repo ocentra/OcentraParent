@@ -31,7 +31,9 @@ use super::test_text::{optional_log_string, test_ok, test_some, TestResult, Test
 use crate::{
     enforcement_api::{build_enforcement_audit_report_with_paths, EnforcementJournalPaths},
     enforcement_payload::EnforcementPayloadError,
-    enforcement_timer_api::build_enforcement_timer_report_with_paths,
+    enforcement_timer_api::{
+        build_enforcement_timer_report, build_enforcement_timer_report_with_paths,
+    },
 };
 
 #[test]
@@ -56,6 +58,20 @@ fn unsupported_capability_rejection_is_protocol_stable() {
 }
 
 #[tokio::test]
+async fn timer_default_report_rejects_non_timer_command_before_state_access() {
+    let event = build_enforcement_timer_report(execute_command()).await;
+
+    assert_eq!(event.event, AgentEventName::AgentCommandRejected);
+    assert_eq!(event.target.peer_id, constants::peer::PORTAL_DEV);
+    assert_eq!(
+        event.payload.get(constants::field::REASON),
+        Some(&LogFieldValue::String(
+            constants::enforcement::REJECTION_COMMAND_PAYLOAD_INVALID.to_string()
+        ))
+    );
+}
+
+#[tokio::test]
 async fn timer_recovery_and_parent_cancel_use_persisted_active_state() -> TestResult {
     let paths = temp_paths(constants::enforcement::TEST_TIMER_STATE_ID);
     cleanup_paths(&paths);
@@ -66,6 +82,12 @@ async fn timer_recovery_and_parent_cancel_use_persisted_active_state() -> TestRe
     let recovered_event =
         build_enforcement_timer_report_with_paths(recover_command(), paths.clone()).await;
     let recovered_state = read_state(&paths)?;
+    let recovered_again_event = build_enforcement_timer_report_with_paths(
+        recover_command_with_suffix("-again"),
+        paths.clone(),
+    )
+    .await;
+    let recovered_again_state = read_state(&paths)?;
     let cancel_event =
         build_enforcement_timer_report_with_paths(cancel_command(), paths.clone()).await;
     let state_after_cancel = read_to_string(&paths.timer_state_path);
@@ -96,6 +118,22 @@ async fn timer_recovery_and_parent_cancel_use_persisted_active_state() -> TestRe
         constants::enforcement::TEST_ACTION_ID
     );
     assert_eq!(
+        recovered_again_event.event,
+        AgentEventName::AgentEnforcementTimerReported
+    );
+    assert_eq!(
+        recovered_again_event
+            .payload
+            .get(constants::field::ENFORCEMENT_TIMER_EVENT_KIND),
+        Some(&LogFieldValue::String(
+            constants::enforcement::TIMER_RESTART_RECOVERED.to_string()
+        ))
+    );
+    assert_eq!(
+        recovered_again_state.action.action_id,
+        constants::enforcement::TEST_ACTION_ID
+    );
+    assert_eq!(
         cancel_event.event,
         AgentEventName::AgentEnforcementTimerReported
     );
@@ -114,6 +152,7 @@ async fn timer_recovery_and_parent_cancel_use_persisted_active_state() -> TestRe
 
     let timer = payload_timer_event(&cancel_event.payload)?;
     let recovered_audit = payload_audit_event(&recovered_event.payload)?;
+    let recovered_again_audit = payload_audit_event(&recovered_again_event.payload)?;
     let audit = payload_audit_event(&cancel_event.payload)?;
     assert_eq!(timer.action_id, constants::enforcement::TEST_ACTION_ID);
     assert_eq!(
@@ -128,7 +167,11 @@ async fn timer_recovery_and_parent_cancel_use_persisted_active_state() -> TestRe
         Some(constants::enforcement::TEST_PARENT_ACTION_REFERENCE_ID)
     );
     assert_eq!(recovered_audit.journal_sequence, Some("3".to_string()));
-    assert_eq!(audit.journal_sequence, Some("4".to_string()));
+    assert_eq!(
+        recovered_again_audit.journal_sequence,
+        Some("4".to_string())
+    );
+    assert_eq!(audit.journal_sequence, Some("5".to_string()));
 
     Ok(())
 }
@@ -161,7 +204,7 @@ async fn timer_eventing_projection_retains_device_source_and_route_context() -> 
                 .envelope
                 .decode::<EnforcementAuditJournalEvent>()
                 .expect_value("decode timer eventing audit projection")
-                .payload
+                .into_payload()
         })
         .collect::<Vec<_>>();
 
@@ -210,6 +253,134 @@ async fn timer_recovery_reports_unavailable_when_active_state_is_missing() {
     );
 }
 
+#[tokio::test]
+async fn timer_recovery_reports_recovery_needed_for_invalid_persisted_state() -> TestResult {
+    let paths = temp_paths("invalid-persisted-state");
+    cleanup_paths(&paths);
+
+    let execute_event =
+        build_enforcement_audit_report_with_paths(execute_command(), paths.clone()).await;
+    assert_eq!(
+        execute_event.event,
+        AgentEventName::AgentEnforcementAuditReported
+    );
+
+    let mut state = read_state(&paths)?;
+    state.result.action_id.push_str("-other");
+    let serialized = test_ok(
+        serde_json::to_string(&state),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    )?;
+    test_ok(
+        std::fs::write(&paths.timer_state_path, serialized),
+        constants::error::JOURNAL_APPENDS,
+    )?;
+
+    let inconsistent_event =
+        build_enforcement_timer_report_with_paths(recover_command(), paths.clone()).await;
+    assert_eq!(
+        inconsistent_event.event,
+        AgentEventName::AgentEnforcementTimerReported
+    );
+    assert_eq!(
+        inconsistent_event.payload.get(constants::field::AVAILABLE),
+        Some(&LogFieldValue::Boolean(false))
+    );
+    assert_eq!(
+        inconsistent_event.payload.get(constants::field::REASON),
+        Some(&LogFieldValue::String(
+            constants::enforcement::REJECTION_ACTIVE_TIMER_STATE_REQUIRED.to_string()
+        ))
+    );
+    assert_eq!(
+        inconsistent_event
+            .payload
+            .get(constants::field::ENFORCEMENT_TIMER_EVENT_KIND),
+        Some(&LogFieldValue::String(
+            constants::enforcement::TIMER_RECOVERY_NEEDED.to_string()
+        ))
+    );
+
+    test_ok(
+        std::fs::write(&paths.timer_state_path, "{"),
+        constants::error::JOURNAL_APPENDS,
+    )?;
+    let malformed_event =
+        build_enforcement_timer_report_with_paths(recover_command(), paths.clone()).await;
+    assert_eq!(
+        malformed_event.event,
+        AgentEventName::AgentEnforcementTimerReported
+    );
+    assert_eq!(
+        malformed_event.payload.get(constants::field::AVAILABLE),
+        Some(&LogFieldValue::Boolean(false))
+    );
+    assert_eq!(
+        malformed_event
+            .payload
+            .get(constants::field::ENFORCEMENT_TIMER_EVENT_KIND),
+        Some(&LogFieldValue::String(
+            constants::enforcement::TIMER_RECOVERY_NEEDED.to_string()
+        ))
+    );
+
+    cleanup_paths(&paths);
+    Ok(())
+}
+
+#[tokio::test]
+async fn timer_recovery_reports_recovery_needed_for_corrupt_persisted_clock() -> TestResult {
+    let paths = temp_paths("invalid-persisted-clock");
+    cleanup_paths(&paths);
+
+    let execute_event =
+        build_enforcement_audit_report_with_paths(execute_command(), paths.clone()).await;
+    assert_eq!(
+        execute_event.event,
+        AgentEventName::AgentEnforcementAuditReported
+    );
+
+    let mut state = read_state(&paths)?;
+    state.stored_at = "not-a-timestamp".to_string();
+    let serialized = test_ok(
+        serde_json::to_string(&state),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    )?;
+    test_ok(
+        std::fs::write(&paths.timer_state_path, serialized),
+        constants::error::JOURNAL_APPENDS,
+    )?;
+
+    let recovery_event =
+        build_enforcement_timer_report_with_paths(recover_command(), paths.clone()).await;
+    cleanup_paths(&paths);
+
+    assert_eq!(
+        recovery_event.event,
+        AgentEventName::AgentEnforcementTimerReported
+    );
+    assert_eq!(
+        recovery_event.payload.get(constants::field::AVAILABLE),
+        Some(&LogFieldValue::Boolean(false))
+    );
+    assert_eq!(
+        recovery_event.payload.get(constants::field::REASON),
+        Some(&LogFieldValue::String(
+            constants::enforcement::REJECTION_ACTIVE_TIMER_STATE_REQUIRED.to_string()
+        ))
+    );
+    assert_eq!(
+        recovery_event
+            .payload
+            .get(constants::field::ENFORCEMENT_TIMER_EVENT_KIND),
+        Some(&LogFieldValue::String(
+            constants::enforcement::TIMER_RECOVERY_NEEDED.to_string()
+        ))
+    );
+
+    Ok(())
+}
+
 fn execute_command() -> AgentCommandEnvelope {
     AgentCommandEnvelope {
         schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
@@ -223,22 +394,44 @@ fn execute_command() -> AgentCommandEnvelope {
 }
 
 fn recover_command() -> AgentCommandEnvelope {
-    let mut payload = timer_payload();
+    recover_command_with_suffix("")
+}
+
+fn recover_command_with_suffix(suffix: &str) -> AgentCommandEnvelope {
+    let mut payload = timer_payload().into_inner();
+    payload.remove(constants::field::REQUESTED_AT);
+    payload.insert(
+        constants::field::ENFORCEMENT_RESULT_ID.to_string(),
+        LogFieldValue::String(format!(
+            "{}{}",
+            constants::enforcement::TEST_RESULT_ID,
+            suffix
+        )),
+    );
     payload.insert(
         constants::field::ENFORCEMENT_AUDIT_EVENT_ID.to_string(),
         LogFieldValue::String(format!(
-            "{}-recover",
-            constants::enforcement::TEST_AUDIT_EVENT_ID
+            "{}-recover{}",
+            constants::enforcement::TEST_AUDIT_EVENT_ID,
+            suffix
+        )),
+    );
+    payload.insert(
+        constants::field::ENFORCEMENT_TIMER_EVENT_ID.to_string(),
+        LogFieldValue::String(format!(
+            "{}{}",
+            constants::enforcement::TEST_TIMER_EVENT_ID,
+            suffix
         )),
     );
     AgentCommandEnvelope {
         schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
-        message_id: constants::enforcement::TEST_TIMER_EVENT_ID.to_string(),
+        message_id: format!("{}{}", constants::enforcement::TEST_TIMER_EVENT_ID, suffix),
         sent_at: policy_constants::TEST_EVALUATED_AT.to_string(),
         source: portal_peer(),
         target: target(),
         command: AgentCommandName::AgentEnforcementTimerRecover,
-        payload,
+        payload: payload.into(),
     }
 }
 

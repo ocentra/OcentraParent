@@ -30,6 +30,8 @@ pub const BROWSER_INTERVENTION_OS_APP_CONTROL_REQUIRED: &str =
     "browser-intervention-os-app-control-required";
 pub const MANAGED_BROWSER_EXECUTABLE_MISSING: &str = "managed-browser-executable-missing";
 pub const MANAGED_BROWSER_BRIDGE_CONNECT_PENDING: &str = "managed-browser-bridge-connect-pending";
+pub const MANAGED_BROWSER_BRIDGE_ENDPOINT_MANUAL_REQUIRED: &str =
+    "managed-browser-bridge-endpoint-manual-required";
 pub const MANAGED_BROWSER_BRIDGE_PORT_UNAVAILABLE: &str = "managed-browser-bridge-port-unavailable";
 pub const MANAGED_BROWSER_INVALID_BRIDGE_PORT: &str = "managed-browser-invalid-bridge-port";
 pub const MANAGED_BROWSER_INVALID_PROFILE: &str = "managed-browser-invalid-profile";
@@ -156,9 +158,16 @@ pub const PARENT_DESKTOP_RUNTIME_DEGRADED: &str = "runtime-degraded";
 pub const PARENT_DESKTOP_FRONTEND_BUILT_PORTAL_DIST: &str = "built-portal-dist";
 pub const PARENT_DESKTOP_HMR_BACKEND_NOT_USED: &str = "hmr-backend-not-used";
 pub const PARENT_DESKTOP_PROCESS_OWNER_SHELL_ONLY: &str = "parent-desktop-shell-only";
+pub const PARENT_DESKTOP_CONTROLLER_LEASE_MANUAL_REQUIRED: &str =
+    "controller-lease-manual-required";
 pub const PARENT_DESKTOP_CONTROLLER_ROUTE_ACTIVE_CONTROLLER: &str = "active-controller-route";
+pub const PARENT_DESKTOP_CONTROLLER_ROUTE_MANUAL_REQUIRED: &str =
+    "controller-route-manual-required";
 pub const PARENT_DESKTOP_OBSERVER_READ_ONLY: &str = "observer-read-only";
+pub const PARENT_DESKTOP_AUTHENTICATION_AUTHENTICATED: &str = "authenticated";
+pub const PARENT_DESKTOP_AUTHENTICATION_MANUAL_REQUIRED: &str = "authentication-manual-required";
 pub const PARENT_DESKTOP_SOURCE_CUSTODY_LIVE_LOCAL_NETWORK: &str = "live-local-network-custody";
+pub const PARENT_DESKTOP_SOURCE_CUSTODY_MANUAL_REQUIRED: &str = "source-custody-manual-required";
 pub const PARENT_DESKTOP_RELAY_ROUTE_UNAVAILABLE: &str = "relay-route-unavailable";
 pub const PARENT_DESKTOP_PARENT_CACHE_UNAVAILABLE: &str = "parent-cache-unavailable";
 pub const PARENT_DESKTOP_PARENT_STORAGE_UNAVAILABLE: &str = "parent-owned-storage-unavailable";
@@ -185,6 +194,12 @@ pub const PARENT_DESKTOP_PLATFORM_MATRIX_SPLIT_PROOF_ROWS: &str =
 pub const PARENT_DESKTOP_RELEASE_BRANCH_PRODUCTION_PROMOTION_REQUIRED: &str =
     "production-promotion-required";
 pub const PARENT_DESKTOP_ARTIFACT_PROOF_CI_PREVIEW: &str = "ci-package-preview-artifact-proof";
+pub const PARENT_DESKTOP_DISTRIBUTION_PAYLOAD_SOURCE_RUST_PARENT_RUNTIME: &str =
+    "rust-parent-runtime";
+pub const PARENT_DESKTOP_DISTRIBUTION_PRODUCT_CLAIM_READ_ONLY: &str =
+    "read-only-contract-status-no-execution-owner";
+pub const PARENT_DESKTOP_DISTRIBUTION_NO_EXECUTION_CLAIM: &str =
+    "no-installer-updater-rollback-signing-notarization-store-execution";
 pub const LAN_AI_PROVIDER_STATUS_UNAVAILABLE: &str = "lan-ai-provider-unavailable";
 pub const LAN_AI_PROVIDER_STATUS_AVAILABLE: &str = "lan-ai-provider-available";
 pub const LAN_AI_PROVIDER_STATUS_DEGRADED: &str = "lan-ai-provider-degraded";

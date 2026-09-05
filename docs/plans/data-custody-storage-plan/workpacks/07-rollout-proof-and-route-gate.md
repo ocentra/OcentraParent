@@ -2,7 +2,7 @@
 
 ## Status
 
-`in progress / limited retention lifecycle proven`
+`blocked / production custody source reachable; Account WP04/WP05 composition, tests, and aggregate acceptance open`
 
 ## Goal
 
@@ -14,6 +14,7 @@ Define the proof and route gate required before any data-custody claim can be tr
 WP07 aggregates data-custody-storage-plan proof roots only.
 Adjacent plans own their own implementation and may be referenced only by typed handoff proof.
 WP07 cannot convert blockers, manual-required rows, or one proof family into broad readiness.
+Trusted authority composition is hard-blocked on Account WP04's durable correlated export/delete handoff and Account WP05's current household/member/device/session authorization composer.
 ```
 
 ## Execution truth
@@ -21,13 +22,17 @@ WP07 cannot convert blockers, manual-required rows, or one proof family into bro
 - A clean checkout does not contain the ignored `output/` proof root that older
   WP07 checklist rows cited. Those rows cannot be used as current aggregate
   evidence.
-- This packet now proves one real retention lifecycle: a Rust-owned expired
-  custody action is journaled idempotently, persisted through the child-runtime
-  durable tombstone outbox, survives reopen, and remains pending until explicit
-  acknowledgement. The child-runtime event-flow now exposes a startup recovery
-  entry point that replays pending typed outbox rows through the same idempotent
-  journal; terminal acknowledgement remains owned by the delivery path. A typed
-  non-delete action is rejected before it can create a tombstone intent.
+- The integrated source now contains a real internal service command path:
+  `ChildAgentIngress::submit_storage_custody_action` queues
+  `ChildAgentCommand::PublishStorageCustody`, dispatch remains behind the
+  dynamic Device Trust readiness gate, and `ChildStorageCustodyRuntime::execute`
+  records durable effect/journal/tombstone state. Startup recovery replays
+  pending typed rows before readiness and terminal acknowledgement remains
+  delivery-owned.
+- Default service composition deliberately installs a manual-required custody
+  authority. No Account/family-owned trusted authority adapter or external
+  upstream production caller currently supplies the opaque authority handle,
+  so the executable path remains fail-closed rather than pretending readiness.
 - The lifecycle proof is deliberately narrower than the rollout gate. It does
   not establish WP01/WP02/WP03/WP05/WP06/WP08 aggregate acceptance, provider
   execution, portal application, or plan-wide readiness.
@@ -64,21 +69,58 @@ WP07 cannot convert blockers, manual-required rows, or one proof family into bro
 ## Current code proof
 
 ```text
-storage-custody action event
-  -> child runtime durable tombstone intent (atomic outbox write)
-  -> idempotent NDJSON event journal append
-  -> process reopen recovery through ChildRuntimeTombstoneEventFlow::recover_pending
-  -> explicit terminal acknowledgement compacts the row to a minimal
-     terminal idempotency marker (the marker is retained for replay protection)
+trusted custody authority + StorageCustodyExecutionRequest
+  -> ChildAgentIngress::submit_storage_custody_action
+  -> ChildAgentCommand::PublishStorageCustody
+  -> dynamic Device Trust readiness validation
+  -> ChildStorageCustodyRuntime::execute
+  -> durable effect ledger + idempotent NDJSON journal
+  -> child-runtime tombstone intent for the delete/expiry path
+  -> startup recovery and explicit delivery-owned terminal acknowledgement
 ```
 
-Focused test owners:
+Expected-test wave debt:
 
 - `crates/storage-custody-core/tests/unit/retention_delete_tombstone_store.rs`
-- `crates/child-runtime/tests/unit/runtime_gate.rs`
+  still imports the deleted core store and must move to the child-runtime owner
+  or be rewritten through its public flow.
+- `crates/child-runtime/tests/unit/runtime_gate.rs` also imports the deleted
+  core module and must be migrated.
+- `crates/child-runtime/tests/unit/runtime_gate_tombstone_recovery.rs` remains
+  the focused restart/recovery owner, but no current test run is claimed here.
 
-The startup-recovery entry point is a service-owned integration seam, not proof
-that a concrete child-service startup currently invokes it.
+The concrete child-service startup now invokes `journal.recover()` and
+`ChildRuntimeTombstoneEventFlow::recover_pending()` before readiness in
+`crates/child-runtime/src/service.rs`. This source wiring is not restart proof,
+aggregate route acceptance, or a claim that all downstream delivery paths are
+complete.
+
+## Production reachability audit (2026-08-17, source checkpoint `7a1e1c389`)
+
+The shipped binary `crates/child-runtime/src/bin/ocentra-child-agent-service.rs`
+calls `run_child_agent_service()`. Initialization reaches the durable journal
+and `RetentionDeleteTombstoneStore`, then invokes `journal.recover()` and
+`ChildRuntimeTombstoneEventFlow::recover_pending()` before readiness. This is a
+real fail-closed recovery path.
+
+Production source now reaches the custody runtime through the child-service
+ingress/command/dispatch path and records durable effect state before the
+delete/tombstone flow. The unresolved production boundary is authority and
+external composition, not another synthetic publication helper:
+`initialize_with_paths` always installs
+`ChildStorageCustodyAuthorityHandle::manual_required()`, the trusted handle
+constructor is crate-private, and no production Account/family adapter or
+external caller supplies it. This is intentionally fail-closed. The next source
+packet must consume an owning-plan authority without accepting selectors,
+identity, generation, or authority claims from request/JSON input.
+
+No tests, builds, proof generation, precommit, CI, or PR were run for this
+source checkpoint.
+
+Graph dependencies:
+
+- `WP-account-identity-family-plan-04-invites-recovery-lifecycle`
+- `WP-account-identity-family-plan-05-device-ownership-authz`
 
 ## Validation expectations for this packet
 

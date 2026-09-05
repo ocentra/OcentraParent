@@ -628,9 +628,9 @@
 
     grid-template-columns:
       var(--portal-outline-header-action-width)
-      minmax(8px, 1fr)
-      210px
-      minmax(8px, 1fr)
+      minmax(44px, 1fr)
+      112px
+      minmax(44px, 1fr)
       var(--portal-outline-header-action-width);
     margin: 0 8px;
     min-height: 54px;
@@ -649,10 +649,14 @@
     --portal-outline-header-brand-logo-size: 52px;
     --portal-outline-header-brand-logo-slot: 48px;
 
-    font-size: 10.5px;
-    gap: 6px;
-    inline-size: 210px;
-    padding: 0 10px;
+    grid-template-columns: 1fr;
+    inline-size: 100%;
+    padding: 0;
+  }
+
+  .portal-outline-header__brand-part,
+  .portal-outline-header__brand-part-muted {
+    display: none;
   }
 
   .app-frame {
@@ -709,9 +713,9 @@
 
     grid-template-columns:
       var(--portal-outline-header-action-width)
-      minmax(6px, 1fr)
-      188px
-      minmax(6px, 1fr)
+      minmax(40px, 1fr)
+      96px
+      minmax(40px, 1fr)
       var(--portal-outline-header-action-width);
     margin: 0 6px;
     min-height: 50px;
@@ -729,9 +733,11 @@
     --portal-outline-header-brand-logo-size: 48px;
     --portal-outline-header-brand-logo-slot: 44px;
 
-    font-size: 9.5px;
-    gap: 4px;
-    inline-size: 188px;
-    padding: 0 8px;
+    inline-size: 100%;
+  }
+
+  .portal-outline-header__theme,
+  .portal-outline-header__theme-visual {
+    width: 58px;
   }
 }

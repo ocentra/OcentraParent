@@ -14,10 +14,10 @@ use ocentra_parent_agent_protocol::transport::{
 
 use crate::{
     local_ai_chat_generation::build_local_ai_chat_generation_report,
-    local_ai_chat_generation_request::LocalAiChatGenerationRequest,
+    local_ai_chat_generation_request_input::LocalAiChatGenerationRequest,
     local_ai_chat_generation_runner::run_local_ai_chat_generation,
     local_ai_runtime_config::LocalAiRuntimeConfigSnapshot,
-    local_ai_runtime_config_values::LocalAiRuntimePath, test_invariants::require_ok,
+    local_ai_runtime_config_values::LocalAiRuntimePath, test_require_ok::require_ok,
 };
 
 #[tokio::test]

@@ -162,6 +162,72 @@ cargo test -p ocentra-family-identity-core household_authority
 
 Session freshness, invite/recovery lifecycle, and parent trusted-device proof stay open for WP03/WP04/device-trust handoff.
 
+## 2026-08-17 current code/test correction
+
+The Rust household evaluator, proof/handoff code, provisioning consumer, policy
+consumer, child-device scope consumer, and focused unit/contract tests are real.
+They prove a bounded decision model, not a durable account authority runtime.
+The live production consumers still pass caller-assembled family, membership,
+device-trust, session, capability, and lease facts into the evaluator. The
+sealed WP08 current-binding port and local SQLite repository/CAS exist, and
+Cloudflare has a read adapter. Reviewed source at `86caae334` and `7934fb41b`
+adds the Account-owned target-aware action owner and migrates the real storage-
+custody consumer, but no authoritative Cloudflare writer/currentness or
+shipped provider caller exists. The TypeScript owner paths named by this
+historical workpack no longer exist.
+
+Reviewed production source now present:
+
+- an Account-owned target-aware resolver over the sealed WP08 binding that
+  keeps the actor parent-controller device separate from the target
+  child/profile/device for Pair, Register, Revoke, View, ChangePolicy, and
+  Remote actions;
+- server-derived current account, household, member, device, role, and same-
+  family identity; capability, controller-lease, and step-up actions reject
+  because those authority sources are not present and cannot be accepted from
+  the request/caller;
+- correct `ViewChildStatus` composition for ParentOwner, CoParent, and Observer
+  actors while independently resolving the child/profile/device target.
+
+Production source still required outside the bounded resolver:
+- owned capability, controller-lease, and step-up authority composition for
+  actions that currently reject as unavailable;
+- a Cloudflare WP06 authoritative D1 writer/update/revocation/CAS owner and
+  shipped Firebase/provider-to-sealed-authority caller;
+- a minimized, receipt-bound, audited support authority rather than a public
+  support actor or caller boolean;
+- monotonic membership/role transitions and a typed audit sink.
+
+Expected test source still required:
+
+- actor-device/target-device mismatch, cross-child target, and cross-household
+  target tests for every affected action;
+- tests proving caller-supplied `same_family`, capability, controller lease,
+  and step-up state cannot authorize an action;
+- positive parent-owner/co-parent/observer `ViewChildStatus` cases with an
+  independently resolved target;
+- repository reload and concurrent transition tests;
+- pending, invited, revoked, and disabled membership matrix negatives;
+- minimized support/admin scope and audit-reference tests;
+- a real production-caller test proving sealed current binding is consumed and
+  caller-supplied authority cannot bypass it.
+
+### Accepted replacement source delta and reopened review
+
+The independently accepted `35edb2830` packet, integrated through
+`e69acf279`, remains valid for its sealed capability and local SQLite
+repository/CAS/invariant boundary. Live review reopened action composition and
+the bounded correction is now implemented at `86caae334` and `7934fb41b`:
+the target-aware owner consumes opaque current Account authority, keeps actor
+and target identities separate, and does not accept same-family/capability/
+lease/step-up authority from the request. Cloudflare WP06 separately owns the
+authoritative D1 writer and provider caller. Expected tests, validation, proof,
+routes, and DONE remain open.
+
+The remote packet `ac03afee3a` is rejected/quarantined: its public
+deserializable account/membership/support records had no caller or persistence
+and would have introduced parallel mintable authority. It is not WP02 progress.
+
 ## Fill before DONE
 
 - Workpack id and branch: `WP02 Identity Household Role Model`; `codex/tracking-plan-full-continuation-a`.
@@ -218,3 +284,20 @@ Session freshness, invite/recovery lifecycle, and parent trusted-device proof st
   - `output/account-identity-family-plan-proof/02-identity-household-role-model/16-validation-commands.log`
 - Known gaps/manual-required states: downstream audit-log pipeline/storage remains unproven here; session freshness and browser request-safety stay owned by WP03; invite/recovery stays owned by WP04; physical trusted-device proof remains external; WP07 and WP06 still need their own proof roots before any broader readiness claim.
 - No-claim boundaries: do not claim browser session completion, invite/recovery completion, trusted-device bootstrap readiness, setup UI readiness, or whole-plan completion from this WP02 closure.
+
+## 2026-08-17 live-code review correction
+
+The accepted Rust source is now a bounded target-aware identity model, not a
+complete provider runtime. The parent-controller actor and target child/profile/
+device are separated for Pair, Register, Revoke, View, ChangePolicy, and Remote
+actions. Current account, household, member, device, role, and same-family
+identity come from opaque Account authority. Capability, lease, and step-up
+actions reject because their owned authority sources are not present. A
+production provider-to-authority caller is still absent, and the raw evaluator
+remains diagnostic/legacy risk when fed caller-assembled facts.
+
+The bounded source correction preserves the sealed WP08 boundary, derives
+target identity from owned current state, and fails closed when a target action
+requires capability/lease/step-up authority that is unavailable. Normal
+expected-test, focused-validation, proof, PR, and DONE gates remain open; no
+test or workpack completion is claimed.

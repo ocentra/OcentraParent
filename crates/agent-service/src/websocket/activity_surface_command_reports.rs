@@ -14,6 +14,7 @@ use crate::{
 
 use super::{
     basic_reports::build_log_snapshot_report,
+    parent_runtime_intent::build_parent_runtime_intent_ingress_report,
     tracking_retention_settings_write::build_tracking_retention_settings_write_report,
 };
 
@@ -41,7 +42,10 @@ pub(super) fn build_activity_surface_report(
                 build_activity_tracking_read_model_report(command).await
             }
             AgentCommandName::AgentActivityTrackingRetentionSettingsWrite => {
-                build_tracking_retention_settings_write_report(command).await
+                Box::pin(build_tracking_retention_settings_write_report(command)).await
+            }
+            AgentCommandName::AgentParentRuntimeIntentIngressPublish => {
+                build_parent_runtime_intent_ingress_report(command).await
             }
             _ => build_log_snapshot_report(command),
         }

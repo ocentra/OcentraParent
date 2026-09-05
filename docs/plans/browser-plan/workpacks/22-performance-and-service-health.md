@@ -99,6 +99,26 @@ Fill this before reporting `DONE` or PR-ready:
 - [ ] Feature/expectation/product-checklist/README update decision recorded in [main checklist](../implementation-checklist.md).
 - [ ] Known gaps, deferred items, and no-claim boundaries recorded before `DONE`.
 
+## Managed Runtime Test-Truth Correction — 2026-08-27
+
+PR #709 withdrew the managed-ready, running, bridge-disconnected, and connected
+agent-service test cases because they constructed private
+`BrowserManagedProfileStoreEntry` or `BrowserManagedLaunch` owner authority.
+The mapped `browser_runtime_status.rs`, `browser_runtime_tests.rs`, and
+`browser_inventory_read_model_tests.rs` roots remain valid for their retained
+fail-closed missing/profile-missing/error states, unmanaged observation,
+payload and empty-inventory behavior, and direct inventory/policy models. They
+do not prove owner-issued managed profile or launch composition.
+
+The production profile store still returns
+`ProtectedCustodyAdapterUnavailable`. Owner-backed managed lifecycle and rapid
+connect/disconnect health coverage therefore remain manual-required. Keep
+`crates/agent-service/tests/integration/browser_managed_runtime.rs` and
+`crates/agent-core/tests/integration/browser_bridge_managed_launch.rs`
+missing/open until a real protected owner adapter and launch authority exist.
+Do not replace that authority with public constructors, fixtures, or a fake
+harness.
+
 ## Manual-Required Gaps
 
 Performance targets still need hardware-specific manual proof before release.

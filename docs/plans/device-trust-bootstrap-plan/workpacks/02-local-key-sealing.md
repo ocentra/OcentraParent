@@ -78,26 +78,86 @@ output/device-trust-bootstrap-plan-proof/02-local-key-sealing/17-blockers.md
 
 ## Current audit state
 
-- This branch has a Windows-only custody and dispatch safety slice. An unregistered
-  native parent-runtime facade consumes only an opaque staged-ceremony handle and
-  rejects an unstaged or already-consumed handle before it can call
-  `storage-custody-core`. No parent desktop bridge action is registered for this
-  facade, so this adapter-local rejection does not prove a live desktop-command or
-  webview dispatch path. There is no record-backed household-authority owner yet, so
-  no ceremony issuer is exported to external/runtime callers; caller-supplied
-  authority flags cannot mint a ceremony. That adapter
-  source DPAPI-protects locally generated trust material with its family/account/device
-  binding, atomically persists the ciphertext record, and then activates a
-  separately DPAPI-protected epoch below the current user's Windows registry
-  hive. Revocation removes that epoch before best-effort record deletion, and
-  without an operational issuer, no end-to-end Windows seal or restored-record
-  execution proof is claimed. The focused custody test covers only idempotent
-  revocation of an unissued binding. Production parent-presence custody remains
-  fail-closed and does not yet stage operational ceremonies.
-- This is an unmerged source-and-test slice, not a workpack close. Android,
-  Linux, iOS, and macOS platform custody are still absent. No encrypted recovery
-  bundle, re-pair flow, entitlement unlock, child removal, or whole
-  device-trust state machine is claimed here.
+The current integration checkout contains Windows custody source and a mounted
+parent-desktop Tauri command. The command accepts only an opaque staged-ceremony
+reference and generates trust material inside the native facade; it does not
+accept caller-supplied authority, receipt, attestation, or key material. The
+runtime still has no record-backed ceremony issuer, and
+`crates/storage-custody-core/src/windows_device_trust_custody_platform.rs`
+defines `require_authenticated_parent_authority()` as a permanently unavailable
+boundary (`Error::Platform`). `WindowsDeviceTrustCustody::seal_persist_activate`,
+`unseal_current`, and `revoke_or_reset` therefore fail at that boundary before
+they create or mutate a sealed record, registry epoch, or binding lock. The
+DPAPI and current-user registry code remains a real platform custody boundary,
+but no live seal, unseal, activation, or revocation execution is claimed.
+
+Unsupported non-Windows startup is represented as typed manual-required state
+by the desktop command state. Windows `Error::Platform` and other custody-open
+failures are represented as a separate typed unavailable state and never accept
+traffic. The command returns only redacted state booleans and an opaque
+reference; no raw custody diagnostic or protected material is exposed. Its
+`custodySealed` success field means only that the platform custody operation
+completed; it does not claim family lifecycle activation. No plaintext or
+in-memory production key fallback is provided.
+
+`windows_dpapi_key_sealing.rs` and the opaque
+`ParentDeviceTrustCommandFacade` remain bounded source seams. No ceremony
+issuer reaches them; the desktop/native command is mounted but remains
+fail-closed without an issuer, and
+no parent-runtime startup composition connects custody to lifecycle activation
+or current-binding/revocation state. `device_trust_lifecycle_activation.rs`
+defines an opaque authorization consumer, but no production custody caller
+supplies it. Caller-provided identifiers, synthetic probes, typed receipts,
+or a local staged-handle cache cannot create that missing authority.
+
+Canonical `22815871c` hardens the bounded source slice without changing that
+authority boundary. Startup recovery now caps directory entries and record
+bytes, rejects reparse/non-file custody entries, verifies the sealed filename
+against the decoded identity/generation binding, and rejects malformed sealed
+generation anchors. Real test source now covers DPAPI context validation and
+redaction plus staged-handle replay and restart-cache loss. Those tests are
+written but deliberately unexecuted in the repository-wide code-first phase.
+
+Older Windows custody/lifecycle test files remain stale against the unavailable
+authority boundary and are retained only as migration references. Neither they
+nor the new bounded negatives may be presented as lifecycle activation,
+desktop dispatch, end-to-end platform sealing, or revocation proof. The
+plan-local route test remains document alignment coverage only. A future
+selected platform route must first provide a real authenticated ceremony
+issuer, desktop/native mount, startup composition, and current lifecycle
+authority before writing fresh platform proof.
+
+## Downstream composition route
+
+WP02 is downstream of the WP01 foundation. When selected for a demonstrated
+private-key or install-custody need, its parent-runtime/platform owner must
+compose sealing, current-binding lookup, lifecycle generation, and revocation
+through the trusted ceremony boundary. WP02 does not issue parent presence,
+register a LAN signer, resolve household targets, or revive revoked trust. With
+no shipped ceremony issuer or registered native caller, sealing and revocation
+remain manual-required; the Windows slice below is source evidence only.
+
+The default Account WP08 -> Cloudflare WP06 -> Device Trust WP03 -> LAN/child
+route does not force this workpack. If the platform sealing/lifecycle-revocation
+path is selected, the graph route must promote a reviewed `WP26 -> WP02`
+`depends_on` edge in `docs/engineering-graph/overrides.json` and the matching
+WP26 dependency review before assigning the consumer. The selected edge is
+completion-gated (its `implementationGate: "reviewed-implementation"` is only a
+source-phase exception), so LAN/child current-binding consumers cannot proceed
+until WP02's handoff is complete. Leaving that edge absent is the reviewed
+non-sealing route; WP02 is never a ceremony issuer or a reverse dependency on
+WP03, so the conditional path remains acyclic.
+
+- The Windows slice is source-only. Because the authenticated-parent authority
+  gate is permanently unavailable, the custody methods fail closed before
+  record/epoch mutation; no end-to-end seal, unseal, activation, or revocation
+  execution is claimed.
+- This is not a workpack close. Android, Linux, iOS, and macOS platform custody
+  are absent, and no encrypted recovery bundle, re-pair flow, entitlement
+  unlock, child removal, or whole device-trust state machine is claimed.
+- Revocation remains manual-required for the same reason as sealing. Local
+  callers cannot revoke trust by supplying identity strings alone, and no
+  current test or synthetic probe supplies DPAPI proof.
 - The required proof root is generated locally under
   `output/device-trust-bootstrap-plan-proof/02-local-key-sealing/` and is not
   committed product truth.
@@ -111,3 +171,5 @@ output/device-trust-bootstrap-plan-proof/02-local-key-sealing/17-blockers.md
 - LAN pairing cannot unwrap trust material by itself.
 - Package install/copy cannot create a trusted sealed key state by itself.
 - Recovery bundle availability cannot bypass wrong-household, wrong-device, or wrong-key rejection.
+- A local revoke/reset caller cannot delete sealed trust material without the
+  authenticated parent authority; unavailable authority remains manual-required.

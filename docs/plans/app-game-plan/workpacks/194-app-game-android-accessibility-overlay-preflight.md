@@ -26,41 +26,42 @@ runtime proof, and child delivery proof exist.
 
 ## Implementation
 
-- Added
-  `packages/parent-domain/src/app-game-android-accessibility-overlay-preflight.ts`.
-- Added focused tests for disabled-service and enabled-service-count states,
-  plus rejection of raw service names, overlay execution, adapter dispatch, and
-  platform enforcement overclaims.
-- Added
-  `scripts/test/app-game-android-accessibility-overlay-preflight-proof.mjs`.
+The source phase extends
+`platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidAccessibilityRuntimeService.java`
+and composes its redacted preflight from the manifest-declared child service.
+The service reads enabled services as `ComponentName` values, counts only
+redacted entries, tracks window-state events under a synchronized lock, and
+persists state through a bounded, coalescing worker with settings-read,
+pending, and durable-write failures kept distinct. The accessibility service is
+exported for the Android system binding contract, while the no-context status
+path reports no runtime or durable readiness. The launcher activity renders the
+redacted preflight from the child service lifecycle. Canonical `7339e7476`
+adds real Robolectric coverage for global/own-component settings, bound event
+state, interruption versus unbind/destroy lifecycle, malformed/partial/future
+durable records, restart readback, and redaction.
 
 ## Validation
 
-Focused validation for this workpack:
-
-```powershell
-cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-android-accessibility-overlay-preflight
-cmd /c node scripts/test/app-game-android-accessibility-overlay-preflight-proof.mjs
-```
+The focused Java test source is written but was not executed in this
+code/test-source phase. No physical-device or retained proof was produced.
 
 ## Proof
 
-- `test-results/app-game-android-accessibility-overlay-preflight-proof/proof.json`
-- `output/app-game-plan-proof/194-app-game-android-accessibility-overlay-preflight/proof.json`
+No proof artifact exists in this source phase. The graph remains planned and
+the required tests/proof/checklist evidence remain open.
 
 ## Boundaries
 
-Proved:
+Source packet semantics:
 
-- Android Accessibility overlay actions have explicit preflight rows.
-- The physical Android target can provide redacted Accessibility settings
-  evidence without storing service/component names.
-- Overlay actions stay blocked before adapter dispatch until service enablement,
-  overlay runtime, and child delivery proof exist.
+- Android Accessibility settings and runtime state are exposed as synchronized,
+  durable, redacted counts and preflight states.
+- Overlay execution, adapter dispatch, platform enforcement, and child delivery
+  remain unclaimed.
 
 Not proved:
 
-- Ocentra Accessibility service implementation or enablement.
+- Accessibility service enablement or physical-device proof.
 - Warning, blocking, request, or usage-context overlay execution.
 - Adapter dispatch, platform enforcement, provider delivery, child-device
   delivery, raw Accessibility service/component names, or raw overlay content.

@@ -1,5 +1,10 @@
 # WP205 App/Game Platform Proof Status Runtime Detail Refs
 
+> **Current status (2026-08-29):** bounded status-model source and real tests
+> are present. The model remains visibility-only and must not fabricate proof
+> refs when the Android, Windows, or Linux owner has not produced current
+> evidence.
+
 <!-- agent-capsule -->
 
 > Agent Capsule
@@ -28,6 +33,11 @@ making the richer runtime evidence parent/service-visible:
 - Linux active-window tool/ref proof.
 
 ## Implementation
+
+The legacy TypeScript owner/proof-runner description below is historical.
+Current ownership is the Rust protocol/service/parent bridge plus portal status
+panel. These layers preserve refs, gaps, and non-claims; they do not create
+Android Accessibility, Windows policy, or Linux foreground evidence.
 
 - Updated `packages/parent-domain/src/app-game-platform-proof-status.ts` to
   accept and expose:

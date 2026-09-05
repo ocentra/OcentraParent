@@ -24,11 +24,6 @@ use ocentra_parent_agent_protocol::app_game::{
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::ACTIVITY_SURFACE_SCHEMA_VERSION;
 
-use ocentra_parent_agent_service::test_support::{
-    build_activity_app_use_read_model_from_app_game_for_test,
-    build_activity_games_read_model_for_test,
-};
-
 const APP_GAME_INVENTORY_STATE_DETECTABLE: &TestStr = "detectable";
 const APP_GAME_LAUNCHER_KIND_STEAM: &TestStr = "steam";
 const APP_GAME_LAUNCHER_PROOF_LAUNCHER_ONLY: &TestStr = "launcherOnly";
@@ -53,7 +48,7 @@ const APP_GAME_TEST_STORE_GAME_SOURCE_REF: &TestStr = "source-store-package-game
 #[test]
 fn app_use_read_model_groups_app_game_source_status_rows_without_launcher_claims(
 ) -> Result<(), Box<dyn Error>> {
-    let read_model = build_activity_app_use_read_model_from_app_game_for_test(
+    let read_model = crate::activity_surface_read_models::app_use::app_use_read_model(
         surface_request(),
         Some(service_model()?),
     );
@@ -65,19 +60,19 @@ fn app_use_read_model_groups_app_game_source_status_rows_without_launcher_claims
         APP_GAME_INVENTORY_SOURCE_OS_INSTALLED_RECORD,
         1,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
-    );
+    )?;
     assert_source_status(
         source_rows,
         APP_GAME_INVENTORY_SOURCE_SHORTCUT,
         1,
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
-    );
+    )?;
     assert_source_status(
         source_rows,
         APP_GAME_OBSERVATION_MODE_PROCESS_SNAPSHOT,
         1,
         constants::activity_store::TEST_THIRD_OBSERVED_AT,
-    );
+    )?;
     assert_source_status(
         source_rows,
         APP_GAME_OBSERVATION_MODE_FOREGROUND_WINDOW,
@@ -93,8 +88,10 @@ fn app_use_read_model_groups_app_game_source_status_rows_without_launcher_claims
 #[test]
 fn games_read_model_groups_game_inventory_runtime_foreground_and_launcher_source_status_rows(
 ) -> Result<(), Box<dyn Error>> {
-    let read_model =
-        build_activity_games_read_model_for_test(surface_request(), Some(service_model()?));
+    let read_model = crate::activity_surface_read_models::games::games_read_model(
+        surface_request(),
+        Some(service_model()?),
+    );
     let source_rows = &read_model.rows[0].source_status_rows;
 
     assert_eq!(source_rows.len(), 4);
@@ -103,19 +100,19 @@ fn games_read_model_groups_game_inventory_runtime_foreground_and_launcher_source
         APP_GAME_INVENTORY_SOURCE_STORE_PACKAGE,
         1,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
-    );
+    )?;
     assert_source_status(
         source_rows,
         APP_GAME_OBSERVATION_MODE_PROCESS_SNAPSHOT,
         1,
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
-    );
+    )?;
     assert_source_status(
         source_rows,
         APP_GAME_OBSERVATION_MODE_FOREGROUND_WINDOW,
         1,
         constants::activity_store::TEST_THIRD_OBSERVED_AT,
-    );
+    )?;
     assert_source_status(
         source_rows,
         APP_GAME_OBSERVATION_MODE_LAUNCHER_MANIFEST,

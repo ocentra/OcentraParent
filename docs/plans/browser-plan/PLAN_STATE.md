@@ -21,6 +21,124 @@ Audit note (2026-06-16): earlier generated summaries in this file overstated
 checked checklist/workpack state. Use the selected workpack,
 `implementation-checklist.md`, and the current proof roots as truth.
 
+Code-pass note (2026-08-16): WP05 has a production-code draft on
+`codex/browser-code-pass`. It is unvalidated and test/proof/checklist-deferred;
+the graph must not treat it as complete.
+
+Code-pass note (2026-08-16): WP17 now has a production-code draft for
+action-intent reference ownership and the child-delivery boundary. References
+are derived from the action intent; a handoff without trusted parent context
+remains unavailable/manual-required and does not mint child acceptance. This
+slice is unvalidated and tests/proof/checklist-deferred; WP17 remains open.
+
+Code-pass note (2026-08-16): WP19 now has a production-code draft that keeps
+unmanaged fallback state unavailable for managed/unobserved rows and routes
+unmanaged block-like actions to `os-block-manual-required`. It does not claim
+OS blocking, process termination, relaunch, or exact unmanaged URL control;
+tests/proof/checklist remain deferred and WP19 remains open.
+
+Code-pass note (2026-08-16): WP14 now has a production-code draft for the
+parent-runtime Browser route. The existing typed agent-service managed-status
+and intervention models are serialized through dedicated protocol payload
+fields and hydrated into the existing Rust-owned live-activity bridge. The
+route predicate keeps browser state off unrelated snapshots. This remains
+unvalidated with tests/proof/checklist deferred; it does not claim active-tab
+focus, unmanaged exact-URL authority, OS blocking, or action delivery.
+
+Code-pass note (2026-08-16): WP13 now has a production-code draft for the
+typed `ActivityBrowserReadModel` parent-bridge seam. The Activity and Browser
+routes load the existing agent-service read model and project it through the
+existing portal live-activity adapter shape. This remains unvalidated with
+tests/proof/checklist deferred; it does not add capture, focus proof,
+unmanaged exact-URL authority, intervention delivery, or enforcement.
+
+Code-pass note (2026-08-16): WP18 now has a production-code draft for the
+typed `BrowserInventoryReadModel` parent-bridge seam. The Browser route loads
+the existing service inventory event and projects its process-only rows into
+the existing portal live-activity state. This remains unvalidated with
+tests/proof/checklist deferred; it does not add exact URL, active-tab, page
+title, OS blocking, process termination, or enforcement authority.
+
+Code-pass note (2026-08-16): WP13 now also has a production-code draft for
+the stored `BrowserEvidenceReadModel` parent-bridge seam. The Browser route
+loads the existing evidence event and projects its typed rows, active-state,
+proof-source, custody, and query-visibility fields into the existing portal
+state. This remains unvalidated with tests/proof/checklist deferred and does
+not promote target-list evidence into known-active or add enforcement.
+
+Code-pass audit note (2026-08-16): no further legal Browser production slice
+was found after WP18 and the WP13 evidence bridge. WP11 has no focus/activation
+provider beyond target-list-only evidence; WP21 has only the managed native-host
+validator and no extension package or host registration owner; WP20 has
+representation only and requires real Windows AppLocker/WDAC authority; WP22
+has fixture budget evaluation but no runtime health producer or bridge owner.
+The remaining numbered workpack rows are validation, proof, manual-platform, or
+documentation gaps unless one of those external authorities is added.
+
+Production reachability audit (2026-08-16):
+
+```text
+WP11: crates/agent-service/src/browser_runtime_impl/bridge.rs calls
+      crates/agent-core/src/browser_bridge_poll.rs, whose target parser emits
+      BrowserActiveTabState::Unknown and BrowserActiveProofSource::TargetListOnly.
+      No focus/activation, extension, foreground-correlation, or owned-shell
+      provider is present; target-list evidence must remain unknown.
+WP21: crates/agent-core/src/browser_bridge_native_host.rs exports only a
+      validator whose inbound references are test references. No extension
+      package, native-host registration, or runtime IPC owner exists.
+WP20: the browser-domain App Control representation is reachable through the
+      agent-service enforcement product-control report, but its states are
+      static/manual-required specifications. No Windows AppLocker/WDAC runtime
+      input or policy owner exists.
+WP22: crates/browser-core/src/performance_budget.rs exposes a fixture budget
+      matrix and evaluator with no production service-health producer or bridge
+      caller. A telemetry bridge would be synthetic without a runtime owner.
+```
+
+Browser production implementation is therefore parked, not complete. The exact
+remaining production-code blockers are WP11 native focus authority, WP21
+extension/native-host packaging and registration, WP20 Windows AppLocker/WDAC
+authority, and WP22 runtime performance-health measurement ownership.
+
+Topology warning (2026-08-16): `npm run graph:report -- --json` currently
+derives all 30 Browser workpacks as `planned` with empty dependency lists,
+despite the source/index notes and existing Rust/service implementation roots.
+This audit does not edit `graph.json` or run graph bootstrap. Legacy ownership
+references to `packages/activity-domain/src/browser*.ts` remain stale; the
+active TypeScript edge ownership is `packages/browser-domain` and the active
+runtime ownership is the Rust paths in `source-index.md`.
+
+Reviewed source result (2026-08-19, WP07/WP09): canonical `f80b47c6a` removes
+the unreachable service launch state, environment/dev profile authority,
+placeholder bridge polling, and dead Browser-to-Screen handoff. The production
+websocket path now returns explicit managed-browser manual-required/unavailable
+status; it cannot claim a retained launch, connected bridge, trusted target, or
+Screen delivery. Core launch/capture authority remains private and bounded,
+but no service owner mounts it. This is honest source consolidation, not
+delivered WP07/WP09 behavior, validation, or PR readiness.
+
+The next coherent production packet remains owner-gated:
+
+1. Introduce a private owner-issued start/stop boundary that retains
+   `BrowserManagedLaunch` in service state without env/dev/caller authority.
+2. Revalidate PID, executable, exact profile argument, and bridge ownership
+   before and after `/json/version` and `/json/list` I/O; teardown must wait for
+   and confirm process exit rather than reporting stopped optimistically.
+3. Keep target-list activity `Unknown`; mint same-launch target authority only
+   from the retained owner state.
+4. Add a typed Screen-owned handoff only after Screen accepts that boundary.
+   Browser must not import or simulate Screen runtime authority.
+
+The later test-source wave must first repair the now-stale Browser tests:
+`browser_runtime_status.rs` and `browser_runtime_tests.rs` use old status-helper
+arities, while `browser_inventory_read_model_tests.rs` and
+`browser_runtime_tests.rs` construct private `BrowserManagedLaunch` fields.
+Then write the missing retained-launch integration test root and the missing
+same-launch CDP integration root, including owner mismatch, process
+replacement, teardown, restart/expiry, malformed/oversized/timeout, target
+disappearance/navigation, no-active-tab-claim, and unavailable Screen handoff.
+WP07/WP09 remain open and blocked; no proof or completion is inferred.
+
 ## Scope
 
 This folder is the single working plan location for managed browser evidence, browser policy authoring, unmanaged browser fallback, browser intervention, and parent-facing browser UI/UX requirements.
@@ -31,11 +149,8 @@ This folder is the single working plan location for managed browser evidence, br
 crates/schema:
   Canonical shared browser/evidence/read-model/intervention contracts when browser shapes cross package, crate, app, or plan boundaries.
 
-browser-domain:
-  TypeScript helper/projection and focused validation surface. It is presentation-only and generated/thin at the edge; it must not become a policy, notification, family, AI, portal, or enforcement runtime aggregator.
-
 browser-core:
-  Child-local Rust browser observation, evidence-event, AI-request, policy-request, and source-readiness boundary.
+  Child-local Rust browser observation, evidence-event, AI-request, policy-request, and source-readiness boundary in `crates/browser-core` and its generated/runtime companions.
 
 agent-protocol and agent-service:
   Wire/service/read-model boundaries when selected. They are not default owners for every browser contract.
@@ -56,8 +171,6 @@ Network, screen, app-game, tracking, LAN, remote, account, data-custody, and set
 ## Current coupling risks
 
 ```text
-- `browser-domain` currently depends on family-domain, notification-domain, and policy-domain. Treat those dependencies as migration-sensitive unless they are only approved public helper/contract consumption. Shared shapes should move through schema-domain.
-- `browser-domain` currently depends on family-domain, notification-domain, and policy-domain. Treat those dependencies as migration-sensitive unless they are only approved public helper/contract consumption. Shared shapes should move through `crates/schema`.
 - Older plan-local source ownership notes still reference legacy `packages/activity-domain/src/browser*.ts` paths that do not exist in this checkout.
 - Network/process/window evidence must not be promoted into exact URL, active tab, page title, or browser-game proof without selected browser-source proof.
 - Managed intervention harness proof does not prove product-level warning/block readiness unless policy decision refs, action refs, audit refs, child delivery state, and portal proof exist.
@@ -105,15 +218,23 @@ Reference/settings inventories are not runtime implementation proof.
 - authoring manifest shapes;
 - browser policy value/update contracts;
 
-Current implementation is concentrated in `packages/browser-domain`,
-`packages/agent-protocol-domain`, `crates/agent-protocol`,
-`crates/agent-core`, `crates/agent-service`, `apps/portal`, and
+Current implementation is concentrated in `crates/schema`,
+`crates/browser-core`, `crates/agent-protocol`, `crates/agent-core`,
+`crates/agent-service`, `packages/portal-domain`, `apps/portal`, and
 `scripts/test`.
 
 ## Open gaps / missing product runtime
 
 - Browser inventory is not a complete product read model across installed, running, supported, unsupported, managed, unmanaged, packaged, and portable browsers.
-- Managed profile store repair, custody, redaction, and restart semantics need explicit workpack proof.
+- Browser WP06 superseding head `93f875134` is independently accepted as a
+  fail-closed source correction and integrated into the consolidation line. It
+  removes caller-mintable JSON/path authority and env/temp-dir mutation; all
+  store operations return `ProtectedCustodyAdapterUnavailable`, and no
+  `Ready`/`Deleted` record can be constructed. Completion still requires the
+  protected owner adapter, retained root/profile identity, real platform
+  mutation/recovery, a production caller, then the five expected test roots;
+  proof stays
+  last.
 - Active tab proof is still separate from target-list proof. `/json/list` target rows should remain `unknown` active state until focus/activation proof exists.
 - Managed browser intervention proof exists as a harness, but product-level warning/blocking still needs typed policy decision refs, journaled action refs, audit refs, child-facing delivery state, and portal proof.
 - Unmanaged browser URL evidence remains not claimed. Unmanaged process terminate/warn states exist only as scoped proof paths, not broad OS blocking.

@@ -66,7 +66,14 @@ impl ParentPresenceDecisionDelivery {
     ) -> Result<(), ParentPresenceStorageFailureReason> {
         let envelope = serde_json::from_str::<StoredEventEnvelope>(&pending.envelope_json)
             .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
-        if envelope.event_id.as_str() != pending.decision_id {
+        let decoded = envelope
+            .decode::<ParentPresenceCustodyDecisionArtifact>()
+            .map_err(eventing_unavailable)?;
+        let artifact = decoded.payload();
+        if decoded.event_id().as_str() != pending.decision_id
+            || decoded.event_id() != &artifact.decision_id
+            || decoded.correlation_id() != &artifact.correlation_id
+        {
             return Err(ParentPresenceStorageFailureReason::CustodyUnavailable);
         }
         append_on_isolated_runtime(self.journal.clone(), envelope)

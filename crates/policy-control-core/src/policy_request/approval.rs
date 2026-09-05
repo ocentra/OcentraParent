@@ -1,18 +1,37 @@
 #![forbid(unsafe_code)]
 
+mod request_match;
+
 use ocentra_eventing::error::EventingError;
-use ocentra_parent_agent_protocol::activity::policy_preview::PolicyRequestStatus;
 use ocentra_parent_agent_protocol::constants::policy_control;
 
 use super::{
     ChildPolicyRequest, ParentPolicyActorRole, ParentPolicyApproval, PolicyApprovalDecision,
     PolicySourceActorState,
 };
-use crate::policy_source::{policy_actor_role_name, policy_actor_state_name};
+use crate::policy_source::{
+    assert_policy_utc_timestamp, policy_actor_role_name, policy_actor_state_name,
+};
 
 pub(crate) fn validate_parent_policy_approval(
     approval: &ParentPolicyApproval,
 ) -> Result<(), EventingError> {
+    assert_policy_utc_timestamp(
+        policy_control::request::FIELD_TIMESTAMP,
+        approval.decided_at.as_str(),
+    )?;
+    if let Some(override_expires_at) = approval.override_expires_at.as_ref() {
+        assert_policy_utc_timestamp(
+            policy_control::request::FIELD_TIMESTAMP,
+            override_expires_at.as_str(),
+        )?;
+        if override_expires_at <= &approval.decided_at {
+            return Err(EventingError::InvalidValue {
+                field: policy_control::request::FIELD_TIMESTAMP,
+                value: "approval-override-expiry-must-be-after-decision".to_string(),
+            });
+        }
+    }
     assert_parent_actor_authority(
         approval.actor_role,
         approval.actor_state,
@@ -43,32 +62,7 @@ pub(crate) fn assert_request_matches_approval(
     request: &ChildPolicyRequest,
     approval: &ParentPolicyApproval,
 ) -> Result<(), EventingError> {
-    if request.request_id != approval.request_id {
-        return Err(EventingError::InvalidValue {
-            field: policy_control::request::FIELD_REQUEST_ID,
-            value: approval.request_id.as_str().to_string(),
-        });
-    }
-    if request.household_id != approval.household_id {
-        return Err(EventingError::InvalidValue {
-            field: policy_control::request::FIELD_HOUSEHOLD_ID,
-            value: approval.household_id.as_str().to_string(),
-        });
-    }
-    if request.policy_version != approval.policy_version {
-        return Err(EventingError::InvalidValue {
-            field: policy_control::request::FIELD_POLICY_VERSION,
-            value: approval.policy_version.value().to_string(),
-        });
-    }
-    if request.status == PolicyRequestStatus::Expired {
-        return Err(EventingError::InvalidValue {
-            field: policy_control::request::FIELD_STATUS,
-            value: policy_control::request::VALUE_EXPIRED_REQUEST_CANNOT_BE_APPROVED.to_string(),
-        });
-    }
-
-    Ok(())
+    request_match::validate(request, approval)
 }
 
 pub(crate) fn assert_parent_actor_authority(

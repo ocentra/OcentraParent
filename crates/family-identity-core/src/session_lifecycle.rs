@@ -1,7 +1,6 @@
-use serde::{Deserialize, Serialize};
-
 use crate::family_identity::SessionFreshnessState;
 use crate::household_authority::AuditRequirementState;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SessionCredentialKind {
@@ -168,7 +167,7 @@ pub struct SessionCredentialIssuanceDecision {
     pub failure_reason: Option<SessionTokenFailureReason>,
 }
 
-pub fn authorize_session_token_action(input: SessionTokenInput) -> SessionTokenDecision {
+pub(crate) fn authorize_session_token_action(input: SessionTokenInput) -> SessionTokenDecision {
     if let Some(failure_reason) = session_token_failure_reason(&input) {
         return rejected(input.action, failure_reason);
     }
@@ -181,46 +180,14 @@ pub fn authorize_session_token_action(input: SessionTokenInput) -> SessionTokenD
     }
 }
 
-pub fn authorize_session_credential_issuance(
-    input: SessionCredentialIssuanceInput,
-) -> SessionCredentialIssuanceDecision {
-    if let Some(failure_reason) = session_credential_issuance_failure_reason(&input) {
-        return rejected_session_credential_issuance(failure_reason);
-    }
-
-    if input.issuance_action == SessionCredentialIssuanceAction::CreateBrowserSession {
-        return SessionCredentialIssuanceDecision {
-            issuance_state: SessionCredentialIssuanceState::Created,
-            audit_requirement_state: AuditRequirementState::Required,
-            audit_redaction_state: TokenAuditRedactionState::Redacted,
-            failure_reason: None,
-        };
-    }
-
-    let Some(source_session) = input.source_session else {
-        return rejected_session_credential_issuance(SessionTokenFailureReason::SessionLoggedOut);
-    };
-    let source_session_decision = authorize_session_token_action(SessionTokenInput {
-        action: source_session_action_for_issuance(input.issuance_action),
-        ..source_session
-    });
-
-    if let Some(failure_reason) = source_session_decision.failure_reason {
-        return rejected_session_credential_issuance(failure_reason);
-    }
-
-    SessionCredentialIssuanceDecision {
-        issuance_state: if input.issuance_action
-            == SessionCredentialIssuanceAction::RotateBrowserSession
-        {
-            SessionCredentialIssuanceState::Rotated
-        } else {
-            SessionCredentialIssuanceState::Issued
-        },
-        audit_requirement_state: AuditRequirementState::Required,
-        audit_redaction_state: TokenAuditRedactionState::Redacted,
-        failure_reason: None,
-    }
+/// Projects untrusted session facts into a failure hint for non-authorizing read models.
+///
+/// `None` is not proof of an authorized session. Runtime authorization must come
+/// from repository-owned credential custody through `SqliteAccountIdentityAuthorityRepository`.
+pub fn session_token_failure_reason_for_read_model(
+    input: &SessionTokenInput,
+) -> Option<SessionTokenFailureReason> {
+    session_token_failure_reason(input)
 }
 
 fn rejected(
@@ -230,17 +197,6 @@ fn rejected(
     SessionTokenDecision {
         authorization_state: SessionTokenAuthorizationState::Rejected,
         audit_requirement_state: audit_requirement_state(action),
-        audit_redaction_state: TokenAuditRedactionState::Redacted,
-        failure_reason: Some(failure_reason),
-    }
-}
-
-fn rejected_session_credential_issuance(
-    failure_reason: SessionTokenFailureReason,
-) -> SessionCredentialIssuanceDecision {
-    SessionCredentialIssuanceDecision {
-        issuance_state: SessionCredentialIssuanceState::Rejected,
-        audit_requirement_state: AuditRequirementState::Required,
         audit_redaction_state: TokenAuditRedactionState::Redacted,
         failure_reason: Some(failure_reason),
     }
@@ -292,29 +248,6 @@ fn session_token_failure_reason(input: &SessionTokenInput) -> Option<SessionToke
     .find_map(|(failed, reason)| failed.then_some(reason))
 }
 
-fn session_credential_issuance_failure_reason(
-    input: &SessionCredentialIssuanceInput,
-) -> Option<SessionTokenFailureReason> {
-    if !credential_kind_matches_issuance_action(input.issued_credential_kind, input.issuance_action)
-    {
-        return Some(SessionTokenFailureReason::WrongCredentialKind);
-    }
-
-    if input.issuance_action == SessionCredentialIssuanceAction::CreateBrowserSession {
-        return None;
-    }
-
-    let Some(source_session) = input.source_session else {
-        return Some(SessionTokenFailureReason::SessionLoggedOut);
-    };
-
-    authorize_session_token_action(SessionTokenInput {
-        action: source_session_action_for_issuance(input.issuance_action),
-        ..source_session
-    })
-    .failure_reason
-}
-
 fn credential_kind_matches_action(
     credential_kind: SessionCredentialKind,
     action: SessionLifecycleAction,
@@ -343,45 +276,6 @@ fn credential_kind_matches_action(
             SessionLifecycleAction::UseRemoteSessionGrant
         )
     )
-}
-
-fn credential_kind_matches_issuance_action(
-    credential_kind: SessionCredentialKind,
-    issuance_action: SessionCredentialIssuanceAction,
-) -> bool {
-    matches!(
-        (credential_kind, issuance_action),
-        (
-            SessionCredentialKind::BrowserUserSession,
-            SessionCredentialIssuanceAction::CreateBrowserSession
-                | SessionCredentialIssuanceAction::RotateBrowserSession
-        ) | (
-            SessionCredentialKind::DeviceCredential,
-            SessionCredentialIssuanceAction::IssueDeviceCredential
-        ) | (
-            SessionCredentialKind::InviteToken,
-            SessionCredentialIssuanceAction::IssueInviteToken
-        ) | (
-            SessionCredentialKind::PairingToken,
-            SessionCredentialIssuanceAction::IssuePairingToken
-        ) | (
-            SessionCredentialKind::RecoveryToken,
-            SessionCredentialIssuanceAction::IssueRecoveryToken
-        ) | (
-            SessionCredentialKind::RemoteSessionGrant,
-            SessionCredentialIssuanceAction::IssueRemoteSessionGrant
-        )
-    )
-}
-
-fn source_session_action_for_issuance(
-    issuance_action: SessionCredentialIssuanceAction,
-) -> SessionLifecycleAction {
-    if issuance_action == SessionCredentialIssuanceAction::RotateBrowserSession {
-        SessionLifecycleAction::RefreshBrowserSession
-    } else {
-        SessionLifecycleAction::PerformPrivilegedUserAction
-    }
 }
 
 fn requires_fresh_session(action: SessionLifecycleAction) -> bool {

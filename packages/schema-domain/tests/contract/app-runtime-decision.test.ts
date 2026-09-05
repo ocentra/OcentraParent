@@ -11,6 +11,7 @@ import {
   decodeAppRuntimeDecisionRecordedEvent,
   decodeAppRuntimeDecisionRecordedEventEnvelope,
 } from '../../src/app-runtime-decision';
+import { SchemaDecodeError } from '../../src/effect';
 
 describe('schema-domain app runtime decision edge decoder', () => {
   it('decodes every Rust-owned current decision matrix entry with matching type and version', () => {
@@ -29,6 +30,32 @@ describe('schema-domain app runtime decision edge decoder', () => {
     expect(decodeAppRuntimeDecisionRecordedEventEnvelope(envelope)).toEqual(envelope);
   });
 
+  it('rejects unknown fields at nested event, decision, and envelope-source boundaries', () => {
+    const event = inventoryDecision();
+    expect(() =>
+      decodeAppRuntimeDecisionRecordedEvent({
+        ...event,
+        input: { ...event.input, display_name: 'Chat Client' },
+      })
+    ).toThrow(SchemaDecodeError);
+    expect(() =>
+      decodeAppRuntimeDecisionRecordedEvent({
+        ...event,
+        decision: { ...event.decision, action: 'terminate' },
+      })
+    ).toThrow(SchemaDecodeError);
+
+    const envelope = rustEventEnvelope(event, AppRuntimeDecisionSchemaVersion);
+    expect(() =>
+      decodeAppRuntimeDecisionRecordedEventEnvelope({
+        ...envelope,
+        source: { ...envelope.source, commandLine: '/usr/bin/chat' },
+      })
+    ).toThrow(SchemaDecodeError);
+  });
+});
+
+describe('schema-domain app runtime decision identity validation', () => {
   it('rejects envelopes whose Rust aggregate or idempotency bindings do not match the payload', () => {
     const envelope = rustEventEnvelopeFixture();
     expect(() =>
@@ -72,7 +99,9 @@ describe('schema-domain app runtime decision edge decoder', () => {
       })
     ).toThrow(/invalid app runtime boundary/i);
   });
+});
 
+describe('schema-domain app runtime decision semantic validation', () => {
   it('rejects inventory input that claims foreground runtime evidence', () => {
     expect(() =>
       decodeAppRuntimeDecisionRecordedEvent({
@@ -125,7 +154,9 @@ describe('schema-domain app runtime decision edge decoder', () => {
       })
     ).toThrow(/invalid app runtime boundary/i);
   });
+});
 
+describe('schema-domain app runtime decision replay compatibility', () => {
   it('keeps v1 replay compatibility only for the recorded mapping delta', () => {
     const legacy = appRuntimeDecisionContracts().legacy_v1_decision_deltas[0];
     if (legacy === undefined) {

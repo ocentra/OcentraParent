@@ -1,20 +1,16 @@
-#[path = "../support/test_invariants.rs"]
-mod test_invariants;
-
 use std::path::PathBuf as TestPathBuf;
 use std::primitive::str as TestStr;
-use std::string::String as TestString;
 use std::sync::atomic::{AtomicU64, Ordering};
 
+use ocentra_parent_agent_protocol::browser_policy::BrowserPolicyPatchRequest;
 use ocentra_parent_agent_protocol::browser_policy_sections::{
     BrowserPolicyRuleActionPlan, BrowserPolicyRuleTarget,
 };
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
-use ocentra_parent_agent_protocol::policy_constants as policy;
 use ocentra_parent_agent_protocol::transport::{
-    AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope, AgentEventName, AgentMessageTarget,
-    AgentPeer, AgentPeerRole, AgentRoute,
+    AgentCommandEnvelope, AgentCommandName, AgentMessageTarget, AgentPeer, AgentPeerRole,
+    AgentRoute,
 };
 use ocentra_parent_agent_protocol::BrowserPolicyApprovalRequiredFor;
 use ocentra_parent_agent_protocol::BrowserPolicyApprovalUnansweredDefault;
@@ -49,20 +45,22 @@ use ocentra_parent_agent_protocol::BrowserPolicyRuleAction;
 use ocentra_parent_agent_protocol::BrowserPolicyUnmanagedBrowserClassificationTarget;
 use ocentra_parent_agent_protocol::BrowserPolicyUnmanagedBrowserMode;
 use ocentra_parent_agent_protocol::BrowserPolicyUpdateKind;
-use ocentra_parent_agent_protocol::BrowserPolicyUpdateResponse;
+use ocentra_parent_agent_protocol::BrowserPolicyUpdateRequest;
 use ocentra_parent_agent_protocol::BrowserPolicyUpdateStatus;
 use ocentra_parent_agent_protocol::BrowserPolicyUrlTargetType;
 use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
-use ocentra_parent_agent_service::test_support::{
-    default_browser_policy_for_test, handle_local_command_text_with_browser_policy_store_for_test,
-};
+use ocentra_parent_agent_service::test_support::default_browser_policy_for_test;
 
-use crate::test_invariants::{require_log_string_field, require_ok};
+use crate::test_require_ok::require_ok;
 use crate::{
     browser_policy_compiler::compile_browser_policy,
+    browser_policy_request::{
+        apply_browser_policy_patches, kind_for_command, parse_browser_policy_request,
+    },
     browser_policy_runtime_support::{
         accepted_response, base_revision_matches, default_revision_id, next_audit_event_id,
-        next_revision_id, preview_revision_id, rejected_response,
+        next_revision_id, preview_revision_id, rejected_response, BrowserPolicyMessage,
+        BrowserPolicyRequestId, BrowserPolicyRevisionId, BrowserPolicyTimestamp,
     },
     browser_policy_store::{
         browser_policy_store_path_from_env, read_browser_policy_state, write_browser_policy_state,
@@ -72,75 +70,89 @@ use crate::{
 
 static TEST_POLICY_STORE_COUNTER: AtomicU64 = AtomicU64::new(0);
 
-#[tokio::test]
-async fn browser_policy_patch_accepts_proposal_manifest_writes_to_paths() {
-    let path = temp_policy_store_path(constants::browser_policy::UPDATE_KIND_PATCH);
-    let replace_event = send_browser_policy_command(
-        &path,
-        replace_command(&default_browser_policy_for_test(
-            constants::browser_policy::POLICY_ID.to_string(),
-        )),
-    )
-    .await;
-    assert_eq!(
-        response_from_event(&replace_event).status,
-        BrowserPolicyUpdateStatus::Accepted
+#[test]
+fn browser_policy_patch_accepts_proposal_manifest_writes_to_paths() {
+    let patched_policy = require_ok(
+        apply_browser_policy_patches(default_policy(), &proposal_manifest_patches()),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    );
+    let effective_policy = require_ok(
+        compile_browser_policy(
+            &patched_policy,
+            crate::browser_policy_compiler::BrowserPolicyCompileRequest {
+                revision_id: constants::browser_policy::REVISION_ID,
+                compiled_at: constants::browser_policy::TEST_SENT_AT,
+            },
+        ),
+        constants::error::AGENT_EVENT_SERIALIZES,
     );
 
-    let patch_event = send_browser_policy_command(&path, manifest_patch_command()).await;
-    let patch_response = response_from_event(&patch_event);
-
+    assert_eq!(effective_policy.rules.len(), 1);
     assert_eq!(
-        patch_event.event,
-        AgentEventName::AgentBrowserPolicyPatchAccepted
-    );
-    assert_eq!(patch_response.status, BrowserPolicyUpdateStatus::Accepted);
-    assert_eq!(
-        patch_response
-            .effective_policy
-            .as_ref()
-            .map(|policy| policy.rules.len()),
-        Some(1)
+        effective_policy.execution_mode,
+        BrowserPolicyExecutionMode::Enforce
     );
     assert_eq!(
-        patch_response
-            .effective_policy
-            .as_ref()
-            .map(|policy| policy.execution_mode),
-        Some(BrowserPolicyExecutionMode::Enforce)
+        [effective_policy.discovery.detect_unmanaged_browsers],
+        [true]
     );
     assert_eq!(
-        patch_response
-            .effective_policy
-            .as_ref()
-            .map(|policy| policy.discovery.detect_unmanaged_browsers),
-        Some(true)
-    );
-    assert_eq!(
-        patch_response
-            .effective_policy
-            .as_ref()
-            .and_then(|policy| policy.rules.first())
-            .map(|rule| rule.target_type),
+        effective_policy.rules.first().map(|rule| rule.target_type),
         Some(BrowserPolicyUrlTargetType::DomainOrigin)
     );
 }
 
-#[tokio::test]
-async fn browser_policy_runtime_rejects_dishonest_manifest_updates() {
-    let path = temp_policy_store_path(constants::browser_policy::UPDATE_KIND_PATCH);
-    let replace_event = send_browser_policy_command(
-        &path,
-        replace_command(&default_browser_policy_for_test(
-            constants::browser_policy::POLICY_ID.to_string(),
-        )),
-    )
-    .await;
-    assert_eq!(
-        response_from_event(&replace_event).status,
-        BrowserPolicyUpdateStatus::Accepted
+#[test]
+fn browser_policy_patch_command_parses_as_patch_request() {
+    let request = BrowserPolicyPatchRequest {
+        schema_version:
+            ocentra_parent_agent_protocol::policy_constants::CONTRACT_SCHEMA_VERSION_V0_6
+                .to_string(),
+        request_id: constants::browser_policy::REQUEST_ID.to_string(),
+        kind: BrowserPolicyUpdateKind::Patch,
+        policy_id: constants::browser_policy::POLICY_ID.to_string(),
+        base_revision_id: constants::browser_policy::REVISION_ID.to_string(),
+        patches: proposal_manifest_patches(),
+    };
+    let request_json = require_ok(
+        serde_json::to_string(&request),
+        constants::error::AGENT_EVENT_SERIALIZES,
     );
+    let mut payload = LogFields::new();
+    payload.insert(
+        constants::field::BROWSER_POLICY_REQUEST.to_string(),
+        LogFieldValue::String(request_json),
+    );
+    let command = AgentCommandEnvelope {
+        schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
+        message_id: constants::browser_policy::COMMAND_MESSAGE_ID.to_string(),
+        sent_at: constants::browser_policy::TEST_SENT_AT.to_string(),
+        source: AgentPeer {
+            peer_id: constants::peer::PORTAL_DEV.to_string(),
+            role: AgentPeerRole::Portal,
+        },
+        target: AgentMessageTarget {
+            device_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
+            platform: constants::enforcement::PLATFORM_WINDOWS.to_string(),
+            route: AgentRoute::Localhost,
+        },
+        command: AgentCommandName::AgentBrowserPolicyPatch,
+        payload,
+    };
 
+    assert_eq!(kind_for_command(&command), BrowserPolicyUpdateKind::Patch);
+    assert_eq!(
+        require_ok(
+            parse_browser_policy_request(&command),
+            constants::error::AGENT_EVENT_SERIALIZES,
+        ),
+        BrowserPolicyUpdateRequest::Patch(request)
+    );
+}
+
+#[test]
+fn browser_policy_runtime_rejects_dishonest_manifest_updates() {
+    let policy = default_policy();
     let patch_cases = vec![
         (
             policy_patch(
@@ -168,55 +180,39 @@ async fn browser_policy_runtime_rejects_dishonest_manifest_updates() {
         ),
     ];
     for (patch, reason) in patch_cases {
-        let event = send_browser_policy_command(
-            &path,
-            command_with_request(
-                AgentCommandName::AgentBrowserPolicyPatch,
-                serde_json::json!({
-                    "schemaVersion": policy::CONTRACT_SCHEMA_VERSION_V0_6,
-                    "requestId": constants::browser_policy::REQUEST_ID,
-                    "kind": BrowserPolicyUpdateKind::Patch,
-                    "policyId": constants::browser_policy::POLICY_ID,
-                    "baseRevisionId": constants::browser_policy::REVISION_ID,
-                    "patches": [patch],
-                }),
-            ),
-        )
-        .await;
-        assert_rejected_event(
-            &event,
-            &AgentEventName::AgentBrowserPolicyPatchRejected,
-            &reason,
+        assert_eq!(
+            apply_browser_policy_patches(policy.clone(), &[patch]),
+            Err(reason),
         );
     }
 
-    let mut invalid_policy =
-        default_browser_policy_for_test(crate::test_support::default_browser_policy_id_for_test());
+    let mut invalid_policy = default_policy();
     invalid_policy.default_posture = BrowserPolicyDefaultPosture::Limit;
     invalid_policy.budgets.enabled = false;
     invalid_policy.budgets.default_daily_minutes = None;
     invalid_policy.fallback_posture = None;
-    let replace_event = send_browser_policy_command(
-        &temp_policy_store_path(constants::browser_policy::UPDATE_KIND_REPLACE),
-        replace_command(&invalid_policy),
-    )
-    .await;
-    assert_rejected_event(
-        &replace_event,
-        &AgentEventName::AgentBrowserPolicyReplaceRejected,
-        &BrowserPolicyRejectionReason::MissingBudgetOrFallback,
+    assert_eq!(
+        compile_browser_policy(
+            &invalid_policy,
+            crate::browser_policy_compiler::BrowserPolicyCompileRequest {
+                revision_id: constants::browser_policy::REVISION_ID,
+                compiled_at: constants::browser_policy::TEST_SENT_AT,
+            },
+        ),
+        Err(BrowserPolicyRejectionReason::MissingBudgetOrFallback),
     );
 }
 
 #[tokio::test]
 async fn browser_policy_store_and_runtime_support_helpers_round_trip_state() {
-    let policy =
-        default_browser_policy_for_test(crate::test_support::default_browser_policy_id_for_test());
+    let policy = default_policy();
     let effective_policy = require_ok(
         compile_browser_policy(
             &policy,
-            constants::browser_policy::REVISION_ID,
-            constants::browser_policy::TEST_SENT_AT,
+            crate::browser_policy_compiler::BrowserPolicyCompileRequest {
+                revision_id: constants::browser_policy::REVISION_ID,
+                compiled_at: constants::browser_policy::TEST_SENT_AT,
+            },
         ),
         constants::error::AGENT_EVENT_SERIALIZES,
     );
@@ -235,17 +231,25 @@ async fn browser_policy_store_and_runtime_support_helpers_round_trip_state() {
 
     assert!(state.active_revision().is_none());
     assert!(state
-        .revision_by_id(constants::browser_policy::REVISION_ID)
+        .revision_by_id(&BrowserPolicyRevisionId(
+            constants::browser_policy::REVISION_ID.to_string(),
+        ))
         .is_none());
     assert_eq!(roundtrip, state);
     require_ok(
         base_revision_matches(&state, None),
         constants::error::AGENT_EVENT_SERIALIZES,
     );
-    assert!(next_revision_id(&state).starts_with(constants::browser_policy::REVISION_PREFIX));
-    assert!(next_audit_event_id(&state).starts_with(constants::browser_policy::AUDIT_PREFIX));
     assert_eq!(
-        default_revision_id(),
+        next_revision_id(&state).0,
+        format!("{}1", constants::browser_policy::REVISION_PREFIX)
+    );
+    assert_eq!(
+        next_audit_event_id(&state).0,
+        format!("{}1", constants::browser_policy::AUDIT_PREFIX)
+    );
+    assert_eq!(
+        default_revision_id().0,
         format!(
             "{}{}",
             constants::browser_policy::REVISION_PREFIX,
@@ -253,7 +257,7 @@ async fn browser_policy_store_and_runtime_support_helpers_round_trip_state() {
         )
     );
     assert_eq!(
-        preview_revision_id(),
+        preview_revision_id().0,
         format!(
             "{}{}",
             constants::browser_policy::REVISION_PREFIX,
@@ -262,43 +266,32 @@ async fn browser_policy_store_and_runtime_support_helpers_round_trip_state() {
     );
     assert_eq!(
         accepted_response(
-            constants::browser_policy::REQUEST_ID.to_string(),
+            BrowserPolicyRequestId(constants::browser_policy::REQUEST_ID.to_string()),
             BrowserPolicyUpdateKind::Preview,
             policy.clone(),
             effective_policy,
             None,
-            "accepted",
-            constants::browser_policy::TEST_SENT_AT,
+            BrowserPolicyMessage("accepted"),
+            BrowserPolicyTimestamp(constants::browser_policy::TEST_SENT_AT.to_string()),
         )
         .status,
         BrowserPolicyUpdateStatus::Accepted
     );
     assert_eq!(
         rejected_response(
-            constants::browser_policy::REQUEST_ID.to_string(),
+            BrowserPolicyRequestId(constants::browser_policy::REQUEST_ID.to_string()),
             BrowserPolicyUpdateKind::Patch,
             BrowserPolicyRejectionReason::RevisionNotFound,
-            "rejected",
-            constants::browser_policy::TEST_SENT_AT,
+            BrowserPolicyMessage("rejected"),
+            BrowserPolicyTimestamp(constants::browser_policy::TEST_SENT_AT.to_string()),
         )
         .status,
         BrowserPolicyUpdateStatus::Rejected
     );
 }
 
-fn manifest_patch_command() -> AgentCommandEnvelope {
-    command_with_request(AgentCommandName::AgentBrowserPolicyPatch, patch_request())
-}
-
-fn patch_request() -> serde_json::Value {
-    serde_json::json!({
-        "schemaVersion": policy::CONTRACT_SCHEMA_VERSION_V0_6,
-        "requestId": constants::browser_policy::REQUEST_ID,
-        "kind": BrowserPolicyUpdateKind::Patch,
-        "policyId": constants::browser_policy::POLICY_ID,
-        "baseRevisionId": constants::browser_policy::REVISION_ID,
-        "patches": proposal_manifest_patches(),
-    })
+fn default_policy() -> ocentra_parent_agent_protocol::BrowserPolicyValue {
+    default_browser_policy_for_test(crate::test_support::default_browser_policy_id_for_test())
 }
 
 fn proposal_manifest_patches() -> Vec<BrowserPolicyPatch> {
@@ -642,84 +635,6 @@ where
     }
 }
 
-fn replace_command(
-    policy_value: &ocentra_parent_agent_protocol::browser_policy_model::BrowserPolicyValue,
-) -> AgentCommandEnvelope {
-    command_with_request(
-        AgentCommandName::AgentBrowserPolicyReplace,
-        serde_json::json!({
-            "schemaVersion": policy::CONTRACT_SCHEMA_VERSION_V0_6,
-            "requestId": constants::browser_policy::REQUEST_ID,
-            "kind": BrowserPolicyUpdateKind::Replace,
-            "baseRevisionId": serde_json::Value::Null,
-            "policy": policy_value,
-        }),
-    )
-}
-
-fn command_with_request<T>(command: AgentCommandName, request: T) -> AgentCommandEnvelope
-where
-    T: serde::Serialize,
-{
-    let mut payload = LogFields::new();
-    payload.insert(
-        constants::field::BROWSER_POLICY_REQUEST.to_string(),
-        LogFieldValue::String(serialize_test_json(&request)),
-    );
-    AgentCommandEnvelope {
-        schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
-        message_id: constants::browser_policy::COMMAND_MESSAGE_ID.to_string(),
-        sent_at: constants::browser_policy::TEST_SENT_AT.to_string(),
-        source: AgentPeer {
-            peer_id: constants::peer::PORTAL_DEV.to_string(),
-            role: AgentPeerRole::Portal,
-        },
-        target: AgentMessageTarget {
-            device_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
-            platform: constants::enforcement::PLATFORM_WINDOWS.to_string(),
-            route: AgentRoute::Localhost,
-        },
-        command,
-        payload,
-    }
-}
-
-async fn send_browser_policy_command(
-    store_path: &std::path::Path,
-    command: AgentCommandEnvelope,
-) -> AgentEventEnvelope {
-    handle_local_command_text_with_browser_policy_store_for_test(
-        &serialize_test_json(&command),
-        store_path,
-    )
-    .await
-}
-
-fn response_from_event(event: &AgentEventEnvelope) -> BrowserPolicyUpdateResponse {
-    parse_test_json(require_log_string_field(
-        event.payload.get(constants::field::BROWSER_POLICY_RESPONSE),
-        constants::error::AGENT_EVENT_SERIALIZES,
-    ))
-}
-
-fn assert_rejected_event(
-    event: &AgentEventEnvelope,
-    expected_event: &AgentEventName,
-    expected_reason: &BrowserPolicyRejectionReason,
-) {
-    let response = response_from_event(event);
-    assert_eq!(&event.event, expected_event);
-    assert_eq!(response.status, BrowserPolicyUpdateStatus::Rejected);
-    assert_eq!(response.rejection_reason.as_ref(), Some(expected_reason));
-}
-
-fn serialize_test_json<T>(value: &T) -> TestString
-where
-    T: serde::Serialize + ?Sized,
-{
-    crate::test_invariants::serialize_test_json(value)
-}
-
 fn serialize_test_value<T>(value: T) -> serde_json::Value
 where
     T: serde::Serialize,
@@ -728,13 +643,6 @@ where
         serde_json::to_value(value),
         constants::error::AGENT_EVENT_SERIALIZES,
     )
-}
-
-fn parse_test_json<T>(text: &TestStr) -> T
-where
-    T: serde::de::DeserializeOwned,
-{
-    crate::test_invariants::require_json_decode(text, constants::error::AGENT_EVENT_SERIALIZES)
 }
 
 fn temp_policy_store_path(store_path_suffix: &TestStr) -> TestPathBuf {

@@ -1,9 +1,11 @@
+use crate::request::RequestRegistry;
 use crate::{EventMetadata, EventingError, RequestEvent, RequestId, RequestOptions, RequestReport};
 
 use super::super::EventBus;
 use super::helpers::{
     abort_request_publish, await_publish_after_response, await_response_after_publish,
     complete_request, handle_publish_result, handle_receiver_result,
+    receiver_requires_publish_abort,
 };
 
 pub(super) async fn run<E>(
@@ -16,9 +18,15 @@ pub(super) async fn run<E>(
 where
     E: RequestEvent,
 {
-    let mut receiver = bus.requests.register(request_id.clone())?;
+    let mut receiver = bus.requests.register::<E>(request_id.clone())?;
     let bus_for_publish = bus.clone();
-    let mut publish = tokio::spawn(async move { bus_for_publish.publish(event, metadata).await });
+    let mut publish =
+        tokio::spawn(async move { bus_for_publish.publish_root(event, metadata).await });
+    let _request_cancellation = RequestCancellation::new(
+        bus.requests.clone(),
+        request_id.clone(),
+        publish.abort_handle(),
+    );
     let mut timeout = bus.clock.sleep(options.timeout());
     let mut publish_report = None;
     let mut response_payload = None;
@@ -29,6 +37,9 @@ where
             true
         }
         payload = &mut receiver => {
+            if receiver_requires_publish_abort(&payload) {
+                abort_request_publish(&mut publish, false).await;
+            }
             response_payload = Some(handle_receiver_result(bus, &request_id, payload).await?);
             false
         }
@@ -63,4 +74,32 @@ where
     complete_request::<E>(request_id, &mut publish_report, &mut response_payload)?.ok_or_else(
         || EventingError::invalid_value("request_state", "publish or response result missing"),
     )
+}
+
+struct RequestCancellation {
+    requests: RequestRegistry,
+    request_id: RequestId,
+    publish_abort: tokio::task::AbortHandle,
+}
+
+impl RequestCancellation {
+    fn new(
+        requests: RequestRegistry,
+        request_id: RequestId,
+        publish_abort: tokio::task::AbortHandle,
+    ) -> Self {
+        Self {
+            requests,
+            request_id,
+            publish_abort,
+        }
+    }
+}
+
+impl Drop for RequestCancellation {
+    fn drop(&mut self) {
+        if self.requests.cancel_pending(&self.request_id).is_some() {
+            self.publish_abort.abort();
+        }
+    }
 }

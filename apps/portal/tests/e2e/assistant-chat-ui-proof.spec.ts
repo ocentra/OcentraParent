@@ -4,7 +4,6 @@ import { collectBrowserFailures } from './browser-failures';
 test.setTimeout(180_000);
 
 const portalShellReadyTimeoutMs = 90_000;
-const assistantReadyText = 'Ask MIA about activity, rules, reports, setup, or choose a quick action.';
 
 test('assistant chat bubble controls support keyboard collapse and copy', async ({ context, page }) => {
   const browserFailures = collectBrowserFailures(page);
@@ -14,7 +13,11 @@ test('assistant chat bubble controls support keyboard collapse and copy', async 
   await expect(page.getByRole('button', { exact: true, name: 'Close parent assistant' })).toBeVisible({
     timeout: portalShellReadyTimeoutMs,
   });
-  await expect(page.getByRole('article', { name: `MIA: ${assistantReadyText}` })).toBeVisible();
+  const assistantMessage = page.getByRole('article', { name: /^MIA: .+/u }).first();
+  await expect(assistantMessage).toBeVisible();
+  const assistantMessageLabel = await assistantMessage.getAttribute('aria-label');
+  expect(assistantMessageLabel).toMatch(/^MIA: .+/u);
+  const assistantMessageText = assistantMessageLabel?.replace(/^MIA: /u, '') ?? '';
 
   const collapseButton = page.getByRole('button', { exact: true, name: 'Collapse MIA message' }).first();
   await collapseButton.focus();
@@ -35,6 +38,6 @@ test('assistant chat bubble controls support keyboard collapse and copy', async 
   await expect(copyButton).toBeFocused();
   await page.keyboard.press('Enter');
 
-  await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toBe(assistantReadyText);
+  await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toBe(assistantMessageText);
   expect(browserFailures).toEqual([]);
 });

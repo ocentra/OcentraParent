@@ -25,7 +25,9 @@ use ocentra_parent_screen_capture_adapter::{
     CapturedScreenImage, ScreenCaptureMetadata, ScreenCaptureScope,
 };
 
-use crate::test_invariants::{require_json_decode, require_ok, require_some};
+use crate::test_require_json_decode::require_json_decode;
+use crate::test_require_ok::require_ok;
+use crate::test_require_some::require_some;
 
 use crate::test_text::TestText;
 
@@ -47,6 +49,21 @@ use super::{
 };
 
 static TEST_SEQUENCE: AtomicU64 = AtomicU64::new(0);
+
+#[test]
+fn screen_analysis_clock_reports_a_current_rfc3339_timestamp() {
+    let clock = ScreenAiAnalysisCycleClock::from_system_time();
+    let parsed = require_ok(
+        chrono::DateTime::parse_from_rfc3339(clock.timestamp.as_str()),
+        constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES,
+    );
+
+    assert_ne!(clock.epoch_seconds, 0);
+    assert_eq!(
+        parsed.to_rfc3339_opts(chrono::SecondsFormat::Millis, true),
+        clock.timestamp
+    );
+}
 
 #[test]
 fn screen_analysis_runtime_is_disabled_without_explicit_parent_setting() {

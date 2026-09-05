@@ -2,14 +2,16 @@ use std::sync::{Arc, Mutex, MutexGuard};
 use std::time::Duration;
 
 use ocentra_child_runtime::tracking_config_update_flow::{
-    publish_parent_tracking_config_updated_event, TrackingConfigUpdateEventFlowReport,
+    TrackingConfigUpdateCausalTarget, TrackingConfigUpdateEventFlow,
+    TrackingConfigUpdateEventFlowReport,
 };
 use ocentra_eventing::{
-    bus::subscriber::EventSubscriber, bus::subscriber::SubscriptionReport, bus::EventBus,
-    envelope::EventMetadata, envelope::EventSource, error::EventingError, ids::CorrelationId,
-    ids::EventCustody, ids::EventId, ids::EventType, ids::RecordedAt, ids::RuntimeInstanceId,
-    ids::RuntimeRole, ids::SourceComponent, ids::SourceService, ids::SubscriberId,
-    ids::TargetHandler, request::RequestOptions, request::RequestReport,
+    bus::publisher::RootEventPublisher, bus::subscriber::EventSubscriber,
+    bus::subscriber::SubscriptionReport, bus::EventBus, envelope::EventMetadata,
+    envelope::EventSource, error::EventingError, ids::CorrelationId, ids::EventCustody,
+    ids::EventId, ids::EventType, ids::RecordedAt, ids::RuntimeInstanceId, ids::RuntimeRole,
+    ids::SourceComponent, ids::SourceService, ids::SubscriberId, ids::TargetHandler,
+    request::RequestOptions, request::RequestReport,
 };
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::tracking::{
@@ -45,12 +47,23 @@ use crate::tracking_dispatch::{
 mod policy_rules;
 use self::policy_rules::tracking_policy_rule_refs;
 
+#[path = "tracking_config_update_flow/event_sinks.rs"]
+mod event_sinks;
+use self::event_sinks::{
+    subscribe_tracking_config_event_sinks, TrackingConfigEventSinkSubscriptionReports,
+};
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct ParentTrackingConfigUpdateEventFlowReport {
     pub parent_subscription_report: SubscriptionReport,
     pub change_requested_subscription_report: SubscriptionReport,
     pub policy_evaluation_subscription_report: SubscriptionReport,
     pub decision_subscription_report: SubscriptionReport,
+    pub dispatch_subscription_report: SubscriptionReport,
+    pub change_approved_subscription_report: SubscriptionReport,
+    pub change_rejected_subscription_report: SubscriptionReport,
+    pub audit_subscription_report: SubscriptionReport,
+    pub portal_subscription_report: SubscriptionReport,
     pub parent_request_report: RequestReport<TrackingConfigUpdateResponse>,
     pub change_requested_event: TrackingConfigChangeRequestedEvent,
     pub policy_evaluation_event: TrackingConfigPolicyEvaluationRequestedEvent,
@@ -64,12 +77,13 @@ pub struct ParentTrackingConfigUpdateEventFlowReport {
 }
 
 pub struct ParentTrackingConfigUpdateEventFlow {
-    bus: EventBus,
+    bus: RootEventPublisher,
     state: ParentTrackingConfigUpdateEventState,
     parent_subscription_report: SubscriptionReport,
     change_requested_subscription_report: SubscriptionReport,
     policy_evaluation_subscription_report: SubscriptionReport,
     decision_subscription_report: SubscriptionReport,
+    event_sink_subscription_reports: TrackingConfigEventSinkSubscriptionReports,
 }
 
 impl ParentTrackingConfigUpdateEventFlow {
@@ -78,11 +92,20 @@ impl ParentTrackingConfigUpdateEventFlow {
         child_acknowledgement_state: ChildAcknowledgementState,
         origin_state: ParentRuntimeOriginState,
     ) -> Result<Self, EventingError> {
-        let bus = EventBus::new();
+        let bus = EventBus::root();
+        let child_runtime_target = TrackingConfigUpdateEventFlow::new()
+            .await?
+            .into_causal_target();
         let state = ParentTrackingConfigUpdateEventState::default();
         let previous_event_ref = previous_event_ref.into();
-        let decision_subscription_report =
-            subscribe_tracking_config_policy_decision_events(&bus, state.clone()).await?;
+        let event_sink_subscription_reports =
+            subscribe_tracking_config_event_sinks(&bus, state.clone()).await?;
+        let decision_subscription_report = subscribe_tracking_config_policy_decision_events(
+            &bus,
+            state.clone(),
+            child_runtime_target,
+        )
+        .await?;
         let policy_evaluation_subscription_report =
             subscribe_tracking_config_policy_evaluation_events(
                 &bus,
@@ -107,6 +130,7 @@ impl ParentTrackingConfigUpdateEventFlow {
             change_requested_subscription_report,
             policy_evaluation_subscription_report,
             decision_subscription_report,
+            event_sink_subscription_reports,
         })
     }
 
@@ -132,6 +156,17 @@ impl ParentTrackingConfigUpdateEventFlow {
                 .policy_evaluation_subscription_report
                 .clone(),
             decision_subscription_report: self.decision_subscription_report.clone(),
+            dispatch_subscription_report: self.event_sink_subscription_reports.dispatch.clone(),
+            change_approved_subscription_report: self
+                .event_sink_subscription_reports
+                .change_approved
+                .clone(),
+            change_rejected_subscription_report: self
+                .event_sink_subscription_reports
+                .change_rejected
+                .clone(),
+            audit_subscription_report: self.event_sink_subscription_reports.audit.clone(),
+            portal_subscription_report: self.event_sink_subscription_reports.portal.clone(),
             parent_request_report,
             change_requested_event: self.state.change_requested_event()?,
             policy_evaluation_event: self.state.policy_evaluation_event()?,
@@ -163,7 +198,7 @@ pub async fn publish_parent_tracking_config_updated_event_flow(
 }
 
 async fn subscribe_parent_tracking_config_updated_events(
-    bus: &EventBus,
+    bus: &RootEventPublisher,
     state: ParentTrackingConfigUpdateEventState,
     previous_event_ref: String,
 ) -> Result<SubscriptionReport, EventingError> {
@@ -202,7 +237,7 @@ async fn subscribe_parent_tracking_config_updated_events(
 }
 
 async fn subscribe_tracking_config_change_requested_events(
-    bus: &EventBus,
+    bus: &RootEventPublisher,
     state: ParentTrackingConfigUpdateEventState,
 ) -> Result<SubscriptionReport, EventingError> {
     bus.subscribe::<TrackingConfigChangeRequestedEvent, _, _>(
@@ -239,7 +274,7 @@ async fn subscribe_tracking_config_change_requested_events(
 }
 
 async fn subscribe_tracking_config_policy_evaluation_events(
-    bus: &EventBus,
+    bus: &RootEventPublisher,
     state: ParentTrackingConfigUpdateEventState,
     child_acknowledgement_state: ChildAcknowledgementState,
     origin_state: ParentRuntimeOriginState,
@@ -264,7 +299,6 @@ async fn subscribe_tracking_config_policy_evaluation_events(
                     child_acknowledgement_state,
                     origin_state,
                 );
-                state.record_dispatch_event(dispatch_event.clone());
                 context
                     .publisher()
                     .publish(
@@ -307,8 +341,9 @@ async fn subscribe_tracking_config_policy_evaluation_events(
 }
 
 async fn subscribe_tracking_config_policy_decision_events(
-    bus: &EventBus,
+    bus: &RootEventPublisher,
     state: ParentTrackingConfigUpdateEventState,
+    child_runtime_target: TrackingConfigUpdateCausalTarget,
 ) -> Result<SubscriptionReport, EventingError> {
     bus.subscribe::<TrackingConfigPolicyDecisionCompletedEvent, _, _>(
         EventSubscriber::new(
@@ -322,6 +357,7 @@ async fn subscribe_tracking_config_policy_decision_events(
         ),
         move |context| {
             let state = state.clone();
+            let child_runtime_target = child_runtime_target.clone();
             async move {
                 let decision = context.payload().clone();
                 state.record_policy_decision_event(decision.clone());
@@ -330,6 +366,7 @@ async fn subscribe_tracking_config_policy_decision_events(
                 if decision.decision_state == TrackingConfigPolicyDecisionState::Approved {
                     handle_approved_tracking_config_decision(
                         context.publisher(),
+                        &child_runtime_target,
                         state.clone(),
                         &decision,
                         &parent_event,
@@ -353,12 +390,12 @@ async fn subscribe_tracking_config_policy_decision_events(
 
 async fn handle_approved_tracking_config_decision(
     publisher: &ocentra_eventing::bus::publisher::EventPublisher,
+    child_runtime_target: &TrackingConfigUpdateCausalTarget,
     state: ParentTrackingConfigUpdateEventState,
     decision: &TrackingConfigPolicyDecisionCompletedEvent,
     parent_event: &ParentTrackingConfigUpdatedEvent,
 ) -> Result<(), EventingError> {
     let change_approved = tracking_config_change_approved_event(decision);
-    state.record_change_approved_event(change_approved.clone());
     publisher
         .publish(
             change_approved.clone(),
@@ -366,7 +403,8 @@ async fn handle_approved_tracking_config_decision(
         )
         .await?;
 
-    let child_runtime_flow = publish_parent_tracking_config_updated_event(parent_event)
+    let child_runtime_flow = child_runtime_target
+        .publish_parent_config_updated(publisher, parent_event)
         .await
         .ok();
     state.record_child_runtime_flow(child_runtime_flow.clone());
@@ -395,7 +433,6 @@ async fn handle_approved_tracking_config_decision(
         change_approved.change_approved_event_ref.clone(),
         audit_outcome,
     );
-    state.record_audit_event(audit_event.clone());
     publisher
         .publish(
             audit_event.clone(),
@@ -409,7 +446,6 @@ async fn handle_approved_tracking_config_decision(
         visible_manual_required,
         visible_unavailable,
     );
-    state.record_portal_event(portal_event.clone());
     publisher
         .publish(
             portal_event,
@@ -431,7 +467,6 @@ async fn handle_rejected_tracking_config_decision(
         decision,
         constants::tracking_config_update::REJECTION_REASON_CHILD_RUNTIME_DISPATCH_BLOCKED,
     );
-    state.record_change_rejected_event(change_rejected.clone());
     publisher
         .publish(
             change_rejected.clone(),
@@ -443,7 +478,6 @@ async fn handle_rejected_tracking_config_decision(
         change_rejected.change_rejected_event_ref.clone(),
         TrackingConfigAuditOutcome::Failed,
     );
-    state.record_audit_event(audit_event.clone());
     publisher
         .publish(
             audit_event.clone(),
@@ -456,7 +490,6 @@ async fn handle_rejected_tracking_config_decision(
         true,
         true,
     );
-    state.record_portal_event(portal_event.clone());
     publisher
         .publish(
             portal_event,

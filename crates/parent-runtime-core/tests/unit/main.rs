@@ -1,3 +1,7 @@
+#[path = "data_custody_backup_runtime.rs"]
+mod data_custody_backup_runtime;
+#[path = "data_custody_restore_runtime.rs"]
+mod data_custody_restore_runtime;
 #[path = "policy_control_dispatch.rs"]
 mod policy_control_dispatch;
 #[path = "policy_control_update_flow.rs"]

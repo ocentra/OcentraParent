@@ -10,13 +10,31 @@ import {
 
 interface ErrorResponse {
   error: string;
-  provider?: string;
+  authState?: string;
+  blocker?: string;
   missingHeader?: string;
   maxBytes?: number;
 }
 
-describe('stripe webhook fuzz smoke', () => {
-  it('accepts a spread of signed JSON payload shapes without surfacing 5xx responses', async () => {
+const WEBHOOK_RATE_LIMIT_OWNER_UNAVAILABLE = {
+  status: 'manual-required',
+  authState: 'provider-webhook-signature-required',
+  blocker: 'billing-rate-limit-transaction-owner-unavailable',
+} as const;
+
+const PAYPAL_VERIFIER_UNAVAILABLE = {
+  error: 'manual-required',
+  authState: 'provider-webhook-signature-required',
+  blocker: 'paypal-provider-verifier-unavailable',
+} as const;
+
+async function assertWebhookRateLimitOwnerUnavailable(response: Response): Promise<void> {
+  assert.equal(response.status, 503);
+  assert.deepEqual(await readJson<unknown>(response), WEBHOOK_RATE_LIMIT_OWNER_UNAVAILABLE);
+}
+
+describe('provider webhook fuzz smoke', () => {
+  it('fails a spread of verified Stripe payload shapes closed at serialized rate-limit admission', async () => {
     const harness = createTestHarness();
     const eventTypes = [
       'invoice.paid',
@@ -37,13 +55,16 @@ describe('stripe webhook fuzz smoke', () => {
           object: {
             amount_total: 1000 + index,
             metadata: {
-              familyRef: `family:fuzz-${index}`,
-              subject: 'parent:demo-active',
+              familyReference: `family:fuzz-${index}`,
             },
           },
         },
       });
-      const signature = await createStripeSignature(payload, harness.env.STRIPE_WEBHOOK_SECRET ?? '');
+      const signature = await createStripeSignature(
+        payload,
+        harness.env.STRIPE_WEBHOOK_SECRET ?? '',
+        Math.floor(Date.now() / 1000)
+      );
 
       const { response } = await executeRequest({
         path: '/webhooks/stripe',
@@ -56,16 +77,23 @@ describe('stripe webhook fuzz smoke', () => {
         },
       });
 
-      assert.equal(response.status, 202);
+      await assertWebhookRateLimitOwnerUnavailable(response);
     }
+
+    assert.equal(harness.queueMessages.length, 0);
+    assert.equal(harness.deadLetterMessages.length, 0);
   });
 
-  it('fails closed on truncated JSON and binary junk without surfacing worker errors', async () => {
+  it('does not parse signed malformed payloads before serialized rate-limit admission succeeds', async () => {
     const harness = createTestHarness();
     const payloads = ['{"id":"evt_truncated"', '\u0000\u0001binary-junk'];
 
     for (const payload of payloads) {
-      const signature = await createStripeSignature(payload, harness.env.STRIPE_WEBHOOK_SECRET ?? '');
+      const signature = await createStripeSignature(
+        payload,
+        harness.env.STRIPE_WEBHOOK_SECRET ?? '',
+        Math.floor(Date.now() / 1000)
+      );
 
       const { response } = await executeRequest({
         path: '/webhooks/stripe',
@@ -78,12 +106,7 @@ describe('stripe webhook fuzz smoke', () => {
         },
       });
 
-      const body = await readJson<ErrorResponse>(response);
-      assert.equal(response.status, 400);
-      assert.equal(body.error, 'invalid-webhook-payload');
-      assert.equal(body.provider, 'stripe');
-      assert.equal('message' in body, false);
-      assert.equal('requestHeaders' in body, false);
+      await assertWebhookRateLimitOwnerUnavailable(response);
     }
 
     assert.equal(harness.queueMessages.length, 0);
@@ -102,7 +125,11 @@ describe('stripe webhook fuzz smoke', () => {
         oversized: 'x'.repeat(512),
       },
     });
-    const signature = await createStripeSignature(payload, harness.env.STRIPE_WEBHOOK_SECRET ?? '');
+    const signature = await createStripeSignature(
+      payload,
+      harness.env.STRIPE_WEBHOOK_SECRET ?? '',
+      Math.floor(Date.now() / 1000)
+    );
 
     const { response } = await executeRequest({
       path: '/webhooks/stripe',
@@ -123,7 +150,7 @@ describe('stripe webhook fuzz smoke', () => {
     assert.equal(harness.deadLetterMessages.length, 0);
   });
 
-  it('fails closed on missing or random provider headers', async () => {
+  it('fails closed on missing Stripe credentials and an unavailable PayPal verifier', async () => {
     const harness = createTestHarness();
 
     const missingStripeSignature = await executeRequest({
@@ -156,15 +183,13 @@ describe('stripe webhook fuzz smoke', () => {
         'stripe-signature': 't=1710000000,v1=not-used-here',
       },
     });
-    const randomHeaderBody = await readJson<ErrorResponse>(randomHeaderOnly.response);
-    assert.equal(randomHeaderOnly.response.status, 401);
-    assert.equal(randomHeaderBody.error, 'authentication-required');
-    assert.equal(randomHeaderBody.missingHeader, 'paypal-transmission-id');
+    assert.equal(randomHeaderOnly.response.status, 503);
+    assert.deepEqual(await readJson<unknown>(randomHeaderOnly.response), PAYPAL_VERIFIER_UNAVAILABLE);
     assert.equal(harness.queueMessages.length, 0);
     assert.equal(harness.deadLetterMessages.length, 0);
   });
 
-  it('rejects explicit wrong-provider payload hints on other provider routes', async () => {
+  it('does not claim a provider-route mismatch before the PayPal verifier is bound', async () => {
     const harness = createTestHarness();
     const payload = JSON.stringify({
       id: 'evt_wrong_provider',
@@ -190,10 +215,8 @@ describe('stripe webhook fuzz smoke', () => {
       },
     });
 
-    const body = await readJson<ErrorResponse>(response);
-    assert.equal(response.status, 400);
-    assert.equal(body.error, 'provider-route-mismatch');
-    assert.equal(body.provider, 'paypal');
+    assert.equal(response.status, 503);
+    assert.deepEqual(await readJson<unknown>(response), PAYPAL_VERIFIER_UNAVAILABLE);
     assert.equal(harness.queueMessages.length, 0);
     assert.equal(harness.deadLetterMessages.length, 0);
   });

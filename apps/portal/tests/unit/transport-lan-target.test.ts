@@ -3,9 +3,14 @@ import {
   ParentAgentCommand,
   ParentAgentProtocolField,
   ParentAgentTargetDefaults,
+  ParentHostBridgeRuntime,
+  ParentPortalParentAccessState,
   ParentRoute,
   ParentUiActionKind,
   presentationOnlyDevWebHostBridgeMessage,
+  type ParentLanAddDeviceReadModelSnapshot,
+  type ParentRouteSnapshot,
+  type ParentUiActionResult,
 } from '../../generated/parent-ui-bridge';
 import { createDevWebHostBridge } from '../../src/host-bridge';
 
@@ -43,47 +48,7 @@ it('HostBridge dev adapter: rejects subscriptions when no dev bridge URL is conf
 it('HostBridge dev adapter: loads Rust-owned route snapshots through the local dev bridge when configured', async () => {
   const bridge = createDevWebHostBridge('http://127.0.0.1:4779/api/parent-ui');
   vi.stubGlobal('WebSocket', ThrowingWebSocket);
-  vi.stubGlobal(
-    'fetch',
-    fetchResponder(
-      jsonResponse({
-        schemaVersion: 1,
-        route: 'devices',
-        generatedAt: '2026-06-24T12:00:00.000Z',
-        seasonLabel: 'LOCAL',
-        lastUpdated: '2026-06-24T12:00:00.000Z',
-        connectionState: 'connected',
-        commandEnabled: true,
-        agentEndpoint: 'host-bridge://tauri-parent',
-        dataSource: 'host-bridge',
-        summary: {
-          title: 'Devices',
-          routeCapability: 'available',
-          parentAccess: 'paired',
-          household: 'available',
-          childDevice: 'available',
-        },
-        diagnosticPanelsEnabled: false,
-        parentPortalRows: [],
-        parentPortalShellStatus: {
-          routeLabel: 'Devices',
-          parentAccessState: 'paired',
-          globalConnectionState: 'connected',
-          routeCapabilityState: 'available',
-          dataSourceLabel: 'host-bridge',
-          cards: [],
-        },
-        liveActivity: {
-          lanAddDeviceReadModel: {
-            addDeviceState: 'discovered',
-            discoveredDevices: [{ childDevice: { deviceId: 'lan-device-1' } }],
-          },
-        },
-        browserPanels: null,
-        screenSettingsServiceResponse: null,
-      })
-    )
-  );
+  vi.stubGlobal('fetch', fetchResponder(jsonResponse(devBridgeSnapshot('connected', 'host-bridge', 'lan-device-1'))));
 
   const snapshot = await bridge.loadRoute('devices');
 
@@ -101,42 +66,13 @@ it('HostBridge dev adapter: dispatches through the Rust-owned local dev bridge w
     'fetch',
     fetchResponder(
       jsonResponse({
-        schemaVersion: 1,
+        schemaVersion: ParentHostBridgeRuntime.SchemaVersion,
         accepted: true,
         connectionState: 'connected',
         message: 'scan-requested',
-        snapshot: {
-          schemaVersion: 1,
-          route: 'devices',
-          generatedAt: '2026-06-24T12:00:00.000Z',
-          seasonLabel: 'LOCAL',
-          lastUpdated: '2026-06-24T12:00:00.000Z',
-          connectionState: 'connected',
-          commandEnabled: true,
-          agentEndpoint: 'host-bridge://tauri-parent',
-          dataSource: 'rust-read-model',
-          summary: {
-            title: 'Devices',
-            routeCapability: 'available',
-            parentAccess: 'paired',
-            household: 'available',
-            childDevice: 'available',
-          },
-          diagnosticPanelsEnabled: false,
-          parentPortalRows: [],
-          parentPortalShellStatus: {
-            routeLabel: 'Devices',
-            parentAccessState: 'paired',
-            globalConnectionState: 'connected',
-            routeCapabilityState: 'available',
-            dataSourceLabel: 'rust-read-model',
-            cards: [],
-          },
-          liveActivity: null,
-          browserPanels: null,
-          screenSettingsServiceResponse: null,
-        },
-      })
+        snapshot: devBridgeSnapshot('connected', 'rust-read-model', 'lan-device-1'),
+        events: [],
+      } satisfies ParentUiActionResult)
     )
   );
 
@@ -209,10 +145,14 @@ it('HostBridge dev adapter: polls the local dev bridge and emits changed snapsho
   ]);
 });
 
-function devBridgeSnapshot(connectionState: string, dataSource: string, deviceId: string) {
+function devBridgeSnapshot(
+  connectionState: ParentRouteSnapshot['connectionState'],
+  dataSource: ParentRouteSnapshot['dataSource'],
+  deviceId: string
+): ParentRouteSnapshot {
   return {
-    schemaVersion: 1,
-    route: 'devices',
+    schemaVersion: ParentHostBridgeRuntime.SchemaVersion,
+    route: ParentRoute.Devices,
     generatedAt: '2026-06-24T12:00:00.000Z',
     seasonLabel: 'LOCAL',
     lastUpdated: '2026-06-24T12:00:00.000Z',
@@ -231,20 +171,98 @@ function devBridgeSnapshot(connectionState: string, dataSource: string, deviceId
     parentPortalRows: [],
     parentPortalShellStatus: {
       routeLabel: 'Devices',
-      parentAccessState: 'paired',
+      parentAccessState: ParentPortalParentAccessState.ObserverOnly,
       globalConnectionState: connectionState,
       routeCapabilityState: 'available',
       dataSourceLabel: dataSource,
       cards: [],
     },
-    liveActivity: {
-      lanAddDeviceReadModel: {
-        addDeviceState: 'discovered',
-        discoveredDevices: [{ childDevice: { deviceId } }],
-      },
-    },
+    serviceHealth: null,
+    parentDesktopDistribution: null,
+    liveActivity: { lanAddDeviceReadModel: lanAddDeviceReadModel(deviceId) },
     browserPanels: null,
+    setupFirstRunPanel: null,
     screenSettingsServiceResponse: null,
+  };
+}
+
+function lanAddDeviceReadModel(deviceId: string): ParentLanAddDeviceReadModelSnapshot {
+  return {
+    schemaVersion: 1,
+    generatedAt: '2026-06-24T12:00:00.000Z',
+    discoverySource: 'local-dev-bridge',
+    addDeviceState: 'discovered',
+    localServiceDiscoveryState: 'discovered',
+    physicalHouseholdLanState: 'unavailable',
+    cloudRelayState: 'unavailable',
+    scanSummary: {
+      schemaVersion: 1,
+      sourceLabels: ['local-dev-bridge'],
+      scannedDeviceCount: 1,
+      agentDeviceCount: 0,
+      passiveDeviceCount: 1,
+      infrastructureDeviceCount: 0,
+      unsupportedDeviceCount: 0,
+    },
+    discoveredDevices: [
+      {
+        schemaVersion: 1,
+        discoveredAt: '2026-06-24T12:00:00.000Z',
+        childDevice: {
+          deviceId,
+          childProfileId: null,
+          label: deviceId,
+          platform: 'unknown',
+          ipAddress: null,
+          macAddress: null,
+          hostname: null,
+          networkInterface: null,
+          agentStatus: null,
+        },
+        agentPeerId: 'parent-dev-bridge',
+        routeId: 'local-network',
+        networkMode: 'local-network',
+        reachability: 'observed',
+        addressRef: 'redacted-local-address',
+        discoveryStatus: 'network-neighbor',
+        discoveryState: 'discovered',
+        evidenceSources: ['local-dev-bridge'],
+        serviceIdentityProbeEvidence: [],
+        hintSources: [],
+      },
+    ],
+    discoveryEventHistory: {
+      schemaVersion: 1,
+      generatedAt: '2026-06-24T12:00:00.000Z',
+      state: 'current',
+      latestEventId: null,
+      latestObservedAt: '2026-06-24T12:00:00.000Z',
+      rows: [],
+    },
+    canonicalHouseholdDevices: [],
+    pairingRequests: [],
+    trustedDeviceRegistry: [],
+    householdDeviceDecisions: [],
+    signedDiscoveryRelaySpine: null,
+    lanDiscoverySourceMatrix: null,
+    trustedDeviceIds: [],
+    revokedDeviceIds: [],
+    selectedDeviceReadiness: {
+      schemaVersion: 1,
+      selectedChildDeviceId: deviceId,
+      routeId: 'local-network',
+      pairingId: null,
+      trustState: 'unpaired',
+      reachability: 'observed',
+      readyForControl: false,
+      staleAt: null,
+      offlineAt: null,
+    },
+    controllerAuthority: 'unavailable',
+    observerAuthority: 'local-dev-bridge',
+    routeRequirementLabels: ['Authenticated parent-local route required'],
+    auditCheckLabels: ['No control authority claimed'],
+    honestNonClaims: ['Discovery observation is not pairing or control authority'],
   };
 }
 

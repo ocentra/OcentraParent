@@ -94,6 +94,7 @@
     radial-gradient(circle at 12% 12%, rgb(39 196 228 / 18%), transparent 28%),
     linear-gradient(180deg, #041729 0%, #010712 100%);
   color: #effcff;
+  box-sizing: border-box;
   min-height: 100dvh;
   overflow: hidden;
   padding: clamp(8px, 1.4vw, 14px);
@@ -104,6 +105,23 @@
   gap: 12px;
   grid-template-columns: minmax(0, 1fr);
   height: calc(100dvh - clamp(16px, 2.8vw, 28px));
+  min-height: 0;
+}
+
+.portal-unified-shell .portal-frame-tuner-standalone,
+.portal-unified-shell .portal-frame-tuner-workspace {
+  height: 100%;
+  min-height: 0;
+}
+
+.portal-unified-shell:has(.portal-frame-tuner-standalone) {
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.portal-unified-shell:has(.portal-frame-tuner-standalone) .oc-unified-shell__chrome {
+  height: 100%;
   min-height: 0;
 }
 

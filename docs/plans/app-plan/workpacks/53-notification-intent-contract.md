@@ -15,6 +15,15 @@ request, suspicious unknown, manual-required, and unavailable states while
 preserving the shared app/game evidence spine and avoiding provider, UI,
 service, policy-evaluator, adapter, broad-blocking, or platform-support claims.
 
+## Current Source/Test Review (2026-08-29)
+
+The Rust protocol DTO and its nested readiness rows now reject unknown fields,
+and the registered contract test covers a valid serde round trip plus top-level
+and nested unknown-field rejection. This contract can represent the named
+readiness states; it does not authorize the service to manufacture a time-limit
+or approval-request intent without an owned runtime signal. Delivery, UI,
+scheduler, adapter, and child claims remain false.
+
 ## Proof
 
 - `scripts/test/app-game-notification-intent-proof.mjs`

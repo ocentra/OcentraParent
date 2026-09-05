@@ -467,7 +467,7 @@ fn decode_artifacts(
             entry
                 .envelope
                 .decode::<ParentPresenceCustodyDecisionArtifact>()
-                .map(|envelope| envelope.payload)
+                .map(|envelope| envelope.payload().clone())
                 .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)
         })
         .collect()

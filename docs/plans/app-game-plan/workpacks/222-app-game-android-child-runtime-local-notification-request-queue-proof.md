@@ -1,5 +1,10 @@
 # WP222 App/Game Android Child Runtime Local Notification Request Queue Proof
 
+> **Current status (2026-08-29): BLOCKED / NO-CHANGE.** Current code overwrites
+> fixed queue/drain marker files. It has no request payload/identity, ordering,
+> retry, restart-safe state, idempotency, durable receipt, or launched service
+> consumer.
+
 <!-- agent-capsule -->
 
 > Agent Capsule
@@ -27,6 +32,10 @@ delivery, platform delivery outside the package, adapter dispatch, broad
 blocking, platform enforcement, or raw private source-row custody.
 
 ## Implementation
+
+The legal source order is WP207 -> WP216 -> WP217 -> WP220 -> WP221 -> WP222.
+Tests against the current fixed marker helper would not exercise a runtime
+queue. The historical TypeScript/proof-runner paths below are retired.
 
 - Added
   `platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeNotificationRequestQueueProof.java`.

@@ -12,7 +12,9 @@ use ocentra_parent_desktop::{
     parent_route_subscription_event_name, ParentDesktopAgentAddress, ParentRouteSubscriptionId,
     ParentRouteSubscriptionRegistry,
 };
-use ocentra_parent_runtime_core::parent_ui_bridge::load_parent_route_snapshot;
+use ocentra_parent_runtime_core::parent_ui_bridge::{
+    load_parent_route_snapshot, parent_agent_service_health_timeout_ms,
+};
 use ocentra_schema::parent_ui_bridge::{
     ParentRouteEventId, ParentRouteEventSnapshot, ParentRouteId, ParentRoutePeerId,
     ParentRoutePeerRole, ParentRouteSnapshot, ParentSubscriptionEvent,
@@ -104,7 +106,7 @@ fn parent_platform_proof_state_uses_rust_service_connection_for_package_runtime(
 }
 
 #[test]
-fn parent_platform_proof_state_reports_ready_when_rust_service_socket_accepts() {
+fn parent_platform_proof_state_rejects_raw_socket_without_typed_health_handshake() {
     let listener =
         TcpListener::bind((constants::test_network::LOOPBACK_IP, 0)).expect("bind listener");
     let address =
@@ -115,15 +117,26 @@ fn parent_platform_proof_state_reports_ready_when_rust_service_socket_accepts() 
     let state = proof_state_json(address);
     assert_eq!(
         state["serviceState"],
-        constants::value::PARENT_DESKTOP_SERVICE_CONNECTED
+        constants::value::PARENT_DESKTOP_SERVICE_UNAVAILABLE
     );
     assert_eq!(
         state["runtimeReadinessState"],
-        constants::value::PARENT_DESKTOP_RUNTIME_READY
+        constants::value::PARENT_DESKTOP_RUNTIME_DEGRADED
     );
     assert_eq!(
         state["activityAdapterState"],
-        constants::value::PARENT_DESKTOP_SERVICE_CONNECTED
+        constants::value::PARENT_DESKTOP_SERVICE_UNAVAILABLE
+    );
+    assert!(state["serviceProtocolSchemaVersion"].is_null());
+    assert!(state["serviceVersion"].is_null());
+    assert!(state["serviceTransport"].is_null());
+    assert_eq!(
+        state["serviceAuthenticationState"],
+        constants::value::PARENT_DESKTOP_AUTHENTICATION_MANUAL_REQUIRED
+    );
+    assert_eq!(
+        state["serviceRouteState"],
+        constants::value::DEVICE_RUNTIME_ROUTE_MANUAL_REQUIRED
     );
 }
 
@@ -303,7 +316,29 @@ fn assert_parent_platform_proof_state_shell_identity(state: &Value) {
         state["serviceState"],
         constants::value::PARENT_DESKTOP_SERVICE_UNAVAILABLE
     );
-    assert_eq!(state["serviceHealthEndpoint"], constants::endpoint::HEALTH);
+    assert_eq!(
+        state["serviceTransportEndpoint"],
+        format!(
+            "ws://{}{}",
+            constants::test_network::LOOPBACK_ANY_PORT,
+            constants::endpoint::DEV_WS
+        )
+    );
+    assert!(state["serviceProtocolSchemaVersion"].is_null());
+    assert!(state["serviceVersion"].is_null());
+    assert!(state["serviceTransport"].is_null());
+    assert_eq!(
+        state["serviceAuthenticationState"],
+        constants::value::PARENT_DESKTOP_AUTHENTICATION_MANUAL_REQUIRED
+    );
+    assert_eq!(
+        state["serviceRouteState"],
+        constants::value::DEVICE_RUNTIME_ROUTE_MANUAL_REQUIRED
+    );
+    assert_eq!(
+        state["controllerLeaseState"],
+        constants::value::PARENT_DESKTOP_CONTROLLER_LEASE_MANUAL_REQUIRED
+    );
     assert_eq!(
         state["runtimeReadinessState"],
         constants::value::PARENT_DESKTOP_RUNTIME_DEGRADED
@@ -330,7 +365,7 @@ fn assert_parent_platform_proof_state_shell_identity(state: &Value) {
     );
     assert_eq!(
         state["controllerRouteState"],
-        constants::value::PARENT_DESKTOP_CONTROLLER_ROUTE_ACTIVE_CONTROLLER
+        constants::value::PARENT_DESKTOP_CONTROLLER_ROUTE_MANUAL_REQUIRED
     );
     assert_eq!(
         state["observerReadOnlyState"],
@@ -341,35 +376,38 @@ fn assert_parent_platform_proof_state_shell_identity(state: &Value) {
 fn assert_parent_platform_proof_state_runtime_truth(state: &Value) {
     assert_eq!(
         state["routeState"],
-        serde_json::json!(DeviceRuntimeRouteState::LocalNetwork)
+        serde_json::json!(DeviceRuntimeRouteState::ManualRequired)
     );
     assert_eq!(
         state["routeSourceState"],
-        serde_json::json!(DeviceRuntimeRouteState::LocalNetwork)
+        serde_json::json!(DeviceRuntimeRouteState::ManualRequired)
     );
     assert_eq!(
         state["lanAiProviderState"],
-        serde_json::json!(DeviceRuntimeAiProviderState::Degraded)
+        serde_json::json!(DeviceRuntimeAiProviderState::Unavailable)
     );
     assert_eq!(
         state["degradedSourceState"],
-        serde_json::json!(DeviceRuntimeAiProviderState::Degraded)
+        serde_json::json!(DeviceRuntimeAiProviderState::Unavailable)
     );
     assert_eq!(
         state["parentAssistantProviderState"],
-        serde_json::json!(DeviceRuntimeAiProviderState::Degraded)
+        serde_json::json!(DeviceRuntimeAiProviderState::Unavailable)
     );
     assert_eq!(
         state["deviceRoleState"]["localAiRuntimeClaim"],
-        serde_json::json!(DeviceRuntimeLocalAiClaim::SharedPhysicalDeviceSingleton)
+        serde_json::json!(DeviceRuntimeLocalAiClaim::Unavailable)
     );
-    assert_eq!(state["serviceConnectTimeoutMs"], serde_json::json!(250));
+    assert_eq!(
+        state["serviceConnectTimeoutMs"],
+        serde_json::json!(parent_agent_service_health_timeout_ms())
+    );
 }
 
 fn assert_parent_platform_proof_state_package_operations_truth(state: &Value) {
     assert_eq!(
         state["sourceCustodyState"],
-        constants::value::PARENT_DESKTOP_SOURCE_CUSTODY_LIVE_LOCAL_NETWORK
+        constants::value::PARENT_DESKTOP_SOURCE_CUSTODY_MANUAL_REQUIRED
     );
     assert_eq!(
         state["relayRouteState"],

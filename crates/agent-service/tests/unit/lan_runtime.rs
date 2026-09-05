@@ -1,7 +1,17 @@
 #![forbid(unsafe_code)]
 
-#[path = "../support/test_invariants.rs"]
-mod test_invariants;
+static LAN_RUNTIME_ENV_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
+#[path = "../support/test_invariants/require_json_decode.rs"]
+mod test_require_json_decode;
+#[path = "../support/test_invariants/require_log_string_field.rs"]
+mod test_require_log_string_field;
+#[path = "../support/test_invariants/require_ok.rs"]
+mod test_require_ok;
+#[path = "../support/test_invariants/require_some.rs"]
+mod test_require_some;
+#[path = "../support/test_invariants/serialize_test_json.rs"]
+mod test_serialize_json;
 
 #[path = "../../src/event_builder.rs"]
 mod event_builder;
@@ -31,7 +41,7 @@ mod lan_runtime_stream_api;
 mod lan_runtime_stream_payload;
 #[path = "../support/lan_test_websocket_dispatch.rs"]
 pub(crate) mod lan_test_websocket_dispatch;
-#[path = "../support/test_text.rs"]
+#[path = "../support/lan_test_text.rs"]
 mod test_text;
 #[path = "../../src/time.rs"]
 mod time;
@@ -52,6 +62,12 @@ mod app {
 
     pub(crate) mod lan_pairing {
         pub(crate) type LanPairingRuntime = crate::lan_pairing::LanPairingRuntime;
+
+        pub(crate) fn route_trust_state(
+            target: Option<&ocentra_parent_agent_protocol::lan_pairing::LanSelectedRouteTarget>,
+        ) -> ocentra_parent_agent_protocol::lan_pairing::LanPairingText {
+            crate::lan_pairing_status::selection::route_trust_state(target)
+        }
     }
 
     pub(crate) mod lan_pairing_browser_add_device_state {
@@ -78,9 +94,16 @@ mod app {
     }
 
     pub(crate) mod lan_pairing_runtime_state {
+        pub(crate) mod mdns_advertisement {
+            pub(crate) type LanMdnsAdvertisementSyncState =
+                crate::lan_pairing_runtime_state::mdns_advertisement::LanMdnsAdvertisementSyncState;
+        }
+
         pub(crate) mod passive_discovery {
             pub(crate) type LanPassiveDiscoveryLocalNetworkChangeTrigger =
                 crate::lan_pairing_runtime_state::passive_discovery::LanPassiveDiscoveryLocalNetworkChangeTrigger;
+            pub(crate) type LanPassiveDiscoveryRuntimeObservedState =
+                crate::lan_pairing_runtime_state::passive_discovery::LanPassiveDiscoveryRuntimeObservedState;
 
             pub(crate) fn local_network_change_triggers(
                 previous_identity: Option<
@@ -93,6 +116,26 @@ mod app {
                     current_identity,
                 )
             }
+
+            pub(crate) fn passive_discovery_udp_sources() -> &'static [
+                ocentra_lan_core::network_inventory::passive_discovery::LanPassiveDiscoverySource
+            ]{
+                crate::lan_pairing_runtime_state::passive_discovery::passive_discovery_udp_sources()
+            }
+        }
+
+        pub(crate) mod provider_heartbeat {
+            pub(crate) type LanAiProviderHeartbeatState =
+                crate::lan_pairing_runtime_state::provider_heartbeat::LanAiProviderHeartbeatState;
+        }
+    }
+
+    pub(crate) mod lan_pairing_status {
+        pub(crate) fn pairing_status_event(
+            runtime: &crate::lan_pairing::LanPairingRuntime,
+            command: ocentra_parent_agent_protocol::transport::AgentCommandEnvelope,
+        ) -> ocentra_parent_agent_protocol::transport::AgentEventEnvelope {
+            crate::lan_pairing_status::pairing_status_event(runtime, command)
         }
     }
 
@@ -130,36 +173,21 @@ mod app {
 mod lan_pairing_household_device_spine_test_fixtures;
 #[path = "lan_pairing_provider_selection_read_model_support.rs"]
 mod lan_pairing_provider_selection_read_model;
+#[path = "lan_pairing_test_assertions.rs"]
+mod lan_pairing_test_assertions;
 #[path = "lan_pairing_test_commands.rs"]
 mod lan_pairing_test_commands;
+#[path = "lan_pairing_test_multidevice_commands.rs"]
+mod lan_pairing_test_multidevice_commands;
 #[path = "../support/lan_runtime_test_support.rs"]
 mod lan_runtime_test_support;
 
-#[test]
-fn lan_runtime_path_included_scheduler_hooks_and_time_helpers_remain_linked() {
-    let _spawn_mdns: fn(crate::lan_pairing::LanPairingRuntime) =
-        crate::lan_pairing_runtime_state::mdns_advertisement::spawn_lan_mdns_advertisement_runtime;
-    let _spawn_passive: fn(crate::lan_pairing::LanPairingRuntime) =
-        crate::lan_pairing_runtime_state::passive_discovery::spawn_lan_passive_discovery_runtime;
-
-    assert_eq!(
-        crate::time::timestamp_from_epoch_seconds::<String>(0),
-        "1970-01-01T00:00:00.000Z"
-    );
-    assert_eq!(
-        crate::time::timestamp_after_epoch_seconds::<String>(10, 5),
-        "1970-01-01T00:00:15.000Z"
-    );
-
-    let decoded: serde_json::Value =
-        crate::test_invariants::require_json_decode("{\"linked\":true}", "json helper is linked");
-    assert_eq!(decoded["linked"], true);
-    let field = ocentra_parent_agent_protocol::logging::LogFieldValue::String("linked".to_string());
-    assert_eq!(
-        crate::test_invariants::require_log_string_field(Some(&field), "log helper is linked"),
-        "linked"
-    );
-}
+#[path = "lan_pairing_runtime_state.rs"]
+mod lan_pairing_runtime_state_tests;
+#[path = "lan_pairing_status_selection.rs"]
+mod lan_pairing_status_selection_tests;
+#[path = "lan_pairing.rs"]
+mod lan_pairing_tests;
 
 #[test]
 fn lan_runtime_reports_ordered_local_network_change_triggers() {
@@ -245,6 +273,11 @@ fn lan_runtime_from_env_projects_configuration_into_read_model_and_status() {
     use ocentra_parent_agent_protocol::lan_pairing::{DeviceRuntimeRole, DeviceRuntimeSurface};
     use ocentra_parent_agent_protocol::logging::LogFieldValue;
     use std::ffi::OsString;
+
+    let _guard = test_require_ok::require_ok(
+        LAN_RUNTIME_ENV_LOCK.lock(),
+        "lan runtime env lock remains available",
+    );
 
     let registry_path = std::env::temp_dir().join("lan-runtime-configured-test.json");
     let names = [

@@ -20,7 +20,8 @@ use ocentra_parent_agent_protocol::screen_evidence::{
     SCREEN_SERVICE_FOREGROUND_SUMMARY_CAPTURED, SCREEN_SERVICE_FOREGROUND_TEMPLATE_VERSION,
 };
 use ocentra_parent_screen_capture_adapter::{
-    CapturedScreenImage, ScreenCaptureMetadata, ScreenCaptureScope,
+    trigger_scheduler::ScreenCaptureScheduleTrigger, CapturedScreenImage, ScreenCaptureMetadata,
+    ScreenCaptureScope,
 };
 
 use super::{
@@ -28,8 +29,10 @@ use super::{
         record_captured_screen_image_to_paths, ScreenAiServiceCapturePaths,
         ScreenAiServiceCaptureRecord,
     },
-    screen_ai_foreground_runtime::ScreenAiForegroundTickClock,
-    screen_ai_foreground_runtime_config::{foreground_key, ScreenAiForegroundRuntimeConfig},
+    screen_ai_foreground_runtime::types::ScreenAiForegroundTickClock,
+    screen_ai_foreground_runtime_config::{
+        foreground_key, pending_queue_record_count, ScreenAiForegroundRuntimeConfig,
+    },
 };
 
 static TEST_SEQUENCE: AtomicU64 = AtomicU64::new(0);
@@ -65,23 +68,34 @@ fn screen_foreground_key_prefers_real_window_id_and_rejects_degraded_state() {
 }
 
 #[test]
+fn screen_foreground_config_exposes_scheduler_and_empty_queue_contract() -> TestResult {
+    let root = test_path(constants::activity_store::TEST_SCREEN_QUEUE_SUFFIX);
+    if root.exists() {
+        fs::remove_dir_all(&root)?;
+    }
+    let config = foreground_config(&root);
+    let scheduler = config.scheduler_settings();
+
+    assert!(scheduler.screen_analysis_enabled);
+    assert!(scheduler.trigger_capture_enabled);
+    assert!(!scheduler.cadence_capture_enabled);
+    assert_eq!(scheduler.allowed_scope, ScreenCaptureScope::ActiveWindow);
+    assert_eq!(
+        scheduler.enabled_triggers,
+        &[ScreenCaptureScheduleTrigger::NativeAppForegroundStart]
+    );
+    assert_eq!(pending_queue_record_count(&config.queue_dir), Ok(0));
+
+    Ok(())
+}
+
+#[test]
 fn screen_foreground_capture_writes_native_trigger_queue_and_read_model_event() -> TestResult {
     let root = test_path(constants::activity_store::TEST_SCREEN_QUEUE_SUFFIX);
-    let config = ScreenAiForegroundRuntimeConfig {
-        screen_analysis_enabled: true,
-        foreground_capture_enabled: true,
-        poll_seconds: 1,
-        min_trigger_gap_seconds: 1,
-        max_captures: Some(1),
-        max_ticks: Some(1),
-        max_pending_queue_records: 3,
-        temporary_image_ttl_seconds:
-            ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_TEMPORARY_IMAGE_TTL_SECONDS_DEFAULT,
-        queue_dir: root.join(constants::activity_store::TEST_SCREEN_QUEUE_SUFFIX),
-        journal_path: root.join(constants::activity_store::TEST_CAPTURE_JOURNAL_SUFFIX),
-        journal_key_path: root.join(constants::activity_store::TEST_CAPTURE_KEY_SUFFIX),
-        store_path: root.join(constants::activity_store::TEST_CAPTURE_STORE_SUFFIX),
-    };
+    if root.exists() {
+        fs::remove_dir_all(&root)?;
+    }
+    let config = foreground_config(&root);
     let image = captured_test_image();
 
     let queue_job_id = record_foreground_capture_for_test(
@@ -108,6 +122,7 @@ fn screen_foreground_capture_writes_native_trigger_queue_and_read_model_event() 
     })?;
     let queue_lines = queue_record.lines().collect::<Vec<_>>();
     assert_eq!(queue_lines.len(), 1);
+    assert_eq!(pending_queue_record_count(&config.queue_dir), Ok(1));
     let queue_entry: serde_json::Value = serde_json::from_str(queue_lines[0]).map_err(|error| {
         IoError::other(format!(
             "{}: {error:?}",
@@ -170,6 +185,24 @@ fn screen_foreground_capture_writes_native_trigger_queue_and_read_model_event() 
     );
 
     Ok(())
+}
+
+fn foreground_config(root: &std::path::Path) -> ScreenAiForegroundRuntimeConfig {
+    ScreenAiForegroundRuntimeConfig {
+        screen_analysis_enabled: true,
+        foreground_capture_enabled: true,
+        poll_seconds: 1,
+        min_trigger_gap_seconds: 1,
+        max_captures: Some(1),
+        max_ticks: Some(1),
+        max_pending_queue_records: 3,
+        temporary_image_ttl_seconds:
+            ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_TEMPORARY_IMAGE_TTL_SECONDS_DEFAULT,
+        queue_dir: root.join(constants::activity_store::TEST_SCREEN_QUEUE_SUFFIX),
+        journal_path: root.join(constants::activity_store::TEST_CAPTURE_JOURNAL_SUFFIX),
+        journal_key_path: root.join(constants::activity_store::TEST_CAPTURE_KEY_SUFFIX),
+        store_path: root.join(constants::activity_store::TEST_CAPTURE_STORE_SUFFIX),
+    }
 }
 
 fn record_foreground_capture_for_test(

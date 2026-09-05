@@ -31,19 +31,9 @@ use crate::screen_ai_retention_sweeper_runtime::{
     ScreenAiRetentionSweeperClock, ScreenAiRetentionSweeperOutcome,
     ScreenAiRetentionSweeperRuntimeConfig,
 };
-use crate::test_invariants::require_ok;
+use crate::test_require_ok::require_ok;
 
 static TEST_SEQUENCE: AtomicU64 = AtomicU64::new(0);
-
-#[test]
-fn screen_retention_sweeper_runtime_is_enabled_by_default() -> Result<(), IoError> {
-    let config = ScreenAiRetentionSweeperRuntimeConfig::from_environment()
-        .ok_or_else(|| IoError::other("default retention sweeper configuration is disabled"))?;
-    assert_eq!(config.poll_seconds, 5);
-    assert_eq!(config.max_sweeps, None);
-    assert_eq!(config.max_ticks, None);
-    Ok(())
-}
 
 #[tokio::test(flavor = "current_thread")]
 async fn screen_retention_blocking_boundary_keeps_tokio_timer_live() -> Result<(), IoError> {

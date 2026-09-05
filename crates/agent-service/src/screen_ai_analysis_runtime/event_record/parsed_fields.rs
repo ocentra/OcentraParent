@@ -1,7 +1,6 @@
 use ocentra_parent_agent_protocol::local_ai_runtime::generation::LocalAiChatGenerationResult;
 use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiGenerationState;
 use ocentra_parent_agent_protocol::screen_evidence::SCREEN_CATEGORY_UNKNOWN;
-use ocentra_parent_agent_protocol::screen_evidence::SCREEN_POLICY_CONFIDENCE_READY;
 use ocentra_parent_agent_protocol::screen_evidence::SCREEN_PROVIDER_LOCAL_VISION_UNAVAILABLE;
 use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_ANALYSIS_MODEL_ID;
 use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_ANALYSIS_RUNTIME_REF;
@@ -18,7 +17,6 @@ pub(super) struct ScreenAiAnalysisParsedFields {
     pub(super) summary: String,
     pub(super) category: String,
     pub(super) confidence: f64,
-    pub(super) policy_eligible: bool,
     pub(super) provider_kind: String,
     pub(super) model_runtime_ref: String,
     pub(super) model_id: String,
@@ -36,8 +34,6 @@ pub(super) fn parsed_fields_from_generation(
             summary: output.summary,
             category: output.primary_category,
             confidence: output.confidence,
-            policy_eligible: output.policy_eligible
-                && output.confidence >= SCREEN_POLICY_CONFIDENCE_READY,
             provider_kind: output.provider_kind,
             model_runtime_ref: output.model_runtime_ref,
             model_id: output.model_id,
@@ -50,7 +46,6 @@ pub(super) fn parsed_fields_from_generation(
                 summary: SCREEN_SERVICE_ANALYSIS_SUMMARY_INVALID.to_string(),
                 category: SCREEN_CATEGORY_UNKNOWN.to_string(),
                 confidence: SCREEN_SERVICE_UNAVAILABLE_CONFIDENCE,
-                policy_eligible: false,
                 provider_kind: SCREEN_PROVIDER_LOCAL_VISION_UNAVAILABLE.to_string(),
                 model_runtime_ref: SCREEN_SERVICE_ANALYSIS_RUNTIME_REF.to_string(),
                 model_id: SCREEN_SERVICE_ANALYSIS_MODEL_ID.to_string(),
@@ -63,7 +58,6 @@ pub(super) fn parsed_fields_from_generation(
             summary: SCREEN_SERVICE_ANALYSIS_SUMMARY_UNAVAILABLE.to_string(),
             category: SCREEN_CATEGORY_UNKNOWN.to_string(),
             confidence: SCREEN_SERVICE_UNAVAILABLE_CONFIDENCE,
-            policy_eligible: false,
             provider_kind: SCREEN_PROVIDER_LOCAL_VISION_UNAVAILABLE.to_string(),
             model_runtime_ref: SCREEN_SERVICE_ANALYSIS_RUNTIME_REF.to_string(),
             model_id: SCREEN_SERVICE_ANALYSIS_MODEL_ID.to_string(),

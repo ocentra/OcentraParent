@@ -4,8 +4,8 @@ use std::{
 };
 
 use crate::{
-    DomainEvent, EventBus, EventEnvelope, EventSubscriber, EventingError, ExpectValue,
-    SubscriptionHandle,
+    bus::publisher::RootEventPublisher, DomainEvent, EventEnvelope, EventSubscriber, EventingError,
+    ExpectValue, SubscriptionHandle,
 };
 
 pub struct EventRecorder<E>
@@ -22,7 +22,7 @@ where
     E: DomainEvent + Clone + Send + Sync + 'static,
 {
     pub async fn attach(
-        bus: &EventBus,
+        bus: &RootEventPublisher,
         subscriber: EventSubscriber,
     ) -> Result<Self, EventingError> {
         let events = Arc::new(Mutex::new(Vec::new()));

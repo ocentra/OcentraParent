@@ -134,15 +134,15 @@ only with explicit parent settings.
   `output/ai-plan-proof/activity-screen-ai-degraded-portal-proof`. This is
   degraded read-model visibility proof; it does not execute OCR/VLM inference,
   capture fresh pixels, grant policy authority, or dispatch enforcement.
-- `scripts/test/screen-child-disclosure-proof.mjs` now proves the screen child
-  disclosure contract. It defines child-visible disabled, paused, active
-  capture, protected-surface, and deleted-summary states with calm tokenized
-  copy; requires active capture to be ready, scoped, and represented as a child
-  capture banner; requires deleted-summary state to cite deleted local custody;
-  and rejects hidden capture, raw screenshot display, remote viewer, and
-  policy-authority claims. It also renders desktop/mobile child-visible
-  disclosure screenshots from the same contract while keeping child-agent
-  deployment/delivery unclaimed.
+- The Rust `agent-protocol` screen child-disclosure source projection now owns
+  serialize-only calm copy and fail-closed `unavailable`/`manual_required`
+  diagnostic outputs. A private typed current-authority seam awaits a real
+  opaque owner-issued authority; it does not derive current disclosure from
+  historical result or deletion rows. No
+  `scripts/test/screen-child-disclosure-proof.mjs` exists: the child renderer,
+  current lifecycle owner, child delivery, tests, screenshots, and proof remain
+  open, while the parent summary remains explicitly diagnostic/proposed/not
+  delivered.
 - `scripts/test/screen-ai-enforcement-handoff-guard-proof.mjs` now proves the
   screen enforcement handoff guard contract. It builds a schema-valid handoff
   payload only from a dry-run policy decision that has not already been handed
@@ -1108,11 +1108,12 @@ parity, and UI remain separate proof gates.
 - [x] Screen service deletion event producer proof publishes deletion-committed
       events from the retention sweeper after expired queue deletion without
       fabricating policy/action refs.
-- [x] Screen child disclosure proof defines child-visible disabled, paused,
-      active capture, protected-surface, and deleted-summary status while
-      rejecting hidden capture/raw screenshot display claims.
-- [x] Screen child disclosure proof renders desktop/mobile child-visible
-      disclosure screenshots without claiming child-agent runtime deployment.
+- [x] Screen child disclosure source projection provides serialize-only calm
+      `unavailable`/`manual_required` diagnostics with no hidden-capture or raw
+      screenshot representation; current owner authority is not invented.
+- [ ] Screen child disclosure child renderer, lifecycle delivery, tests, and
+      desktop/mobile proof screenshots remain open; no child-visible runtime
+      or `screen-child-disclosure-proof.mjs` is claimed.
 - [x] Screen enforcement handoff guard proof requires dry-run policy,
       summary/local-AI/audit refs, enabled parent rule, confidence state, and a
       guard audit event while rejecting raw pixels, raw model text, retained

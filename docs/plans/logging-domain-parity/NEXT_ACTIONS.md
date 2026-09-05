@@ -16,7 +16,7 @@
 
 ## How to use
 
-1. Confirm the active branch matches the assigned branch. For this audit-hardening pass the branch is `codex/plan-harness-update`.
+1. Confirm the active branch matches the assigned branch. For this source-wave reconciliation the branch is `codex/logging-source-wave-repair` at accepted source head `735df89de`.
 2. Confirm claimed proof roots and test-result roots exist before trusting any done claim.
 3. Pick one honest next slice from `WORKPACK_INDEX.md`.
 4. Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is unclear.
@@ -24,7 +24,96 @@
 6. Fill the workpack pre-edit note.
 7. Implement or reconcile, test, run, proof, then update docs.
 
+## Current WP02 Windows owner route (2026-08-29)
+
+The next implementation slice is the missing package-owned provider seam:
+
+```text
+packages/logging-domain/src/local-artifact-mutation-provider.ts
+```
+
+The existing `src/local-artifact-path.ts` boundary and local-artifact
+append/file/lock/transaction, retention, bridge, and NDJSON callers remain
+consumers; they are not alternate mutation owners. The route requires
+canonical containment, symlink/reparse safety, directory ownership/currentness,
+atomic create/write/lock/recovery, and provider-issued opaque authority with no
+caller-minted capability or path-only fallback.
+
+The dedicated expected unit and integration roots are currently absent:
+
+```text
+packages/logging-domain/tests/unit/local-artifact-mutation-provider.test.ts
+packages/logging-domain/tests/integration/local-artifact-mutation-provider.test.ts
+```
+
+The package has no production Node-native binding to reuse. Route the Windows
+mutation through the repository's existing Rust FFI plus bounded process shape:
+
+```text
+crates/logging-core/src/local_artifact_mutation.rs
+crates/logging-local-artifact-windows-ffi/Cargo.toml
+crates/logging-local-artifact-windows-ffi/src/lib.rs
+crates/logging-local-artifact-provider/Cargo.toml
+crates/logging-local-artifact-provider/src/main.rs
+packages/logging-domain/src/local-artifact-mutation-provider.ts
+```
+
+The implementation must add the two crates to `Cargo.toml`, connect the
+Windows-only FFI dependency from `crates/logging-core/Cargo.toml`, and extend
+`packages/logging-domain/package.json` to resolve a pinned built provider
+executable. The provider must own the retained root/session authority and
+bounded framed process protocol; the TypeScript layer must not mint authority,
+perform direct path mutation, or invoke `cargo` in a shipped runtime. Existing
+dev/test/MCP child processes and protected-custody FFI remain reference shapes,
+not this provider.
+
+Required real integration roots are currently absent:
+
+```text
+crates/logging-core/tests/integration/local_artifact_mutation.rs
+crates/logging-local-artifact-windows-ffi/tests/integration/local_artifact_windows.rs
+crates/logging-local-artifact-provider/tests/integration/local_artifact_provider.rs
+packages/logging-domain/tests/integration/local-artifact-mutation-provider.test.ts
+```
+
+The native owner must fail closed on canonical containment, reparse/symlink
+substitution, directory identity/currentness drift, atomic create/write/lock/
+recovery uncertainty, process/protocol loss, and authority provenance. This is
+an implementation-authorized but unsatisfied route; do not claim source,
+tests, proof, checklist, review, normal READY, or DONE.
+
+The 27 reported Windows failures remain open baseline evidence. Proceed only
+when the implementation-phase graph query names WP02 as authorized; do not
+claim source completion, test execution, proof, checklist closeout, normal
+READY, or DONE from this route.
+
 ## Highest-priority queue
+
+### 0. Accepted Source Delta / Deferred Expected-Test Wave
+
+Current status:
+
+```text
+integration source through 3fec0793a contains reviewed canonical redaction, Vite/writer routing, logger sanitization, portal-fallback sanitization, and query realpath/symlink hardening for WP02/WP03/WP07/WP08
+no test source changed in that packet
+```
+
+Rust owns the exact 18-key sensitive-key policy and generates the checked-in
+TypeScript artifact. The TypeScript sanitizer, Logger serialization path,
+canonical dev writer, and portal compatibility fallback all consume that one
+policy; no alternate local regex or fail-open policy is accepted.
+
+Expected result after the remaining production-source wave closes:
+
+```text
+write the complete redaction/export/writer/query/logger expected-test matrix
+then run only focused logging-domain and portal boundary tests and fix failures
+do not regenerate proof or invoke broad validation before that writing phase is complete
+```
+
+The source mapping is recorded in the affected workpacks and graph. Focused
+validation, proof, and external composition remain deferred until the complete
+expected-test matrix is written.
 
 ### 1. Remaining Proof-Inventory Restoration / Claim Reduction
 
@@ -47,13 +136,13 @@ proof-inventory wrappers report only real blocking gaps
 Current status:
 
 ```text
-the portal dev-log consumer slice is proved locally: bridge-first routing, compatibility fallback, parent scope definitions, snapshot-language separation, focused portal logging tests, and the canonical WP03 proof root are present in this checkout
+the portal dev-log consumer slice is proved locally: bridge-first routing, compatibility fallback, parent scope definitions, snapshot-language separation, focused portal logging tests, and the canonical WP03 proof root are present in this checkout. Source inspection also confirms the live Rust callers: app::health, service_runtime::run_agent_service, and activity_capture route through agent-service::dev_log into logging-core::DevLogger, with core redaction and locked/synced NDJSON append.
 ```
 
 Expected result:
 
 ```text
-WP03 stays partial until the remaining Rust-side agent-service mapping row is closed by its owning slice or reduced to a narrower no-claim boundary
+WP03 stays partial because its focused validation/proof rows remain deferred and the separate root dev-log-routing check is outside this slice; there is no missing production agent-service-to-logging-core mapping in the current source
 ```
 
 ### 3. Root Dev-Log-Routing Handoff For Full WP06 Closeout

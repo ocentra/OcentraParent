@@ -1,6 +1,3 @@
-#[path = "../support/test_invariants.rs"]
-mod test_invariants;
-
 use std::collections::BTreeMap;
 use std::primitive::str as TestStr;
 
@@ -13,7 +10,8 @@ use ocentra_parent_agent_protocol::host_identity::HostIdentityEvidenceKind;
 use ocentra_parent_agent_protocol::policy_constants as policy;
 
 use crate::host_identity_read_model::{host_identity_read_model, GeneratedAtText};
-use crate::test_invariants::{require_ok, require_some};
+use crate::test_require_ok::require_ok;
+use crate::test_require_some::require_some;
 
 #[test]
 fn host_identity_read_model_preserves_manual_and_unavailable_boundaries() {

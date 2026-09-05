@@ -1,8 +1,10 @@
 mod address;
 mod prefix;
-mod record_values;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 pub enum LocalNetworkInterfaceIgnoreReason {
     EmptyName,
     Loopback,
@@ -12,6 +14,9 @@ pub enum LocalNetworkInterfaceIgnoreReason {
     VpnOrTunnel,
     ZeroTier,
     Wsl,
+    Down,
+    Disconnected,
+    LinkLocalOnly,
 }
 
 pub(super) fn supported_local_ipv4_text(value: &str) -> bool {
@@ -22,26 +27,16 @@ pub(super) fn supported_dns_server_text(value: &str) -> bool {
     address::supported_dns_server_text(value)
 }
 
+pub(super) fn supported_local_ipv6_text(value: &str) -> bool {
+    address::supported_local_ipv6_text(value)
+}
+
 pub(super) fn sanitized_dns_servers(values: Vec<String>) -> Vec<String> {
     let mut dns_servers = Vec::new();
     for value in values {
         push_unique_string_if(&mut dns_servers, &value, supported_dns_server_text(&value));
     }
     dns_servers
-}
-
-pub(super) fn record_text_values(record: &serde_json::Value, field_name: &str) -> Vec<String> {
-    record_values::record_text_values(record, field_name)
-}
-
-pub(super) fn normalized_ipv6_prefixes(values: Vec<String>) -> Vec<String> {
-    let mut prefixes = Vec::new();
-    for value in values {
-        if let Some(prefix) = normalized_ipv6_prefix(&value) {
-            push_unique_string(&mut prefixes, prefix);
-        }
-    }
-    prefixes
 }
 
 pub(super) fn normalized_ipv6_prefix(value: &str) -> Option<String> {
@@ -63,17 +58,29 @@ pub(super) fn push_unique_string_if(values: &mut Vec<String>, value: &str, inclu
     }
 }
 
-pub(super) fn ignored_interface_name(interface_name: &str) -> bool {
-    ignored_interface_reason(interface_name).is_some()
-}
-
 pub fn ignored_interface_reason(interface_name: &str) -> Option<LocalNetworkInterfaceIgnoreReason> {
     let normalized = interface_name.trim().to_ascii_lowercase();
     interface_ignore_reason(&normalized)
 }
 
-pub(super) fn default_gateway_preference(default_gateway: Option<&str>) -> u8 {
-    u8::from(default_gateway.is_none())
+pub fn stable_interface_id(
+    interface_name: &str,
+    interface_index: Option<u32>,
+    mac_address: Option<&str>,
+) -> Option<String> {
+    mac_address
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+        .map(|value| format!("mac:{}", value.to_ascii_lowercase()))
+        .or_else(|| {
+            interface_index
+                .filter(|value| *value > 0)
+                .map(|value| format!("index:{value}"))
+        })
+        .or_else(|| {
+            let normalized = interface_name.trim().to_ascii_lowercase();
+            (!normalized.is_empty()).then(|| format!("name:{normalized}"))
+        })
 }
 
 fn interface_ignore_reason(normalized: &str) -> Option<LocalNetworkInterfaceIgnoreReason> {

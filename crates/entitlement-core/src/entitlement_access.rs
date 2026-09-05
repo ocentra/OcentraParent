@@ -10,7 +10,7 @@ use crate::entitlement_snapshot::EntitlementSnapshotContext;
 use ocentra_eventing::envelope::{DomainEvent, EventContract};
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, SchemaVersion};
-use serde::{Deserialize, Serialize};
+use serde::{de::IgnoredAny, Deserialize, Deserializer, Serialize};
 
 pub const CRATE_NAME: &str = "ocentra-entitlement-core";
 const ENTITLEMENT_SCHEMA_VERSION: u16 = 1;
@@ -117,9 +117,11 @@ pub enum EntitlementCapabilityRejectionReason {
     ParentPortalOnlyScope,
     #[serde(rename = "inactive-subscription")]
     InactiveSubscription,
+    #[serde(rename = "grace-restricted")]
+    GraceRestricted,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 pub struct EntitlementCapabilityInput {
     pub capability: EntitlementCapability,
     pub subscription_state: SubscriptionState,
@@ -127,7 +129,39 @@ pub struct EntitlementCapabilityInput {
     pub family_setup_state: FamilySetupState,
     pub policy_state: EntitlementPolicyState,
     pub capability_scope: EntitlementCapabilityScope,
-    pub snapshot_context: EntitlementSnapshotContext,
+    pub(crate) snapshot_context: EntitlementSnapshotContext,
+}
+
+impl<'de> Deserialize<'de> for EntitlementCapabilityInput {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        #[derive(Deserialize)]
+        #[serde(deny_unknown_fields)]
+        struct WireInput {
+            capability: EntitlementCapability,
+            subscription_state: SubscriptionState,
+            offline_grace_state: OfflineGraceState,
+            family_setup_state: FamilySetupState,
+            policy_state: EntitlementPolicyState,
+            capability_scope: EntitlementCapabilityScope,
+            #[serde(default)]
+            snapshot_context: Option<IgnoredAny>,
+        }
+
+        let input = WireInput::deserialize(deserializer)?;
+        let _untrusted_context = input.snapshot_context;
+        Ok(Self {
+            capability: input.capability,
+            subscription_state: input.subscription_state,
+            offline_grace_state: input.offline_grace_state,
+            family_setup_state: input.family_setup_state,
+            policy_state: input.policy_state,
+            capability_scope: input.capability_scope,
+            snapshot_context: EntitlementSnapshotContext::unavailable(),
+        })
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

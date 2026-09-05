@@ -23,5 +23,7 @@ mod idempotent_recovery;
 mod recover;
 #[path = "ndjson_io/state_match.rs"]
 mod state_match;
+#[path = "ndjson_io/synchronization_markers.rs"]
+mod synchronization_markers;
 #[path = "ndjson_io/write.rs"]
 mod write;

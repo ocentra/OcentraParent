@@ -8,35 +8,34 @@ import {
   type ParentDevBridgeUrl,
   type ParentRouteContext,
   type ParentRouteSnapshot,
-  type ParentRouteSubscriptionEventName,
-  type ParentRouteSubscriptionId,
   type ParentSubscriptionEvent,
   type ParentUiActionResult,
   type ParentUiAction,
+  decodeParentBridgeUnsubscribeResult,
+  decodeParentRouteSubscriptionId,
+  decodeParentSubscriptionEvent,
+  decodeParentUiActionResult,
   parentDevBridgeDispatchUnavailableMessage,
   parentDevBridgeHttpError,
   parentRouteSubscriptionEventName,
   presentationOnlyDevWebHostBridgeMessage,
 } from '../generated/parent-ui-bridge';
 import type { ParentRouteId, ParentUnknownRecord } from '../generated/parent-ui-bridge';
+import { PORTAL_HOST_BRIDGE_RUNTIME } from '@ocentra-parent/portal-domain/portal-host-bridge-runtime';
+import { invoke as invokeTauriCommand } from '@tauri-apps/api/core';
+import { listen as listenTauriEvent } from '@tauri-apps/api/event';
+import { dispatchPortalAction } from './host-bridge/action-dispatch';
 import { createDevWebRouteSubscription } from './host-bridge/dev-web-subscription';
-
-type TauriCoreModule = {
-  invoke<TResult>(command: ParentBridgeCommandName, args?: ParentUnknownRecord): Promise<TResult>;
-};
-
-type TauriEventModule = {
-  listen<TPayload>(
-    event: ParentRouteSubscriptionEventName,
-    handler: (event: { payload: TPayload }) => void
-  ): Promise<() => void>;
-};
-
-let tauriCoreModulePromise: Promise<TauriCoreModule> | null = null;
-let tauriEventModulePromise: Promise<TauriEventModule> | null = null;
+import {
+  createSchemaMismatchParentRouteSnapshot,
+  createUnavailableDevWebRouteSnapshot,
+} from './host-bridge/dev-web-unavailable-snapshot';
+import { resolveParentDevBridgeUrl, trimTrailingSlash } from './host-bridge/dev-web-url';
+import { decodeHostRouteSnapshot } from './host-bridge/route-snapshot';
+import { isParentTauriRuntime } from './tauri-runtime';
 
 export function createHostBridge(): HostBridge {
-  return isTauriRuntime() ? createTauriHostBridge() : createDevWebHostBridge();
+  return isParentTauriRuntime() ? createTauriHostBridge() : createDevWebHostBridge();
 }
 
 function createTauriHostBridge(): HostBridge {
@@ -69,36 +68,55 @@ function createUnavailableDevWebHostBridge(): HostBridge {
   };
 }
 
-async function invokeParentDevBridgeCommand<TResult>(
+class ParentDevBridgeResponseSchemaError extends Error {}
+
+async function invokeParentDevBridgeCommand(
   parentDevBridgeUrl: ParentDevBridgeUrl,
   route: ParentDevBridgeRouteName,
   payload: ParentUnknownRecord
-): Promise<TResult> {
-  const response = await fetch(
-    `${trimTrailingSlash(parentDevBridgeUrl)}${ParentHostBridgeRuntime.UrlPathSeparator}${route}`,
-    {
-      method: ParentHostBridgeRuntime.PostMethod,
-      headers: {
-        [ParentHostBridgeRuntime.JsonContentTypeHeader]: ParentHostBridgeRuntime.JsonContentType,
-      },
-      body: JSON.stringify(payload),
-    }
+): Promise<unknown> {
+  const abortController = new AbortController();
+  const timeoutId = globalThis.setTimeout(
+    () => abortController.abort(),
+    ParentHostBridgeRuntime.DevBridgeRequestTimeoutMs
   );
-  if (!response.ok) {
-    throw new Error(parentDevBridgeHttpError(route, response.status));
+  try {
+    const response = await fetch(
+      `${trimTrailingSlash(parentDevBridgeUrl)}${ParentHostBridgeRuntime.UrlPathSeparator}${route}`,
+      {
+        method: ParentHostBridgeRuntime.PostMethod,
+        headers: {
+          [ParentHostBridgeRuntime.JsonContentTypeHeader]: ParentHostBridgeRuntime.JsonContentType,
+        },
+        body: JSON.stringify(payload),
+        signal: abortController.signal,
+      }
+    );
+    if (!response.ok) {
+      throw new Error(parentDevBridgeHttpError(route, response.status));
+    }
+    try {
+      return await response.json();
+    } catch {
+      throw new ParentDevBridgeResponseSchemaError();
+    }
+  } finally {
+    globalThis.clearTimeout(timeoutId);
   }
-  return (await response.json()) as TResult;
 }
 
-async function invokeParentDevBridgeCommandOrThrow<TResult>(
+async function invokeParentDevBridgeCommandOrThrow(
   parentDevBridgeUrl: ParentDevBridgeUrl,
   route: ParentDevBridgeRouteName,
   payload: ParentUnknownRecord
-): Promise<TResult> {
+): Promise<unknown> {
   try {
-    return await invokeParentDevBridgeCommand<TResult>(parentDevBridgeUrl, route, payload);
+    return await invokeParentDevBridgeCommand(parentDevBridgeUrl, route, payload);
   } catch (error) {
-    if (error instanceof TypeError) {
+    if (
+      error instanceof TypeError ||
+      (error instanceof Error && error.name === PORTAL_HOST_BRIDGE_RUNTIME.AbortErrorName)
+    ) {
       throw new Error(parentDevBridgeDispatchUnavailableMessage(parentDevBridgeUrl));
     }
     if (error instanceof Error) {
@@ -113,25 +131,40 @@ async function loadDevWebRouteSnapshot(
   route: ParentRouteId,
   context?: ParentRouteContext
 ): Promise<ParentRouteSnapshot> {
-  return invokeParentDevBridgeCommandOrThrow<ParentRouteSnapshot>(parentDevBridgeUrl, ParentDevBridgeRoute.LoadRoute, {
-    route,
-    context: context ?? null,
-  });
+  let response: unknown;
+  try {
+    response = await invokeParentDevBridgeCommandOrThrow(parentDevBridgeUrl, ParentDevBridgeRoute.LoadRoute, {
+      route,
+      context: context ?? null,
+    });
+  } catch (error) {
+    if (error instanceof ParentDevBridgeResponseSchemaError) {
+      return createSchemaMismatchParentRouteSnapshot(route, ParentHostBridgeRuntime.AgentEndpointDevWeb);
+    }
+    return createUnavailableDevWebRouteSnapshot(parentDevBridgeUrl, route);
+  }
+  return decodeHostRouteSnapshot(response, route, ParentHostBridgeRuntime.AgentEndpointDevWeb);
 }
 
 function createTauriLoadRouteAction(): (
   route: ParentRouteId,
   context?: ParentRouteContext
 ) => Promise<ParentRouteSnapshot> {
-  return (route, context) =>
-    invokeParentBridgeCommand<ParentRouteSnapshot>(ParentBridgeCommand.LoadRoute, {
+  return async (route, context) => {
+    const response = await invokeParentBridgeCommand(ParentBridgeCommand.LoadRoute, {
       route,
       context: context ?? null,
     });
+    return decodeHostRouteSnapshot(response, route);
+  };
 }
 
 function createTauriDispatchAction(): (action: ParentUiAction) => Promise<ParentUiActionResult> {
-  return (action) => invokeParentBridgeCommand<ParentUiActionResult>(ParentBridgeCommand.Dispatch, { action });
+  return (action) =>
+    dispatchPortalAction(action, async () => {
+      const response = await invokeParentBridgeCommand(ParentBridgeCommand.Dispatch, { action });
+      return decodeParentUiActionResult(response);
+    });
 }
 
 function createTauriSubscribeAction(): (
@@ -140,22 +173,27 @@ function createTauriSubscribeAction(): (
   onEvent: (event: ParentSubscriptionEvent) => void
 ) => Promise<() => void> {
   return async (route, context, onEvent) => {
-    const subscriptionId = await invokeParentBridgeCommand<ParentRouteSubscriptionId>(ParentBridgeCommand.Subscribe, {
-      route,
-      context: context ?? null,
-    });
-    const tauriEvent = await loadTauriEventModule();
-    const unlisten = await tauriEvent.listen<ParentSubscriptionEvent>(
-      parentRouteSubscriptionEventName(subscriptionId),
-      (event) => {
-        onEvent(event.payload);
-      }
+    const subscriptionId = decodeParentRouteSubscriptionId(
+      await invokeParentBridgeCommand(ParentBridgeCommand.Subscribe, {
+        route,
+        context: context ?? null,
+      })
     );
+    const unlisten = await listenTauriEvent<unknown>(parentRouteSubscriptionEventName(subscriptionId), (event) => {
+      try {
+        const subscriptionEvent = decodeParentSubscriptionEvent(event.payload);
+        if (subscriptionEvent.route === route) {
+          onEvent(subscriptionEvent);
+        }
+      } catch {
+        // Invalid host payloads never reach portal state.
+      }
+    });
     return () => {
       unlisten();
-      void invokeParentBridgeCommand<boolean>(ParentBridgeCommand.Unsubscribe, {
-        subscriptionId,
-      });
+      void invokeParentBridgeCommand(ParentBridgeCommand.Unsubscribe, { subscriptionId })
+        .then(decodeParentBridgeUnsubscribeResult)
+        .catch(() => undefined);
     };
   };
 }
@@ -170,8 +208,11 @@ function createDevWebDispatchAction(
   parentDevBridgeUrl: ParentDevBridgeUrl
 ): (action: ParentUiAction) => Promise<ParentUiActionResult> {
   return (action) =>
-    invokeParentDevBridgeCommandOrThrow<ParentUiActionResult>(parentDevBridgeUrl, ParentDevBridgeRoute.Dispatch, {
-      action,
+    dispatchPortalAction(action, async () => {
+      const response = await invokeParentDevBridgeCommandOrThrow(parentDevBridgeUrl, ParentDevBridgeRoute.Dispatch, {
+        action,
+      });
+      return decodeParentUiActionResult(response);
     });
 }
 
@@ -208,40 +249,9 @@ function createUnavailableSubscribeAction(
   return async () => unavailable<() => void>();
 }
 
-async function invokeParentBridgeCommand<TResult>(
+async function invokeParentBridgeCommand(
   command: ParentBridgeCommandName,
   args: ParentUnknownRecord
-): Promise<TResult> {
-  const tauriCore = await loadTauriCoreModule();
-  return tauriCore.invoke<TResult>(command, args);
-}
-
-function loadTauriCoreModule(): Promise<TauriCoreModule> {
-  if (tauriCoreModulePromise === null) {
-    tauriCoreModulePromise = import(ParentHostBridgeRuntime.TauriCoreModule) as Promise<TauriCoreModule>;
-  }
-  return tauriCoreModulePromise;
-}
-
-function loadTauriEventModule(): Promise<TauriEventModule> {
-  if (tauriEventModulePromise === null) {
-    tauriEventModulePromise = import(ParentHostBridgeRuntime.TauriEventModule) as Promise<TauriEventModule>;
-  }
-  return tauriEventModulePromise;
-}
-
-function resolveParentDevBridgeUrl(): ParentDevBridgeUrl | null {
-  const value = import.meta.env[ParentHostBridgeRuntime.DevBridgeUrlEnvKey];
-  return typeof value === ParentHostBridgeRuntime.StringType && value.trim().length > 0 ? value.trim() : null;
-}
-
-function trimTrailingSlash(value: ParentDevBridgeUrl): ParentDevBridgeUrl {
-  return value.endsWith(ParentHostBridgeRuntime.UrlPathSeparator) ? value.slice(0, -1) : value;
-}
-
-function isTauriRuntime(): boolean {
-  return (
-    typeof window !== ParentHostBridgeRuntime.TypeofUndefined &&
-    ParentHostBridgeRuntime.TauriInternalWindowKey in window
-  );
+): Promise<unknown> {
+  return invokeTauriCommand<unknown>(command, args);
 }

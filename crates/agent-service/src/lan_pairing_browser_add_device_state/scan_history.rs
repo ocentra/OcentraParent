@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -6,7 +7,10 @@ use ocentra_lan_core::network_inventory::{LanDiscoveryScanPlan, LanNetworkInvent
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceRef;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingText;
-use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdDevice;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
+    LanCanonicalHouseholdDevice, LanCanonicalHouseholdDeviceClassification,
+    LanCanonicalHouseholdRouteState,
+};
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -14,12 +18,15 @@ use crate::{
     time::timestamp_now,
 };
 
+#[path = "scan_history_previous_devices.rs"]
+mod scan_history_previous_devices;
 #[path = "scan_history/write_lock.rs"]
 pub(crate) mod write_lock;
 
-use write_lock::scan_history_write_lock;
+use write_lock::{scan_history_write_lock, ScanHistoryLockKind};
 
 pub(crate) const LAN_SCAN_HISTORY_SCHEMA_VERSION: u16 = 2;
+const LAN_SCAN_HISTORY_MIN_SUPPORTED_SCHEMA_VERSION: u16 = 1;
 const LAN_SCAN_HISTORY_FILE_SUFFIX: &str = "-lan-scan-history.json";
 const LAN_SCAN_HISTORY_TEMPORARY_EXTENSION_PREFIX: &str = "tmp";
 const LAN_SCAN_HISTORY_TEMPORARY_EXTENSION_SEPARATOR: &str = "-";
@@ -34,26 +41,11 @@ impl From<&Path> for LanScanHistoryRegistryPath {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-struct LanScanHistoryDir(PathBuf);
-
-impl AsRef<Path> for LanScanHistoryDir {
-    fn as_ref(&self) -> &Path {
-        self.0.as_path()
-    }
-}
-
-#[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct LanScanHistoryPath(PathBuf);
 
 impl AsRef<Path> for LanScanHistoryPath {
     fn as_ref(&self) -> &Path {
         self.0.as_path()
-    }
-}
-
-impl LanScanHistoryPath {
-    fn parent_dir(&self) -> Option<LanScanHistoryDir> {
-        self.0.parent().map(PathBuf::from).map(LanScanHistoryDir)
     }
 }
 
@@ -94,25 +86,26 @@ pub(crate) fn recent_previous_scan_agent_truth_devices(
     previous_scan_snapshot: Option<&LanScanHistorySnapshot>,
     now: DateTime<Utc>,
 ) -> Vec<LanPairingDeviceRef> {
-    let Some(previous_scan_snapshot) = previous_scan_snapshot else {
-        return Vec::new();
-    };
-    if !scan_history_is_recent(&previous_scan_snapshot.updated_at.clone().into(), now) {
-        return Vec::new();
-    }
-
-    previous_scan_snapshot
-        .devices
-        .iter()
-        .filter(|device| historical_agent_truth_should_suppress_probe(device))
-        .map(previous_scan_truth_device)
-        .collect()
+    scan_history_previous_devices::recent_previous_scan_agent_truth_devices(
+        previous_scan_snapshot,
+        now,
+    )
 }
 
 pub(crate) fn load_scan_history_snapshot(
     runtime: &LanPairingRuntime,
 ) -> Option<LanScanHistorySnapshot> {
     scan_history_path(runtime).and_then(|path| read_scan_history(&path))
+}
+
+pub(crate) fn scan_history_execution_lock(
+    runtime: &LanPairingRuntime,
+) -> Option<write_lock::CrossProcessPathLock> {
+    let path = scan_history_path(runtime)?;
+    if let Some(parent) = path.as_ref().parent() {
+        fs::create_dir_all(parent).ok()?;
+    }
+    write_lock::cross_process_path_lock(&path, &ScanHistoryLockKind::Execution)
 }
 
 pub(crate) fn save_scan_history(
@@ -123,7 +116,7 @@ pub(crate) fn save_scan_history(
     let Some(path) = scan_history_path(runtime) else {
         return false;
     };
-    if let Some(parent) = path.parent_dir() {
+    if let Some(parent) = path.as_ref().parent() {
         let _ = fs::create_dir_all(parent);
     }
     let Some(_lock) = scan_history_write_lock(&path) else {
@@ -145,6 +138,9 @@ pub(crate) fn save_replay_canonical_devices(
     replay_canonical_devices: &[LanCanonicalHouseholdDevice],
     generated_at: &LanPairingText,
 ) -> Option<LanReplayCanonicalProjection> {
+    if !canonical_devices_are_valid(replay_canonical_devices) {
+        return None;
+    }
     let path = scan_history_path(runtime)?;
     let _lock = scan_history_write_lock(&path)?;
     let mut snapshot = read_scan_history(&path)?;
@@ -181,6 +177,41 @@ pub(crate) fn valid_replay_projection(
     projection.filter(|projection| {
         projection.schema_version == LAN_REPLAY_CANONICAL_PROJECTION_SCHEMA_VERSION
             && strict_rfc3339_timestamp(&LanPairingText(projection.generated_at.clone())).is_some()
+            && canonical_devices_are_valid(&projection.canonical_devices)
+    })
+}
+
+fn canonical_devices_are_valid(devices: &[LanCanonicalHouseholdDevice]) -> bool {
+    let mut canonical_device_ids = HashSet::with_capacity(devices.len());
+    devices.iter().all(|device| {
+        let canonical_device_id = device.canonical_device_id.trim();
+        let route_id_is_valid = device
+            .route_id
+            .as_deref()
+            .map(|route_id| !route_id.trim().is_empty())
+            .unwrap_or(true);
+        let non_child_device_is_unroutable = matches!(
+            &device.classification,
+            LanCanonicalHouseholdDeviceClassification::ChildAgent
+        ) || (device.route_id.is_none()
+            && device.child_agent_inventory.is_none()
+            && matches!(
+                &device.route_state,
+                LanCanonicalHouseholdRouteState::Unavailable
+            ));
+
+        device.schema_version == constants::lan_pairing::SCHEMA_VERSION
+            && !canonical_device_id.is_empty()
+            && canonical_device_id == device.canonical_device_id
+            && !device.display_name.trim().is_empty()
+            && canonical_device_ids.insert(canonical_device_id)
+            && (!device.enrollable
+                || matches!(
+                    &device.classification,
+                    LanCanonicalHouseholdDeviceClassification::ChildAgent
+                ))
+            && route_id_is_valid
+            && non_child_device_is_unroutable
     })
 }
 
@@ -208,12 +239,30 @@ fn write_scan_history(path: &LanScanHistoryPath, snapshot: &LanScanHistorySnapsh
 
 fn read_scan_history(path: &LanScanHistoryPath) -> Option<LanScanHistorySnapshot> {
     let json = fs::read_to_string(path).ok()?;
-    serde_json::from_str(&json).ok()
+    let snapshot = serde_json::from_str(&json).ok()?;
+    valid_scan_history_snapshot(&snapshot).then_some(snapshot)
+}
+
+fn valid_scan_history_snapshot(snapshot: &LanScanHistorySnapshot) -> bool {
+    (LAN_SCAN_HISTORY_MIN_SUPPORTED_SCHEMA_VERSION..=LAN_SCAN_HISTORY_SCHEMA_VERSION)
+        .contains(&snapshot.schema_version)
+        && strict_rfc3339_timestamp(&LanPairingText(snapshot.updated_at.clone())).is_some()
+        && snapshot
+            .metadata
+            .as_ref()
+            .map(|metadata| !metadata.scan_id.trim().is_empty())
+            .unwrap_or(true)
+        && snapshot
+            .replay_canonical_projection
+            .as_ref()
+            .map(|projection| valid_replay_projection(Some(projection)).is_some())
+            .unwrap_or(true)
 }
 
 fn scan_history_path(runtime: &LanPairingRuntime) -> Option<LanScanHistoryPath> {
     match &runtime.persistence {
-        LanPairingRegistryPersistence::InMemory => None,
+        LanPairingRegistryPersistence::InMemory
+        | LanPairingRegistryPersistence::UnavailableLocalJsonRegistry => None,
         LanPairingRegistryPersistence::LocalJsonRegistry(path) => Some(
             scan_history_path_for_registry(&LanScanHistoryRegistryPath(path.clone())),
         ),
@@ -247,27 +296,4 @@ pub(crate) fn scan_history_is_recent(updated_at: &LanPairingText, now: DateTime<
                     )
         })
         .unwrap_or(false)
-}
-
-fn historical_agent_truth_should_suppress_probe(device: &LanNetworkInventoryDevice) -> bool {
-    matches!(
-        device.agent_status.as_deref(),
-        Some(constants::lan_pairing::LOCAL_AGENT_STATUS)
-            | Some(constants::lan_pairing::SERVICE_IDENTITY_PROBE_AGENT_STATUS)
-    )
-}
-
-fn previous_scan_truth_device(device: &LanNetworkInventoryDevice) -> LanPairingDeviceRef {
-    let mut truth_device = LanPairingDeviceRef::new(
-        device.device_id.clone(),
-        None,
-        device.label.clone(),
-        device.platform.clone(),
-    );
-    truth_device.ip_address = Some(device.ip_address.clone());
-    truth_device.mac_address = Some(device.mac_address.clone());
-    truth_device.hostname = device.hostname.clone();
-    truth_device.network_interface = device.network_interface.clone();
-    truth_device.agent_status = device.agent_status.clone();
-    truth_device
 }

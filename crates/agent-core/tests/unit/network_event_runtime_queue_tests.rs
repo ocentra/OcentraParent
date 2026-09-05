@@ -160,14 +160,35 @@ async fn network_runtime_queue_idempotency_rejects_queued_and_completed_duplicat
         report.first_publish_report.queue_report.disposition,
         QueueDisposition::QueuedNoSubscriber
     );
-    assert!(duplicate_idempotency_error_mentions_network_flow(
-        &report.queued_duplicate_error
+    assert!(matches!(
+        &report.queued_duplicate_error,
+        EventingError::DuplicateEventId { event_id }
+            if event_id == &report.first_publish_report.event_id
     ));
+    assert!(matches!(
+        report.registry_duplicate_error,
+        EventingError::DuplicateIdempotencyKey { ref idempotency_key }
+            if idempotency_key
+                .as_str()
+                .contains(constants::network_flow::EVENT_NETWORK_FLOW_OBSERVED)
+    ));
+    assert_ne!(
+        report.registry_event_id,
+        report.first_publish_report.event_id
+    );
+    assert_eq!(
+        report.first_idempotency_key,
+        report.registry_idempotency_key
+    );
     assert_eq!(report.drain_report.queued_before, 1);
     assert_eq!(report.drain_report.dispatched_count, 1);
     assert_eq!(report.drain_report.dispatch_reports[0].handled_count, 1);
-    assert!(duplicate_idempotency_error_mentions_network_flow(
-        &report.completed_duplicate_error
+    assert!(matches!(
+        report.completed_duplicate_error,
+        EventingError::DuplicateIdempotencyKey { ref idempotency_key }
+            if idempotency_key
+                .as_str()
+                .contains(constants::network_flow::EVENT_NETWORK_FLOW_OBSERVED)
     ));
     assert_eq!(report.stored_events.len(), 1);
     assert!(report.dead_letters.is_empty());
@@ -201,17 +222,7 @@ fn decode_stored_payloads(
                 event.decode::<NetworkRuntimeEventPayload>(),
                 constants::network_flow::ERROR_NETWORK_RUNTIME_PAYLOAD_DECODES,
             )
-            .map(|envelope| envelope.payload)
+            .map(|envelope| envelope.into_payload())
         })
         .collect()
-}
-
-fn duplicate_idempotency_error_mentions_network_flow(error: &EventingError) -> bool {
-    matches!(
-        error,
-        EventingError::DuplicateIdempotencyKey { idempotency_key }
-            if idempotency_key
-                .as_str()
-                .contains(constants::network_flow::EVENT_NETWORK_FLOW_OBSERVED)
-    )
 }

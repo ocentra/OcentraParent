@@ -19,16 +19,3 @@ impl<T> StorageCustodyTestValueExt<T> for Option<T> {
         }
     }
 }
-
-pub trait StorageCustodyTestErrorExt<E> {
-    fn assume_err(self) -> E;
-}
-
-impl<T, E> StorageCustodyTestErrorExt<E> for Result<T, E> {
-    fn assume_err(self) -> E {
-        match self {
-            Ok(_) => std::process::abort(),
-            Err(error) => error,
-        }
-    }
-}

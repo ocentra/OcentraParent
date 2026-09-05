@@ -9,6 +9,8 @@ const AuthImages = {
 } as const;
 
 const AUTH_MODE_STORAGE_KEY = 'ocentra.auth.mode';
+const AUTH_DIALOG_FOCUSABLE_SELECTOR =
+  'button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])';
 
 const AvatarImages = avatarImageById;
 
@@ -83,6 +85,48 @@ function resolveInitialAuthMode(initialMode?: 'signin' | 'signup') {
   return 'signin';
 }
 
+function authDialogFocusableElements(dialog: HTMLElement): Array<HTMLElement | SVGElement> {
+  return Array.from(dialog.querySelectorAll<HTMLElement | SVGElement>(AUTH_DIALOG_FOCUSABLE_SELECTOR)).filter(
+    (element) => element.getAttribute('aria-hidden') !== 'true' && element.getClientRects().length > 0
+  );
+}
+
+function containAuthDialogTab(event: KeyboardEvent, dialog: HTMLElement): void {
+  if (event.key !== 'Tab') return;
+  const focusable = authDialogFocusableElements(dialog);
+  const first = focusable[0];
+  const last = focusable.at(-1);
+  if (!first || !last) {
+    event.preventDefault();
+    return;
+  }
+  const active = document.activeElement;
+  if (event.shiftKey && (active === first || !dialog.contains(active))) {
+    event.preventDefault();
+    last.focus();
+    return;
+  }
+  if (!event.shiftKey && (active === last || !dialog.contains(active))) {
+    event.preventDefault();
+    first.focus();
+  }
+}
+
+type LoginValidationErrors = {
+  email?: string;
+  password?: string;
+  confirmPassword?: string;
+};
+
+function withoutValidationError(
+  current: LoginValidationErrors,
+  field: keyof LoginValidationErrors
+): LoginValidationErrors {
+  const next = { ...current };
+  delete next[field];
+  return next;
+}
+
 export function LoginDialog({
   onLogin,
   onSignUp,
@@ -154,13 +198,15 @@ export function LoginDialog({
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [validationErrors, setValidationErrors] = useState<{
-    email?: string;
-    password?: string;
-    confirmPassword?: string;
-  }>({});
+  const [validationErrors, setValidationErrors] = useState<LoginValidationErrors>({});
   const avatarSelectorRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const onCloseRef = useRef(onClose);
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -197,6 +243,45 @@ export function LoginDialog({
       body.style.overflow = previousBodyOverflow;
       body.style.overscrollBehavior = previousBodyOverscrollBehavior;
       documentElement.style.overflow = previousDocumentOverflow;
+    };
+  }, []);
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (typeof document === 'undefined' || !dialog) return undefined;
+    const previouslyFocused = document.activeElement;
+    const siblingStates = Array.from(dialog.parentElement?.children ?? [])
+      .filter((element): element is HTMLElement => element instanceof HTMLElement && element !== dialog)
+      .map((element) => ({
+        element,
+        ariaHidden: element.getAttribute('aria-hidden'),
+        inert: element.inert,
+      }));
+    for (const sibling of siblingStates) {
+      sibling.element.inert = true;
+      sibling.element.setAttribute('aria-hidden', 'true');
+    }
+    const initialFocus = dialog.querySelector<HTMLInputElement>('input:not([disabled]):not([type="hidden"])');
+    (initialFocus ?? authDialogFocusableElements(dialog)[0])?.focus();
+    const handleDialogKeyDown = (event: KeyboardEvent): void => {
+      if (event.key === 'Escape' && onCloseRef.current) {
+        event.preventDefault();
+        void onCloseRef.current();
+        return;
+      }
+      containAuthDialogTab(event, dialog);
+    };
+    document.addEventListener('keydown', handleDialogKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleDialogKeyDown);
+      for (const sibling of siblingStates) {
+        sibling.element.inert = sibling.inert;
+        if (sibling.ariaHidden === null) sibling.element.removeAttribute('aria-hidden');
+        else sibling.element.setAttribute('aria-hidden', sibling.ariaHidden);
+      }
+      if (previouslyFocused instanceof HTMLElement || previouslyFocused instanceof SVGElement) {
+        if (previouslyFocused.isConnected) previouslyFocused.focus();
+      }
     };
   }, []);
 
@@ -254,7 +339,7 @@ export function LoginDialog({
     setValidationErrors({});
     setIsLoading(true);
 
-    const errors: { email?: string; password?: string; confirmPassword?: string } = {};
+    const errors: LoginValidationErrors = {};
     if (!username) {
       errors.email = 'Email is required.';
     } else if (!isValidEmail(username)) {
@@ -411,19 +496,19 @@ export function LoginDialog({
   const handleEmailChange = (value: string) => {
     setUsername(value);
     if (validationErrors.email) {
-      setValidationErrors(({ email: _email, ...nextValidationErrors }) => nextValidationErrors);
+      setValidationErrors((current) => withoutValidationError(current, 'email'));
     }
   };
   const handlePasswordChange = (value: string) => {
     setPassword(value);
     if (validationErrors.password) {
-      setValidationErrors(({ password: _password, ...nextValidationErrors }) => nextValidationErrors);
+      setValidationErrors((current) => withoutValidationError(current, 'password'));
     }
   };
   const handleConfirmPasswordChange = (value: string) => {
     setConfirmPassword(value);
     if (validationErrors.confirmPassword) {
-      setValidationErrors(({ confirmPassword: _confirmPassword, ...nextValidationErrors }) => nextValidationErrors);
+      setValidationErrors((current) => withoutValidationError(current, 'confirmPassword'));
     }
   };
   const normalizedLayoutControls = useMemo(() => normalizeAuthPageSvgControls(layoutControls), [layoutControls]);
@@ -442,7 +527,14 @@ export function LoginDialog({
   );
 
   return (
-    <div className="login-dialog-overlay login-dialog-overlay--cyber" style={cyberShellStyle}>
+    <div
+      ref={dialogRef}
+      className="login-dialog-overlay login-dialog-overlay--cyber"
+      style={cyberShellStyle}
+      role="dialog"
+      aria-modal="true"
+      aria-label={introTitle}
+    >
       <form className={`login-cyber-form login-cyber-form--${introTone}`} onSubmit={handleSubmit}>
         <CyberAuthSurface
           layoutControls={normalizedLayoutControls}

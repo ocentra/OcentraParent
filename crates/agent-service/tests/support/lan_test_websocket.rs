@@ -17,7 +17,7 @@ pub(crate) async fn handle_command_text_for_test(
     lan_pairing: LanPairingRuntime,
     origin: Option<TestText>,
 ) -> AgentEventEnvelope {
-    let text = text.0.as_str();
+    let text: &str = text.as_ref();
     if text.len() > constants::lan_pairing::LAN_WEBSOCKET_COMMAND_MAX_BYTES {
         return oversized_command_text_rejected();
     }

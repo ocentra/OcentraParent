@@ -49,6 +49,23 @@ fn timer_protocol_read_model_keeps_protocol_rows_and_counts() {
             "future-service-handler-proof".to_string(),
         ]
     );
+    assert!(read_model
+        .protocol_read_model_non_claims
+        .iter()
+        .any(|claim| { claim == "no-agent-protocol-contract-implemented" }));
+    assert!(read_model
+        .protocol_read_model_non_claims
+        .iter()
+        .any(|claim| { claim == "no-service-read-api-implemented" }));
+    assert!(!read_model.agent_protocol_contract_implemented);
+    assert!(!read_model.rust_protocol_mirrored);
+    assert!(!read_model.service_command_registered);
+    assert!(!read_model.service_event_emitted);
+    assert!(!read_model.service_read_api_implemented);
+    assert!(!read_model.timer_runtime_claimed);
+    assert!(!read_model.timer_scheduled);
+    assert!(!read_model.adapter_dispatch_claimed);
+    assert!(!read_model.raw_private_source_rows_included);
 }
 
 #[test]
@@ -424,6 +441,29 @@ fn timer_parent_surface_status_read_model_parent_surface_handoff_only_expands_pa
                 .to_string()
         ]
     );
+    assert_eq!(
+        parent_surface_handoff.rows[0]
+            .source_response_consumer_parent_surface_status_read_model_handoff_row_id,
+        "service-readiness-row-app:protocol-handoff:protocol-read-model:protocol-command-handoff:service-handler-handoff:read-api-handoff:read-api-response-handoff:read-api-response-consumer-handoff:response-consumer-parent-surface-handoff:parent-surface-read-model-handoff:parent-surface-status-handoff:parent-surface-status-read-model-handoff"
+    );
+    assert_eq!(
+        parent_surface_handoff.rows[0].inherited_parent_surface_status_read_model_proof_refs,
+        vec![
+            "future-app-game-timer-service-readiness-response-consumer-parent-surface-status-read-model-proof"
+                .to_string()
+        ]
+    );
+    assert_eq!(
+        parent_surface_handoff.rows[0].parent_surface_status_read_model_ref,
+        "future-service-readiness-response-consumer-parent-surface-status-read-model-proof"
+    );
+    assert!(!parent_surface_handoff.rows[0].parent_surface_status_implemented);
+    assert!(!parent_surface_handoff.rows[0].parent_surface_status_read_model_implemented);
+    assert!(
+        !parent_surface_handoff.rows[0].parent_surface_status_read_model_parent_surface_implemented
+    );
+    assert!(!parent_surface_handoff.rows[0].parent_surface_rendered);
+    assert!(!parent_surface_handoff.rows[0].raw_private_source_rows_included);
     assert!(parent_surface_handoff.rows[1]
         .required_parent_surface_proof_refs
         .is_empty());

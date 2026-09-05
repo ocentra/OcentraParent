@@ -27,7 +27,9 @@ use crate::{
         },
         websocket::handle_command_text_for_test,
     },
-    test_invariants::{require_ok, require_some, serialize_test_json},
+    test_require_ok::require_ok,
+    test_require_some::require_some,
+    test_serialize_json::serialize_test_json,
     test_text::TestText,
 };
 
@@ -110,6 +112,7 @@ async fn websocket_lan_runtime_stream_command_does_not_fabricate_scan_delta_even
     );
     let registry_path = temp_dir.join("registry.json");
     let runtime = LanPairingRuntime::persistent_json(&registry_path);
+    assert!(runtime.durable_pairing_registry_available());
     crate::lan_pairing_browser_add_device_state::scan_history::save_scan_history(
         &runtime,
         &[persisted_network_device()],

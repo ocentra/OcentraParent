@@ -88,8 +88,12 @@ fn test_event_for_type_with_idempotency(
 }
 
 pub(super) fn metadata(target: TestText) -> EventMetadata {
+    metadata_with_event_id(target, TestText(TEST_EVENT_ID.to_owned()))
+}
+
+pub(super) fn metadata_with_event_id(target: TestText, event_id: TestText) -> EventMetadata {
     EventMetadata::from_parts(
-        EventId::parse(TEST_EVENT_ID).expect_value("event id parses"),
+        EventId::parse(event_id.0).expect_value("event id parses"),
         CorrelationId::parse(TEST_CORRELATION_ID).expect_value("correlation id parses"),
         source(),
         RecordedAt::parse(TEST_OBSERVED_AT).expect_value("recorded at parses"),

@@ -1,18 +1,17 @@
 use ocentra_child_runtime::tracking_config_update_flow::TrackingConfigUpdateEventFlowReport;
+use ocentra_eventing::error::EventingError;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::LogFieldValue;
 use ocentra_parent_agent_protocol::logging::LogLevel;
 use ocentra_parent_agent_protocol::parent_controller_events::ParentActionReceivedEvent;
 use ocentra_parent_agent_protocol::tracking::config_update_event::parent_tracking_config_updated_event_from_command;
 use ocentra_parent_agent_protocol::tracking::config_update_event::TrackingConfigUpdateRequest;
-use ocentra_parent_agent_protocol::tracking::identifiers::TrackingRetentionWriteState;
 use ocentra_parent_agent_protocol::tracking::retention_settings_write_command::default_tracking_retention_settings_write_request;
 use ocentra_parent_agent_protocol::tracking::retention_settings_write_command::tracking_durable_settings_store_ref;
 use ocentra_parent_agent_protocol::tracking::retention_settings_write_command::tracking_local_service_state_snapshot_ref;
 use ocentra_parent_agent_protocol::tracking::retention_settings_write_command::tracking_mutation_proof_ref;
 use ocentra_parent_agent_protocol::tracking::retention_settings_write_command::tracking_retention_accepted_at;
 use ocentra_parent_agent_protocol::tracking::retention_settings_write_command::tracking_retention_write_state_accepted;
-use ocentra_parent_agent_protocol::tracking::retention_settings_write_command::tracking_retention_write_state_rejected;
 use ocentra_parent_agent_protocol::tracking::retention_settings_write_command::TrackingConfigAckState;
 use ocentra_parent_agent_protocol::tracking::retention_settings_write_command::TrackingDurableSettingsPersistenceState;
 use ocentra_parent_agent_protocol::tracking::retention_settings_write_command::TrackingExecutionClaimState;
@@ -44,13 +43,23 @@ use ocentra_parent_agent_protocol::tracking::config_update_event::{
     TrackingConfigPortalReadModelUpdatedEvent,
 };
 
+#[path = "tracking_retention_settings_write_claims.rs"]
+mod tracking_claims;
 #[path = "tracking_retention_settings_write_events.rs"]
 mod tracking_events;
+#[path = "tracking_retention_settings_write_outcome.rs"]
+mod tracking_outcome;
 
+use self::tracking_claims::{
+    tracking_parent_runtime_flow_outcome, tracking_write_flow_claim_state,
+};
 use self::tracking_events::{
     tracking_child_command_received_event, tracking_parent_action_received_event,
     tracking_parent_child_command_forward_requested_event, tracking_parent_command_rejected_event,
     tracking_parent_command_validated_event,
+};
+use self::tracking_outcome::{
+    tracking_parent_runtime_observability, tracking_write_result_field_value,
 };
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -74,19 +83,34 @@ pub(crate) struct TrackingRetentionSettingsWriteFlowReport {
     pub(crate) child_runtime_flow: Option<TrackingConfigUpdateEventFlowReport>,
     pub(crate) audit_entry_committed: Option<TrackingConfigAuditEntryCommittedEvent>,
     pub(crate) portal_read_model_updated: Option<TrackingConfigPortalReadModelUpdatedEvent>,
+    pub(crate) parent_runtime_flow_error: Option<EventingError>,
 }
 
 pub(crate) async fn build_tracking_retention_settings_write_report(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
     let (request, parse_state) = parse_write_request(&command);
-    let flow_report =
-        execute_tracking_retention_settings_write_flow(&command, &request, parse_state).await;
+    let flow_report = Box::pin(execute_tracking_retention_settings_write_flow(
+        &command,
+        &request,
+        parse_state,
+    ))
+    .await;
     let result = build_tracking_retention_settings_write_result(request, parse_state, &flow_report);
-    let result_text = serde_json::to_string(&result).unwrap_or_default();
 
     let flow_observability_text =
         tracking_retention_settings_write_flow_observability(&flow_report).to_string();
+
+    let mut fields = vec![(
+        constants::tracking_retention_settings_write::FLOW_OBSERVABILITY_FIELD,
+        LogFieldValue::String(flow_observability_text),
+    )];
+    fields.extend(tracking_write_result_field_value(result).map(|value| {
+        (
+            constants::field::ACTIVITY_TRACKING_RETENTION_SETTINGS_WRITE_RESULT,
+            value,
+        )
+    }));
 
     build_event(
         constants::tracking_retention_settings_write::EVENT_ID,
@@ -94,16 +118,7 @@ pub(crate) async fn build_tracking_retention_settings_write_report(
         command.source,
         AgentEventName::AgentActivityTrackingRetentionSettingsWriteReported,
         LogLevel::Info,
-        fields_from_pairs(vec![
-            (
-                constants::field::ACTIVITY_TRACKING_RETENTION_SETTINGS_WRITE_RESULT,
-                LogFieldValue::String(result_text),
-            ),
-            (
-                constants::tracking_retention_settings_write::FLOW_OBSERVABILITY_FIELD,
-                LogFieldValue::String(flow_observability_text),
-            ),
-        ]),
+        fields_from_pairs(fields),
         None,
     )
 }
@@ -112,7 +127,7 @@ fn build_tracking_retention_settings_write_result(
     request: TrackingRetentionSettingsWriteRequest,
     parse_state: TrackingWriteRequestParseState,
     flow_report: &TrackingRetentionSettingsWriteFlowReport,
-) -> TrackingRetentionSettingsWriteResult {
+) -> Option<TrackingRetentionSettingsWriteResult> {
     let applied_report = flow_report
         .child_runtime_flow
         .as_ref()
@@ -121,12 +136,23 @@ fn build_tracking_retention_settings_write_result(
         .child_runtime_flow
         .as_ref()
         .map(|report| &report.parent_request_report.response);
+    let flow_claim_state = tracking_write_flow_claim_state(parse_state, flow_report);
+    let applied_report = applied_report?;
+    if parse_state != TrackingWriteRequestParseState::Accepted
+        || flow_claim_state != TrackingExecutionClaimState::Claimed
+        || applied_report
+            .applied_state
+            .durable_settings_persistence_state
+            != TrackingDurableSettingsPersistenceState::Persisted
+    {
+        return None;
+    }
 
-    TrackingRetentionSettingsWriteResult {
+    Some(TrackingRetentionSettingsWriteResult {
         schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
         command_id: request.command_id,
         settings_kind: request.settings_kind,
-        write_state: write_state(parse_state),
+        write_state: tracking_retention_write_state_accepted(),
         accepted_at: tracking_retention_accepted_at(),
         source_writer_intent_refs: request.source_writer_intent_refs,
         source_read_model_proof_refs: request.source_read_model_proof_refs,
@@ -137,15 +163,14 @@ fn build_tracking_retention_settings_write_result(
         parent_export_state: request.requested_parent_export_state,
         remote_sync_state: TrackingRemoteSyncState::Disabled,
         remote_ai_state: TrackingRemoteAiState::Disabled,
-        local_service_state_revision: applied_report
-            .as_ref()
-            .map(|report| report.applied_state.local_service_state_revision),
+        local_service_state_revision: Some(
+            applied_report.applied_state.local_service_state_revision,
+        ),
         local_service_state_snapshot_ref: tracking_local_service_state_snapshot_ref(),
         durable_settings_store_ref: tracking_durable_settings_store_ref(),
         durable_settings_persistence_state: applied_report
-            .as_ref()
-            .map(|report| report.applied_state.durable_settings_persistence_state)
-            .unwrap_or(TrackingDurableSettingsPersistenceState::NotPersisted),
+            .applied_state
+            .durable_settings_persistence_state,
         child_config_response_state: child_response.map(|response| response.response_state.clone()),
         effective_tracking_state: child_response
             .map(|response| response.effective_tracking_state.clone()),
@@ -154,13 +179,9 @@ fn build_tracking_retention_settings_write_result(
         } else {
             TrackingConfigAckState::Missing
         },
-        command_transport_claim_state: TrackingExecutionClaimState::Claimed,
-        service_write_preflight_claim_state: TrackingExecutionClaimState::Claimed,
-        service_mutation_execution_state: if applied_report.is_some() {
-            TrackingExecutionClaimState::Claimed
-        } else {
-            TrackingExecutionClaimState::Unclaimed
-        },
+        command_transport_claim_state: flow_claim_state,
+        service_write_preflight_claim_state: flow_claim_state,
+        service_mutation_execution_state: TrackingExecutionClaimState::Claimed,
         portal_writable_ui_claim_state: TrackingExecutionClaimState::Unclaimed,
         platform_runtime_claim_state: TrackingExecutionClaimState::Unclaimed,
         child_device_delivery_claim_state: TrackingExecutionClaimState::Unclaimed,
@@ -169,7 +190,7 @@ fn build_tracking_retention_settings_write_result(
         physical_device_claim_state: TrackingExecutionClaimState::Unclaimed,
         authority_claim_state: TrackingExecutionClaimState::Unclaimed,
         product_claim_state: TrackingExecutionClaimState::Unclaimed,
-    }
+    })
 }
 
 fn tracking_retention_settings_write_flow_observability(
@@ -234,6 +255,18 @@ fn tracking_retention_settings_write_flow_observability(
         constants::tracking_retention_settings_write::FLOW_PORTAL_READ_MODEL_UPDATED.to_string(),
         serde_json::Value::Bool(flow_report.portal_read_model_updated.is_some()),
     );
+    let runtime_observability = tracking_parent_runtime_observability(
+        flow_report.parent_runtime_flow_error.as_ref(),
+        flow_report.change_approved.is_some() || flow_report.change_rejected.is_some(),
+    );
+    observability.insert(
+        constants::tracking_retention_settings_write::FLOW_PARENT_RUNTIME_STATE.to_string(),
+        runtime_observability.state,
+    );
+    observability.insert(
+        constants::tracking_retention_settings_write::FLOW_PARENT_RUNTIME_ERROR.to_string(),
+        runtime_observability.error,
+    );
     serde_json::Value::Object(observability)
 }
 
@@ -261,13 +294,6 @@ fn parse_write_request(
     }
 }
 
-fn write_state(parse_state: TrackingWriteRequestParseState) -> TrackingRetentionWriteState {
-    match parse_state {
-        TrackingWriteRequestParseState::Accepted => tracking_retention_write_state_accepted(),
-        TrackingWriteRequestParseState::Rejected => tracking_retention_write_state_rejected(),
-    }
-}
-
 pub(crate) async fn execute_tracking_retention_settings_write_flow(
     command: &AgentCommandEnvelope,
     request: &TrackingRetentionSettingsWriteRequest,
@@ -281,8 +307,12 @@ pub(crate) async fn execute_tracking_retention_settings_write_flow(
         );
     }
 
-    accepted_tracking_retention_settings_write_flow_report(command, request, parent_action_received)
-        .await
+    Box::pin(accepted_tracking_retention_settings_write_flow_report(
+        command,
+        request,
+        parent_action_received,
+    ))
+    .await
 }
 
 fn rejected_tracking_retention_settings_write_flow_report(
@@ -309,6 +339,7 @@ fn rejected_tracking_retention_settings_write_flow_report(
         child_runtime_flow: None,
         audit_entry_committed: None,
         portal_read_model_updated: None,
+        parent_runtime_flow_error: None,
     }
 }
 
@@ -327,14 +358,15 @@ async fn accepted_tracking_retention_settings_write_flow_report(
     );
     let parent_command_validated =
         tracking_parent_command_validated_event(&request.command_id, &parent_action_received);
-    let parent_runtime_flow = publish_parent_tracking_config_updated_event_flow(
+    let parent_runtime_flow_result = publish_parent_tracking_config_updated_event_flow(
         parent_action_received.parent_action_event_ref.clone(),
         &parent_event,
         ChildAcknowledgementState::Required,
         ParentRuntimeOriginState::TrustedLocalUi,
     )
-    .await
-    .ok();
+    .await;
+    let (parent_runtime_flow, parent_runtime_flow_error) =
+        tracking_parent_runtime_flow_outcome(parent_runtime_flow_result);
     let child_command_forward_requested = parent_runtime_flow.as_ref().and_then(|report| {
         report.change_approved_event.as_ref().map(|_| {
             tracking_parent_child_command_forward_requested_event(
@@ -381,5 +413,6 @@ async fn accepted_tracking_retention_settings_write_flow_report(
         portal_read_model_updated: parent_runtime_flow
             .as_ref()
             .map(|report| report.portal_event.clone()),
+        parent_runtime_flow_error,
     }
 }

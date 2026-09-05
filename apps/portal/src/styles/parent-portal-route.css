@@ -11,6 +11,82 @@
   overflow: hidden;
 }
 
+.parent-portal-route-surface {
+  display: contents;
+}
+
+.parent-desktop-distribution-route-panel dd {
+  text-transform: capitalize;
+}
+
+.parent-portal-route .parent-desktop-distribution-route-panel {
+  height: calc(100% - clamp(72px, 10vh, 106px) - clamp(16px, 3vh, 28px));
+  max-height: calc(100% - clamp(72px, 10vh, 106px) - clamp(16px, 3vh, 28px));
+  overflow: auto;
+}
+
+.parent-portal-route .parent-desktop-distribution-route-panel .tracking-status-overlay-content {
+  grid-template-rows: auto minmax(0, 1fr);
+  height: 100%;
+  padding: clamp(18px, 2.4vw, 30px);
+}
+
+.parent-portal-route .parent-desktop-distribution-route-panel .tracking-status-overlay-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: minmax(150px, 1fr);
+  align-content: stretch;
+  gap: 12px;
+  overflow: auto;
+}
+
+.parent-portal-route .parent-desktop-distribution-route-panel .tracking-status-overlay-header {
+  max-width: 76ch;
+  gap: 8px;
+}
+
+.parent-portal-route .parent-desktop-distribution-route-panel .route-tabs {
+  margin-top: 4px;
+}
+
+.parent-portal-route
+  .parent-desktop-distribution-route-panel
+  .product-dashboard.tracking-status-overlay-grid
+  > .summary.product-status-card {
+  grid-template-columns: 1fr;
+  align-content: start;
+  gap: 14px;
+  min-height: 150px;
+  padding: clamp(14px, 1.8vw, 20px);
+}
+
+@media (max-width: 1100px) {
+  .parent-portal-route .parent-desktop-distribution-route-panel {
+    max-height: calc(100% - 98px);
+  }
+}
+
+@media (max-width: 680px) {
+  .parent-portal-route .parent-desktop-distribution-route-panel {
+    position: relative;
+    inset: auto;
+    width: auto;
+    height: auto;
+    max-height: calc(100% - 86px);
+    margin: 0 8px 8px;
+  }
+
+  .parent-portal-route .parent-desktop-distribution-route-panel .tracking-status-overlay-content {
+    height: auto;
+    padding: 14px 12px;
+  }
+
+  .parent-portal-route .parent-desktop-distribution-route-panel .tracking-status-overlay-grid {
+    grid-template-columns: 1fr;
+    grid-auto-rows: max-content;
+    overflow: visible;
+  }
+}
+
 :root[data-theme='light'] .parent-portal-route {
   --parent-portal-svg-text-shadow: 0 1px 1px rgb(0 8 14 / 56%), 0 0 4px rgb(2 23 38 / 32%);
 }
@@ -34,6 +110,13 @@
   overflow: hidden;
 }
 
+@media (max-width: 48rem) {
+  .parent-portal-route {
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+}
+
 .portal-dev-route-panel {
   position: absolute;
   inset: clamp(72px, 10vh, 106px) clamp(24px, 4vw, 72px) clamp(16px, 3vh, 28px) clamp(250px, 20vw, 380px);
@@ -47,10 +130,31 @@
   pointer-events: auto;
 }
 
+.portal-proof-panels-route-panel {
+  padding: 12px;
+  border: 1px solid rgba(87, 229, 255, 0.46);
+  border-radius: 14px;
+  background: radial-gradient(circle at 18% 0%, rgba(78, 223, 255, 0.14), transparent 34%), rgb(2, 12, 22);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+    0 18px 50px rgba(0, 0, 0, 0.42);
+}
+
 .portal-dev-route-toolbar {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+.portal-dev-route-toolbar [data-ocentra-proof-panel-picker] {
+  display: none;
+}
+
+.portal-dev-route-toolbar [data-ocentra-proof-panel-tabs] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
 }
 
 .portal-dev-route-toolbar button[data-active='true'] {
@@ -64,6 +168,35 @@
   min-height: 0;
   overflow: auto;
   padding-right: 3px;
+}
+
+.portal-dev-route-panel .portal-dev-route-content > .summary {
+  min-height: 0;
+  color: #e5f7ff;
+  border-color: rgb(87 229 255 / 52%);
+  background:
+    linear-gradient(180deg, rgb(4 20 37 / 96%), rgb(2 12 22 / 98%)),
+    radial-gradient(circle at 18% 0%, rgb(78 223 255 / 22%), transparent 34%);
+  -webkit-backdrop-filter: var(--parent-portal-glass-backdrop, blur(10px));
+  backdrop-filter: var(--parent-portal-glass-backdrop, blur(10px));
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 6%) inset,
+    0 18px 50px rgb(0 0 0 / 42%);
+}
+
+.portal-dev-route-panel .portal-dev-route-content > .summary h2,
+.portal-dev-route-panel .portal-dev-route-content > .summary dd {
+  color: #f4fbff;
+}
+
+.portal-dev-route-panel .portal-dev-route-content > .summary dt {
+  color: #8fdcf5;
+}
+
+.portal-dev-route-panel .portal-dev-route-content > .summary .copy-result-button {
+  color: #f4fbff;
+  border-color: rgb(87 229 255 / 52%);
+  background: linear-gradient(180deg, rgb(84 226 255 / 24%), rgb(5 29 50 / 82%)), rgb(3 16 30 / 92%);
 }
 
 .portal-dev-route-panel .tracking-status-overlay {
@@ -108,16 +241,443 @@
     0 18px 50px rgba(0, 0, 0, 0.42);
 }
 
+.browser-product-route-stack {
+  position: absolute;
+  inset: clamp(72px, 10vh, 106px) clamp(24px, 4vw, 72px) clamp(16px, 3vh, 28px) clamp(250px, 20vw, 380px);
+  z-index: 2;
+  display: grid;
+  grid-auto-rows: max-content;
+  align-content: start;
+  gap: 12px;
+  min-width: 0;
+  padding-right: 3px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  color: #e5f7ff;
+  pointer-events: auto;
+  overscroll-behavior: contain;
+}
+
+.browser-product-route-stack > .tracking-status-overlay,
+.browser-review-route-content > .tracking-status-overlay {
+  position: relative;
+  inset: auto;
+  z-index: auto;
+  min-width: 0;
+  overflow: visible;
+}
+
+.parent-portal-route .browser-product-route-stack > [data-ocentra-browser-route-state] {
+  max-height: none;
+  overflow: visible;
+}
+
+.browser-product-route-stack > .tracking-status-overlay .tracking-status-overlay-content,
+.browser-review-route-content > .tracking-status-overlay .tracking-status-overlay-content {
+  height: auto;
+}
+
+.browser-review-route-panel {
+  display: grid;
+  grid-template-rows: auto auto auto;
+  gap: 10px;
+  min-width: 0;
+  padding: clamp(14px, 1.8vw, 20px);
+  overflow: hidden;
+  border: 1px solid rgba(87, 229, 255, 0.42);
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, rgba(4, 20, 37, 0.9), rgba(2, 12, 22, 0.94)),
+    radial-gradient(circle at 18% 0%, rgba(78, 223, 255, 0.18), transparent 34%);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+    0 18px 50px rgba(0, 0, 0, 0.34);
+}
+
+.browser-review-route-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.browser-review-route-tabs .command-result-tab {
+  flex: 0 1 auto;
+  min-width: min(168px, 100%);
+}
+
+.browser-review-route-tabs .command-result-tab[data-active='true'] {
+  border-color: rgba(87, 229, 255, 0.72);
+  color: #ffffff;
+  background: rgba(13, 80, 118, 0.72);
+  box-shadow: 0 0 0 1px rgba(87, 229, 255, 0.18) inset;
+}
+
+.browser-review-route-content {
+  min-width: 0;
+}
+
+.browser-review-route-content > .tracking-status-overlay > .tracking-status-overlay-content {
+  padding: 14px;
+  border-color: rgba(87, 229, 255, 0.24);
+  background: rgba(2, 13, 24, 0.64);
+  box-shadow: none;
+}
+
+.parent-portal-route .compact-route-panel {
+  bottom: auto;
+  height: auto;
+}
+
+.parent-portal-route .compact-route-panel .tracking-status-overlay-content {
+  grid-template-rows: auto;
+  height: auto;
+  overflow: visible;
+}
+
+.parent-portal-route [data-ocentra-policy-category-state='manual-required'] {
+  bottom: auto;
+  height: clamp(350px, 42vh, 430px);
+  max-height: calc(100% - clamp(88px, 12vh, 122px));
+  overflow: auto;
+}
+
+.parent-portal-route [data-ocentra-policy-category-state='manual-required'] .tracking-status-overlay-content {
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 16px;
+  height: 100%;
+  padding: 18px;
+  overflow: visible;
+}
+
+.parent-portal-route [data-ocentra-policy-category-state='manual-required'] .tracking-status-overlay-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.72fr);
+  align-items: end;
+  gap: 20px;
+}
+
+.parent-portal-route .policy-category-route-copy {
+  min-width: 0;
+}
+
+.parent-portal-route [data-ocentra-policy-category-state='manual-required'] .route-tabs {
+  justify-content: flex-end;
+  align-self: end;
+}
+
+.parent-portal-route
+  .tracking-status-overlay[data-ocentra-policy-category-state='manual-required']
+  .product-dashboard.tracking-status-overlay-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-self: stretch;
+  gap: 14px;
+  overflow: visible;
+}
+
+.parent-portal-route
+  .tracking-status-overlay[data-ocentra-policy-category-state='manual-required']
+  .product-dashboard.tracking-status-overlay-grid
+  > .summary.product-status-card {
+  grid-template-columns: 1fr;
+  align-content: start;
+  min-height: 170px;
+  padding: 16px;
+  border-color: rgb(255 196 77 / 42%);
+  background: linear-gradient(150deg, rgb(36 29 12 / 78%), rgb(4 24 39 / 94%)), var(--parent-portal-glass-fill);
+}
+
+.parent-portal-route [data-ocentra-policy-category-state='manual-required'] .summary h3 {
+  margin: 0;
+  color: #fff1bf;
+  font-size: clamp(1.05rem, 1.2vw, 1.3rem);
+  line-height: 1.18;
+}
+
+.parent-portal-route [data-ocentra-policy-category-state='manual-required'] .summary > p:last-child {
+  margin: 0;
+  color: #c6dce8;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.parent-portal-route [data-ocentra-policy-preview-state='unavailable'] {
+  height: clamp(350px, 42vh, 430px);
+}
+
+.parent-portal-route [data-ocentra-policy-preview-state='unavailable'] .tracking-status-overlay-content {
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 16px;
+  padding: 18px;
+}
+
+.parent-portal-route [data-ocentra-policy-preview-state='unavailable'] .tracking-status-overlay-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 20px;
+}
+
+.parent-portal-route .policy-preview-unavailable-copy {
+  min-width: 0;
+}
+
+.parent-portal-route
+  .tracking-status-overlay[data-ocentra-policy-preview-state='unavailable']
+  .product-dashboard.tracking-status-overlay-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-self: stretch;
+  gap: 14px;
+  overflow: visible;
+}
+
+.parent-portal-route
+  .tracking-status-overlay[data-ocentra-policy-preview-state='unavailable']
+  .product-dashboard.tracking-status-overlay-grid
+  > .summary.product-status-card {
+  grid-template-columns: 1fr;
+  align-content: start;
+  min-height: 170px;
+  padding: 16px;
+  border-color: rgb(255 196 77 / 42%);
+  background: linear-gradient(150deg, rgb(36 29 12 / 78%), rgb(4 24 39 / 94%)), var(--parent-portal-glass-fill);
+}
+
+.parent-portal-route [data-ocentra-policy-preview-state='unavailable'] .summary h3 {
+  margin: 0;
+  color: #fff1bf;
+  font-size: clamp(1.05rem, 1.2vw, 1.3rem);
+  line-height: 1.18;
+}
+
+.parent-portal-route [data-ocentra-policy-preview-state='unavailable'] .summary > p:last-child {
+  margin: 0;
+  color: #c6dce8;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.parent-portal-route [data-ocentra-browser-route-state='unavailable'],
+.parent-portal-route [data-ocentra-capability-status-state='unavailable'],
+.parent-portal-route [data-ocentra-remote-access-state='manual-required'],
+.parent-portal-route [data-ocentra-policy-preview-state='unavailable'],
+.parent-portal-route [data-ocentra-schedule-state='unavailable'],
+.parent-portal-route [data-ocentra-tracking-route-state] {
+  bottom: auto;
+  height: auto;
+  max-height: calc(100% - clamp(88px, 12vh, 122px));
+  overflow: auto;
+}
+
+.parent-portal-route [data-ocentra-browser-route-state='unavailable'] .tracking-status-overlay-content,
+.parent-portal-route [data-ocentra-capability-status-state='unavailable'] .tracking-status-overlay-content,
+.parent-portal-route [data-ocentra-remote-access-state='manual-required'] .tracking-status-overlay-content,
+.parent-portal-route [data-ocentra-policy-preview-state='unavailable'] .tracking-status-overlay-content,
+.parent-portal-route [data-ocentra-schedule-state='unavailable'] .tracking-status-overlay-content,
+.parent-portal-route [data-ocentra-tracking-route-state] .tracking-status-overlay-content {
+  grid-template-rows: auto auto;
+  height: auto;
+  overflow: visible;
+}
+
+.parent-portal-route:has(> .app-game-sessions-route-panel) {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 8px;
+}
+
+.parent-portal-route:has(> .app-game-sessions-route-panel) > .parent-portal-route-surface {
+  display: block;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.app-game-sessions-route-panel {
+  position: relative;
+  z-index: 3;
+  width: auto;
+  max-height: min(34vh, 300px);
+  min-width: 0;
+  margin: 8px clamp(12px, 1vw, 18px) 0 clamp(196px, 15.25vw, 244px);
+  overflow: visible;
+  color: #e5f7ff;
+  pointer-events: auto;
+}
+
+.app-game-sessions-route-panel-shell {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid rgba(87, 229, 255, 0.52);
+  border-radius: 9px;
+  -webkit-backdrop-filter: var(--parent-portal-glass-backdrop);
+  backdrop-filter: var(--parent-portal-glass-backdrop);
+  background: linear-gradient(135deg, rgba(4, 30, 47, 0.98), rgba(3, 17, 31, 0.99));
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset,
+    0 10px 24px rgba(0, 0, 0, 0.3);
+}
+
+.app-game-sessions-route-panel-shell[open] {
+  max-height: min(34vh, 300px);
+  overflow: auto;
+}
+
+.app-game-sessions-route-panel-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 42px;
+  padding: 7px 11px;
+  list-style: none;
+  cursor: pointer;
+}
+
+.app-game-sessions-route-panel-toolbar::-webkit-details-marker {
+  display: none;
+}
+
+.app-game-sessions-route-panel-toolbar::after {
+  content: '+';
+  display: grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  border: 1px solid rgba(87, 229, 255, 0.42);
+  border-radius: 50%;
+  color: #73edff;
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.app-game-sessions-route-panel-shell[open] > .app-game-sessions-route-panel-toolbar::after {
+  content: '\2212';
+}
+
+.app-game-sessions-route-panel-toolbar > div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.app-game-sessions-route-panel-toolbar strong {
+  color: #effcff;
+  font-size: 0.76rem;
+}
+
+.app-game-sessions-route-panel-toolbar span {
+  color: rgba(218, 245, 255, 0.76);
+  font-size: 0.64rem;
+  line-height: 1.35;
+}
+
+.app-game-sessions-route-panel-body {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 8px;
+  padding: 8px;
+  border-top: 1px solid rgba(87, 229, 255, 0.24);
+}
+
+.app-game-sessions-route-panel-drawers {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  min-width: 0;
+}
+
+.app-game-sessions-route-panel-disclosure {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid rgba(87, 229, 255, 0.46);
+  border-radius: 9px;
+  background: rgba(2, 14, 26, 0.74);
+}
+
+.app-game-sessions-route-panel-disclosure[open] {
+  max-height: min(620px, calc(100vh - 170px));
+  overflow: auto;
+}
+
+.app-game-sessions-route-panel-disclosure > summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 38px;
+  padding: 8px 11px;
+  color: #effcff;
+  font-size: 0.76rem;
+  font-weight: 820;
+  letter-spacing: 0.02em;
+  list-style: none;
+  cursor: pointer;
+}
+
+.app-game-sessions-route-panel-disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+
+.app-game-sessions-route-panel-disclosure > summary::after {
+  content: '+';
+  display: grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  border: 1px solid rgba(87, 229, 255, 0.42);
+  border-radius: 50%;
+  color: #73edff;
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.app-game-sessions-route-panel-disclosure[open] > summary::after {
+  content: '\2212';
+}
+
+.app-game-sessions-route-panel-state {
+  color: #74edff;
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.app-game-sessions-route-panel .tracking-status-overlay {
+  position: relative;
+  inset: auto;
+  z-index: auto;
+  width: auto;
+  overflow: visible;
+}
+
+.app-game-sessions-route-panel .tracking-status-overlay .tracking-status-overlay-content {
+  grid-template-rows: auto auto;
+  height: auto;
+  overflow: visible;
+  border-width: 1px 0 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.app-game-sessions-route-panel .tracking-status-overlay .tracking-status-overlay-grid {
+  grid-auto-rows: max-content;
+  align-content: start;
+  overflow: visible;
+}
+
 .tracking-status-overlay-header {
   display: grid;
   gap: 4px;
 }
 
+.tracking-status-overlay-header h1,
 .tracking-status-overlay-header h2,
 .tracking-status-overlay-header p {
   margin: 0;
 }
 
+.tracking-status-overlay-header h1,
 .tracking-status-overlay-header h2 {
   color: #ffffff;
   font-size: 1rem;
@@ -142,6 +702,647 @@
 
 .parent-portal-route .tracking-status-overlay .product-dashboard.tracking-status-overlay-grid {
   grid-template-columns: 1fr;
+}
+
+.parent-portal-route
+  .tracking-status-overlay[data-ocentra-tracking-surface='product']
+  .tracking-status-overlay-content {
+  gap: 16px;
+  padding: clamp(16px, 2vw, 24px);
+  border-radius: 16px;
+}
+
+.parent-portal-route .tracking-status-overlay[data-ocentra-tracking-surface='product'] .tracking-status-overlay-header {
+  align-items: end;
+  column-gap: clamp(18px, 3vw, 42px);
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 260px);
+}
+
+.parent-portal-route
+  .tracking-status-overlay[data-ocentra-tracking-surface='product']
+  .tracking-status-overlay-header
+  > :not(button) {
+  grid-column: 1;
+}
+
+.parent-portal-route
+  .tracking-status-overlay[data-ocentra-tracking-surface='product']
+  .tracking-status-overlay-header
+  > button {
+  align-self: end;
+  grid-column: 2;
+  grid-row: 1 / span 3;
+  width: 100%;
+}
+
+.parent-portal-route
+  .tracking-status-overlay[data-ocentra-tracking-surface='product'][data-ocentra-tracking-route-state]
+  .product-dashboard.tracking-status-overlay-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.parent-portal-route .tracking-status-overlay[data-ocentra-browser-surface='product'] .tracking-status-overlay-content {
+  gap: 16px;
+  padding: clamp(16px, 2vw, 24px);
+  border-radius: 16px;
+}
+
+.parent-portal-route .tracking-status-overlay[data-ocentra-browser-surface='product'] .tracking-status-overlay-header {
+  align-items: end;
+  column-gap: clamp(18px, 3vw, 42px);
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 260px);
+}
+
+.parent-portal-route
+  .tracking-status-overlay[data-ocentra-browser-surface='product']
+  .tracking-status-overlay-header
+  > :not(button) {
+  grid-column: 1;
+}
+
+.parent-portal-route
+  .tracking-status-overlay[data-ocentra-browser-surface='product']
+  .tracking-status-overlay-header
+  > button {
+  align-self: end;
+  grid-column: 2;
+  grid-row: 1 / span 3;
+  width: 100%;
+}
+
+.parent-portal-route
+  .tracking-status-overlay[data-ocentra-browser-surface='product'][data-ocentra-browser-route-state]
+  .product-dashboard.tracking-status-overlay-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.parent-portal-route
+  .tracking-status-overlay[data-ocentra-browser-surface='product'][data-ocentra-browser-route-state]
+  .product-dashboard.tracking-status-overlay-grid
+  > .summary.product-status-card {
+  grid-template-columns: 1fr;
+  align-content: start;
+  gap: 10px;
+  min-height: clamp(240px, 29vh, 310px);
+  padding: 16px 18px;
+}
+
+.parent-portal-route .tracking-status-overlay[data-ocentra-network-surface='product'] .tracking-status-overlay-content {
+  gap: 16px;
+  padding: clamp(16px, 2vw, 24px);
+  border-radius: 16px;
+}
+
+.parent-portal-route .tracking-status-overlay[data-ocentra-network-surface='product'] .tracking-status-overlay-header {
+  align-items: end;
+  column-gap: clamp(18px, 3vw, 42px);
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 260px);
+}
+
+.parent-portal-route
+  .tracking-status-overlay[data-ocentra-network-surface='product']
+  .tracking-status-overlay-header
+  > :not(button) {
+  grid-column: 1;
+}
+
+.parent-portal-route
+  .tracking-status-overlay[data-ocentra-network-surface='product']
+  .tracking-status-overlay-header
+  > button {
+  align-self: end;
+  grid-column: 2;
+  grid-row: 1 / span 3;
+  width: 100%;
+}
+
+.parent-portal-route
+  .tracking-status-overlay[data-ocentra-network-surface='product'][data-ocentra-network-route-state]
+  .product-dashboard.tracking-status-overlay-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.parent-portal-route
+  .tracking-status-overlay[data-ocentra-network-surface='product'][data-ocentra-network-route-state]
+  .product-dashboard.tracking-status-overlay-grid
+  > .summary.product-status-card {
+  grid-template-columns: 1fr;
+  align-content: start;
+  gap: 10px;
+  min-height: clamp(240px, 29vh, 310px);
+  padding: 16px 18px;
+}
+
+.parent-portal-route
+  .tracking-status-overlay[data-ocentra-screen-summary-surface='product']
+  .tracking-status-overlay-content {
+  gap: 16px;
+  padding: clamp(16px, 2vw, 24px);
+  border-radius: 16px;
+}
+
+.parent-portal-route
+  .tracking-status-overlay[data-ocentra-screen-summary-surface='product']
+  .tracking-status-overlay-header {
+  align-items: end;
+  column-gap: clamp(18px, 3vw, 42px);
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 260px);
+}
+
+.parent-portal-route
+  .tracking-status-overlay[data-ocentra-screen-summary-surface='product']
+  .tracking-status-overlay-header
+  > :not(button) {
+  grid-column: 1;
+}
+
+.parent-portal-route
+  .tracking-status-overlay[data-ocentra-screen-summary-surface='product']
+  .tracking-status-overlay-header
+  > button {
+  align-self: end;
+  grid-column: 2;
+  grid-row: 1 / span 3;
+  width: 100%;
+}
+
+.parent-portal-route
+  .tracking-status-overlay[data-ocentra-screen-summary-surface='product']
+  .product-dashboard.tracking-status-overlay-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-auto-rows: 1fr;
+  align-content: stretch;
+  gap: 12px;
+}
+
+.parent-portal-route
+  .tracking-status-overlay[data-ocentra-screen-summary-surface='product']
+  .product-dashboard.tracking-status-overlay-grid
+  > .summary.product-status-card {
+  grid-template-columns: 1fr;
+  align-content: start;
+  gap: 10px;
+  min-height: clamp(240px, 29vh, 310px);
+  padding: 16px 18px;
+}
+
+.parent-portal-route
+  .tracking-status-overlay[data-ocentra-remote-access-surface='product']
+  .tracking-status-overlay-content {
+  gap: 16px;
+  padding: clamp(16px, 2vw, 24px);
+  border-radius: 16px;
+}
+
+.parent-portal-route
+  .tracking-status-overlay[data-ocentra-remote-access-surface='product']
+  .tracking-status-overlay-header {
+  align-items: end;
+  column-gap: clamp(18px, 3vw, 42px);
+  grid-template-columns: minmax(0, 1fr) minmax(340px, 0.9fr);
+}
+
+.parent-portal-route
+  .tracking-status-overlay[data-ocentra-remote-access-surface='product']
+  .tracking-status-overlay-header
+  > :not(nav) {
+  grid-column: 1;
+}
+
+.parent-portal-route
+  .tracking-status-overlay[data-ocentra-remote-access-surface='product']
+  .tracking-status-overlay-header
+  > nav {
+  align-self: end;
+  grid-column: 2;
+  grid-row: 1 / span 3;
+  justify-content: flex-end;
+}
+
+.parent-portal-route
+  .tracking-status-overlay[data-ocentra-remote-access-surface='product']
+  .product-dashboard.tracking-status-overlay-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.parent-portal-route
+  .tracking-status-overlay[data-ocentra-remote-access-surface='product']
+  .product-dashboard.tracking-status-overlay-grid
+  > .summary.product-status-card {
+  grid-template-columns: 1fr;
+  align-content: start;
+  gap: 12px;
+  min-height: clamp(240px, 29vh, 310px);
+  padding: 18px;
+}
+
+.parent-portal-route
+  .tracking-status-overlay[data-ocentra-capability-status-surface='product']
+  .tracking-status-overlay-content {
+  gap: 16px;
+  padding: clamp(16px, 2vw, 24px);
+  border-radius: 16px;
+}
+
+.parent-portal-route
+  .tracking-status-overlay[data-ocentra-capability-status-surface='product']
+  .tracking-status-overlay-header {
+  align-items: end;
+  column-gap: clamp(18px, 3vw, 42px);
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 260px);
+}
+
+.parent-portal-route
+  .tracking-status-overlay[data-ocentra-capability-status-surface='product']
+  .tracking-status-overlay-header
+  > :not(button) {
+  grid-column: 1;
+}
+
+.parent-portal-route
+  .tracking-status-overlay[data-ocentra-capability-status-surface='product']
+  .tracking-status-overlay-header
+  > button {
+  align-self: end;
+  grid-column: 2;
+  grid-row: 1 / span 3;
+  width: 100%;
+}
+
+.parent-portal-route
+  [data-ocentra-capability-status-state='unavailable']
+  .product-dashboard.tracking-status-overlay-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.parent-portal-route
+  .tracking-status-overlay[data-ocentra-capability-status-surface='product'][data-ocentra-capability-status-state]
+  .product-dashboard.tracking-status-overlay-grid
+  > .summary.product-status-card {
+  grid-template-columns: 1fr;
+  align-content: start;
+  gap: 10px;
+  min-height: clamp(150px, 18vh, 190px);
+  padding: 16px 18px;
+}
+
+.parent-portal-route
+  .tracking-status-overlay[data-ocentra-capability-status-surface='product'][data-ocentra-capability-status-state]
+  .product-dashboard.tracking-status-overlay-grid
+  > .summary.product-status-card
+  > h3 {
+  display: block;
+  margin: 0;
+  color: #ffffff;
+  font-size: 0.9rem;
+  line-height: 1.2;
+}
+
+.parent-portal-route
+  .tracking-status-overlay[data-ocentra-capability-status-surface='product'][data-ocentra-capability-status-state]
+  .product-dashboard.tracking-status-overlay-grid
+  > .summary.product-status-card[data-ocentra-capability-card-state='unavailable'] {
+  border-color: rgb(255 204 105 / 58%);
+  background:
+    radial-gradient(circle at 18% 8%, rgb(255 204 105 / 12%), transparent 9rem),
+    linear-gradient(135deg, rgb(26 30 43 / 96%), rgb(9 19 33 / 98%));
+}
+
+.parent-portal-route [data-ocentra-tracking-route-state] .tracking-status-overlay-content {
+  grid-template-rows: auto auto;
+  align-content: start;
+  height: auto;
+  max-height: 100%;
+  overflow: auto;
+}
+
+.parent-portal-route [data-ocentra-tracking-route-state] .tracking-status-overlay-header > button {
+  justify-self: start;
+  width: min(100%, 260px);
+}
+
+.parent-portal-route [data-ocentra-tracking-route-state] .tracking-status-overlay-grid {
+  grid-auto-rows: max-content;
+  align-content: start;
+  overflow: visible;
+}
+
+.parent-portal-route
+  [data-ocentra-tracking-route-state]
+  .product-dashboard.tracking-status-overlay-grid
+  > .summary.product-status-card {
+  align-content: start;
+  min-height: clamp(148px, 17vh, 188px);
+  padding: 16px 18px;
+  background: linear-gradient(135deg, rgb(7 30 51 / 96%), rgb(2 15 29 / 98%));
+}
+
+.parent-portal-route
+  [data-ocentra-tracking-route-state]
+  .product-dashboard.tracking-status-overlay-grid
+  > .summary.product-status-card[data-ocentra-tracking-card-state='unavailable'] {
+  border-color: rgb(255 204 105 / 58%);
+  background:
+    radial-gradient(circle at 18% 8%, rgb(255 204 105 / 12%), transparent 9rem),
+    linear-gradient(135deg, rgb(25 29 43 / 96%), rgb(4 15 28 / 98%));
+}
+
+.parent-portal-route
+  [data-ocentra-tracking-route-state]
+  .product-dashboard.tracking-status-overlay-grid
+  > .summary.product-status-card
+  > p {
+  margin: 0;
+  color: #dff8ff;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.parent-portal-route [data-ocentra-tracking-route-state='invalid-contract'] .tracking-status-overlay-content {
+  border-color: rgb(255 189 92 / 76%);
+  background:
+    linear-gradient(180deg, rgb(44 24 20 / 96%), rgb(18 13 24 / 98%)),
+    radial-gradient(circle at 18% 0%, rgb(255 144 84 / 22%), transparent 34%);
+}
+
+@media (max-width: 980px) {
+  .parent-portal-route
+    .tracking-status-overlay[data-ocentra-tracking-surface='product']
+    .tracking-status-overlay-header {
+    grid-template-columns: 1fr;
+  }
+
+  .parent-portal-route
+    .tracking-status-overlay[data-ocentra-tracking-surface='product']
+    .tracking-status-overlay-header
+    > button {
+    grid-column: 1;
+    grid-row: auto;
+    justify-self: start;
+    width: min(100%, 260px);
+  }
+
+  .parent-portal-route
+    .tracking-status-overlay[data-ocentra-tracking-surface='product'][data-ocentra-tracking-route-state]
+    .product-dashboard.tracking-status-overlay-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .parent-portal-route
+    [data-ocentra-tracking-route-state]
+    .product-dashboard.tracking-status-overlay-grid
+    > .summary.product-status-card {
+    min-height: 0;
+  }
+
+  .parent-portal-route
+    .tracking-status-overlay[data-ocentra-capability-status-surface='product']
+    .tracking-status-overlay-header {
+    grid-template-columns: 1fr;
+  }
+
+  .parent-portal-route
+    .tracking-status-overlay[data-ocentra-capability-status-surface='product']
+    .tracking-status-overlay-header
+    > button {
+    grid-column: 1;
+    grid-row: auto;
+    justify-self: start;
+    width: min(100%, 260px);
+  }
+
+  .parent-portal-route
+    [data-ocentra-capability-status-state='unavailable']
+    .product-dashboard.tracking-status-overlay-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .parent-portal-route
+    .tracking-status-overlay[data-ocentra-browser-surface='product']
+    .tracking-status-overlay-header {
+    grid-template-columns: 1fr;
+  }
+
+  .parent-portal-route
+    .tracking-status-overlay[data-ocentra-browser-surface='product']
+    .tracking-status-overlay-header
+    > button {
+    grid-column: 1;
+    grid-row: auto;
+    justify-self: start;
+    width: min(100%, 260px);
+  }
+
+  .parent-portal-route
+    .tracking-status-overlay[data-ocentra-browser-surface='product'][data-ocentra-browser-route-state]
+    .product-dashboard.tracking-status-overlay-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .parent-portal-route
+    .tracking-status-overlay[data-ocentra-network-surface='product']
+    .tracking-status-overlay-header {
+    grid-template-columns: 1fr;
+  }
+
+  .parent-portal-route
+    .tracking-status-overlay[data-ocentra-network-surface='product']
+    .tracking-status-overlay-header
+    > button {
+    grid-column: 1;
+    grid-row: auto;
+    justify-self: start;
+    width: min(100%, 260px);
+  }
+
+  .parent-portal-route
+    .tracking-status-overlay[data-ocentra-network-surface='product'][data-ocentra-network-route-state]
+    .product-dashboard.tracking-status-overlay-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .parent-portal-route
+    .tracking-status-overlay[data-ocentra-screen-summary-surface='product']
+    .tracking-status-overlay-header {
+    grid-template-columns: 1fr;
+  }
+
+  .parent-portal-route
+    .tracking-status-overlay[data-ocentra-screen-summary-surface='product']
+    .tracking-status-overlay-header
+    > button {
+    grid-column: 1;
+    grid-row: auto;
+    justify-self: start;
+    width: min(100%, 260px);
+  }
+
+  .parent-portal-route
+    .tracking-status-overlay[data-ocentra-screen-summary-surface='product']
+    .product-dashboard.tracking-status-overlay-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .parent-portal-route
+    .tracking-status-overlay[data-ocentra-remote-access-surface='product']
+    .tracking-status-overlay-header {
+    grid-template-columns: 1fr;
+  }
+
+  .parent-portal-route
+    .tracking-status-overlay[data-ocentra-remote-access-surface='product']
+    .tracking-status-overlay-header
+    > nav {
+    grid-column: 1;
+    grid-row: auto;
+    justify-content: flex-start;
+  }
+
+  .parent-portal-route
+    .tracking-status-overlay[data-ocentra-remote-access-surface='product']
+    .product-dashboard.tracking-status-overlay-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.parent-portal-route [data-ocentra-screen-summary-panel] .tracking-status-overlay-grid {
+  grid-auto-rows: max-content;
+  align-content: start;
+}
+
+.parent-status-dock {
+  position: absolute;
+  right: clamp(24px, 4vw, 72px);
+  bottom: clamp(24px, 4vh, 44px);
+  z-index: 3;
+  width: min(540px, calc(100% - clamp(300px, 28vw, 420px)));
+  color: #e5f7ff;
+  pointer-events: none;
+  display: grid;
+  gap: 8px;
+}
+
+.parent-status-dock-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border: 1px solid rgb(87 229 255 / 46%);
+  border-radius: 9px;
+  background: linear-gradient(180deg, rgb(4 20 37 / 98%), rgb(2 12 22 / 99%));
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 4%) inset,
+    0 12px 34px rgb(0 0 0 / 34%);
+  pointer-events: auto;
+}
+
+.parent-status-dock-toolbar > div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.parent-status-dock-toolbar strong {
+  color: #effcff;
+  font-size: 0.76rem;
+}
+
+.parent-status-dock-toolbar span {
+  color: rgb(218 245 255 / 76%);
+  font-size: 0.64rem;
+  line-height: 1.35;
+}
+
+.parent-status-dock-disclosure {
+  overflow: hidden;
+  border: 1px solid rgb(87 229 255 / 46%);
+  border-radius: 9px;
+  background: linear-gradient(180deg, rgb(4 20 37 / 98%), rgb(2 12 22 / 99%));
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 4%) inset,
+    0 12px 34px rgb(0 0 0 / 34%);
+  pointer-events: auto;
+}
+
+.parent-status-dock-disclosure[open] {
+  max-height: min(480px, calc(100vh - 170px));
+  overflow: auto;
+}
+
+.parent-status-dock-disclosure > summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 38px;
+  padding: 7px 10px;
+  color: #e5f7ff;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  list-style: none;
+  cursor: pointer;
+}
+
+.parent-status-dock-disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+
+.parent-status-dock-disclosure > summary::after {
+  content: '+';
+  display: grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  border: 1px solid rgb(87 229 255 / 34%);
+  border-radius: 50%;
+  color: #73edff;
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.parent-status-dock-disclosure[open] > summary::after {
+  content: '\2212';
+}
+
+.parent-status-dock-state {
+  color: #74edff;
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.parent-status-dock .tracking-status-overlay-content {
+  grid-template-rows: auto auto;
+  height: auto;
+  overflow: visible;
+  border-width: 1px 0 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: rgb(2 12 22 / 99%);
+}
+
+.parent-portal-route .parent-status-dock .tracking-status-overlay-grid {
+  grid-template-columns: 1fr;
+  grid-auto-rows: max-content;
+  overflow: visible;
+}
+
+.parent-portal-route .parent-status-dock .summary,
+.parent-portal-route
+  .parent-status-dock
+  .product-dashboard.tracking-status-overlay-grid
+  > .summary.product-status-card {
+  grid-template-columns: 1fr;
+  grid-template-rows: auto;
+  min-height: 0;
 }
 
 .parent-portal-route .tracking-status-overlay .summary {
@@ -196,6 +1397,165 @@
   text-transform: none;
   background: transparent;
   box-shadow: none;
+}
+
+.parent-portal-route [data-ocentra-schedule-state='unavailable'] .tracking-status-overlay-content {
+  grid-template-rows: auto auto;
+  align-content: stretch;
+  gap: 16px;
+  height: 100%;
+  max-height: 100%;
+  padding: 18px;
+  overflow: visible;
+  overscroll-behavior: contain;
+}
+
+.parent-portal-route [data-ocentra-schedule-state='unavailable'] {
+  height: clamp(390px, 48vh, 480px);
+}
+
+.parent-portal-route [data-ocentra-schedule-state='unavailable'] .tracking-status-overlay-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(310px, 0.74fr);
+  align-items: end;
+  gap: 20px;
+}
+
+.parent-portal-route .schedule-unavailable-copy {
+  min-width: 0;
+}
+
+.parent-portal-route [data-ocentra-schedule-state='unavailable'] .route-tabs {
+  justify-content: flex-end;
+}
+
+.parent-portal-route [data-ocentra-browser-route-state='unavailable'] .tracking-status-overlay-grid,
+.parent-portal-route [data-ocentra-capability-status-state='unavailable'] .tracking-status-overlay-grid {
+  align-self: start;
+  overflow: visible;
+}
+
+.parent-portal-route
+  .tracking-status-overlay[data-ocentra-schedule-state='unavailable']
+  .product-dashboard.tracking-status-overlay-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-self: stretch;
+  gap: 14px;
+  overflow: visible;
+}
+
+.parent-portal-route [data-ocentra-browser-route-state='unavailable'] .summary,
+.parent-portal-route [data-ocentra-capability-status-state='unavailable'] .summary {
+  grid-template-columns: 1fr;
+}
+
+.parent-portal-route
+  .tracking-status-overlay[data-ocentra-schedule-state='unavailable']
+  .product-dashboard.tracking-status-overlay-grid
+  > .summary.product-status-card {
+  grid-template-columns: 1fr;
+  align-content: start;
+  min-height: 220px;
+  padding: 16px;
+  border-color: rgb(255 196 77 / 42%);
+  background: linear-gradient(150deg, rgb(36 29 12 / 78%), rgb(4 24 39 / 94%)), var(--parent-portal-glass-fill);
+}
+
+.parent-portal-route [data-ocentra-browser-route-state='unavailable'] .summary > p,
+.parent-portal-route [data-ocentra-capability-status-state='unavailable'] .summary > p {
+  margin: 0;
+  color: #b8d4e5;
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.parent-portal-route [data-ocentra-schedule-state='unavailable'] .summary > p {
+  margin: 0;
+  color: #c6dce8;
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.parent-portal-route .setup-first-run-route-panel {
+  inset: auto clamp(24px, 4vw, 72px) clamp(24px, 4vh, 44px) auto;
+  width: min(520px, calc(100% - clamp(300px, 28vw, 420px)));
+  max-height: min(360px, calc(100% - clamp(120px, 18vh, 180px)));
+  min-height: 0;
+  overflow: auto;
+}
+
+.parent-portal-route .setup-first-run-route-panel .tracking-status-overlay-content {
+  grid-template-rows: auto max-content;
+  height: auto;
+  padding: 12px 14px;
+}
+
+.parent-portal-route [data-ocentra-setup-state='unavailable'] .tracking-status-overlay-content {
+  grid-template-rows: auto;
+}
+
+.parent-portal-route .setup-first-run-detail-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid rgba(125, 229, 255, 0.28);
+  border-radius: 10px;
+  background: var(--parent-portal-glass-fill);
+  -webkit-backdrop-filter: var(--parent-portal-glass-backdrop);
+  backdrop-filter: var(--parent-portal-glass-backdrop);
+}
+
+.parent-portal-route .setup-first-run-detail-card > summary {
+  display: grid;
+  grid-template-columns: minmax(138px, 0.24fr) minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 10px;
+  min-height: 44px;
+  padding: 10px 12px;
+  color: #ffffff;
+  list-style: none;
+  cursor: pointer;
+}
+
+.parent-portal-route .setup-first-run-detail-card > summary::-webkit-details-marker {
+  display: none;
+}
+
+.parent-portal-route .setup-first-run-detail-card > summary::after {
+  content: '+';
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  border: 1px solid rgb(87 229 255 / 34%);
+  border-radius: 50%;
+  color: #73edff;
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.parent-portal-route .setup-first-run-detail-card[open] > summary::after {
+  content: '\2212';
+}
+
+.parent-portal-route .setup-first-run-detail-title {
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.parent-portal-route .setup-first-run-detail-summary {
+  color: #b8d4e5;
+  font-size: 0.74rem;
+  line-height: 1.4;
+}
+
+.parent-portal-route .setup-first-run-detail-content {
+  padding: 0 12px 12px;
+  border-top: 1px solid rgb(87 229 255 / 16%);
+}
+
+.parent-portal-route .setup-first-run-detail-content .tracking-status-overlay-meta {
+  padding-top: 10px;
 }
 
 .parent-portal-route
@@ -253,13 +1613,161 @@
   font-weight: 680;
 }
 
+.parent-portal-route [data-ocentra-capability-status-state='reported'] {
+  bottom: auto;
+  height: auto;
+  max-height: calc(100% - clamp(88px, 12vh, 122px));
+  overflow: auto;
+}
+
+.parent-portal-route [data-ocentra-capability-status-state='reported'] .tracking-status-overlay-content {
+  grid-template-rows: auto auto;
+  height: auto;
+  overflow: visible;
+}
+
+.parent-portal-route [data-ocentra-capability-status-state='reported'] .product-dashboard.tracking-status-overlay-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  grid-auto-rows: max-content;
+  align-content: start;
+  overflow: visible;
+}
+
+.parent-portal-route
+  [data-ocentra-capability-status-state='reported']
+  .product-dashboard.tracking-status-overlay-grid
+  > .summary.product-status-card {
+  grid-template-columns: 1fr;
+  gap: 8px;
+  min-height: 0;
+  background: linear-gradient(135deg, rgb(7 30 51 / 96%), rgb(2 15 29 / 98%));
+}
+
+.parent-portal-route
+  [data-ocentra-capability-status-state='reported']
+  .product-dashboard.tracking-status-overlay-grid
+  > .summary.product-status-card
+  > p {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: #dff8ff;
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.parent-portal-route [data-ocentra-capability-status-state='reported'] .tracking-status-overlay-meta {
+  grid-column: 1 / -1;
+}
+
+.parent-portal-route .tracking-status-overlay.parent-desktop-distribution-route-panel {
+  bottom: auto;
+  height: fit-content;
+}
+
+.parent-portal-route .tracking-status-overlay.parent-desktop-distribution-route-panel .tracking-status-overlay-content {
+  grid-template-rows: auto auto;
+  height: auto;
+}
+
+.parent-portal-route
+  .tracking-status-overlay.parent-desktop-distribution-route-panel
+  .product-dashboard.tracking-status-overlay-grid {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-auto-rows: max-content;
+  align-content: start;
+  overflow: visible;
+}
+
+.parent-portal-route
+  .tracking-status-overlay.parent-desktop-distribution-route-panel
+  .product-dashboard.tracking-status-overlay-grid
+  > .summary.product-status-card {
+  grid-template-columns: 1fr;
+  align-content: start;
+  min-height: 170px;
+}
+
 @media (max-width: 1100px) {
   .tracking-status-overlay {
     inset: 86px 12px 12px;
   }
 
+  .browser-product-route-stack {
+    inset: 86px 12px 12px;
+  }
+
+  .parent-portal-route [data-ocentra-policy-category-state='manual-required'] {
+    height: clamp(420px, 62vh, 560px);
+  }
+
+  .parent-portal-route [data-ocentra-policy-category-state='manual-required'] .tracking-status-overlay-header {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .parent-portal-route [data-ocentra-policy-category-state='manual-required'] .route-tabs {
+    justify-content: flex-start;
+  }
+
+  .parent-portal-route [data-ocentra-policy-preview-state='unavailable'] {
+    height: clamp(420px, 62vh, 560px);
+  }
+
+  .parent-portal-route [data-ocentra-policy-preview-state='unavailable'] .tracking-status-overlay-header {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .parent-portal-route [data-ocentra-schedule-state='unavailable'] {
+    height: clamp(500px, 68vh, 620px);
+  }
+
+  .parent-portal-route [data-ocentra-schedule-state='unavailable'] .tracking-status-overlay-header {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .parent-portal-route [data-ocentra-schedule-state='unavailable'] .route-tabs {
+    justify-content: flex-start;
+  }
+
+  .parent-portal-route
+    .tracking-status-overlay[data-ocentra-policy-category-state='manual-required']
+    .product-dashboard.tracking-status-overlay-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .parent-portal-route
+    .tracking-status-overlay[data-ocentra-policy-preview-state='unavailable']
+    .product-dashboard.tracking-status-overlay-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .parent-portal-route
+    .tracking-status-overlay[data-ocentra-schedule-state='unavailable']
+    .product-dashboard.tracking-status-overlay-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .app-game-sessions-route-panel {
+    margin-right: 12px;
+    margin-left: clamp(172px, 16vw, 196px);
+  }
+
+  .parent-portal-route [data-ocentra-setup-state='unavailable'] {
+    inset: auto 12px 12px auto;
+  }
+
   .parent-portal-route .tracking-status-overlay .summary {
     grid-template-columns: 1fr;
+  }
+
+  .parent-portal-route .setup-first-run-detail-card > summary {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .parent-portal-route .setup-first-run-detail-summary {
+    grid-column: 1 / -1;
   }
 
   .parent-portal-route
@@ -275,11 +1783,239 @@
 }
 
 @media (max-width: 680px) {
+  .portal-dev-route-panel {
+    inset: 78px 8px 8px;
+  }
+
+  .portal-dev-route-toolbar {
+    display: block;
+  }
+
+  .portal-dev-route-toolbar [data-ocentra-proof-panel-tabs] {
+    display: none;
+  }
+
+  .portal-dev-route-toolbar [data-ocentra-proof-panel-picker] {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 10px;
+    min-height: 48px;
+    padding: 6px 8px 6px 12px;
+    border: 1px solid rgb(87 229 255 / 52%);
+    background: linear-gradient(180deg, rgb(4 24 42 / 96%), rgb(2 12 22 / 98%));
+    box-shadow: 0 0 0 1px rgb(255 255 255 / 5%) inset;
+  }
+
+  .portal-dev-route-toolbar [data-ocentra-proof-panel-picker] > span {
+    color: #8fdcf5;
+    font-size: 0.7rem;
+    font-weight: 820;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .portal-dev-route-toolbar [data-ocentra-proof-panel-picker] > select {
+    width: 100%;
+    min-width: 0;
+    min-height: 36px;
+    padding: 5px 30px 5px 10px;
+    border: 1px solid rgb(87 229 255 / 62%);
+    background: rgb(3 18 31 / 96%);
+    color: #f4fbff;
+    font: inherit;
+    font-weight: 760;
+  }
+
+  .portal-dev-route-toolbar [data-ocentra-proof-panel-picker] > select:focus-visible {
+    outline: 2px solid #4ee7ff;
+    outline-offset: 2px;
+  }
+
+  .portal-dev-route-content {
+    padding-right: 0;
+  }
+
+  .portal-dev-route-panel .command-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .portal-dev-route-content > .summary > details:has(.command-grid) {
+    margin-top: 14px;
+    border: 1px solid rgb(84 226 255 / 28%);
+    background: rgb(3 16 30 / 56%);
+  }
+
+  .portal-dev-route-content > .summary > details:has(.command-grid) > summary {
+    padding: 10px 12px;
+    color: var(--app-text);
+    cursor: pointer;
+    font-weight: 800;
+  }
+
+  .portal-dev-route-content > .summary > details[open]:has(.command-grid) > summary {
+    border-bottom: 1px solid rgb(84 226 255 / 22%);
+  }
+
+  .portal-dev-route-content > .summary > details:has(.command-grid) > .command-grid {
+    padding: 10px;
+  }
+
+  .portal-dev-route-panel .command-grid .command-result-tab {
+    min-width: 0;
+    min-height: 44px;
+    padding: 6px 8px;
+    white-space: normal;
+  }
+
   .tracking-status-overlay {
     inset: 78px 8px 8px;
   }
 
+  .browser-product-route-stack {
+    inset: 78px 8px 8px;
+  }
+
+  .browser-review-route-tabs .command-result-tab {
+    flex: 1 1 160px;
+  }
+
+  .parent-portal-route
+    .browser-product-route-stack
+    > .tracking-status-overlay[data-ocentra-browser-surface='product'][data-ocentra-browser-route-state]
+    .product-dashboard.tracking-status-overlay-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .parent-portal-route
+    .browser-product-route-stack
+    > .tracking-status-overlay[data-ocentra-browser-surface='product'][data-ocentra-browser-route-state]
+    .product-dashboard.tracking-status-overlay-grid
+    > .summary.product-status-card {
+    min-height: 190px;
+  }
+
+  .parent-portal-route [data-ocentra-policy-category-state='manual-required'] {
+    height: auto;
+    max-height: calc(100% - 86px);
+  }
+
+  .parent-portal-route [data-ocentra-policy-category-state='manual-required'] .tracking-status-overlay-content {
+    height: auto;
+    padding: 14px;
+  }
+
+  .parent-portal-route [data-ocentra-policy-preview-state='unavailable'] {
+    height: auto;
+    max-height: calc(100% - 86px);
+  }
+
+  .parent-portal-route [data-ocentra-policy-preview-state='unavailable'] .tracking-status-overlay-content {
+    height: auto;
+    padding: 14px;
+  }
+
+  .parent-portal-route [data-ocentra-schedule-state='unavailable'] {
+    height: auto;
+    max-height: calc(100% - 86px);
+  }
+
+  .parent-portal-route [data-ocentra-schedule-state='unavailable'] .tracking-status-overlay-content {
+    height: auto;
+    max-height: none;
+    padding: 14px;
+  }
+
+  .parent-portal-route
+    .tracking-status-overlay[data-ocentra-policy-category-state='manual-required']
+    .product-dashboard.tracking-status-overlay-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .parent-portal-route
+    .tracking-status-overlay[data-ocentra-policy-preview-state='unavailable']
+    .product-dashboard.tracking-status-overlay-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .parent-portal-route
+    .tracking-status-overlay[data-ocentra-schedule-state='unavailable']
+    .product-dashboard.tracking-status-overlay-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .parent-portal-route
+    .tracking-status-overlay[data-ocentra-network-surface='product'][data-ocentra-network-route-state]
+    .product-dashboard.tracking-status-overlay-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .parent-portal-route
+    .tracking-status-overlay[data-ocentra-network-surface='product'][data-ocentra-network-route-state]
+    .product-dashboard.tracking-status-overlay-grid
+    > .summary.product-status-card {
+    min-height: 0;
+  }
+
+  .app-game-sessions-route-panel {
+    max-height: none;
+    margin: 8px 8px 0;
+  }
+
+  .parent-portal-route:has(> .app-game-sessions-route-panel) {
+    grid-template-rows: auto auto;
+    overflow: auto;
+  }
+
+  .parent-portal-route:has(> .app-game-sessions-route-panel) > .parent-portal-route-surface {
+    overflow: visible;
+  }
+
+  .app-game-sessions-route-panel-shell[open] {
+    max-height: none;
+  }
+
+  .app-game-sessions-route-panel-body,
+  .app-game-sessions-route-panel-drawers {
+    grid-template-columns: 1fr;
+  }
+
+  .parent-portal-route .parent-status-dock {
+    right: 8px;
+    bottom: 42px;
+    width: calc(100% - 16px);
+    max-height: calc(100% - 132px);
+  }
+
+  .parent-portal-route .setup-first-run-route-panel {
+    position: absolute;
+    inset: auto 8px 8px;
+    width: calc(100% - 16px);
+    max-height: min(180px, calc(100% - 94px));
+    margin: 0;
+    overflow: auto;
+  }
+
+  .parent-portal-route .setup-first-run-route-panel .tracking-status-overlay-content {
+    height: auto;
+    max-height: none;
+    overflow: hidden;
+  }
+
   .parent-portal-route .tracking-status-overlay .tracking-status-overlay-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .parent-portal-route
+    .tracking-status-overlay[data-ocentra-screen-summary-surface='product']
+    .product-dashboard.tracking-status-overlay-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .parent-portal-route
+    [data-ocentra-capability-status-state='unavailable']
+    .product-dashboard.tracking-status-overlay-grid {
     grid-template-columns: 1fr;
   }
 

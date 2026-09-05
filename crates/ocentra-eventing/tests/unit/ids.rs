@@ -1,9 +1,11 @@
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_eventing::ids::{
-    CausationId, CorrelationId, EventId, EventNamespace, EventType, JournalHash, RequestId,
-    RuntimeInstanceId, SchemaVersion, SourceComponent, SourceService, SubscriberId, TargetHandler,
+    AggregateKey, CausationId, CorrelationId, EventCustody, EventId, EventNamespace, EventType,
+    IdempotencyKey, JournalHash, RecordedAt, RequestId, RuntimeInstanceId, RuntimeRole,
+    SchemaVersion, SourceComponent, SourceService, SubscriberId, TargetHandler,
 };
+use serde::de::DeserializeOwned;
 
 #[test]
 fn event_type_and_namespace_reject_empty_or_malformed_taxonomy() {
@@ -107,6 +109,23 @@ fn strong_identifier_wrappers_reject_whitespace_values() {
 }
 
 #[test]
+fn event_type_taxonomy_rejects_unsupported_separators_and_whitespace() {
+    for value in [
+        "eventing observed",
+        "eventing#observed",
+        "eventing..observed",
+    ] {
+        assert!(matches!(
+            EventType::parse(value),
+            Err(EventingError::InvalidValue {
+                field: "event_type",
+                ..
+            })
+        ));
+    }
+}
+
+#[test]
 fn routing_and_source_wrappers_accept_existing_repo_values() {
     assert_eq!(
         SubscriberId::parse("subscriber.app.observer")
@@ -161,6 +180,62 @@ fn routing_and_source_wrappers_reject_whitespace_values() {
     assert_invalid(&RuntimeInstanceId::parse("\teventing-integration-runtime"));
 }
 
+#[test]
+fn runtime_boundary_wrappers_serde_roundtrip_and_reject_empty_values() {
+    let aggregate = AggregateKey::parse("aggregate-parity-1").expect_value("aggregate parses");
+    let idempotency =
+        IdempotencyKey::parse("idempotency-parity-1").expect_value("idempotency parses");
+    let custody = EventCustody::parse("local-only").expect_value("custody parses");
+    let role = RuntimeRole::parse("parent").expect_value("runtime role parses");
+    let recorded_at =
+        RecordedAt::parse("2026-08-28T09:00:00Z").expect_value("recorded timestamp parses");
+
+    assert_eq!(
+        serde_json::to_string(&aggregate).expect_value("aggregate serializes"),
+        "\"aggregate-parity-1\""
+    );
+    assert_eq!(
+        serde_json::from_str::<AggregateKey>("\"aggregate-parity-1\"")
+            .expect_value("aggregate deserializes"),
+        aggregate
+    );
+    assert_eq!(
+        serde_json::to_string(&idempotency).expect_value("idempotency serializes"),
+        "\"idempotency-parity-1\""
+    );
+    assert_eq!(
+        serde_json::from_str::<IdempotencyKey>("\"idempotency-parity-1\"")
+            .expect_value("idempotency deserializes"),
+        idempotency
+    );
+    assert_eq!(
+        serde_json::from_str::<EventCustody>("\"local-only\"").expect_value("custody deserializes"),
+        custody
+    );
+    assert_eq!(
+        serde_json::from_str::<RuntimeRole>("\"parent\"").expect_value("runtime role deserializes"),
+        role
+    );
+    assert_eq!(
+        serde_json::from_str::<RecordedAt>("\"2026-08-28T09:00:00Z\"")
+            .expect_value("recorded timestamp deserializes"),
+        recorded_at
+    );
+
+    assert_serde_data_error::<AggregateKey>("\"\"");
+    assert_serde_data_error::<IdempotencyKey>("\"\"");
+    assert_serde_data_error::<EventCustody>("\"\"");
+    assert_serde_data_error::<RuntimeRole>("\"\"");
+    assert_serde_data_error::<RecordedAt>("\"not-a-timestamp\"");
+}
+
 fn assert_invalid<T>(result: &Result<T, EventingError>) {
     assert!(matches!(result, Err(EventingError::InvalidValue { .. })));
+}
+
+fn assert_serde_data_error<T: DeserializeOwned>(value: &str) {
+    assert!(matches!(
+        serde_json::from_str::<T>(value),
+        Err(error) if error.is_data()
+    ));
 }

@@ -14,6 +14,10 @@
 
 # WP08 Rust Schema And Account Authority
 
+## Current status
+
+`validation / bounded producer source accepted / tests and runtime adapter deferred`
+
 ## Goal
 
 Establish the next executable account-identity slice after the accepted provider
@@ -54,14 +58,68 @@ crates/family-identity-core:
   Rust account/family runtime semantics and parity against the canonical schema.
 
 cloudflare-control-plane-plan WP06:
-  real Workers-D1/DO/KV binding, persistence adapter, migration execution
+  real Workers-D1/DO/KV binding, persistence surface, migration execution
   surface, and storage proof; it consumes this packet's canonical contract.
 
 cloudflare-control-plane-plan WP08:
   Cloudflare test-runner and test-pyramid proof after the WP06 storage packet.
 ```
 
-PR #607's TypeScript Cloudflare adapter/D1-test-double work is historical
+## 2026-08-17 independently reviewed source packet
+
+The Rust-owned `v0.7` handoff now requires a canonical household/child/device
+binding with pairing, installation, selected route, lifecycle, revocation, and
+bounded authority generation. Child-device, pairing, installation, route, and
+provider-subject identifiers use guarded deserialization, and Rust/TypeScript
+agree on the positive JavaScript-safe generation range. Handoff validation
+requires an active provider mapping whose account identity exactly matches the
+binding account identity.
+
+`crates/family-identity-core/src/account_identity_authority.rs` owns the
+crate-private repository/read port and the non-public trusted result. It rejects
+selector mismatch, unpaired or uninstalled devices, inactive lifecycle,
+revocation, and invalid generation. Downstream crates cannot implement that
+port or fabricate the trusted binding. Independent P0/P1 review accepted this
+bounded source packet. A local SQLite repository/CAS owner and a Cloudflare D1
+read adapter now exist. WP02's target-aware action owner and Cloudflare WP06's
+authoritative writer/update/revocation/CAS plus provider caller do not. Tests,
+builds, retained proof, live Device Trust binding, runtime authority, and DONE
+remain deferred.
+
+## 2026-08-17 source review result
+
+Status: **bounded source accepted; tests, runtime adapter, and proof deferred.**
+
+The live source audit found that the former optional authority snapshot was a
+transport shape, not a trusted binding. The accepted source outcome is:
+
+```text
+Rust-owned canonical household/child/device binding
+pairing + install + selected route + lifecycle + revocation + authority generation
+family-owned fail-closed current-binding read boundary
+no caller-supplied DTO, selector, or generated TypeScript value becomes authority
+```
+
+## Device Trust current-authority bridge
+
+Account WP08 is the canonical contract producer for the household/child/device/
+pairing/install/route/lifecycle/revocation binding consumed by Device Trust
+WP03. It does not issue parent presence, register a LAN signer, or own local
+trust lifecycle. Cloudflare WP06 is the next ordered consumer and must resolve
+this binding from a provider-gated durable caller; a provider-subject mapping,
+pure evaluator, LAN registry, request DTO, or generated edge value is not a
+substitute. WP03 remains blocked until both the contract and durable caller are
+reachable, and no reverse dependency from Account WP08 to WP03 is introduced.
+
+Cloudflare WP06 remains the authoritative Cloudflare repository and
+production-caller owner. Its current read adapter and migrations do not own
+write/update/revocation/CAS currentness. This packet may define the contract,
+family-owned read port, and local repository, but it must not add a Worker
+route, provider composition, or fake Cloudflare authority adapter. Existing
+tests/proof are not evidence for this new packet and every acceptance row below
+remains open.
+
+PR #607's TypeScript Cloudflare persistence/D1-test-double work is historical
 branch evidence only. It is not an implementation starting point or proof of
 this workpack.
 
@@ -147,12 +205,42 @@ deployment, or whole-plan readiness.
 - [x] Cross-plan Cloudflare WP06/WP08 handoffs and no-claim boundary recorded.
 - [x] Checklist/PLAN_STATE changes made only for proven rows.
 
-## Completion record
+## Accepted replacement source delta
+
+Independent review accepts the replacement Account source at `35edb2830`,
+integrated through `e69acf279`. In addition to the prior canonical binding, the
+current packet adds strict schema validation modules, non-forgeable capability
+issuance, and local durable repository/CAS/invariant/read ownership. Generated
+Account TypeScript remains derived from the Rust template. Cloudflare WP06 now
+contains the read adapter and ordered `0001`-`0004` migration files, but its
+authoritative writer/update/revocation/CAS path, provider composition,
+migration execution, expected tests, retained proof, and deployment remain
+downstream/open. WP02's target-aware action resolver is also reopened. This is
+reviewed implementation evidence, not a new DONE claim.
+
+## 2026-08-19 producer transport mapping
+
+The integrated source packet at `c5ed3ce5c` adds nine Account-owned Rust
+producer files to this workpack's reviewed implementation surface. Issuance is
+crate-private and can consume only `VerifiedAccountIdentityAuthority`; all
+authority-bearing signed fields come from that capability, while protocol and
+envelope metadata remain Account issuer/custody data. No authenticated producer
+adapter or durable signer/key registry is present, so transport issuance is
+typed unavailable. Cloudflare WP06 still lacks its private verifier/service-
+binding consumer and D1 currentness recheck. Expected tests for wire parsing,
+canonical bytes, signature/domain separation, timestamp bounds, and subject /
+currentness negatives are mapped but not written or run.
+
+## Prior narrow completion record
 
 The tracked durable manifest in `docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/`
 records the Rust source/test surface: `crates/schema` owns the generated edge
 contract and `crates/family-identity-core` owns account/family authority.
 
-This local completion is intentionally narrow. Cloudflare WP06 still owns
+That prior record is intentionally narrow and predates the 2026-08-16 handoff
+above. Cloudflare WP06 still owns
 D1/DO/KV binding and migration/storage proof; Cloudflare WP08 then owns
 runner/integration proof; Account WP06 remains open for final aggregation.
+The new handoff is independently accepted as bounded implementation evidence
+only. Tests, adapter reachability, validation, proof, and completion remain
+open and do not change those ownership or no-claim boundaries.

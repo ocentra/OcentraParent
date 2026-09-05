@@ -19,6 +19,7 @@ describe('portal service-backed parent portal state', () => {
 
     expect(state.content.modes.parentOverview.rowSource).toBe('api');
     expect(state.content.modes.parentManage.rowSource).toBe('api');
+    expect(state.content.modes.parentGuide.rowSource).toBe('api');
     expect(state.connectionState).toBe(PARENT_PORTAL_SERVICE_STATE.Connection.Connected);
     expect(state.parentPortalRows).toEqual(snapshotRows);
     expect(state.parentPortalRows).not.toBe(snapshotRows);

@@ -1,5 +1,6 @@
 use super::support::{
-    test_event, test_event_for_type, TestText as SupportText, OTHER_EVENT_TYPE, TEST_EVENT_TYPE,
+    test_event, test_event_for_type, TestEvent, TestText as SupportText, OTHER_EVENT_TYPE,
+    TEST_EVENT_TYPE,
 };
 use ocentra_eventing::contract_registry::EventContractRegistry;
 use ocentra_eventing::error::EventingError;
@@ -79,4 +80,17 @@ fn empty_contract_registry_docs_are_explicit() {
         markdown.as_str(),
         "# Event Contract Registry\n\n_No event contracts registered._\n"
     );
+}
+
+#[test]
+fn registry_descriptor_preserves_typed_contract_identity() {
+    let event = test_event(SupportText("descriptor".to_owned()));
+    let mut registry = EventContractRegistry::new();
+    let descriptor = registry
+        .register_event(&event)
+        .expect_value("test event registers");
+
+    assert_eq!(descriptor.event_type().as_str(), TEST_EVENT_TYPE);
+    assert_eq!(descriptor.schema_version().value(), 1);
+    assert_eq!(descriptor.rust_type(), std::any::type_name::<TestEvent>());
 }

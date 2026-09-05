@@ -11,12 +11,12 @@ const LOCK_SUFFIX: &str = ".append.lock";
 const LOCK_RETRY_COUNT: usize = 2_000;
 const LOCK_RETRY_DELAY: Duration = Duration::from_millis(5);
 
-pub(super) struct JournalAppendLock {
+pub(in crate::journal::ndjson) struct JournalAppendLock {
     _file: File,
 }
 
 impl NdjsonEventJournal {
-    pub(super) async fn acquire_append_file_lock(
+    pub(in crate::journal::ndjson) async fn acquire_append_file_lock(
         &self,
     ) -> Result<JournalAppendLock, EventingError> {
         acquire(&append_lock_path(&self.path), self).await

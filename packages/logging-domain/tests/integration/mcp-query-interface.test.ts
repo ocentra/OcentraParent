@@ -467,18 +467,21 @@ describe('logging-domain MCP query interface tool listing', () => {
 });
 
 describe('logging-domain MCP query interface proof trace', () => {
-  it('makes proof-trace smoke honest in a clean workspace and keeps MCP plus CLI semantics aligned', async () => {
-    const structuredRoot = makeTempDir('mcp-proof-trace-smoke-');
-    mcpQueryTempDirs.push(structuredRoot);
-    const env = makeLoggingEnv(structuredRoot);
+  it.skipIf(process.platform !== 'win32')(
+    'makes proof-trace smoke honest in a clean workspace and keeps MCP plus CLI semantics aligned',
+    async () => {
+      const structuredRoot = makeTempDir('mcp-proof-trace-smoke-');
+      mcpQueryTempDirs.push(structuredRoot);
+      const env = makeLoggingEnv(structuredRoot);
 
-    const result = runMcp(['--smoke', 'proof-trace', '--smoke-root', structuredRoot], env);
-    expect(result.status).toBe(0);
+      const result = runMcp(['--smoke', 'proof-trace', '--smoke-root', structuredRoot], env);
+      expect(result.status).toBe(0);
 
-    const smoke = JSON.parse(result.stdout) as ProofTraceSmokeResult;
-    expectProofTraceSmokeResult(smoke);
-    await expectProofTraceMcpAlignment(env, smoke);
-  });
+      const smoke = JSON.parse(result.stdout) as ProofTraceSmokeResult;
+      expectProofTraceSmokeResult(smoke);
+      await expectProofTraceMcpAlignment(env, smoke);
+    }
+  );
 
   it('surfaces unknown proof-trace scopes as MCP errors', async () => {
     const structuredRoot = makeTempDir('mcp-proof-trace-missing-scope-');

@@ -233,6 +233,22 @@ fn unsupported_status_values_do_not_deserialize() {
 }
 
 #[test]
+fn enforcement_action_rejects_unknown_fields() {
+    let action = enforcement_action(&enforcement_intent());
+    let mut payload =
+        serde_json::to_value(action).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
+    payload["untrustedExtension"] = serde_json::Value::Bool(true);
+
+    let error = serde_json::from_value::<EnforcementAction>(payload)
+        .expect_err_value("unknown enforcement action fields must fail closed");
+    let message = error.to_string();
+    assert!(
+        message.contains("unknown field") && message.contains("untrustedExtension"),
+        "expected unknown field rejection, got {message}"
+    );
+}
+
+#[test]
 fn unavailable_status_serializes_typed_capability_reason() {
     let capability = unavailable_capability();
     let unavailable = EnforcementUnavailableStatus {

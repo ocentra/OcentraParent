@@ -1,10 +1,23 @@
+use super::types::{
+    AppUseReadModelAgentServiceSnapshot, GamesReadModelAgentServiceSnapshot,
+    ScreenReadModelAgentServiceSnapshot, TrackingReadModelAgentServiceSnapshot,
+};
 use super::*;
 use crate::agent_service_client::payload_fields::serialized_enum_label;
 use crate::agent_service_client::snapshots_network::activity_surface_read_model_from_response;
 use crate::agent_service_client::transport::rejection_message;
 use crate::parent_ui_bridge::route_metadata::tracking_read_model_snapshot;
+use ocentra_parent_agent_protocol::activity_surface::{
+    ActivityAppUseReadModel, ActivityGamesReadModel, ActivityScreenReadModel,
+};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::tracking::read_model::TrackingReadModel;
+use ocentra_parent_agent_protocol::transport::{AgentEventEnvelope, AgentEventName};
+use ocentra_schema::parent_ui_bridge::{
+    ParentActivityTrackingReadModelFailureReason, ParentActivityTrackingReadModelResultSnapshot,
+};
 
-pub(super) fn tracking_read_model_snapshot_from_result(
+pub(crate) fn tracking_read_model_snapshot_from_result(
     result: AgentServiceCommandResult,
 ) -> Result<TrackingReadModelAgentServiceSnapshot, String> {
     let AgentServiceCommandResult {
@@ -70,7 +83,7 @@ fn tracking_read_model_failure(
     }
 }
 
-pub(super) fn activity_screen_read_model_snapshot_from_result(
+pub(crate) fn activity_screen_read_model_snapshot_from_result(
     result: AgentServiceCommandResult,
 ) -> Result<ScreenReadModelAgentServiceSnapshot, String> {
     let AgentServiceCommandResult {
@@ -98,4 +111,60 @@ pub(super) fn activity_screen_read_model_snapshot_from_result(
         "screen",
     )?;
     Ok(ScreenReadModelAgentServiceSnapshot { read_model })
+}
+
+pub(crate) fn activity_app_use_read_model_snapshot_from_result(
+    result: AgentServiceCommandResult,
+) -> Result<AppUseReadModelAgentServiceSnapshot, String> {
+    let read_model = activity_surface_snapshot_from_result::<ActivityAppUseReadModel>(
+        result,
+        &AgentEventName::AgentActivityAppUseReadModelReported,
+        constants::activity_surface::READ_MODEL_APP_USE,
+        "app-use",
+    )?;
+    Ok(AppUseReadModelAgentServiceSnapshot { read_model })
+}
+
+pub(crate) fn activity_games_read_model_snapshot_from_result(
+    result: AgentServiceCommandResult,
+) -> Result<GamesReadModelAgentServiceSnapshot, String> {
+    let read_model = activity_surface_snapshot_from_result::<ActivityGamesReadModel>(
+        result,
+        &AgentEventName::AgentActivityGamesReadModelReported,
+        constants::activity_surface::READ_MODEL_GAMES,
+        "games",
+    )?;
+    Ok(GamesReadModelAgentServiceSnapshot { read_model })
+}
+
+pub(super) fn activity_surface_snapshot_from_result<T>(
+    result: AgentServiceCommandResult,
+    expected_event: &AgentEventName,
+    expected_kind: &str,
+    label: &str,
+) -> Result<T, String>
+where
+    T: serde::de::DeserializeOwned,
+{
+    let AgentServiceCommandResult {
+        events,
+        response_event,
+        ..
+    } = result;
+    if response_event.event == AgentEventName::AgentCommandRejected {
+        return Err(rejection_message(&response_event));
+    }
+    if &response_event.event != expected_event {
+        return Err(format!(
+            "agent-service expected {}, received {}",
+            serialized_enum_label(expected_event),
+            serialized_enum_label(&response_event.event)
+        ));
+    }
+    events.last().cloned().ok_or_else(|| {
+        format!("agent-service {label} read model result did not include a response event")
+    })?;
+    let read_model =
+        activity_surface_read_model_from_response::<T>(&response_event, expected_kind, label)?;
+    Ok(read_model)
 }

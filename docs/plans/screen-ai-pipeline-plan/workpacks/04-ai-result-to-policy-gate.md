@@ -27,6 +27,16 @@ v0-8-enforcement-control-plan owns enforcement execution and adapter authority.
 
 Only schema-valid AI results reach deterministic parent policy.
 
+## Current source state - 2026-08-17
+
+Source checkpoint `7dc09c25f` removes the service-generated policy decision ID,
+fixed `allow` action, parent-rule ref, explanation refs, and action-authorizing
+eligibility that were previously derived from AI output. The shipped bridge now
+fails closed because those trusted fields are absent. This is an accepted
+source correction, not target-state completion: Policy Control still must
+resolve a real decision and retained refs, and the existing tests that expected
+the synthetic values must be rewritten in the later test-source phase.
+
 ## Required proof fields
 
 The selected proof must name, at minimum:

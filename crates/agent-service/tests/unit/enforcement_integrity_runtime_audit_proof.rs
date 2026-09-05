@@ -14,7 +14,8 @@ use serde_json::{json, Value};
 use super::enforcement_api::enforcement_integrity_runtime_audit_read_model::{
     v08_enforcement_integrity_runtime_audit_read_model, GeneratedAtTextRef,
 };
-use crate::test_invariants::{require_ok, require_some};
+use crate::test_require_ok::require_ok;
+use crate::test_require_some::require_some;
 
 #[test]
 fn enforcement_integrity_runtime_audit_read_model_writes_proof_artifact() {

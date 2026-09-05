@@ -19,4 +19,11 @@ export_import_text_identifiers!(
     ExportImportTimestamp,
     ExportImportProductVersion,
     ExportImportMigrationRef,
+    ExportImportScheduleRef,
+    ExportImportJobRef,
+    ExportImportOperationRef,
+    ExportImportIdempotencyRef,
+    ExportImportExecutionRef,
+    ExportImportProviderOperationRef,
+    ExportImportMigrationPlanRef,
 );

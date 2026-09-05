@@ -76,6 +76,29 @@ fn launcher_game_candidate_is_not_known_game_without_child_proof() {
 }
 
 #[test]
+fn launcher_manifest_candidate_is_not_known_game_without_child_proof() {
+    let mut record = launcher_only_record();
+    record.launcher_evidence_id = APP_GAME_TEST_LAUNCHER_CANDIDATE_EVIDENCE_ID.to_string();
+    record.launcher_app_id = Some(APP_GAME_TEST_LAUNCHER_APP_ID.to_string());
+    record.game_proof_state = APP_GAME_LAUNCHER_PROOF_MANIFEST_CANDIDATE.to_string();
+    record.classification_state = APP_GAME_CLASSIFICATION_KNOWN_GAME.to_string();
+    record.confidence = 0.67;
+
+    let rows = windows_launcher_rows_from_records(&[record]);
+
+    assert_eq!(
+        rows[0].classification_state,
+        APP_GAME_CLASSIFICATION_LAUNCHER_GAME_CANDIDATE
+    );
+    assert_eq!(
+        rows[0].game_proof_state,
+        APP_GAME_LAUNCHER_PROOF_MANIFEST_CANDIDATE
+    );
+    assert_eq!(rows[0].child_process_identity, None);
+    assert_eq!(rows[0].child_game_evidence_claim_id, None);
+}
+
+#[test]
 fn deterministic_child_game_proof_can_promote_known_game() {
     let mut record = launcher_only_record();
     record.launcher_evidence_id = APP_GAME_TEST_LAUNCHER_KNOWN_GAME_EVIDENCE_ID.to_string();
@@ -98,6 +121,37 @@ fn deterministic_child_game_proof_can_promote_known_game() {
     assert_eq!(
         rows[0].game_proof_state,
         APP_GAME_LAUNCHER_PROOF_DETERMINISTIC_CHILD_GAME
+    );
+    assert_eq!(
+        rows[0].child_game_evidence_claim_id,
+        Some(APP_GAME_TEST_LAUNCHER_CHILD_GAME_CLAIM_ID.to_string())
+    );
+    assert_eq!(rows[0].catalog_ready_state, APP_GAME_CATALOG_READY);
+}
+
+#[test]
+fn classifier_backed_child_game_proof_can_promote_known_game() {
+    let mut record = launcher_only_record();
+    record.launcher_evidence_id = APP_GAME_TEST_LAUNCHER_KNOWN_GAME_EVIDENCE_ID.to_string();
+    record.launcher_app_id = Some(APP_GAME_TEST_LAUNCHER_APP_ID.to_string());
+    record.child_process_identity = Some(APP_GAME_TEST_LAUNCHER_CHILD_PROCESS_IDENTITY.to_string());
+    record.child_inventory_entry_id =
+        Some(APP_GAME_TEST_LAUNCHER_CHILD_INVENTORY_ENTRY_ID.to_string());
+    record.child_game_evidence_claim_id =
+        Some(APP_GAME_TEST_LAUNCHER_CHILD_GAME_CLAIM_ID.to_string());
+    record.catalog_ref = Some(APP_GAME_TEST_STORE_GAME_CATALOG_REF.to_string());
+    record.game_proof_state = APP_GAME_LAUNCHER_PROOF_CLASSIFIER_BACKED_CHILD_GAME.to_string();
+    record.confidence = 0.89;
+
+    let rows = windows_launcher_rows_from_records(&[record]);
+
+    assert_eq!(
+        rows[0].classification_state,
+        APP_GAME_CLASSIFICATION_KNOWN_GAME
+    );
+    assert_eq!(
+        rows[0].game_proof_state,
+        APP_GAME_LAUNCHER_PROOF_CLASSIFIER_BACKED_CHILD_GAME
     );
     assert_eq!(
         rows[0].child_game_evidence_claim_id,

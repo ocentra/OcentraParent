@@ -481,6 +481,29 @@ restart, and manual topology artifacts remain open.
 
 If a proof script emits `test-results/.../proof.json`, the workpack proof pack must reference that file and must not imply the artifact exists until it has been regenerated on this branch/worktree.
 
+## WP26 Signed Child Beacon Ingress And Household Mesh Authority Handoff
+
+Canonical generated proof root:
+
+```text
+output/lan-plan-proof/26-signed-child-beacon-ingress-and-household-mesh-authority-handoff/
+```
+
+Expected test-results artifact:
+
+```text
+test-results/26-signed-child-beacon-ingress-and-household-mesh-authority-handoff/proof.json
+```
+
+Both WP26 artifacts are open and must be regenerated on the current branch. The
+packet must prove a real shipped child/runtime peer ingress, W15 household
+custody, W18 signed hello/heartbeat and transport authority, W19 route/lease/
+revocation authority, atomic message/idempotency custody, and the private typed
+Eventing WP10 authorization handoff. It must include real ingress, restart,
+duplicate, stale, revoked, wrong-family, wrong-target, and provider-policy
+negative results. Portal/UI authority, fake transport, synthetic receivers, and
+controlled observation commands are not accepted as substitutes.
+
 ## Proof Paths Explicitly Not Claimed By Current Slices
 
 These previously cited paths are absent on disk as of 2026-06-28 and are not current proof:

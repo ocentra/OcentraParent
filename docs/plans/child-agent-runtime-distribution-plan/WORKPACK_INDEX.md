@@ -5,51 +5,66 @@
 > Doc: `Child Agent Runtime Distribution Workpack Index`
 > Kind: workpack selector.
 > Read when: after PLAN_STATE.md and NEXT_ACTIONS.md.
-> Stop rule: open exactly one selected workpack; do not read every workpack.
+> Stop rule: open exactly one selected workpack; do not read every workpack unless the assignment is a plan-wide audit.
 > Proves: workpack routing only.
 > Does not prove: child runtime readiness, package readiness, device trust, setup readiness, or PR readiness.
-> Proof rule: update counts/status only after matching proof artifacts exist.
+> Proof rule: update completion only after source, tests, proof, checklist, and required review gates agree.
 
 <!-- /agent-capsule -->
 
 # Child Agent Runtime Distribution Workpack Index
 
-Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is unclear. Do not use it as permission to scan multiple workpacks.
+Live source audit basis includes the reviewed WP06 identity packet `c71becbcfd4f07eb98a118f10dbf261320f6b54e`. Status below is source-routing truth, not completion.
 
-| Status | Workpack | Boxes | Proof root |
-| --- | --- | ---: | --- |
-| complete | [WP01 Child Agent Scope And Route Boundary](workpacks/01-child-agent-scope-and-route-boundary.md) | 10/10 | `output/child-agent-runtime-distribution-plan-proof/01-child-agent-scope-and-route-boundary/` |
-| blocked / proof-present | [WP02 Child Windows Service Package](workpacks/02-child-windows-service-package.md) | 12/12 | `output/child-agent-runtime-distribution-plan-proof/02-child-windows-service-package/` |
-| complete | [WP03 Child macOS Service Package](workpacks/03-child-macos-service-package.md) | 12/12 | `output/child-agent-runtime-distribution-plan-proof/03-child-macos-service-package/` |
-| complete | [WP04 Child Linux Service Package](workpacks/04-child-linux-service-package.md) | 12/12 | `output/child-agent-runtime-distribution-plan-proof/04-child-linux-service-package/` |
-| complete | [WP05 Child Android Agent Package](workpacks/05-child-android-agent-package.md) | 12/12 | `output/child-agent-runtime-distribution-plan-proof/05-child-android-agent-package/` |
-| complete | [WP06 Child iOS Capability Package](workpacks/06-child-ios-agent-capability-package.md) | 12/12 | `output/child-agent-runtime-distribution-plan-proof/06-ios-entitlement-capability-proof/` |
-| complete | [WP07 Child Managed Service Respawn](workpacks/07-child-managed-service-respawn.md) | 12/12 | `output/child-agent-runtime-distribution-plan-proof/07-child-managed-service-respawn/` |
-| complete | [WP08 Child Parent Authorized Uninstall](workpacks/08-child-parent-authorized-uninstall.md) | 12/12 | `output/child-agent-runtime-distribution-plan-proof/08-child-parent-authorized-uninstall/` |
-| complete | [WP09 Child Signing Store Device Owner Matrix](workpacks/09-child-signing-store-device-owner-matrix.md) | 12/12 | `output/child-agent-runtime-distribution-plan-proof/09-child-signing-store-device-owner-matrix/` |
-| complete | [WP10 Setup Device Trust Handoff](workpacks/10-setup-device-trust-handoff.md) | 10/10 | `output/child-agent-runtime-distribution-plan-proof/10-setup-device-trust-handoff/` |
-| complete | [WP11 Proof CI Release Gate](workpacks/11-proof-ci-release-gate.md) | 14/14 | `output/child-agent-runtime-distribution-plan-proof/11-proof-ci-release-gate/` |
+| Status | Workpack | Production source gap | Expected test-source gap | Runtime/caller state | Implementation dependency |
+| --- | --- | --- | --- | --- | --- |
+| validation — route-only proof complete; implementation contract open | [WP01 Child Agent Scope And Route Boundary](workpacks/01-child-agent-scope-and-route-boundary.md) | None; keep the ownership route aligned. | Route/index consistency only. | Not runtime. | None. |
+| source partial | [WP02 Child Windows Service Package](workpacks/02-child-windows-service-package.md) | Trusted startup, authenticated ingress, external health, and canonical child-owned package source identities. | Child service startup/readiness plus child-labelled elevated lifecycle/respawn. | Installed service has no trust source or production client. | Child WP10 reviewed implementation. |
+| source partial | [WP03 Child macOS Service Package](workpacks/03-child-macos-service-package.md) | Canonical child plist/source identity, signing/notarization, trusted startup, health, and lifecycle completion. | Real-host launchd/signing/restart/disable/uninstall/health. | Binary remains trust-manual-required and externally unreachable. | Child WP10 reviewed implementation. |
+| source partial | [WP04 Child Linux Service Package](workpacks/04-child-linux-service-package.md) | Canonical child unit/source identity, fail-closed service lifecycle, trusted startup, health, signing/feed, and cleanup. | Child-labelled package plus real-host health/crash/restart/remove/distro tests. | systemd starts an unbound, externally unreachable service. | Child WP10 reviewed implementation. |
+| source partial | [WP05 Child Android Agent Package](workpacks/05-child-android-agent-package.md) | Current-trust JNI startup, authenticated ingress, usable health, device-owner/managed-profile, and removal integration. | Fail-closed/no-trust, current-trust, foreground lifecycle, ingress, removal, and device authority. | Binder health is local; transport is `NOT_IMPLEMENTED`. | Child WP10 reviewed implementation. |
+| done | [WP06 Child iOS Capability Package](workpacks/06-child-ios-agent-capability-package.md) | No bounded capability-contract source gap. macOS/Xcode execution, Apple signing/provisioning, physical-device launch, and TestFlight/App Store authority remain external/manual-required; Core Location remains Tracking WP11/WP12 after trusted ingress. | No source gap. The real XCTest runs on macOS/Xcode and is retained as an explicit host-blocked result elsewhere. | Capability-only; no daemon, tracking handoff, or runtime parity. | None; aggregate release remains WP11-owned. |
+| source incomplete | [WP07 Child Managed Service Respawn](workpacks/07-child-managed-service-respawn.md) | Health-aware lifecycle/supervision, bounded restart/backoff, deliberate-stop, teardown, and platform callbacks. | Kill/reboot/manager-restart/disable/teardown/loop-guard by platform. | Static declarations only; no live observer. | Child WP02-WP06 and WP10 reviewed implementation. |
+| source partial / caller missing | [WP08 Child Parent Authorized Uninstall](workpacks/08-child-parent-authorized-uninstall.md) | Production authority caller, platform cleanup callbacks, and durable cleanup receipts. | Authority mismatch/replay/restart and platform cleanup/idempotency. | Removal APIs have no production caller. | Account WP08, Child WP10, and Child WP07 reviewed implementation. |
+| source partial / integration missing | [WP09 Child Signing Store Device Owner Matrix](workpacks/09-child-signing-store-device-owner-matrix.md) | Live WP10 handoff consumption plus non-Windows signing/store/update ownership. | Updater handoff/install/restart and platform signing/store/device-owner. | Windows updater CLI does not consume the handoff projection. | Child WP02-WP06 and WP10 reviewed implementation. |
+| source partial / first runtime packet | [WP10 Setup Device Trust Handoff](workpacks/10-setup-device-trust-handoff.md) | Trusted startup adapter, authenticated ingress, external health, durable handoff delivery/replay, and live updater consumer. | Trust/currentness, ingress, health, replay/expiry, updater callback, crash/restart. | Projection has no caller; shipped startup has no trust source. | Device Trust WP01 reviewed implementation. No reverse edge to Setup WP07. |
+| source missing | [WP11 Proof CI Release Gate](workpacks/11-proof-ci-release-gate.md) | Executable aggregate release gate. | Negative fixture and release-blocker coverage. | No workflow consumes one authoritative aggregate result. | Child WP01-WP10 reviewed implementation; normal completion still requires all strict gates. |
 
-## Default execution order
-
-```text
-WP01 -> WP02 -> WP03 -> WP04 -> WP05 -> WP06 -> WP07 -> WP08 -> WP09 -> WP10 -> WP11
-```
-
-## Dependency rules
+## Source execution order
 
 ```text
-WP01 fixes child-agent scope before package work.
-WP02-WP06 are platform/package-specific.
-WP07 validates restart/supervision behavior.
-WP08 validates parent-approved removal and revocation state.
-WP09 validates signing/store/device-owner matrix.
-WP10 links setup/device-trust handoff only.
-WP11 is last and consumes all previous proof roots.
+WP01 route
+
+WP06 child iOS identity       Device Trust WP01
+          \                  /
+           \                v
+            +-----------> WP10
+                            |
+              +-------------+-------------+-------------+
+              v             v             v             v
+             WP02          WP03          WP04          WP05
+               \             |             |             /
+                +------------+------+------+------------+
+                                    v
+                                   WP07
+                                  /    \
+                    Account WP08 v      v
+                                WP08   WP09
+                                  \    /
+                                   v  v
+                                   WP11
 ```
 
-## Do not select
+Implementation-only dependencies order source packets; they do not change normal `READY`, validation, proof, or `DONE` requirements.
 
-Do not reuse parent-client proof pointers. Do not implement parent setup journey, account identity, LAN protocol, policy logic, or data custody here.
+## Selection rules
 
-Do not raise status/counts from package-script presence, checksum presence, parent client proof, empty proof directories, stale legacy proof paths, or manual-required rows.
+- Select WP06 or WP10 first. WP10 is legal only when graph inspection confirms the Device Trust WP01 reviewed-implementation gate.
+- Select WP02-WP05 only after WP10's reviewed implementation roots exist.
+- Select WP07 only after the platform package/runtime source roots exist.
+- Select WP08 only after Account authority, WP10, and WP07 source roots exist.
+- Select WP09 only after canonical platform identities and WP10 source exist.
+- Select WP11 last.
+- Tracking WP11/WP12 consume the canonical WP06 package only after Child WP10
+  and Tracking WP40; WP06 must not absorb Core Location/runtime behavior.
+- Do not reuse parent-client proof or treat a proof/checklist count as source completion.

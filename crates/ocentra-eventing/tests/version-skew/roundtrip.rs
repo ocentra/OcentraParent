@@ -103,6 +103,32 @@ fn stored_envelope_rejects_older_schema_version_without_silent_decode() {
         .contains("event schema version must be nonzero"));
 }
 
+#[test]
+fn current_schema_roundtrips_without_contract_or_payload_drift() {
+    let live = EventEnvelope::from_event(
+        VersionedRoundtripEvent {
+            label: String::from("current-contract"),
+        },
+        metadata(),
+    )
+    .expect_value("live envelope builds");
+    let stored = live.store().expect_value("stored envelope builds");
+    let stored_json = serde_json::to_value(&stored).expect_value("stored envelope serializes");
+
+    assert_eq!(stored_json["contract"]["eventType"], TEST_EVENT_TYPE);
+    assert_eq!(stored_json["contract"]["schemaVersion"], 1);
+
+    let restored = serde_json::from_value::<StoredEventEnvelope>(stored_json)
+        .expect_value("current stored envelope deserializes");
+    let decoded = restored
+        .decode::<VersionedRoundtripEvent>()
+        .expect_value("current stored envelope decodes");
+
+    assert_eq!(decoded.contract().event_type.as_str(), TEST_EVENT_TYPE);
+    assert_eq!(decoded.contract().schema_version.value(), 1);
+    assert_eq!(decoded.payload().label, "current-contract");
+}
+
 fn metadata() -> EventMetadata {
     EventMetadata::from_parts(
         EventId::parse(TEST_EVENT_ID).expect_value("event id parses"),

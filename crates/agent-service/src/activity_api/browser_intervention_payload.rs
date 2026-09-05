@@ -21,6 +21,12 @@ pub(super) fn browser_intervention_read_model_payload(
     pairs.extend(browser_intervention_decision_pairs(latest));
     pairs.extend(browser_intervention_target_pairs(latest));
     pairs.extend(browser_intervention_state_pairs(latest));
+    if let Ok(serialized) = serde_json::to_string(read_model) {
+        pairs.push(BrowserInterventionFieldPair(
+            constants::field::BROWSER_INTERVENTION_READ_MODEL_JSON,
+            LogFieldValue::String(serialized),
+        ));
+    }
     browser_intervention_fields_from_pairs(pairs)
 }
 

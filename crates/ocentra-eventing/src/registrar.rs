@@ -1,8 +1,8 @@
 use std::{future::Future, mem};
 
 use crate::{
-    DomainEvent, EventBus, EventContext, EventSubscriber, EventingError, SubscriptionHandle,
-    SubscriptionReport, UnsubscribeReport,
+    bus::publisher::RootEventPublisher, DomainEvent, EventContext, EventSubscriber, EventingError,
+    SubscriptionHandle, SubscriptionReport, UnsubscribeReport,
 };
 
 #[derive(Default)]
@@ -18,7 +18,7 @@ impl EventRegistrar {
 
     pub async fn subscribe<E, F, Fut>(
         &mut self,
-        bus: &EventBus,
+        bus: &RootEventPublisher,
         subscriber: EventSubscriber,
         handler: F,
     ) -> Result<SubscriptionReport, EventingError>

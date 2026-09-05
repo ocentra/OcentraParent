@@ -113,7 +113,7 @@ pub(crate) fn stream_entries_from_report(
                 BrowserRuntimeText(event.correlation_id.as_str().to_string()),
                 &BrowserRuntimeText(event.contract.event_type.as_str().to_string()),
             );
-            let payload = protocol_payload(&decoded.payload);
+            let payload = protocol_payload(decoded.payload());
             Some(BrowserRuntimeServiceStreamEntry {
                 runtime_event_name,
                 event_ref,

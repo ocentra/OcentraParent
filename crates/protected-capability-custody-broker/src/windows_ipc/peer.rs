@@ -1,0 +1,184 @@
+use std::io;
+use std::time::Instant;
+
+use interprocess::os::windows::named_pipe::{pipe_mode, DuplexPipeStream};
+use ocentra_protected_capability_custody_protocol::bootstrap::BootstrapPacket;
+use ocentra_protected_capability_custody_protocol::constants::INITIAL_SESSION_SEQUENCE;
+use ocentra_protected_capability_custody_protocol::handshake::{
+    UntrustedBrokerHello, UntrustedClientHello,
+};
+use zeroize::Zeroizing;
+
+use crate::authority::{current_process_identity, unix_now_millis, BrokerSessionAuthority};
+use crate::custody::BrokerCustodyService;
+use crate::BrokerError;
+
+type PipeStream = DuplexPipeStream<pipe_mode::Bytes>;
+
+pub(super) fn serve(
+    stream: &mut PipeStream,
+    deadline: Instant,
+    custody: &BrokerCustodyService,
+) -> Result<(), BrokerError> {
+    // Admit the OS peer before reading any caller-controlled bootstrap or
+    // generating a broker session key. The observation retains the process,
+    // image, primary-token, and impersonated-token handles through transcript
+    // authorization; this RAII scope supplies the actual pipe-client token.
+    let peer_process_id = stream.client_process_id().map_err(map_transport_error)?;
+    let peer_session_id = stream.client_session_id().map_err(map_transport_error)?;
+    let observation = {
+        let _impersonation = stream.impersonate_client().map_err(map_transport_error)?;
+        custody.observe_impersonated_named_pipe_client(peer_process_id, peer_session_id)?
+    };
+    custody.authorize_client_peer(&observation)?;
+
+    let bootstrap_frame = Zeroizing::new(super::io::read_frame(stream, deadline)?);
+    let bootstrap =
+        ocentra_protected_capability_custody_protocol::decode_bootstrap(bootstrap_frame.as_ref())?;
+    authenticate_pipe_client(stream, &bootstrap)?;
+
+    let client_frame = Zeroizing::new(super::io::read_frame(stream, deadline)?);
+    let client_hello =
+        ocentra_protected_capability_custody_protocol::decode_client_hello(client_frame.as_ref())?;
+    authenticate_client_hello(stream, &bootstrap, &client_hello)?;
+
+    // The observation owns the future pinned process handle. Revalidate it at
+    // the last possible point before the broker creates and emits session key
+    // material, closing the PID-reuse window between admission and hello.
+    let fresh_process_id = stream.client_process_id().map_err(map_transport_error)?;
+    let fresh_session_id = stream.client_session_id().map_err(map_transport_error)?;
+    let authorized_transcript = custody.authorize_client_transcript(
+        observation,
+        &bootstrap,
+        &client_hello,
+        fresh_process_id,
+        fresh_session_id,
+    )?;
+
+    let broker_hello = issue_broker_hello(custody, &client_hello)?;
+    let encoded_hello = Zeroizing::new(
+        ocentra_protected_capability_custody_protocol::encode_broker_hello(&broker_hello)?,
+    );
+    super::io::write_frame(stream, encoded_hello.as_ref(), deadline)?;
+
+    let request_frame = Zeroizing::new(super::io::read_frame(stream, deadline)?);
+    if has_account_issuer_domain(request_frame.as_ref()) {
+        return serve_account_issuer(
+            stream,
+            deadline,
+            custody,
+            request_frame.as_ref(),
+            &broker_hello,
+            authorized_transcript,
+        );
+    }
+    let request =
+        ocentra_protected_capability_custody_protocol::decode_request(request_frame.as_ref())?;
+    let request = request.into_authenticated_session(
+        &broker_hello,
+        unix_now_millis()?,
+        INITIAL_SESSION_SEQUENCE,
+        broker_hello.authenticator(),
+    )?;
+    let response = custody.execute(&request, broker_hello.authenticator())?;
+    let encoded_response =
+        Zeroizing::new(ocentra_protected_capability_custody_protocol::encode_response(&response)?);
+    super::io::write_frame(stream, encoded_response.as_ref(), deadline)
+}
+
+fn issue_broker_hello(
+    custody: &BrokerCustodyService,
+    client_hello: &UntrustedClientHello,
+) -> Result<UntrustedBrokerHello, BrokerError> {
+    let broker_identity = current_process_identity(custody)?;
+    let platform_session_state = custody.platform_session_state()?;
+    let session = BrokerSessionAuthority::generate(
+        broker_identity,
+        unix_now_millis()?,
+        Some(platform_session_state),
+    )?;
+    UntrustedBrokerHello::authenticate_wire(client_hello, session.wire_values(), unix_now_millis()?)
+        .map_err(BrokerError::from)
+}
+
+fn has_account_issuer_domain(frame: &[u8]) -> bool {
+    let prefix_length = std::mem::size_of::<u32>();
+    let domain =
+        ocentra_protected_capability_custody_protocol::account_issuer_contract::
+            ACCOUNT_ISSUER_TRANSPORT_DOMAIN;
+    frame.get(prefix_length..prefix_length.saturating_add(domain.len())) == Some(domain)
+}
+
+fn serve_account_issuer(
+    stream: &mut PipeStream,
+    deadline: Instant,
+    custody: &BrokerCustodyService,
+    request_frame: &[u8],
+    broker_hello: &UntrustedBrokerHello,
+    authorized_transcript: ocentra_protected_capability_custody_core::broker_admission::
+        BrokerAuthorizedClientTranscript,
+) -> Result<(), BrokerError> {
+    let request =
+        ocentra_protected_capability_custody_protocol::account_issuer_session::decode_request(
+            request_frame,
+        )?;
+    let authenticated = request.into_authenticated_session(
+        broker_hello,
+        unix_now_millis()?,
+        INITIAL_SESSION_SEQUENCE,
+        broker_hello.authenticator(),
+    )?;
+    let admission =
+        custody.authorize_account_issuer_request(authorized_transcript, &authenticated)?;
+    let receipt = custody.execute_account_issuer(admission, &authenticated)?;
+    let authenticated_receipt =
+        ocentra_protected_capability_custody_protocol::account_issuer_session::
+            AuthenticatedAccountIssuerReceipt::authenticate(
+                authenticated,
+                receipt,
+                broker_hello.authenticator(),
+            )?;
+    let encoded_receipt = Zeroizing::new(
+        ocentra_protected_capability_custody_protocol::account_issuer_session::encode_receipt(
+            &authenticated_receipt,
+        )?,
+    );
+    super::io::write_frame(stream, encoded_receipt.as_ref(), deadline)
+}
+
+fn authenticate_pipe_client(
+    stream: &PipeStream,
+    bootstrap: &BootstrapPacket,
+) -> Result<(), BrokerError> {
+    let identity = bootstrap.identity();
+    let peer_process_id = stream.client_process_id().map_err(map_transport_error)?;
+    let peer_session_id = stream.client_session_id().map_err(map_transport_error)?;
+    if peer_process_id != identity.client_process_id()
+        || peer_session_id != identity.client_session_id()
+    {
+        return Err(BrokerError::PeerAuthentication);
+    }
+    Ok(())
+}
+
+fn authenticate_client_hello(
+    stream: &PipeStream,
+    bootstrap: &BootstrapPacket,
+    hello: &UntrustedClientHello,
+) -> Result<(), BrokerError> {
+    let identity = bootstrap.identity();
+    if hello.client_process_id() != stream.client_process_id().map_err(map_transport_error)?
+        || hello.client_session_id() != stream.client_session_id().map_err(map_transport_error)?
+        || hello.client_process_id() != identity.client_process_id()
+        || hello.client_process_epoch() != identity.client_process_epoch()
+        || hello.client_session_id() != identity.client_session_id()
+        || hello.nonce() != identity.pipe_nonce()
+    {
+        return Err(BrokerError::PeerAuthentication);
+    }
+    Ok(())
+}
+
+fn map_transport_error(_error: io::Error) -> BrokerError {
+    BrokerError::Transport
+}

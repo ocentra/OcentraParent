@@ -185,6 +185,10 @@ fn effect_and_capability_helpers_keep_proof_states_explicit() {
         NetworkControlCapabilityState::PermissionRequired
     );
     assert_eq!(
+        capability_state_for(NetworkControlEffectStatus::NeedsEffectWiring),
+        NetworkControlCapabilityState::Degraded
+    );
+    assert_eq!(
         capability_state_from_source_state("authoring-only"),
         NetworkControlCapabilityState::Disabled
     );

@@ -55,10 +55,10 @@ docs/proof/eventing-plan/slice-03-consumer-boundary.md
 ## Rollout proof bundle
 
 ```text
-output/eventing-plan-proof/rollout-proof/proof-summary.json
+output/eventing-plan-proof/12-rollout-proof-and-pr-gate/proof-summary.json
 test-results/eventing-rollout-proof/proof.json
-output/eventing-plan-proof/rollout-proof/pr-done-report.md
-output/eventing-plan-proof/rollout-proof/command-logs/
+output/eventing-plan-proof/12-rollout-proof-and-pr-gate/pr-done-report.md
+output/eventing-plan-proof/12-rollout-proof-and-pr-gate/command-logs/
 ```
 
 If the rollout bundle or the `docs/proof/eventing-plan/` slice files are

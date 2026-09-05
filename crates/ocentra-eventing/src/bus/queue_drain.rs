@@ -1,22 +1,27 @@
 use crate::{EventType, EventingError};
 
-use super::{DispatchMode, EventBus, QueueDrainReport};
+use super::{publisher::RootEventPublisher, DispatchMode, EventBus, QueueDrainReport};
 
 mod runner;
 
-impl EventBus {
+impl RootEventPublisher {
+    /// Drains queued work as independent root dispatch under explicit root
+    /// publication authority.
     pub async fn drain_queued(
         &self,
         dispatch_mode: DispatchMode,
     ) -> Result<QueueDrainReport, EventingError> {
-        self.ensure_active()?;
-        runner::drain_queued_matching_unchecked(self, dispatch_mode, None).await
+        let _active_dispatch = self.bus.admit_active_dispatch()?;
+        runner::drain_queued_matching_unchecked(&self.bus, dispatch_mode, None).await
     }
+}
 
+impl EventBus {
     pub(super) async fn drain_queued_unchecked(
         &self,
         dispatch_mode: DispatchMode,
     ) -> Result<QueueDrainReport, EventingError> {
+        let _active_dispatch = self.active_dispatches.enter();
         runner::drain_queued_matching_unchecked(self, dispatch_mode, None).await
     }
 

@@ -1,11 +1,10 @@
 <service>
-  <id>OcentraParentAgent</id>
-  <name>Ocentra Parent Agent</name>
-  <description>Headless local device agent for Ocentra Parent.</description>
+  <id>OcentraChildAgent</id>
+  <name>Ocentra Child Agent</name>
+  <description>Headless local child agent for Ocentra Parent.</description>
   <workingdirectory>%BASE%</workingdirectory>
-  <executable>%BASE%\ocentra-parent-agent-service.exe</executable>
-  <env name="OCENTRA_PARENT_AGENT_ADDR" value="127.0.0.1:4477" />
-  <env name="OCENTRA_PARENT_AGENT_ALLOWED_ORIGINS" value="http://127.0.0.1:4478,http://localhost:4478" />
+  <executable>%BASE%\ocentra-child-agent-service.exe</executable>
+  <env name="OCENTRA_CHILD_AGENT_DATA_DIR" value="%ProgramData%\Ocentra\Ocentra Child Agent" />
   <startmode>Automatic</startmode>
   <onfailure action="restart" delay="10 sec" />
   <onfailure action="restart" delay="30 sec" />

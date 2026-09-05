@@ -86,6 +86,36 @@ agent-protocol/agent-service/agent-core:
   - `packages/portal-domain/src/contracts.ts`
   - `packages/parent-domain/src/local-ai-runtime.ts`
 
+## Production reachability audit (2026-08-16)
+
+The following is a source-reachability audit only. It does not check any
+workpack row, retained proof, live operator result, or rollout gate.
+
+| Workpack | Shipped production path and current boundary |
+| --- | --- |
+| WP01 | Prerequisite/branch gate only; no product runtime slice. |
+| WP02 | `agent-service` cadence and foreground loops call the configured screen-capture adapter, then persist encrypted queue/journal/store state. Capture is Windows-owned; unsupported foreground/capture paths remain degraded. Trigger ownership and live capture proof remain open. |
+| WP03 | `agent-service` claims the encrypted queue and invokes the configured external adapter process; JSON output is parsed into a screen result. Provider/model contract ownership remains in AI/schema, and adapter/model health is not live proof. A failed event-runtime handoff now releases the queue claim for retry. |
+| WP04 | Parsed results reach the persisted screen analysis row, but source checkpoint `7dc09c25f` deliberately emits no policy decision, action, parent-rule, explanation, or action-authorizing eligibility. The prior values were synthetic AI-derived authority and were removed. Policy authority remains owned by `policy-control-plane-plan`; no enforcement authority is present here. |
+| WP05 | The screen event runtime emits the policy/action boundary and does not execute enforcement. Dry-run/action proof and the enforcement adapter remain separate gates. |
+| WP06 | Journal/store/read-model and portal projection callers exist. Portal/read-model presence is not pipeline proof; retained proof and manifest are absent. |
+| WP07 | Queue completion/removal and retention-sweeper callers exist with local custody paths. Deletion/retention policy proof and external custody authority remain open. |
+| WP08 | Live-operator proof gate only; no additional production caller. Required live URLs/apps and artifacts are absent. |
+| WP09 | Cadence, foreground polling, bounded queue scan, lease heartbeat, and adapter timeout paths exist. Stress/backpressure proof and external adapter/model health remain open. |
+| WP10 | Rollout/aggregate proof gate only; no additional production runtime caller. |
+
+The analysis runtime now fails closed at the result-to-event handoff:
+`crates/agent-service/src/screen_ai_analysis_runtime.rs` requires a started
+`ScreenAiServiceEventRuntime`, a persisted read-model row, and successful
+row-ready publication before completing the encrypted queue entry. Missing or
+failed handoff leaves the durable queue item retryable. This is code-drafted;
+tests, retained proof, and live validation remain deferred.
+
+The fail-closed WP04 correction is production-source progress only. Existing
+tests that expect synthetic screen-service policy references are now stale and
+must be rewritten in the later test-source phase. No WP04 checkbox, proof, or
+completion state is advanced until a trusted Policy resolver/handoff exists.
+
 ## Current coupling risks
 
 ```text

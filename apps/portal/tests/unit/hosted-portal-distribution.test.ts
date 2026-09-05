@@ -1,11 +1,16 @@
 import { createElement } from 'react';
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { expect, it } from 'vitest';
 
-import { HostedPortalDistribution } from '../../src/hosted-portal-distribution';
-import { resolveHostedPortalDistributionState } from '@ocentra-parent/portal-domain/hosted-portal-distribution';
+import {
+  HostedPortalDistribution,
+  resolveHostedPortalDistributionState as resolveHostedPortalDistributionStateFromApp,
+} from '../../src/hosted-portal-distribution';
+import {
+  resolveHostedPortalDistributionState as resolveHostedPortalDistributionStateFromDomain,
+  type HostedPortalEnv,
+  type HostedPortalLocation,
+} from '@ocentra-parent/portal-domain/hosted-portal-distribution';
 
 const hostedEnv = {
   VITE_OCENTRA_PARENT_HOSTED_PORTAL_MODE: 'hosted',
@@ -31,6 +36,18 @@ it('labels preview, staging, and production hosted paths distinctly', () => {
   expect(production.openActionLabel).toBe('Open parent portal production');
 });
 
+it('reports missing hosted runtime ownership without rendering a dead action button', () => {
+  const state = requireState('/preview');
+  const markup = renderToStaticMarkup(createElement(HostedPortalDistribution, { state }));
+
+  expect(state.controlsEnabled).toBe(true);
+  expect(markup).toContain('data-hosted-action-state="runtime-owner-unavailable"');
+  expect(markup).toContain(
+    'Open parent portal preview is unavailable until an authenticated hosted runtime owner is connected.'
+  );
+  expect(markup).not.toContain('<button');
+});
+
 it('rejects unsupported hosted paths instead of falling through to a child or setup route', () => {
   const state = requireState('/child-runtime');
   const markup = renderToStaticMarkup(createElement(HostedPortalDistribution, { state }));
@@ -48,6 +65,7 @@ it('blocks parent-only controls when auth is missing', () => {
   expect(state.authState).toBe('missing');
   expect(state.controlsEnabled).toBe(false);
   expect(markup).toContain('Parent sign-in is required');
+  expect(markup).toContain('data-hosted-action-state="blocked"');
   expect(markup).toContain('Parent release action blocked');
 });
 
@@ -73,7 +91,7 @@ it('prevents preview or staging routes from presenting a production release clai
 });
 
 it('activates hosted distribution from browser pathname routes without a hosted env toggle', () => {
-  const preview = resolveHostedPortalDistributionState(
+  const preview = resolveHostedPortalDistributionStateFromDomain(
     {
       hash: '',
       origin: 'http://127.0.0.1:4490',
@@ -82,7 +100,7 @@ it('activates hosted distribution from browser pathname routes without a hosted 
     },
     {}
   );
-  const wrongRoute = resolveHostedPortalDistributionState(
+  const wrongRoute = resolveHostedPortalDistributionStateFromDomain(
     {
       hash: '',
       origin: 'http://127.0.0.1:4490',
@@ -99,7 +117,7 @@ it('activates hosted distribution from browser pathname routes without a hosted 
 
 it('keeps the root hash-route shell when hosted distribution mode is disabled', () => {
   expect(
-    resolveHostedPortalDistributionState(
+    resolveHostedPortalDistributionStateFromDomain(
       {
         hash: '#/overview',
         origin: 'http://127.0.0.1:4490',
@@ -111,35 +129,63 @@ it('keeps the root hash-route shell when hosted distribution mode is disabled', 
   ).toBeNull();
 });
 
-it('keeps deterministic hosted distribution decisions out of the app shell', () => {
-  const source = readFileSync(
-    resolve(import.meta.dirname, '..', '..', 'src', 'hosted-portal-distribution.tsx'),
-    'utf8'
-  );
+it('keeps the app resolver wrapper behaviorally aligned with the domain resolver', () => {
+  const cases: ReadonlyArray<{
+    readonly location: HostedPortalLocation;
+    readonly env: HostedPortalEnv;
+    readonly defaultNowMinutes?: number;
+  }> = [
+    {
+      location: locationFor('/preview'),
+      env: hostedEnv,
+      defaultNowMinutes: 4,
+    },
+    {
+      location: locationFor('/child-runtime?auth=missing&cache=stale&cacheAgeMinutes=240&release=production'),
+      env: hostedEnv,
+      defaultNowMinutes: 9,
+    },
+    {
+      location: locationFor('/staging?auth=missing&cache=stale&cacheAgeMinutes=240&release=production'),
+      env: hostedEnv,
+      defaultNowMinutes: 9,
+    },
+    {
+      location: {
+        hash: '#/overview',
+        origin: 'http://127.0.0.1:4490',
+        pathname: '/',
+        search: '',
+      },
+      env: {},
+    },
+  ];
 
-  expect(source).toContain('@ocentra-parent/portal-domain/hosted-portal-distribution');
-  expect(source).not.toContain('function environmentForPath(');
-  expect(source).not.toContain('function resolveRequestedRelease(');
-  expect(source).not.toContain('function resolveCacheAgeMinutes(');
-  expect(source).not.toContain('function openActionLabel(');
-  expect(source).not.toContain('function shouldRenderHostedPortalDistribution(');
+  for (const testCase of cases) {
+    expect(
+      resolveHostedPortalDistributionStateFromApp(testCase.location, testCase.env, testCase.defaultNowMinutes)
+    ).toEqual(
+      resolveHostedPortalDistributionStateFromDomain(testCase.location, testCase.env, testCase.defaultNowMinutes)
+    );
+  }
 });
 
 function requireState(pathWithQuery: string) {
-  const url = new URL(pathWithQuery, 'http://127.0.0.1:4490');
-  const state = resolveHostedPortalDistributionState(
-    {
-      hash: '',
-      origin: url.origin,
-      pathname: url.pathname,
-      search: url.search,
-    },
-    hostedEnv
-  );
+  const state = resolveHostedPortalDistributionStateFromDomain(locationFor(pathWithQuery), hostedEnv);
 
   if (state === null) {
     throw new Error('Expected hosted portal distribution state to be available.');
   }
 
   return state;
+}
+
+function locationFor(pathWithQuery: string): HostedPortalLocation {
+  const url = new URL(pathWithQuery, 'http://127.0.0.1:4490');
+  return {
+    hash: '',
+    origin: url.origin,
+    pathname: url.pathname,
+    search: url.search,
+  };
 }

@@ -1,0 +1,56 @@
+[package]
+name = "ocentra-app-game-windows-local-policy-ffi"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[lints.rust]
+unsafe_code = "allow"
+unsafe_op_in_unsafe_fn = "deny"
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"
+panic = "deny"
+todo = "deny"
+unimplemented = "deny"
+dbg_macro = "deny"
+print_stdout = "deny"
+print_stderr = "deny"
+await_holding_lock = "deny"
+await_holding_refcell_ref = "deny"
+future_not_send = "deny"
+large_futures = "deny"
+arc_with_non_send_sync = "deny"
+clone_on_ref_ptr = "deny"
+redundant_clone = "deny"
+needless_pass_by_value = "deny"
+needless_pass_by_ref_mut = "deny"
+map_err_ignore = "deny"
+large_enum_variant = "deny"
+large_stack_arrays = "deny"
+large_stack_frames = "deny"
+
+[dependencies]
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.145"
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61.2", features = [
+  "Win32_Foundation",
+  "Win32_Security",
+  "Win32_Security_Authorization",
+  "Win32_Storage_FileSystem",
+  "Win32_System_Memory",
+  "Win32_System_SystemInformation",
+  "Win32_System_Threading",
+] }
+
+[[test]]
+name = "unit_local_policy_output"
+path = "tests/unit/local_policy_output.rs"
+
+[[test]]
+name = "integration_windows_local_policy"
+path = "tests/integration/windows_local_policy.rs"

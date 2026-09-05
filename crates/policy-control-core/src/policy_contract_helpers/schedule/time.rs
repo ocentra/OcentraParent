@@ -1,5 +1,7 @@
 #![forbid(unsafe_code)]
 
+mod calendar;
+
 use super::PolicyContractValidationResult;
 
 pub(super) fn assert_local_time(
@@ -29,6 +31,7 @@ pub(super) fn assert_utc_timestamp(
     let bytes = value.as_bytes();
     if value.len() != 20
         || !value.is_ascii()
+        || !bytes[0..4].iter().all(|byte| byte.is_ascii_digit())
         || bytes[4] != b'-'
         || bytes[7] != b'-'
         || bytes[10] != b'T'
@@ -44,10 +47,11 @@ pub(super) fn assert_utc_timestamp(
         .into());
     }
 
+    let year = value[0..4].parse::<i32>().unwrap_or(-1);
     let month = parse_time_component(&value[5..7]).unwrap_or(0);
     let day = parse_time_component(&value[8..10]).unwrap_or(0);
     let seconds = parse_time_component(&value[17..19]).unwrap_or(60);
-    if month == 0 || month > 12 || day == 0 || day > 31 || seconds > 59 {
+    if !calendar::valid_calendar_date(year, month, day) || seconds > 59 {
         return Err("policy contract timestamps must be ISO-8601 UTC values".into());
     }
 

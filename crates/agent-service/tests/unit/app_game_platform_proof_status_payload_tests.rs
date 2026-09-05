@@ -15,20 +15,24 @@ use ocentra_parent_agent_protocol::AppGamePlatformProofStatusReadModel;
 use ocentra_parent_agent_protocol::AppGamePlatformProofStatusRow;
 use std::primitive::str as TestStr;
 
-use crate::test_invariants::{require_json_decode, require_log_string_field, require_some};
+use crate::test_require_json_decode::require_json_decode;
+use crate::test_require_log_string_field::require_log_string_field;
+use crate::test_require_some::require_some;
 
 use super::app_game_platform_proof_status_payload::{
-    app_game_platform_proof_status_payload, app_game_platform_proof_status_read_model,
+    app_game_platform_proof_status_payload,
+    app_game_platform_proof_status_read_model_from_preflights, PlatformProofGeneratedAtText,
 };
 
 const GENERATED_AT: &TestStr = constants::value::APP_GAME_TEST_PLATFORM_PROOF_STATUS_GENERATED_AT;
 
 #[test]
 fn platform_proof_status_payload_serializes_parent_safe_status_model() {
-    let read_model = app_game_platform_proof_status_read_model(
-        super::app_game_adapter_execution_readiness_payload::GeneratedAtText(
-            GENERATED_AT.to_string(),
-        ),
+    let read_model = app_game_platform_proof_status_read_model_from_preflights(
+        PlatformProofGeneratedAtText(GENERATED_AT.to_string()),
+        &super::app_game_adapter_host_capabilities::HostCapabilitySignals::detect(),
+        &ocentra_parent_screen_capture_adapter::linux_foreground_source::LinuxForegroundSourcePreflight::unavailable(),
+        &super::app_game_linux_docker_host_preflight::unavailable_linux_docker_host_preflight(),
     );
     let payload = app_game_platform_proof_status_payload(&read_model);
 
@@ -66,12 +70,7 @@ fn platform_proof_status_payload_serializes_parent_safe_status_model() {
     );
     assert_refs(
         platform_row(&reparsed, APP_GAME_PARENT_PLATFORM_LINUX),
-        &[
-            proof::REF_LINUX_WSL_HOST_TOOLCHAIN,
-            proof::REF_LINUX_WSLG_DISPLAY,
-            proof::REF_LINUX_WSLG_X11_SOCKET,
-            proof::REF_LINUX_WSLG_WAYLAND_SOCKET,
-        ],
+        &[],
         &[APP_GAME_PLATFORM_GAP_LINUX_FOREGROUND_CAPTURE],
     );
 }

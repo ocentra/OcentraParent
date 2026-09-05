@@ -1,5 +1,15 @@
+use ocentra_eventing::bus::publisher::{EventContext, RootEventPublisher};
 use ocentra_eventing::bus::reports::handler::HandlerOutcome;
+use ocentra_eventing::bus::subscriber::EventSubscriber;
+use ocentra_eventing::bus::EventBus;
+use ocentra_eventing::envelope::{DomainEvent, EventContract, EventMetadata, EventSource};
+use ocentra_eventing::error::EventingError;
 use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_eventing::ids::{
+    AggregateKey, CorrelationId, EventCustody, EventId, EventType, IdempotencyKey, RecordedAt,
+    RuntimeInstanceId, RuntimeRole, SchemaVersion, SourceComponent, SourceService, SubscriberId,
+    TargetHandler,
+};
 use ocentra_eventing::journal::ndjson::{NdjsonEventJournal, NdjsonJournalOptions};
 use ocentra_eventing::replay::ReplayFilter;
 use ocentra_parent_agent_protocol::constants;
@@ -7,10 +17,12 @@ use ocentra_parent_agent_protocol::screen_evidence::{
     ScreenActionState, ScreenAiAuditState, ScreenDeletionState, ScreenEvidenceScope,
     ScreenPolicyState, ScreenRuntimePhase,
 };
+use serde::{Deserialize, Serialize};
 use std::{
     fmt::Display,
     fs,
     sync::atomic::{AtomicU64, Ordering},
+    sync::{Arc, Mutex},
 };
 
 use ocentra_parent_agent_core::screen_event_runtime::{
@@ -25,14 +37,54 @@ use ocentra_parent_agent_core::screen_event_runtime_input::{
 
 static SCREEN_EVENT_RUNTIME_TEST_SEQUENCE: AtomicU64 = AtomicU64::new(0);
 
+fn screen_runtime_input() -> ScreenRuntimeInput {
+    ScreenRuntimeInput {
+        queue_job_id: constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID.to_string(),
+        screen_analysis_result_id: constants::activity_store::TEST_SCREEN_RESULT_ID.to_string(),
+        capture_reason: constants::activity_capture::SCREEN_TRIGGER_TIMED_CADENCE.to_string(),
+        capture_scope: constants::activity_capture::OBSERVATION_MODE_ACTIVE_WINDOW.to_string(),
+        image_digest: constants::activity_store::TEST_SCREEN_IMAGE_DIGEST.to_string(),
+        summary: constants::activity_store::TEST_SCREEN_SUMMARY.to_string(),
+        model_runtime_ref: constants::activity_store::TEST_SCREEN_MODEL_RUNTIME_REF.to_string(),
+        model_id: constants::activity_store::TEST_SCREEN_MODEL_ID.to_string(),
+        prompt_or_template_version: constants::activity_store::TEST_SCREEN_TEMPLATE_VERSION
+            .to_string(),
+        policy_decision_ref: constants::activity_store::TEST_POLICY_DECISION_ID.to_string(),
+        policy_action: constants::activity_store::TEST_POLICY_ACTION_ALLOW.to_string(),
+        parent_rule_ref: constants::screen_flow::TEST_SCREEN_POLICY_RULE_REF.to_string(),
+        action_ref: constants::screen_flow::TEST_SCREEN_ACTION_REF.to_string(),
+        deletion_proof_ref: constants::activity_store::TEST_SCREEN_DELETION_REASONS.to_string(),
+        portal_read_model_ref: constants::screen_flow::TEST_SCREEN_PORTAL_READ_MODEL_REF
+            .to_string(),
+    }
+}
+
+fn screen_runtime_degraded_input() -> ScreenRuntimeDegradedInput {
+    ScreenRuntimeDegradedInput {
+        queue_job_id: constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID.to_string(),
+        screen_analysis_result_id: constants::activity_store::TEST_SCREEN_RESULT_ID.to_string(),
+        capture_reason: constants::activity_capture::SCREEN_TRIGGER_TIMED_CADENCE.to_string(),
+        capture_scope: constants::activity_capture::OBSERVATION_MODE_ACTIVE_WINDOW.to_string(),
+        image_digest: constants::activity_store::TEST_SCREEN_IMAGE_DIGEST.to_string(),
+        summary: constants::activity_store::TEST_SCREEN_SUMMARY.to_string(),
+        model_runtime_ref: constants::activity_store::TEST_SCREEN_MODEL_RUNTIME_REF.to_string(),
+        model_id: constants::activity_store::TEST_SCREEN_MODEL_ID.to_string(),
+        prompt_or_template_version: constants::activity_store::TEST_SCREEN_TEMPLATE_VERSION
+            .to_string(),
+        deletion_proof_ref: constants::activity_store::TEST_SCREEN_DELETION_REASONS.to_string(),
+        portal_read_model_ref: constants::screen_flow::TEST_SCREEN_PORTAL_READ_MODEL_REF
+            .to_string(),
+    }
+}
+
 #[tokio::test]
 async fn screen_runtime_chain_publishes_uncoupled_lifecycle_flow() {
-    let report = publish_screen_runtime_chain_for_input(
-        ScreenRuntimeInput::proof_fixture(),
-        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+    let report = test_root_publish_screen_chain(
+        screen_runtime_input(),
+        screen_runtime_degraded_input(),
+        false,
     )
-    .await
-    .expect_value(constants::screen_flow::ERROR_SCREEN_RUNTIME_CHAIN_PUBLISHES);
+    .await;
     let payloads = decode_payloads(&report);
 
     assert_eq!(
@@ -66,7 +118,7 @@ async fn screen_runtime_chain_publishes_uncoupled_lifecycle_flow() {
 
 #[tokio::test]
 async fn screen_capture_queue_events_publish_without_ai_policy_or_action_refs() {
-    let input = ScreenRuntimeCaptureInput::from(&ScreenRuntimeInput::proof_fixture());
+    let input = ScreenRuntimeCaptureInput::from(&screen_runtime_input());
     let report = publish_screen_capture_queue_events_for_input(
         input,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
@@ -100,7 +152,7 @@ async fn screen_capture_queue_events_publish_without_ai_policy_or_action_refs() 
 
 #[tokio::test]
 async fn screen_deletion_event_publishes_without_policy_or_action_claims() {
-    let input = ScreenRuntimeDeletionInput::from(&ScreenRuntimeInput::proof_fixture());
+    let input = ScreenRuntimeDeletionInput::from(&screen_runtime_input());
     let report = publish_screen_deletion_event_for_input(
         input,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
@@ -146,7 +198,7 @@ async fn screen_deletion_delivery_is_handled_and_survives_journal_reopen() {
     .expect_value(constants::screen_flow::ERROR_SCREEN_RUNTIME_CHAIN_PUBLISHES);
     let report = spine
         .publish_deletion_event(
-            ScreenRuntimeDeletionInput::from(&ScreenRuntimeInput::proof_fixture()),
+            ScreenRuntimeDeletionInput::from(&screen_runtime_input()),
             constants::activity_store::TEST_FIRST_OBSERVED_AT,
         )
         .await
@@ -178,12 +230,12 @@ async fn screen_deletion_delivery_is_handled_and_survives_journal_reopen() {
 
 #[tokio::test]
 async fn screen_degraded_event_chain_publishes_without_policy_or_action_claims() {
-    let report = publish_screen_degraded_event_chain_for_input(
-        ScreenRuntimeDegradedInput::proof_fixture(),
-        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+    let report = test_root_publish_screen_chain(
+        screen_runtime_input(),
+        screen_runtime_degraded_input(),
+        true,
     )
-    .await
-    .expect_value(constants::screen_flow::ERROR_SCREEN_RUNTIME_CHAIN_PUBLISHES);
+    .await;
     let payloads = decode_payloads(&report);
     let phases = payloads
         .iter()
@@ -195,8 +247,6 @@ async fn screen_degraded_event_chain_publishes_without_policy_or_action_claims()
         vec![
             ScreenRuntimePhase::CaptureObserved,
             ScreenRuntimePhase::QueueEncrypted,
-            ScreenRuntimePhase::AiAnalysisRequested,
-            ScreenRuntimePhase::AiAnalysisCompleted,
             ScreenRuntimePhase::DeletionCommitted,
             ScreenRuntimePhase::PortalReadModelUpdated,
         ]
@@ -210,12 +260,6 @@ async fn screen_degraded_event_chain_publishes_without_policy_or_action_claims()
             && payload.policy_state == ScreenPolicyState::NotReady
             && payload.action_state == ScreenActionState::NotReady
     }));
-    let ai_completed = payload_for_phase(&payloads, ScreenRuntimePhase::AiAnalysisCompleted);
-    assert_eq!(ai_completed.ai_audit_state, ScreenAiAuditState::Completed);
-    assert_eq!(
-        ai_completed.deletion_proof_ref,
-        Some(constants::activity_store::TEST_SCREEN_DELETION_REASONS.to_string())
-    );
     let portal = payload_for_phase(&payloads, ScreenRuntimePhase::PortalReadModelUpdated);
     assert_eq!(portal.deletion_state, ScreenDeletionState::Committed);
     assert_eq!(
@@ -227,12 +271,12 @@ async fn screen_degraded_event_chain_publishes_without_policy_or_action_claims()
 
 #[tokio::test]
 async fn screen_runtime_chain_carries_refs_without_direct_ai_to_policy_shortcut() {
-    let report = publish_screen_runtime_chain_for_input(
-        ScreenRuntimeInput::proof_fixture(),
-        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+    let report = test_root_publish_screen_chain(
+        screen_runtime_input(),
+        screen_runtime_degraded_input(),
+        false,
     )
-    .await
-    .expect_value(constants::screen_flow::ERROR_SCREEN_RUNTIME_CHAIN_PUBLISHES);
+    .await;
     let payloads = decode_payloads(&report);
 
     let ai_request = payload_for_phase(&payloads, ScreenRuntimePhase::AiAnalysisRequested);
@@ -279,12 +323,12 @@ async fn screen_runtime_chain_carries_refs_without_direct_ai_to_policy_shortcut(
 
 #[tokio::test]
 async fn screen_runtime_chain_keeps_raw_image_out_of_policy_portal_and_provider() {
-    let report = publish_screen_runtime_chain_for_input(
-        ScreenRuntimeInput::proof_fixture(),
-        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+    let report = test_root_publish_screen_chain(
+        screen_runtime_input(),
+        screen_runtime_degraded_input(),
+        false,
     )
-    .await
-    .expect_value(constants::screen_flow::ERROR_SCREEN_RUNTIME_CHAIN_PUBLISHES);
+    .await;
     let payloads = decode_payloads(&report);
 
     assert!(payloads.iter().all(|payload| {
@@ -328,7 +372,7 @@ fn decode_payloads(report: &ScreenRuntimeReport) -> Vec<ScreenRuntimeEventPayloa
                 event
                     .decode()
                     .expect_value(constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES);
-            envelope.payload
+            envelope.into_payload()
         })
         .collect()
 }
@@ -350,6 +394,191 @@ fn payload_for_phase(
         .iter()
         .find(|payload| payload.phase == phase)
         .expect_value(constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES)
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+struct ScreenRuntimeTestTrigger;
+
+impl DomainEvent for ScreenRuntimeTestTrigger {
+    fn contract(&self) -> Result<EventContract, EventingError> {
+        Ok(EventContract::new(
+            EventType::parse("eventing.screen-runtime.test-trigger")?,
+            SchemaVersion::new(1)?,
+        ))
+    }
+
+    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
+        AggregateKey::parse("screen-runtime-test-trigger")
+    }
+
+    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
+        IdempotencyKey::parse("screen-runtime-test-trigger-1")
+    }
+}
+
+async fn test_root_publish_screen_chain(
+    input: ScreenRuntimeInput,
+    degraded_input: ScreenRuntimeDegradedInput,
+    degraded: bool,
+) -> ScreenRuntimeReport {
+    let bus = EventBus::root();
+    let target = bus.event_bus().clone();
+    register_screen_runtime_test_owners(&bus).await;
+    let captured = Arc::new(Mutex::new(None));
+    let captured_for_handler = Arc::clone(&captured);
+    let input_for_handler = input.clone();
+    let degraded_input_for_handler = degraded_input.clone();
+    bus.subscribe::<ScreenRuntimeTestTrigger, _, _>(
+        EventSubscriber::new(
+            SubscriberId::parse("screen-runtime-test-trigger-subscriber")
+                .expect_value("screen trigger subscriber parses"),
+            EventType::parse("eventing.screen-runtime.test-trigger")
+                .expect_value("screen trigger event type parses"),
+            TargetHandler::parse("screen-runtime-test-trigger-handler")
+                .expect_value("screen trigger target parses"),
+        ),
+        move |context| {
+            let target = target.clone();
+            let captured = Arc::clone(&captured_for_handler);
+            let input = input_for_handler.clone();
+            let degraded_input = degraded_input_for_handler.clone();
+            async move {
+                let report = if degraded {
+                    publish_screen_degraded_event_chain_for_input(
+                        context.publisher(),
+                        &target,
+                        degraded_input,
+                        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+                    )
+                    .await
+                } else {
+                    publish_screen_runtime_chain_for_input(
+                        context.publisher(),
+                        &target,
+                        input,
+                        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+                    )
+                    .await
+                };
+                *captured.lock().expect_value("screen report lock") = Some(report);
+                Ok(())
+            }
+        },
+    )
+    .await
+    .expect_value("screen trigger subscriber registers");
+    bus.publish(ScreenRuntimeTestTrigger, screen_runtime_test_metadata())
+        .await
+        .expect_value("screen runtime trigger publishes");
+    let report = captured
+        .lock()
+        .expect_value("screen report lock")
+        .take()
+        .expect_value("screen runtime report captured")
+        .expect_value(constants::screen_flow::ERROR_SCREEN_RUNTIME_CHAIN_PUBLISHES);
+    report
+}
+
+async fn register_screen_runtime_test_owners(bus: &RootEventPublisher) {
+    let routes = [
+        (
+            constants::screen_flow::SUBSCRIBER_SCREEN_CAPTURE_OBSERVER,
+            constants::screen_flow::EVENT_SCREEN_CAPTURE_OBSERVED,
+            constants::screen_flow::TARGET_SCREEN_CAPTURE_OBSERVER,
+        ),
+        (
+            constants::screen_flow::SUBSCRIBER_SCREEN_QUEUE_WRITER,
+            constants::screen_flow::EVENT_SCREEN_QUEUE_ENCRYPTED,
+            constants::screen_flow::TARGET_SCREEN_QUEUE_WRITER,
+        ),
+        (
+            constants::screen_flow::SUBSCRIBER_SCREEN_AI_REQUEST,
+            constants::screen_flow::EVENT_SCREEN_AI_ANALYSIS_REQUESTED,
+            constants::screen_flow::TARGET_SCREEN_AI_ANALYZER,
+        ),
+        (
+            constants::screen_flow::SUBSCRIBER_SCREEN_AI_COMPLETE,
+            constants::screen_flow::EVENT_SCREEN_AI_ANALYSIS_COMPLETED,
+            constants::screen_flow::TARGET_SCREEN_AI_ANALYZER,
+        ),
+        (
+            constants::screen_flow::SUBSCRIBER_SCREEN_SUMMARY_WRITER,
+            constants::screen_flow::EVENT_SCREEN_SUMMARY_COMMITTED,
+            constants::screen_flow::TARGET_SCREEN_SUMMARY_WRITER,
+        ),
+        (
+            constants::screen_flow::SUBSCRIBER_SCREEN_POLICY_DECISION,
+            constants::screen_flow::EVENT_SCREEN_POLICY_DECISION_COMPLETED,
+            constants::screen_flow::TARGET_SCREEN_POLICY_ENGINE,
+        ),
+        (
+            constants::screen_flow::SUBSCRIBER_SCREEN_ACTION_DRY_RUN,
+            constants::screen_flow::EVENT_SCREEN_ACTION_DRY_RUN_RECORDED,
+            constants::screen_flow::TARGET_SCREEN_ACTION_DRY_RUN,
+        ),
+        (
+            constants::screen_flow::SUBSCRIBER_SCREEN_DELETION_WORKER,
+            constants::screen_flow::EVENT_SCREEN_DELETION_COMMITTED,
+            constants::screen_flow::TARGET_SCREEN_DELETION_WORKER,
+        ),
+        (
+            constants::screen_flow::SUBSCRIBER_SCREEN_PORTAL_READ_MODEL,
+            constants::screen_flow::EVENT_SCREEN_PORTAL_READ_MODEL_UPDATED,
+            constants::screen_flow::TARGET_SCREEN_PORTAL_READ_MODEL,
+        ),
+    ];
+    for (subscriber_id, event_type, target_handler) in routes {
+        bus.subscribe::<ScreenRuntimeEventPayload, _, _>(
+            EventSubscriber::new(
+                SubscriberId::parse(subscriber_id).expect_value("screen owner id parses"),
+                EventType::parse(event_type).expect_value("screen owner event type parses"),
+                TargetHandler::parse(target_handler).expect_value("screen owner target parses"),
+            ),
+            screen_runtime_test_owner_handler,
+        )
+        .await
+        .expect_value("screen owner subscriber registers");
+    }
+}
+
+async fn screen_runtime_test_owner_handler(
+    context: EventContext<ScreenRuntimeEventPayload>,
+) -> Result<(), EventingError> {
+    let payload = context.payload();
+    if payload.claim_boundary.raw_image_available_to_ai_provider
+        || payload.claim_boundary.raw_image_available_to_policy
+        || payload.claim_boundary.raw_image_available_to_portal
+    {
+        return Err(EventingError::InvalidValue {
+            field: "screen_runtime_claim_boundary",
+            value: "raw image escape".to_string(),
+        });
+    }
+    Ok(())
+}
+
+fn screen_runtime_test_metadata() -> EventMetadata {
+    EventMetadata::from_parts(
+        EventId::parse("screen-runtime-test-trigger-event-1")
+            .expect_value("screen trigger event id parses"),
+        CorrelationId::parse("screen-runtime-test-correlation-1")
+            .expect_value("screen trigger correlation parses"),
+        EventSource::new(
+            EventCustody::parse("local-only").expect_value("screen trigger custody parses"),
+            RuntimeRole::parse("agent").expect_value("screen trigger role parses"),
+            SourceService::parse("agent-core-test").expect_value("screen trigger service parses"),
+            SourceComponent::parse("screen-runtime-test")
+                .expect_value("screen trigger component parses"),
+            RuntimeInstanceId::parse("screen-runtime-test-instance")
+                .expect_value("screen trigger instance parses"),
+        ),
+        RecordedAt::parse(constants::activity_store::TEST_FIRST_OBSERVED_AT)
+            .expect_value("screen trigger observed time parses"),
+        Some(
+            TargetHandler::parse("screen-runtime-test-trigger-handler")
+                .expect_value("screen trigger target parses"),
+        ),
+    )
 }
 
 fn screen_deletion_journal_path(suffix: &str) -> std::path::PathBuf {

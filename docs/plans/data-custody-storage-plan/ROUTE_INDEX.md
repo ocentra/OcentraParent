@@ -43,3 +43,14 @@ remote-access-plan, LAN, notification, report producers, and AI plans own their 
 ## Handoff Rule
 
 Open an adjacent plan only after the selected workpack records the exact handoff reason, owner path, expected proof, and no-claim boundary.
+
+## Runtime ownership handoff
+
+The plan now contains the bounded WP05 parent-runtime owner source packet and
+routes two downstream handoffs. WP09 owns parent-local/provider-neutral
+encrypted bundle bytes and adapter-port composition. WP10 owns typed producer
+handoffs after the WP05 restore/migration ledger. Account remains the authority
+owner; child-runtime remains the local data/tombstone durability owner; Eventing
+remains the ordering/replay owner; providers remain sibling adapter owners.
+External composition, production reachability, tests, proof, and product
+readiness remain open; no route alone may claim them.

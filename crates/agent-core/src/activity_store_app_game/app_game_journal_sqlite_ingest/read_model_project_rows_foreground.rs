@@ -9,7 +9,18 @@ pub(crate) fn project_foreground_row(
     row_json: &str,
     seen_foreground_processes: &mut Vec<String>,
 ) -> Result<(), ActivityStoreError> {
-    let foreground = serde_json::from_str::<AppGameForegroundEvidenceRow>(row_json)?;
+    let foreground =
+        serde_json::from_str::<AppGameForegroundEvidenceRow>(row_json).map_err(|_error| {
+            ActivityStoreError::InvalidAppGameJournalRow {
+                reason: "invalid-foreground-row",
+            }
+        })?;
+    super::super::super::super::app_game_journal_sqlite_ingest_validation::validate_foreground_row(
+        &foreground,
+    )
+    .map_err(|_error| ActivityStoreError::InvalidAppGameJournalRow {
+        reason: "invalid-foreground-row",
+    })?;
     if !seen_foreground_processes
         .iter()
         .any(|candidate| candidate == &foreground.process_identity)

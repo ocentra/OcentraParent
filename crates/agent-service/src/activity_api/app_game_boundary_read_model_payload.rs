@@ -1,3 +1,4 @@
+use ocentra_parent_agent_core::activity_store_app_game::app_game_performance_health::app_game_performance_health;
 use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
 use ocentra_parent_agent_protocol::app_game::{AppGameServiceReadModel, APP_GAME_SCHEMA_VERSION};
 use ocentra_parent_agent_protocol::app_game_boundary_read_model::{
@@ -31,12 +32,14 @@ pub fn app_game_boundary_read_model_from_service_model(
     } else {
         model.capability_status.clone()
     };
+    let performance_health = app_game_performance_health(&model);
 
     AppGameBoundaryReadModel {
         schema_version: APP_GAME_SCHEMA_VERSION,
         generated_at: model.generated_at,
         custody_label: APP_GAME_BOUNDARY_READ_MODEL_CUSTODY_CHILD_DEVICE_QUERY_STORE.to_string(),
         capability_status,
+        performance_health,
         returned,
         evidence_claim_row_count: model.evidence_claim_rows.len() as u64,
         identity_row_count: model.identity_rows.len() as u64,

@@ -8,11 +8,62 @@ export const AppGameTimerParentSurfacePanelFixture: ParentAppGameTimerParentSurf
   loadState: 'ready',
   summaryDetails: [
     { label: 'Timer runtime', value: 'Ready' },
+    { label: 'Audit runtime', value: 'Ready' },
+    { label: 'Rollback runtime', value: 'Ready' },
     { label: 'Session duration', value: '15 min from stored evidence' },
+    { label: 'Control action results', value: '1' },
+    { label: 'Control action result refs', value: 'action-result-app-game-1' },
+    { label: 'Child UX handoff ready', value: '1' },
+    { label: 'Child UX handoff blocked', value: '0' },
+    { label: 'Child UX handoff refs', value: 'app-game-child-ux-local-handoff-action-result-app-game-1' },
     { label: PortalDetails.ProductClaim, value: 'Timer runtime remains Rust-owned.' },
   ],
-  parentActionRows: [],
-  parentPreferenceSetupRows: [],
+  parentActionRows: [
+    {
+      title: 'Child UX parent action',
+      details: [
+        { label: 'Action result ref', value: 'action-result-app-game-1' },
+        { label: 'Child reason refs', value: 'reason-app-game-1' },
+        { label: 'Child status refs', value: 'status-app-game-1' },
+        { label: 'Manual action', value: 'Manual required' },
+        { label: 'Delivery', value: 'Not claimed' },
+        { label: 'Adapter dispatch', value: 'Not claimed' },
+        { label: 'Platform state', value: 'Not claimed' },
+      ],
+    },
+  ],
+  parentPreferenceSetupRows: [
+    {
+      title: 'Parent preference setup',
+      details: [
+        { label: 'Target', value: 'Native app' },
+        { label: 'Draft status', value: 'Manual required' },
+        { label: 'Parent preference refs', value: 'preference-setup-app-game-1' },
+        { label: 'Mutation', value: 'Not claimed' },
+        { label: 'Notification delivery', value: 'Not claimed' },
+        { label: 'Adapter dispatch', value: 'Not claimed' },
+        { label: 'Child delivery', value: 'Not claimed' },
+        { label: 'Platform state', value: 'Not claimed' },
+      ],
+      actionLabel: null,
+      actionPayload: null,
+    },
+  ],
+  localHandoffArtifactRows: [
+    {
+      title: 'action-result-app-game-1',
+      details: [
+        { label: 'Target', value: 'Native app' },
+        { label: 'Child reason refs', value: 'reason-app-game-1' },
+        { label: 'Child status refs', value: 'status-app-game-1' },
+        { label: 'Delivery', value: 'Not claimed' },
+        { label: 'Notification delivery', value: 'Not claimed' },
+        { label: 'Adapter dispatch', value: 'Not claimed' },
+        { label: 'Platform state', value: 'Not claimed' },
+        { label: 'Raw private source rows', value: 'Not claimed' },
+      ],
+    },
+  ],
   rows: [
     {
       title: 'Study Timer',

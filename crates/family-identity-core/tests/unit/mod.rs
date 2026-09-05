@@ -1,8 +1,13 @@
+mod account_identity_authority_producer;
 mod device_scope;
 #[path = "household_authority.rs"]
 mod household_authority_tests;
+mod invite_recovery_repository;
+mod invite_recovery_repository_schema;
+mod invite_recovery_repository_security;
 mod parent_step_up_authority;
 mod parent_step_up_proof;
+mod recovery_owner_ack_ops;
 mod session_lifecycle;
 mod setup_lifecycle;
 mod trust_bootstrap;

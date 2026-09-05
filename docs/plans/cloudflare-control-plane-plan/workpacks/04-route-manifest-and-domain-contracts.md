@@ -4,7 +4,16 @@
 
 ## Status
 
-`blocked / proof-present`
+`source-integrated / tests-stale / dependency-blocked / proof-deferred`
+
+## Current source checkpoint — 2026-08-25
+
+The accepted route-contract source is present in the canonical tree through
+`1abe4dfc9`. The owner surface is `src/routes.ts`, `src/auth/model.ts`,
+`src/auth/verifier.ts`, and `src/index.ts`, with generated billing contracts
+remaining an edge input. One frozen handler-keyed tuple owns method/path,
+auth, route class, audit rule/event, and provider; duplicate route and webhook
+keys fail before handler readiness. This is source evidence only.
 
 ## Goal
 
@@ -13,6 +22,9 @@ Define the shared route groups and the rule that handlers consume manifest-owned
 ## First-touch surface
 
 - `infra/cloudflare/src/routes.ts`
+- `infra/cloudflare/src/auth/model.ts`
+- `infra/cloudflare/src/auth/verifier.ts`
+- `infra/cloudflare/src/index.ts`
 
 ## Read inputs
 
@@ -35,9 +47,8 @@ Define the shared route groups and the rule that handlers consume manifest-owned
 ## Execution truth
 
 - `infra/cloudflare/src/routes.ts` remains the single shared route manifest for the Cloudflare worker surface.
-- `infra/cloudflare/tests/unit/route-manifest.test.ts` now proves the manifest route-key list is exact, not merely pattern-valid.
-- `infra/cloudflare/tests/property/route-auth-state.property.test.ts` now proves `/auth/billing/manual-invoice` is the only elevated support-owned exception inside `/auth/billing/*`.
-- `ROUTE_MANIFEST_MODEL.md` and `AUTH_BOUNDARY_MODEL.md` now make that support exception explicit so consumer plans do not infer a second support-only API surface.
+- The existing unit/property/contract test sources are stale against the current model and must be repaired; they do not currently prove the integrated source.
+- `ROUTE_MANIFEST_MODEL.md` and `AUTH_BOUNDARY_MODEL.md` remain the route/auth contract inputs; they do not by themselves prove Worker dispatch.
 - Contract and integration proof remain deferred while WP01's module dependency graph is empty, so WP04 cannot claim request/response contract readiness or live worker dispatch readiness.
 
 ## Proof IDs
@@ -58,7 +69,8 @@ Define the shared route groups and the rule that handlers consume manifest-owned
 ## Exact blocker set
 
 - `npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types` currently reports an empty module dependency tree.
-- `infra/cloudflare/src/index.ts` consumes `./generated/billing-contracts.js`; after WP01 restores dependencies, rerun boot-dependent and contract suites and record any then-current route/contract failure.
+- `infra/cloudflare/tests/unit/route-manifest.test.ts` still references removed `requestModel`/`responseModel` members and must be reconciled with the frozen tuple model.
+- `infra/cloudflare/src/index.ts` consumes `./generated/billing-contracts.js`; after dependencies and tests are repaired, rerun boot-dependent and contract suites and record any then-current route/contract failure.
 
 ## Validation
 
@@ -87,3 +99,13 @@ Define the shared route groups and the rule that handlers consume manifest-owned
 ## Failure conditions
 
 - Do not imply request/response schema readiness from path lists alone.
+
+## Graph ownership correction — 2026-08-25
+
+Within the Account/Cloudflare overlap packet, WP04 is the sole route/auth owner
+of `infra/cloudflare/src/routes.ts` and
+`infra/cloudflare/src/auth/verifier.ts`. Account WP03 consumes this boundary;
+Cloudflare WP06 owns the separate account-identity authority store/caller/
+runtime roots and must not re-claim the route/auth files. Existing route and
+runtime blockers remain unchanged; this metadata correction makes no proof,
+READY, or DONE claim.

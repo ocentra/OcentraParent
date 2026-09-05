@@ -25,6 +25,18 @@ const EXPECTED_INTERNAL_AUTOINDEXES: &[(&str, &str)] = &[
         "sqlite_autoindex_parent_presence_receipts_2",
         "parent_presence_receipts",
     ),
+    (
+        "sqlite_autoindex_parent_step_up_intents_1",
+        "parent_step_up_intents",
+    ),
+    (
+        "sqlite_autoindex_parent_step_up_intents_2",
+        "parent_step_up_intents",
+    ),
+    (
+        "sqlite_autoindex_parent_step_up_intents_3",
+        "parent_step_up_intents",
+    ),
 ];
 
 struct SchemaObject {
@@ -55,7 +67,7 @@ pub(crate) fn validate_schema_objects(
         .collect::<Result<Vec<_>, _>>()
         .map_err(|_error| ParentPresenceStoreError::IntegrityRejected)?;
 
-    validate_internal_autoindexes(&actual)?;
+    validate_internal_autoindexes(&actual, expected)?;
     validate_sqlite_sequence(&actual)?;
 
     let actual = actual
@@ -94,17 +106,28 @@ pub(crate) fn validate_schema_objects(
     }
 }
 
-fn validate_internal_autoindexes(objects: &[SchemaObject]) -> Result<(), ParentPresenceStoreError> {
+fn validate_internal_autoindexes(
+    objects: &[SchemaObject],
+    expected: &[(&str, &str, &str)],
+) -> Result<(), ParentPresenceStoreError> {
     let actual = objects
         .iter()
         .filter(|object| object.name.starts_with("sqlite_autoindex_"))
         .collect::<Vec<_>>();
-    if actual.len() != EXPECTED_INTERNAL_AUTOINDEXES.len() {
+    let expected = EXPECTED_INTERNAL_AUTOINDEXES
+        .iter()
+        .filter(|(_, table)| {
+            expected
+                .iter()
+                .any(|(_, _, expected_table)| expected_table == table)
+        })
+        .collect::<Vec<_>>();
+    if actual.len() != expected.len() {
         return Err(ParentPresenceStoreError::IntegrityRejected);
     }
     let valid = actual
         .iter()
-        .zip(EXPECTED_INTERNAL_AUTOINDEXES)
+        .zip(expected.iter())
         .all(|(object, (name, table))| {
             object.kind == "index"
                 && object.name == *name

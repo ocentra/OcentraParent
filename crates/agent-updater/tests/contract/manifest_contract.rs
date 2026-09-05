@@ -1,4 +1,7 @@
-use ocentra_parent_agent_maintenance::constants::{MSI_INSTALLER_TYPE, WINDOWS_X64_TARGET};
+use ocentra_parent_agent_maintenance::constants::{
+    CHILD_PACKAGE, CHILD_PRODUCT, CHILD_SERVICE_ID, CHILD_UPDATER_ID, MSI_INSTALLER_TYPE,
+    WINDOWS_X64_TARGET,
+};
 use ocentra_parent_agent_maintenance::crypto::generate_key_pair;
 use ocentra_parent_agent_maintenance::error::UpdaterError;
 use ocentra_parent_agent_maintenance::manifest::{
@@ -40,8 +43,8 @@ fn manifest_policy_rejects_unsupported_schema_target_and_installer() {
 fn manifest_parser_rejects_unknown_fields_in_payload_contract() {
     let payload = serde_json::json!({
         "schemaVersion": 1,
-        "product": "Ocentra Parent",
-        "package": "ocentra-parent-agent",
+        "product": CHILD_PRODUCT,
+        "package": CHILD_PACKAGE,
         "version": "0.2.0",
         "channel": "stable",
         "target": WINDOWS_X64_TARGET,
@@ -52,15 +55,15 @@ fn manifest_parser_rejects_unknown_fields_in_payload_contract() {
             "passiveArgs": "/passive /norestart"
         },
         "service": {
-            "id": "OcentraParentAgent",
-            "name": "Ocentra Parent Agent",
+            "id": CHILD_SERVICE_ID,
+            "name": CHILD_PRODUCT,
             "wrapper": "WinSW",
             "wrapperVersion": "2.12.0",
-            "updaterId": "OcentraParentUpdater",
-            "updaterName": "Ocentra Parent Updater"
+            "updaterId": CHILD_UPDATER_ID,
+            "updaterName": "Ocentra Child Updater"
         },
         "artifact": {
-            "name": "ocentra-parent-agent-windows-x64-v0.2.0.msi",
+            "name": "ocentra-child-agent-windows-x64-v0.2.0.msi",
             "sha256": SAMPLE_ARTIFACT_SHA256,
             "downloadUrl": SAMPLE_ARTIFACT_URL
         },
@@ -133,8 +136,8 @@ fn payload_parser_accepts_windows_utf8_bom() -> Result<(), UpdaterError> {
 fn sample_payload() -> UpdateManifestPayload {
     UpdateManifestPayload {
         schema_version: 1,
-        product: "Ocentra Parent".to_owned(),
-        package: "ocentra-parent-agent".to_owned(),
+        product: CHILD_PRODUCT.to_owned(),
+        package: CHILD_PACKAGE.to_owned(),
         version: "0.2.0".to_owned(),
         channel: "stable".to_owned(),
         target: WINDOWS_X64_TARGET.to_owned(),
@@ -145,15 +148,15 @@ fn sample_payload() -> UpdateManifestPayload {
             passive_args: "/passive /norestart".to_owned(),
         },
         service: ServiceManifest {
-            id: "OcentraParentAgent".to_owned(),
-            name: "Ocentra Parent Agent".to_owned(),
+            id: CHILD_SERVICE_ID.to_owned(),
+            name: CHILD_PRODUCT.to_owned(),
             wrapper: "WinSW".to_owned(),
             wrapper_version: "2.12.0".to_owned(),
-            updater_id: "OcentraParentUpdater".to_owned(),
-            updater_name: "Ocentra Parent Updater".to_owned(),
+            updater_id: CHILD_UPDATER_ID.to_owned(),
+            updater_name: "Ocentra Child Updater".to_owned(),
         },
         artifact: ArtifactManifest {
-            name: "ocentra-parent-agent-windows-x64-v0.2.0.msi".to_owned(),
+            name: "ocentra-child-agent-windows-x64-v0.2.0.msi".to_owned(),
             sha256: "A".repeat(64),
             download_url:
                 "https://github.com/ocentra/OcentraParent/releases/download/v0.2.0/agent.msi"

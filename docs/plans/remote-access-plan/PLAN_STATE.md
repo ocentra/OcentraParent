@@ -42,6 +42,34 @@ eventing-plan:
 - Relay availability is not permission to retain raw screen/input/child-private data.
 - Support/admin remote access requires parent-visible grant and audit; no hidden support tunnel is in scope.
 
+## Production reachability audit (2026-08-16)
+
+This source audit is against consolidated root `bf5ba6ab1`. It counts only
+shipped callers with trusted account/device authority, real transport or
+execution, durable replay protection, and fail-closed state. Contracts,
+environment flags, proof/status projections, and focused tests do not satisfy
+that boundary. No new production slice was accepted.
+
+| Workpack | Actual production source/caller | Remaining production gap |
+| --- | --- | --- |
+| WP01 | `crates/schema/src/remote_capability_fabric.rs` defines the typed live-view contract. | No account/device-trust producer or remote-access service persists and consumes the grant. The schema is not a shipped authority path. |
+| WP02 | `crates/agent-service/src/service_runtime.rs` starts a live-view decision worker; `screen-live-view-core` evaluates readiness and returns a record. | The path is environment-flag driven and performs no capture, relay transport, frame delivery, cache custody, or parent/child disclosure handoff. It is a fail-closed readiness seam, not live view. |
+| WP03 | Deferred; shared `remote_access_session.rs` contains no-control decision fields only. | No remote input authority or execution caller is allowed in the current pass. |
+| WP04 | `crates/remote-access-core/src/remote_access_grant/` contains lifecycle/replay/revocation logic. `child-runtime` calls only the separate session evaluator. | No persistence/adapter service invokes the grant lifecycle. `RemoteAccessGrantContext` and `RemoteAccessSessionRequest` accept caller-shaped authority/state fields; no trusted account/device producer reaches them. |
+| WP05 | No relay security/abuse runtime owner is reachable. | No authenticated relay token/session, rate limit, backpressure, cross-household isolation, or redacted diagnostics path. |
+| WP06 | No production implementation; graph topology is `no-source`. | Rollout/proof routing cannot establish transport, pairing, standing access, revoke/remove, custody, or abuse readiness. |
+
+The first legal production unblock is an account/device-trust-owned producer
+and durable remote-access adapter that constructs grants from verified parent
+authority, persists replay state, and dispatches to a real relay/session
+owner. Until that composition exists, all live-view, standing-access, relay,
+and revocation claims remain manual-required/open; remote control remains
+deferred.
+
+Graph validation also reports checked-in graph/source drift with the same
+703-node count but differing source-derived content. This audit did not
+bootstrap or edit graph JSON.
+
 ## Current coupling risks
 
 ```text

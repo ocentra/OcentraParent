@@ -28,6 +28,11 @@ function createMemoryStorage(initialValue: string | null = null): {
 }
 
 describe('manage-target-selection', () => {
+  registerNormalizationTests();
+  registerStorageTests();
+});
+
+function registerNormalizationTests(): void {
   it('normalizes legacy session payloads without inventing a stable child device id', () => {
     const selection = normalizeManageTargetSelection({
       scope: 'perDevice',
@@ -44,6 +49,56 @@ describe('manage-target-selection', () => {
     expect(selectedChildDeviceIdFromManageTargetSelection(selection)).toBeNull();
   });
 
+  it('canonicalizes whitespace and clears stale device data from family scope', () => {
+    expect(
+      normalizeManageTargetSelection({
+        scope: 'perDevice',
+        device: '  Study Laptop  ',
+        deviceId: '  child-android-1  ',
+        browser: '  Chrome  ',
+      })
+    ).toEqual({
+      scope: 'perDevice',
+      device: 'Study Laptop',
+      deviceId: 'child-android-1',
+      browser: 'Chrome',
+    });
+
+    const familySelection = normalizeManageTargetSelection({
+      scope: 'global',
+      device: 'Study Laptop',
+      deviceId: 'child-android-1',
+      browser: 'Chrome',
+    });
+
+    expect(familySelection).toEqual({
+      scope: 'global',
+      device: '',
+      deviceId: '',
+      browser: 'Chrome',
+    });
+    expect(selectedChildDeviceIdFromManageTargetSelection(familySelection)).toBeNull();
+  });
+
+  it('fails closed for malformed or non-string stored context instead of emitting a child id', () => {
+    const malformedValues: readonly unknown[] = [
+      null,
+      [],
+      { scope: 'unknown', device: 'Study Laptop', deviceId: 'child-android-1' },
+      { scope: 'perDevice', device: 'Study Laptop', deviceId: 42 },
+      { scope: 'perDevice', device: 'Study Laptop', deviceId: '   ' },
+    ];
+
+    for (const value of malformedValues) {
+      const selection = normalizeManageTargetSelection(value);
+      expect(selectedChildDeviceIdFromManageTargetSelection(selection)).toBeNull();
+    }
+
+    expect(readStoredManageTargetSelection(createMemoryStorage('{"scope":'))).toBeNull();
+  });
+}
+
+function registerStorageTests(): void {
   it('stores and reloads stable selected child device ids for route context reuse', () => {
     const storage = createMemoryStorage();
     const selection = withManageTargetSelectionDevice(
@@ -57,4 +112,25 @@ describe('manage-target-selection', () => {
     expect(readStoredManageTargetSelection(storage)).toEqual(selection);
     expect(selectedChildDeviceIdFromManageTargetSelection(selection)).toBe('child-android-1');
   });
-});
+
+  it('persists the canonical presentation context rather than caller-shaped whitespace', () => {
+    const storage = createMemoryStorage();
+
+    writeStoredManageTargetSelection(
+      {
+        scope: 'perDevice',
+        device: '  Study Laptop  ',
+        deviceId: '  child-android-1  ',
+        browser: '  Chrome  ',
+      },
+      storage
+    );
+
+    expect(readStoredManageTargetSelection(storage)).toEqual({
+      scope: 'perDevice',
+      device: 'Study Laptop',
+      deviceId: 'child-android-1',
+      browser: 'Chrome',
+    });
+  });
+}

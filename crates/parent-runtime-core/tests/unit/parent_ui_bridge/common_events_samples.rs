@@ -1,4 +1,5 @@
 use super::super::super::*;
+use ocentra_parent_agent_protocol::activity_surface::ActivityBrowserReadModel;
 
 struct PayloadField(String);
 
@@ -80,6 +81,57 @@ pub(crate) fn sample_screen_read_model() -> ActivityScreenReadModel {
     }
 }
 
+pub(crate) fn browser_activity_read_model_response_event() -> AgentEventEnvelope {
+    let read_model = ActivityBrowserReadModel {
+        schema_version: ACTIVITY_QUERY_SCHEMA_VERSION,
+        request: ActivitySurfaceRequest {
+            schema_version: ACTIVITY_QUERY_SCHEMA_VERSION,
+            scope: ActivitySurfaceScope {
+                scope_kind: ActivitySurfaceScopeKind::Device,
+                family_id: Some("family-1".to_string()),
+                device_id: Some("child-device-1".to_string()),
+            },
+            requested_at: "2026-06-27T17:40:00Z".to_string(),
+            range_start: "2026-06-27T17:35:00Z".to_string(),
+            range_end: "2026-06-27T17:40:00Z".to_string(),
+        },
+        state: ActivityReadModelState::Ready,
+        generated_at: "2026-06-27T17:40:00Z".to_string(),
+        summary: "Browser activity ready".to_string(),
+        rows: Vec::new(),
+    };
+    let mut payload = std::collections::BTreeMap::new();
+    payload.insert(
+        constants::field::ACTIVITY_READ_MODEL_KIND.to_string(),
+        LogFieldValue::String(constants::activity_surface::READ_MODEL_BROWSER.to_string()),
+    );
+    payload.insert(
+        constants::field::ACTIVITY_READ_MODEL.to_string(),
+        LogFieldValue::String(require_ok(
+            serde_json::to_string(&read_model),
+            "browser activity read model serializes",
+        )),
+    );
+    AgentEventEnvelope {
+        schema_version: 1,
+        event_id: "agent.activity.browser.read-model.reported-1".to_string(),
+        correlation_id: "browser-activity-read-model".to_string(),
+        sent_at: "2026-06-27T17:40:00Z".to_string(),
+        source: AgentPeer {
+            peer_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
+            role: AgentPeerRole::AgentService,
+        },
+        target: AgentPeer {
+            peer_id: constants::peer::PORTAL_DEV.to_string(),
+            role: AgentPeerRole::Portal,
+        },
+        event: AgentEventName::AgentActivityBrowserReadModelReported,
+        severity: LogLevel::Info,
+        payload: payload.into(),
+        snapshot: None,
+    }
+}
+
 pub(crate) fn screen_read_model_response_event() -> AgentEventEnvelope {
     let read_model = sample_screen_read_model();
     let mut payload = std::collections::BTreeMap::new();
@@ -157,7 +209,6 @@ fn network_flow_response_event_payload(
     let mut payload = NetworkFlowResponsePayload::new();
     insert_network_flow_response_event_summary_fields(&mut payload, read_model, row, digest);
     insert_network_flow_response_event_endpoint_fields(&mut payload, row);
-    insert_network_flow_response_event_product_path_fields(&mut payload);
     payload
 }
 
@@ -306,23 +357,6 @@ fn insert_network_flow_response_event_endpoint_fields(
     );
 }
 
-fn insert_network_flow_response_event_product_path_fields(
-    payload: &mut NetworkFlowResponsePayload,
-) {
-    payload.insert(
-        payload_field!(constants::field::NETWORK_PRODUCT_PATH_ANALYZER_ALERT_REFS),
-        LogFieldValue::String("event.network.analyzer.alert.1".to_string()),
-    );
-    payload.insert(
-        payload_field!(constants::field::NETWORK_PRODUCT_PATH_AI_DETECTION_REFS),
-        LogFieldValue::String("event.network.detection.result.1".to_string()),
-    );
-    payload.insert(
-        payload_field!(constants::field::NETWORK_PRODUCT_PATH_RISK_BUDGET_REFS),
-        LogFieldValue::String("event.network.risk-budget.1".to_string()),
-    );
-}
-
 pub(crate) fn sample_network_flow_read_model() -> ActivityNetworkFlowReadModel {
     ActivityNetworkFlowReadModel {
         schema_version: ACTIVITY_QUERY_SCHEMA_VERSION,
@@ -361,6 +395,7 @@ pub(crate) fn sample_network_flow_read_model() -> ActivityNetworkFlowReadModel {
             process_attribution_status: "reported".to_string(),
             process_id: Some(4420),
             process_name: Some("notepad.exe".to_string()),
+            associated_pid_count: Some(1),
             counters: ActivityNetworkFlowCounters {
                 connection_count: 1,
                 bytes_sent: Some(2048),
@@ -396,7 +431,7 @@ pub(crate) fn sample_tracking_read_model() -> TrackingReadModel {
                 "latestActiveObservedAt": "2026-06-25T15:00:43.552Z",
                 "latestTombstoneEventId": null,
                 "latestTombstoneObservedAt": null,
-                "activeKindCounts": [{ "value": "tracking.expected-place.evaluated", "count": 1 }],
+                "activeKindCounts": [{ "value": "activity.tracking.expected-place.evaluated", "count": 1 }],
                 "activeDeviceCounts": [{ "value": "child-device-1", "count": 1 }],
                 "activeCapabilityStatusCounts": [{ "value": "recent", "count": 1 }],
                 "deletedEvidenceReferenceIds": [],
@@ -407,7 +442,7 @@ pub(crate) fn sample_tracking_read_model() -> TrackingReadModel {
                     "deviceId": "child-device-1",
                     "platform": "android",
                     "observer": "tracking-engine",
-                    "kind": "tracking.expected-place.evaluated",
+                    "kind": "activity.tracking.expected-place.evaluated",
                     "subjectKind": "tracking-rule",
                     "subjectId": "expected-place-school",
                     "subjectDisplayName": "School",

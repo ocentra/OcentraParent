@@ -4,7 +4,10 @@ use super::{
     APP_GAME_BOUNDARY_READ_MODEL_CUSTODY_CHILD_DEVICE_QUERY_STORE,
     APP_GAME_BOUNDARY_READ_MODEL_STATUS_NO_ROWS, APP_GAME_SCHEMA_VERSION,
 };
-use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_eventing::expect_value::{ExpectErrValue, ExpectValue};
+use ocentra_parent_agent_protocol::app_game_boundary_read_model::{
+    AppGameHealthStatus, AppGamePerformanceHealthReadModel,
+};
 
 #[test]
 fn app_game_boundary_read_model_serializes_counts_without_runtime_claims() {
@@ -14,6 +17,19 @@ fn app_game_boundary_read_model_serializes_counts_without_runtime_claims() {
             .to_string(),
         custody_label: APP_GAME_BOUNDARY_READ_MODEL_CUSTODY_CHILD_DEVICE_QUERY_STORE.to_string(),
         capability_status: APP_GAME_BOUNDARY_READ_MODEL_STATUS_NO_ROWS.to_string(),
+        performance_health: AppGamePerformanceHealthReadModel {
+            status: AppGameHealthStatus::Unavailable,
+            limit: 10,
+            returned: 0,
+            inventory_returned: 0,
+            running_now_returned: 0,
+            foreground_now_returned: 0,
+            launcher_returned: 0,
+            daily_rollup_returned: 0,
+            custody_label: APP_GAME_BOUNDARY_READ_MODEL_CUSTODY_CHILD_DEVICE_QUERY_STORE
+                .to_string(),
+            replay_state: "replayed".to_string(),
+        },
         returned: 0,
         evidence_claim_row_count: 0,
         identity_row_count: 0,
@@ -38,6 +54,25 @@ fn app_game_boundary_read_model_serializes_counts_without_runtime_claims() {
         APP_GAME_BOUNDARY_READ_MODEL_STATUS_NO_ROWS
     );
     assert_eq!(serialized["returned"], 0);
+    let invalid_status = serde_json::from_value::<AppGameBoundaryReadModel>(serde_json::json!({
+        "schemaVersion": 1, "generatedAt": "now", "custodyLabel": "x",
+        "capabilityStatus": "x", "performanceHealth": {
+            "status": "bogus", "limit": 1, "returned": 0,
+            "inventoryReturned": 0, "runningNowReturned": 0,
+            "foregroundNowReturned": 0, "launcherReturned": 0,
+            "dailyRollupReturned": 0, "custodyLabel": "x", "replayState": "x"
+        }, "returned": 0, "evidenceClaimRowCount": 0, "identityRowCount": 0,
+        "approvalAuthorityRowCount": 0, "approvalActionResultRowCount": 0,
+        "platformAuthorityMatrixCount": 0, "platformAuthorityRowCount": 0,
+        "aiClassifierResultRowCount": 0, "rows": []
+    }))
+    .expect_err_value("unknown performance-health status must be rejected");
+    assert!(invalid_status.to_string().contains("unknown variant"));
+    let mut nested = serialized;
+    nested["performanceHealth"]["unexpected"] = serde_json::json!(true);
+    let unknown_field = serde_json::from_value::<AppGameBoundaryReadModel>(nested)
+        .expect_err_value("unknown nested performance-health field must be rejected");
+    assert!(unknown_field.to_string().contains("unknown field"));
 }
 
 #[test]

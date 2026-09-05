@@ -72,6 +72,7 @@ pub const SELECT_LATEST_ENFORCEMENT_AUDIT_ACTIVITY: &str = "
 SELECT fields_json
 FROM activity_events
 WHERE kind = ?1
+  AND json_type(fields_json, '$.enforcementAuditEventId') = 'text'
 ORDER BY observed_at DESC, rowid DESC
 LIMIT 1;";
 
@@ -79,13 +80,23 @@ pub const SELECT_ENFORCEMENT_AUDIT_ACTIVITY_DESC: &str = "
 SELECT fields_json
 FROM activity_events
 WHERE kind = ?1
+  AND json_type(fields_json, '$.enforcementAuditEventId') = 'text'
 ORDER BY observed_at DESC, rowid DESC;";
 
 pub const SELECT_ENFORCEMENT_AUDIT_FIELDS_BY_EVENT_ID: &str = "
 SELECT fields_json
 FROM activity_events
-WHERE event_id = ?1 AND kind = ?2
+WHERE event_id = ?1
+  AND kind = ?2
+  AND json_type(fields_json, '$.enforcementAuditEventId') = 'text'
 LIMIT 1;";
+
+pub const UPDATE_ENFORCEMENT_AUDIT_FIELDS_BY_EVENT_ID: &str = "
+UPDATE activity_events
+SET fields_json = ?1
+WHERE event_id = ?2
+  AND kind = ?3
+  AND json_type(fields_json, '$.enforcementAuditEventId') = 'text';";
 
 pub const SELECT_POLICY_PREVIEW_ACTIVITY: &str = "
 SELECT
@@ -108,6 +119,7 @@ pub const SELECT_APP_GAME_JOURNAL_ACTIVITY: &str = "
 SELECT
   fields_json
 FROM activity_events
+WHERE json_type(fields_json, '$.appGameRowKind') = 'text'
 ORDER BY observed_at DESC, event_id DESC
 LIMIT ?1;";
 

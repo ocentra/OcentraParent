@@ -163,7 +163,7 @@ fn social_alert_report_parent_surface_read_model_from_handoffs(
 
 pub async fn request_social_alert_report_parent_surface_read_model_from_service(
 ) -> Result<SocialAlertReportParentSurfaceReadModelSnapshot, EventingError> {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     bus.subscribe::<SocialAlertReportParentSurfaceReadModelRequest, _, _>(
         EventSubscriber::new(
             SubscriberId::parse(

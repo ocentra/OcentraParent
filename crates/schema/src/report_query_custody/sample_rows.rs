@@ -1,7 +1,7 @@
 use super::identifiers::{
     account_id, conflict_ref, contract_version, cursor_ref, deleted_source_ref, evidence_id,
-    family_id, parent_action_id, parent_actor_id, parent_device_id, parent_device_label,
-    policy_version, query_cursor, request_id, sort_key, source_ref, timestamp,
+    family_id, parent_action_id, parent_actor_id, parent_authority_id, parent_device_id,
+    parent_device_label, policy_version, query_cursor, request_id, sort_key, source_ref, timestamp,
 };
 use super::*;
 
@@ -168,6 +168,18 @@ fn sample_row(input: ReportQueryCustodySampleRowInput<'_>) -> ReportQueryCustody
 
     let is_rate_limited = state == ReportQueryCustodyState::RateLimited;
     let is_cursor_expired = state == ReportQueryCustodyState::CursorExpired;
+    let row_cursor_ref = match page_index {
+        1 => cursor_ref(request.requested_cursor.to_string()),
+        2 => cursor_ref(REPORT_QUERY_CUSTODY_SAMPLE_DERIVED_FRESH_NEXT_CURSOR),
+        3 => cursor_ref(REPORT_QUERY_CUSTODY_SAMPLE_DERIVED_STALE_NEXT_CURSOR),
+        4 => cursor_ref(REPORT_QUERY_CUSTODY_SAMPLE_PARTIALLY_REDACTED_NEXT_CURSOR),
+        6 => cursor_ref(REPORT_QUERY_CUSTODY_SAMPLE_SYNC_CONFLICT_NEXT_CURSOR),
+        _ => cursor_ref(format!("report-query-custody-cursor-{}", state.as_str())),
+    };
+    let stable_sort_key = sort_key(format!(
+        "{}-{:02}",
+        REPORT_QUERY_CUSTODY_SAMPLE_STABLE_SORT_KEY, page_index
+    ));
 
     ReportQueryCustodyRow {
         row_id: source_ref(format!("report-query-custody-row-{}", state.as_str())),
@@ -175,12 +187,12 @@ fn sample_row(input: ReportQueryCustodySampleRowInput<'_>) -> ReportQueryCustody
         state,
         source_freshness,
         source_data_class,
-        cursor_ref: cursor_ref(format!("report-query-custody-cursor-{}", state.as_str())),
+        cursor_ref: row_cursor_ref,
         source_cursor_ref: cursor_ref(REPORT_QUERY_CUSTODY_SAMPLE_SOURCE_CURSOR_REF),
         next_cursor_ref,
         page_index,
         page_size: request.page_size,
-        stable_sort_key: sort_key(REPORT_QUERY_CUSTODY_SAMPLE_STABLE_SORT_KEY),
+        stable_sort_key,
         requested_data_classes: request.requested_data_classes.clone(),
         allowed_source_data_classes: request.allowed_source_data_classes.clone(),
         source_citation_refs: request.source_citation_refs.clone(),
@@ -201,8 +213,7 @@ fn sample_row(input: ReportQueryCustodySampleRowInput<'_>) -> ReportQueryCustody
         } else {
             None
         },
-        parent_authorized: true,
-        parent_owned_source_required: true,
+        parent_authority: request.parent_authority.clone(),
         raw_child_evidence_included: false,
         report_cache_mutated: false,
         second_truth_store_claimed: false,
@@ -225,11 +236,19 @@ pub(super) fn allowed_citation_refs(timestamp: &ParentTimestamp) -> Vec<ParentEv
             evidence_reference_id: evidence_id(REPORT_QUERY_CUSTODY_SAMPLE_EVIDENCE_ID_ONE),
             kind: ParentEvidenceReferenceKind::QueryStoreSummary,
             observed_at: timestamp.clone(),
+            family_id: family_id(REPORT_QUERY_CUSTODY_SAMPLE_FAMILY_ID),
+            child_profile_id: None,
+            source_data_class: ReportQueryCustodySourceDataClass::SqliteQueryRow,
+            source_reference: source_ref(REPORT_QUERY_CUSTODY_SAMPLE_SOURCE_REF_ONE),
         },
         ParentEvidenceReference {
             evidence_reference_id: evidence_id(REPORT_QUERY_CUSTODY_SAMPLE_EVIDENCE_ID_TWO),
             kind: ParentEvidenceReferenceKind::QueryStoreSummary,
             observed_at: timestamp.clone(),
+            family_id: family_id(REPORT_QUERY_CUSTODY_SAMPLE_FAMILY_ID),
+            child_profile_id: None,
+            source_data_class: ReportQueryCustodySourceDataClass::NotificationHistory,
+            source_reference: source_ref(REPORT_QUERY_CUSTODY_SAMPLE_SOURCE_REF_TWO),
         },
     ]
 }
@@ -288,8 +307,16 @@ pub(super) fn sample_report_query_custody_contract_proof() -> ReportQueryCustody
         source_citation_refs: allowed_citation_refs(&proof_timestamp),
         assistant_citation_refs: allowed_citation_refs(&proof_timestamp),
         notification_payload_boundary: ReportQueryCustodyBoundary::ParentOwnedCitationsOnly,
-        parent_authorized: true,
-        parent_owned_source_required: true,
+        parent_authority: ReportQueryCustodyParentAuthorityReference {
+            authority_reference_id: parent_authority_id(
+                REPORT_QUERY_CUSTODY_SAMPLE_PARENT_AUTHORITY_ID,
+            ),
+            family_id: family_id(REPORT_QUERY_CUSTODY_SAMPLE_FAMILY_ID),
+            parent_account_id: account_id(REPORT_QUERY_CUSTODY_SAMPLE_ACCOUNT_ID),
+            device_id: parent_device_id(REPORT_QUERY_CUSTODY_SAMPLE_PARENT_DEVICE_ID),
+            child_profile_id: None,
+            authority_generation: 1,
+        },
         raw_child_evidence_requested: false,
     };
 

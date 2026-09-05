@@ -12,7 +12,7 @@ function withVersionWorkspace(testBody) {
     mkdirSync(join(root, 'apps', 'portal'), { recursive: true });
     mkdirSync(join(root, 'packages', 'schema-domain'), { recursive: true });
     mkdirSync(join(root, 'platforms', 'android', 'agent', 'app'), { recursive: true });
-    mkdirSync(join(root, 'platforms', 'ios', 'OcentraParentAgent.xcodeproj'), { recursive: true });
+    mkdirSync(join(root, 'platforms', 'ios', 'OcentraChildAgent.xcodeproj'), { recursive: true });
     return testBody(root);
   } finally {
     rmSync(root, { force: true, recursive: true });
@@ -48,7 +48,7 @@ test('release version policy accepts aligned workspace versions', () => {
     writeJson(join(root, 'packages', 'schema-domain', 'package.json'), { version: '0.1.0' });
     writeFileSync(join(root, 'platforms', 'android', 'agent', 'app', 'build.gradle'), "versionName = '0.1.0'\n");
     writeFileSync(
-      join(root, 'platforms', 'ios', 'OcentraParentAgent.xcodeproj', 'project.pbxproj'),
+      join(root, 'platforms', 'ios', 'OcentraChildAgent.xcodeproj', 'project.pbxproj'),
       'MARKETING_VERSION = 0.1.0;\n'
     );
 
@@ -70,7 +70,7 @@ test('release version policy rejects drift between runtimes', () => {
     writeJson(join(root, 'packages', 'schema-domain', 'package.json'), { version: '0.1.0' });
     writeFileSync(join(root, 'platforms', 'android', 'agent', 'app', 'build.gradle'), "versionName = '0.1.0'\n");
     writeFileSync(
-      join(root, 'platforms', 'ios', 'OcentraParentAgent.xcodeproj', 'project.pbxproj'),
+      join(root, 'platforms', 'ios', 'OcentraChildAgent.xcodeproj', 'project.pbxproj'),
       'MARKETING_VERSION = 0.1.0;\n'
     );
 
@@ -94,7 +94,7 @@ test('release version policy rejects platform version drift', () => {
     writeJson(join(root, 'packages', 'schema-domain', 'package.json'), { version: '0.1.0' });
     writeFileSync(join(root, 'platforms', 'android', 'agent', 'app', 'build.gradle'), "versionName = '0.1.2'\n");
     writeFileSync(
-      join(root, 'platforms', 'ios', 'OcentraParentAgent.xcodeproj', 'project.pbxproj'),
+      join(root, 'platforms', 'ios', 'OcentraChildAgent.xcodeproj', 'project.pbxproj'),
       'MARKETING_VERSION = 0.1.0;\n'
     );
 

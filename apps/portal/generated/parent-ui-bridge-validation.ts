@@ -1,0 +1,988 @@
+/* generated from crates/schema/src/parent_ui_bridge.rs */
+
+import { decodeParentActivityMemoryGraphReadModelSnapshot } from './parent-ui-bridge';
+import type {
+ParentDesktopDistributionSnapshot,
+ParentRouteId,
+ParentRouteSnapshot,
+ParentRouteSubscriptionId,
+ParentSubscriptionEvent,
+ParentTrackingStatusPanelSnapshot,
+ParentUiActionResult,
+} from './parent-ui-bridge';
+
+import {
+  ParentUiBridgeDecodeLimit,
+  parentUiBridgeIsRecord,
+  parentUiBridgeString,
+  parentUiBridgeNumber,
+  parentUiBridgeInteger,
+  parentUiBridgeNonNegativeInteger,
+  parentUiBridgeBoolean,
+  parentUiBridgeLiteral,
+  parentUiBridgeArray,
+  parentUiBridgeOptionalNullable,
+  parentUiBridgeNullable,
+  parentUiBridgeObject,
+  parentUiBridgeStringArray,
+  parentUiBridgeOptionalString,
+  parentUiBridgeOptionalNumber,
+  parentUiBridgeOptionalInteger,
+  parentUiBridgeOptionalUnknownRecord,
+  parentUiBridgeDecodedBy,
+} from './parent-ui-bridge-validation-primitives';
+import type {
+  ParentUiBridgeRuntimeValidator,
+} from './parent-ui-bridge-validation-primitives';
+type ParentUiBridgeValidationRuntimeObject = Readonly<
+Record<string, string | number | boolean>
+>;
+
+type ParentUiBridgeValidationDesktopDistributionRuntime =
+ParentUiBridgeValidationRuntimeObject & {
+readonly PayloadSource: string;
+readonly SourceCustodyState: string;
+readonly ProductClaimState: string;
+readonly NoClaim: string;
+readonly PackageFrontendState: string;
+readonly PackageServiceManagerState: string;
+readonly PackageHealthProbeState: string;
+readonly PackagePreviewState: string;
+readonly UpdateChannelState: string;
+readonly RollbackState: string;
+readonly SigningState: string;
+readonly NotarizationState: string;
+readonly StoreDistributionState: string;
+readonly PlatformMatrixState: string;
+readonly ReleaseBranchState: string;
+readonly ArtifactProofState: string;
+readonly ActionsAvailable: boolean;
+};
+
+type ParentUiBridgeValidationHostBridgeRuntime =
+ParentUiBridgeValidationRuntimeObject & { readonly SchemaVersion: number };
+type ParentUiBridgeValidationRoute = ParentUiBridgeValidationRuntimeObject & {
+readonly PlatformsInstall: string;
+readonly InstallUpdates: string;
+};
+
+export function createParentUiBridgeValidation(
+dependencies: {
+readonly bridgeConnectionState: ParentUiBridgeValidationRuntimeObject;
+readonly desktopDistributionRuntime: ParentUiBridgeValidationDesktopDistributionRuntime;
+readonly hostBridgeRuntime: ParentUiBridgeValidationHostBridgeRuntime;
+readonly portalParentAccessState: ParentUiBridgeValidationRuntimeObject;
+readonly portalTone: ParentUiBridgeValidationRuntimeObject;
+readonly route: ParentUiBridgeValidationRoute;
+readonly routeDataSource: ParentUiBridgeValidationRuntimeObject;
+readonly serviceHealthAuthenticationState: ParentUiBridgeValidationRuntimeObject;
+readonly serviceHealthReason: ParentUiBridgeValidationRuntimeObject;
+readonly serviceHealthRoute: ParentUiBridgeValidationRuntimeObject;
+readonly serviceHealthState: ParentUiBridgeValidationRuntimeObject;
+readonly serviceHealthTransport: ParentUiBridgeValidationRuntimeObject;
+},
+) {
+const {
+bridgeConnectionState: ParentBridgeConnectionState,
+desktopDistributionRuntime: ParentDesktopDistributionRuntime,
+hostBridgeRuntime: ParentHostBridgeRuntime,
+portalParentAccessState: ParentPortalParentAccessState,
+portalTone: ParentPortalTone,
+route: ParentRoute,
+routeDataSource: ParentRouteDataSource,
+serviceHealthAuthenticationState: ParentServiceHealthAuthenticationState,
+serviceHealthReason: ParentServiceHealthReason,
+serviceHealthRoute: ParentServiceHealthRoute,
+serviceHealthState: ParentServiceHealthState,
+serviceHealthTransport: ParentServiceHealthTransport,
+} = dependencies;
+
+  const parentUiBridgeDetail = parentUiBridgeObject({
+    label: parentUiBridgeString,
+    value: parentUiBridgeString,
+  });
+  const parentUiBridgePortalRow = parentUiBridgeObject({
+    label: parentUiBridgeString,
+    order: parentUiBridgeInteger,
+    signalScore: parentUiBridgeNumber,
+    readyCount: parentUiBridgeNonNegativeInteger,
+    gapCount: parentUiBridgeNonNegativeInteger,
+    primaryArea: parentUiBridgeString,
+    trend: parentUiBridgeString,
+    tone: parentUiBridgeLiteral(Object.values(ParentPortalTone)),
+  });
+  const parentUiBridgeShellStatusCard = parentUiBridgeObject({
+    id: parentUiBridgeString,
+    label: parentUiBridgeString,
+    value: parentUiBridgeString,
+    detail: parentUiBridgeString,
+    tone: parentUiBridgeLiteral(Object.values(ParentPortalTone)),
+  });
+  const parentUiBridgeShellStatus = parentUiBridgeObject({
+    routeLabel: parentUiBridgeString,
+    parentAccessState: parentUiBridgeLiteral(Object.values(ParentPortalParentAccessState)),
+    globalConnectionState: parentUiBridgeString,
+    routeCapabilityState: parentUiBridgeString,
+    dataSourceLabel: parentUiBridgeString,
+    cards: parentUiBridgeArray(parentUiBridgeShellStatusCard),
+  });
+  const parentUiBridgeCommandResultProjection = parentUiBridgeObject({
+    projectionKind: parentUiBridgeString,
+    details: parentUiBridgeArray(parentUiBridgeDetail),
+  });
+  const parentUiBridgePeerRole = parentUiBridgeLiteral(['portal', 'agent-service', 'cloud-relay']);
+  const parentUiBridgeRouteEvent = parentUiBridgeObject({
+    event: parentUiBridgeOptionalString,
+    eventId: parentUiBridgeOptionalString,
+    correlationId: parentUiBridgeOptionalString,
+    sentAt: parentUiBridgeOptionalString,
+    sourcePeerId: parentUiBridgeOptionalString,
+    sourceRole: parentUiBridgeOptionalNullable(parentUiBridgePeerRole),
+    targetPeerId: parentUiBridgeOptionalString,
+    targetRole: parentUiBridgeOptionalNullable(parentUiBridgePeerRole),
+    severity: parentUiBridgeOptionalString,
+    payload: parentUiBridgeOptionalUnknownRecord,
+    snapshot: parentUiBridgeOptionalUnknownRecord,
+    commandResultProjection: parentUiBridgeOptionalNullable(parentUiBridgeCommandResultProjection),
+  });
+  const parentUiBridgeLanScanSummary = parentUiBridgeObject({
+    schemaVersion: parentUiBridgeNonNegativeInteger,
+    sourceLabels: parentUiBridgeStringArray,
+    scannedDeviceCount: parentUiBridgeNonNegativeInteger,
+    agentDeviceCount: parentUiBridgeNonNegativeInteger,
+    passiveDeviceCount: parentUiBridgeNonNegativeInteger,
+    infrastructureDeviceCount: parentUiBridgeNonNegativeInteger,
+    unsupportedDeviceCount: parentUiBridgeNonNegativeInteger,
+  });
+  const parentUiBridgeLanDeviceRef = parentUiBridgeObject({
+    deviceId: parentUiBridgeString,
+    childProfileId: parentUiBridgeOptionalString,
+    label: parentUiBridgeString,
+    platform: parentUiBridgeString,
+    ipAddress: parentUiBridgeOptionalString,
+    macAddress: parentUiBridgeOptionalString,
+    hostname: parentUiBridgeOptionalString,
+    networkInterface: parentUiBridgeOptionalString,
+    agentStatus: parentUiBridgeOptionalString,
+  });
+  const parentUiBridgeLanServiceProbeEvidence = parentUiBridgeObject({
+    evidenceKind: parentUiBridgeString,
+    value: parentUiBridgeString,
+  });
+  const parentUiBridgeLanDiscoveryDevice = parentUiBridgeObject({
+    schemaVersion: parentUiBridgeNonNegativeInteger,
+    discoveredAt: parentUiBridgeString,
+    childDevice: parentUiBridgeLanDeviceRef,
+    agentPeerId: parentUiBridgeString,
+    routeId: parentUiBridgeString,
+    networkMode: parentUiBridgeString,
+    reachability: parentUiBridgeString,
+    addressRef: parentUiBridgeString,
+    discoveryStatus: parentUiBridgeString,
+    discoveryState: parentUiBridgeString,
+    evidenceSources: parentUiBridgeStringArray,
+    serviceIdentityProbeEvidence: parentUiBridgeArray(parentUiBridgeLanServiceProbeEvidence),
+    hintSources: parentUiBridgeStringArray,
+  });
+  const parentUiBridgeLanPairingRequest = parentUiBridgeObject({
+    schemaVersion: parentUiBridgeNonNegativeInteger,
+    challengeId: parentUiBridgeString,
+    childDeviceId: parentUiBridgeString,
+    parentDeviceId: parentUiBridgeString,
+    routeId: parentUiBridgeString,
+    origin: parentUiBridgeString,
+    pairingState: parentUiBridgeString,
+    rejectionReason: parentUiBridgeOptionalString,
+    issuedAt: parentUiBridgeString,
+    expiresAt: parentUiBridgeString,
+  });
+  const parentUiBridgeLanEvidenceRecord = parentUiBridgeObject({
+    schemaVersion: parentUiBridgeNonNegativeInteger,
+    evidenceId: parentUiBridgeString,
+    source: parentUiBridgeString,
+    evidenceKind: parentUiBridgeString,
+    deviceId: parentUiBridgeString,
+    value: parentUiBridgeString,
+    normalizedValue: parentUiBridgeString,
+    firstSeenAt: parentUiBridgeString,
+    lastSeenAt: parentUiBridgeString,
+    expiresAt: parentUiBridgeOptionalString,
+    confidence: parentUiBridgeString,
+    mergeKey: parentUiBridgeString,
+    note: parentUiBridgeOptionalString,
+  });
+  const parentUiBridgeLanNetworkIdentity = parentUiBridgeObject({
+    hostname: parentUiBridgeOptionalString,
+    ipAddresses: parentUiBridgeStringArray,
+    macAddress: parentUiBridgeOptionalString,
+    macVendor: parentUiBridgeOptionalString,
+    networkInterfaces: parentUiBridgeStringArray,
+    reachability: parentUiBridgeString,
+    confidence: parentUiBridgeString,
+    staleAt: parentUiBridgeOptionalString,
+    offlineAt: parentUiBridgeOptionalString,
+    evidenceRecords: parentUiBridgeArray(parentUiBridgeLanEvidenceRecord),
+  });
+  const parentUiBridgeLanChildInventory = parentUiBridgeObject({
+    deviceName: parentUiBridgeString,
+    platform: parentUiBridgeString,
+    os: parentUiBridgeString,
+    cpuModel: parentUiBridgeOptionalString,
+    cpuCores: parentUiBridgeOptionalString,
+    memoryTotal: parentUiBridgeOptionalString,
+    gpuModel: parentUiBridgeOptionalString,
+    gpuDriver: parentUiBridgeOptionalString,
+    gpuMemory: parentUiBridgeOptionalString,
+    nvidiaSmi: parentUiBridgeOptionalString,
+    networkInterfaces: parentUiBridgeStringArray,
+    capabilities: parentUiBridgeStringArray,
+    roleState: parentUiBridgeString,
+    routeState: parentUiBridgeString,
+    pairingTrustState: parentUiBridgeString,
+  });
+  const parentUiBridgeLanCanonicalDevice = parentUiBridgeObject({
+    schemaVersion: parentUiBridgeNonNegativeInteger,
+    canonicalDeviceId: parentUiBridgeString,
+    displayName: parentUiBridgeString,
+    classification: parentUiBridgeString,
+    roleBadges: parentUiBridgeStringArray,
+    enrollable: parentUiBridgeBoolean,
+    discoveryState: parentUiBridgeString,
+    trustState: parentUiBridgeString,
+    routeId: parentUiBridgeOptionalString,
+    routeState: parentUiBridgeString,
+    networkMode: parentUiBridgeString,
+    sourceLabels: parentUiBridgeStringArray,
+    networkIdentity: parentUiBridgeLanNetworkIdentity,
+    childAgentInventory: parentUiBridgeOptionalNullable(parentUiBridgeLanChildInventory),
+    policyTargetSurfaces: parentUiBridgeStringArray,
+  });
+  const parentUiBridgeLanTrustedRegistryEntry = parentUiBridgeObject({
+    schemaVersion: parentUiBridgeNonNegativeInteger,
+    pairingId: parentUiBridgeString,
+    childDevice: parentUiBridgeLanDeviceRef,
+    parentDevice: parentUiBridgeLanDeviceRef,
+    routeId: parentUiBridgeString,
+    origin: parentUiBridgeString,
+    proofDigest: parentUiBridgeString,
+    trustState: parentUiBridgeString,
+    trustedAt: parentUiBridgeString,
+    expiresAt: parentUiBridgeString,
+    revokedAt: parentUiBridgeOptionalString,
+  });
+  const parentUiBridgeLanHouseholdDecision = parentUiBridgeObject({
+    schemaVersion: parentUiBridgeNonNegativeInteger,
+    actionId: parentUiBridgeString,
+    actionKind: parentUiBridgeString,
+    canonicalDeviceId: parentUiBridgeString,
+    childProfileId: parentUiBridgeNullable(parentUiBridgeString),
+    displayName: parentUiBridgeNullable(parentUiBridgeString),
+    deviceKind: parentUiBridgeNullable(parentUiBridgeString),
+    parentActorId: parentUiBridgeString,
+    decidedAt: parentUiBridgeString,
+    revokedAt: parentUiBridgeNullable(parentUiBridgeString),
+  });
+  const parentUiBridgeLanRelayAdapterRow = parentUiBridgeObject({
+    schemaVersion: parentUiBridgeNonNegativeInteger,
+    adapter: parentUiBridgeString,
+    discoveryState: parentUiBridgeString,
+    proofState: parentUiBridgeString,
+    sourceConfidence: parentUiBridgeString,
+    custodyLabel: parentUiBridgeString,
+    runtimeOwner: parentUiBridgeString,
+    evidenceLabel: parentUiBridgeString,
+    requiredArtifactSummary: parentUiBridgeOptionalString,
+  });
+  const parentUiBridgeLanRelaySignedProofRow = parentUiBridgeObject({
+    schemaVersion: parentUiBridgeNonNegativeInteger,
+    check: parentUiBridgeString,
+    discoveryState: parentUiBridgeString,
+    responseState: parentUiBridgeString,
+    rejectionReason: parentUiBridgeOptionalString,
+    proofState: parentUiBridgeString,
+    runtimeOwner: parentUiBridgeString,
+    evidenceLabel: parentUiBridgeString,
+  });
+  const parentUiBridgeLanRelayRouteSafetyRow = parentUiBridgeObject({
+    schemaVersion: parentUiBridgeNonNegativeInteger,
+    check: parentUiBridgeString,
+    routeId: parentUiBridgeOptionalString,
+    discoveryState: parentUiBridgeString,
+    responseState: parentUiBridgeString,
+    rejectionReason: parentUiBridgeOptionalString,
+    proofState: parentUiBridgeString,
+    runtimeOwner: parentUiBridgeString,
+    custodyLabel: parentUiBridgeString,
+    evidenceLabel: parentUiBridgeString,
+  });
+  const parentUiBridgeLanRelayCacheRow = parentUiBridgeObject({
+    schemaVersion: parentUiBridgeNonNegativeInteger,
+    check: parentUiBridgeString,
+    decisionState: parentUiBridgeString,
+    discoveryState: parentUiBridgeString,
+    proofState: parentUiBridgeString,
+    runtimeOwner: parentUiBridgeString,
+    custodyLabel: parentUiBridgeString,
+    evidenceLabel: parentUiBridgeString,
+  });
+  const parentUiBridgeLanRelaySpine = parentUiBridgeObject({
+    schemaVersion: parentUiBridgeNonNegativeInteger,
+    generatedAt: parentUiBridgeString,
+    adapterRows: parentUiBridgeArray(parentUiBridgeLanRelayAdapterRow),
+    signedProofRows: parentUiBridgeArray(parentUiBridgeLanRelaySignedProofRow),
+    routeSafetyRows: parentUiBridgeArray(parentUiBridgeLanRelayRouteSafetyRow),
+    relayCacheRows: parentUiBridgeArray(parentUiBridgeLanRelayCacheRow),
+    manualProofRequired: parentUiBridgeStringArray,
+    notImplemented: parentUiBridgeStringArray,
+    claimsProved: parentUiBridgeStringArray,
+    claimsNotProved: parentUiBridgeStringArray,
+  });
+  const parentUiBridgeLanSelectedReadiness = parentUiBridgeObject({
+    schemaVersion: parentUiBridgeNonNegativeInteger,
+    selectedChildDeviceId: parentUiBridgeOptionalString,
+    routeId: parentUiBridgeOptionalString,
+    pairingId: parentUiBridgeOptionalString,
+    trustState: parentUiBridgeString,
+    reachability: parentUiBridgeString,
+    readyForControl: parentUiBridgeBoolean,
+    staleAt: parentUiBridgeOptionalString,
+    offlineAt: parentUiBridgeOptionalString,
+  });
+  const parentUiBridgeLanDiscoveryEventRow = parentUiBridgeObject({
+    schemaVersion: parentUiBridgeNonNegativeInteger,
+    eventId: parentUiBridgeString,
+    eventKind: parentUiBridgeString,
+    occurredAt: parentUiBridgeString,
+    previousEventId: parentUiBridgeOptionalString,
+    scanSessionId: parentUiBridgeOptionalString,
+    affectedDeviceId: parentUiBridgeOptionalString,
+    evidenceId: parentUiBridgeOptionalString,
+    summary: parentUiBridgeString,
+  });
+  const parentUiBridgeLanDiscoveryHistory = parentUiBridgeObject({
+    schemaVersion: parentUiBridgeNonNegativeInteger,
+    generatedAt: parentUiBridgeString,
+    state: parentUiBridgeString,
+    latestEventId: parentUiBridgeOptionalString,
+    latestObservedAt: parentUiBridgeOptionalString,
+    rows: parentUiBridgeArray(parentUiBridgeLanDiscoveryEventRow),
+  });
+  const parentUiBridgeLanMatrixWorkpackRow = parentUiBridgeObject({
+    workpackId: parentUiBridgeString,
+    title: parentUiBridgeString,
+    discoveryState: parentUiBridgeString,
+    proofState: parentUiBridgeString,
+    runtimeOwner: parentUiBridgeString,
+    status: parentUiBridgeString,
+    readModelVisible: parentUiBridgeBoolean,
+    requiredArtifactSummary: parentUiBridgeOptionalString,
+  });
+  const parentUiBridgeLanMatrixSourceRow = parentUiBridgeObject({
+    source: parentUiBridgeString,
+    workpackId: parentUiBridgeString,
+    status: parentUiBridgeString,
+    authority: parentUiBridgeString,
+    runtimePath: parentUiBridgeString,
+    uiSurface: parentUiBridgeString,
+    canConfirmChildAgent: parentUiBridgeBoolean,
+    canAssignChildProfile: parentUiBridgeBoolean,
+    canControlRoute: parentUiBridgeBoolean,
+    requiresSelectedInterface: parentUiBridgeBoolean,
+    persistsAcrossRestart: parentUiBridgeBoolean,
+    evidenceLabel: parentUiBridgeString,
+    requiredArtifactSummary: parentUiBridgeOptionalString,
+  });
+  const parentUiBridgeLanSourceMatrix = parentUiBridgeObject({
+    schemaVersion: parentUiBridgeNonNegativeInteger,
+    generatedAt: parentUiBridgeString,
+    workpackRows: parentUiBridgeArray(parentUiBridgeLanMatrixWorkpackRow),
+    sourceRows: parentUiBridgeArray(parentUiBridgeLanMatrixSourceRow),
+    claimsProved: parentUiBridgeStringArray,
+    claimsNotProved: parentUiBridgeStringArray,
+  });
+  const parentUiBridgeLanAddDeviceReadModel = parentUiBridgeObject({
+    schemaVersion: parentUiBridgeNonNegativeInteger,
+    generatedAt: parentUiBridgeString,
+    discoverySource: parentUiBridgeString,
+    addDeviceState: parentUiBridgeString,
+    localServiceDiscoveryState: parentUiBridgeString,
+    physicalHouseholdLanState: parentUiBridgeString,
+    cloudRelayState: parentUiBridgeString,
+    scanSummary: parentUiBridgeLanScanSummary,
+    discoveredDevices: parentUiBridgeArray(parentUiBridgeLanDiscoveryDevice),
+    discoveryEventHistory: parentUiBridgeLanDiscoveryHistory,
+    canonicalHouseholdDevices: parentUiBridgeArray(parentUiBridgeLanCanonicalDevice),
+    pairingRequests: parentUiBridgeArray(parentUiBridgeLanPairingRequest),
+    trustedDeviceRegistry: parentUiBridgeArray(parentUiBridgeLanTrustedRegistryEntry),
+    householdDeviceDecisions: parentUiBridgeArray(parentUiBridgeLanHouseholdDecision),
+    signedDiscoveryRelaySpine: parentUiBridgeOptionalNullable(parentUiBridgeLanRelaySpine),
+    lanDiscoverySourceMatrix: parentUiBridgeOptionalNullable(parentUiBridgeLanSourceMatrix),
+    trustedDeviceIds: parentUiBridgeStringArray,
+    revokedDeviceIds: parentUiBridgeStringArray,
+    selectedDeviceReadiness: parentUiBridgeLanSelectedReadiness,
+    controllerAuthority: parentUiBridgeString,
+    observerAuthority: parentUiBridgeString,
+    routeRequirementLabels: parentUiBridgeStringArray,
+    auditCheckLabels: parentUiBridgeStringArray,
+    honestNonClaims: parentUiBridgeStringArray,
+  });
+  const parentUiBridgeActivityEvidence = parentUiBridgeObject({
+    evidenceId: parentUiBridgeString,
+    kind: parentUiBridgeString,
+    digest: parentUiBridgeOptionalString,
+    uri: parentUiBridgeOptionalString,
+  });
+  const parentUiBridgeNetworkEndpoint = parentUiBridgeObject({
+    ip: parentUiBridgeOptionalString,
+    port: parentUiBridgeOptionalInteger,
+  });
+  const parentUiBridgeNetworkCounters = parentUiBridgeObject({
+    connectionCount: parentUiBridgeNonNegativeInteger,
+    bytesSent: parentUiBridgeOptionalNumber,
+    bytesReceived: parentUiBridgeOptionalNumber,
+    firstSeenAt: parentUiBridgeOptionalString,
+    lastSeenAt: parentUiBridgeOptionalString,
+  });
+  const parentUiBridgeNetworkObservation = parentUiBridgeObject({
+    schemaVersion: parentUiBridgeNonNegativeInteger,
+    eventId: parentUiBridgeString,
+    observedAt: parentUiBridgeString,
+    observer: parentUiBridgeString,
+    capabilityStatus: parentUiBridgeString,
+    adapterId: parentUiBridgeString,
+    protocol: parentUiBridgeOptionalString,
+    tcpState: parentUiBridgeOptionalString,
+    localEndpoint: parentUiBridgeNetworkEndpoint,
+    destinationEndpoint: parentUiBridgeNetworkEndpoint,
+    destinationDomain: parentUiBridgeOptionalString,
+    domainAttributionStatus: parentUiBridgeString,
+    processAttributionStatus: parentUiBridgeString,
+    processId: parentUiBridgeOptionalInteger,
+    processName: parentUiBridgeOptionalString,
+    counters: parentUiBridgeNetworkCounters,
+    evidence: parentUiBridgeArray(parentUiBridgeActivityEvidence),
+  });
+  const parentUiBridgeNetworkFlowReadModel = parentUiBridgeObject({
+    schemaVersion: parentUiBridgeNonNegativeInteger,
+    generatedAt: parentUiBridgeString,
+    custody: parentUiBridgeString,
+    limit: parentUiBridgeNonNegativeInteger,
+    returned: parentUiBridgeNonNegativeInteger,
+    activeRows: parentUiBridgeNonNegativeInteger,
+    tombstoneRows: parentUiBridgeNonNegativeInteger,
+    exportableRows: parentUiBridgeNonNegativeInteger,
+    capabilityStatus: parentUiBridgeString,
+    latestEventId: parentUiBridgeOptionalString,
+    latestObservedAt: parentUiBridgeOptionalString,
+    latestTombstoneEventId: parentUiBridgeOptionalString,
+    latestTombstoneObservedAt: parentUiBridgeOptionalString,
+    deletedEvidenceReferenceIds: parentUiBridgeStringArray,
+    rows: parentUiBridgeArray(parentUiBridgeNetworkObservation),
+  });
+  const parentUiBridgeTrackingCount = parentUiBridgeObject({
+    value: parentUiBridgeString,
+    count: parentUiBridgeNonNegativeInteger,
+  });
+  const parentUiBridgeTrackingRow = parentUiBridgeObject({
+    schemaVersion: parentUiBridgeNonNegativeInteger,
+    eventId: parentUiBridgeString,
+    observedAt: parentUiBridgeString,
+    deviceId: parentUiBridgeString,
+    platform: parentUiBridgeString,
+    observer: parentUiBridgeString,
+    kind: parentUiBridgeString,
+    subjectKind: parentUiBridgeString,
+    subjectId: parentUiBridgeString,
+    subjectDisplayName: parentUiBridgeOptionalString,
+    capabilityStatus: parentUiBridgeOptionalString,
+    queryVisibility: parentUiBridgeString,
+    deletedAt: parentUiBridgeOptionalString,
+    evidenceReferenceIds: parentUiBridgeStringArray,
+    deletedEvidenceReferenceIds: parentUiBridgeStringArray,
+    evidence: parentUiBridgeArray(parentUiBridgeActivityEvidence),
+  });
+  const parentUiBridgeTrackingReadModel = parentUiBridgeObject({
+    schemaVersion: parentUiBridgeNonNegativeInteger,
+    generatedAt: parentUiBridgeString,
+    custodyLabel: parentUiBridgeString,
+    limit: parentUiBridgeNonNegativeInteger,
+    returned: parentUiBridgeNonNegativeInteger,
+    activeRows: parentUiBridgeNonNegativeInteger,
+    tombstoneRows: parentUiBridgeNonNegativeInteger,
+    capabilityStatus: parentUiBridgeString,
+    latestEventId: parentUiBridgeOptionalString,
+    latestObservedAt: parentUiBridgeOptionalString,
+    latestActiveEventId: parentUiBridgeOptionalString,
+    latestActiveObservedAt: parentUiBridgeOptionalString,
+    latestTombstoneEventId: parentUiBridgeOptionalString,
+    latestTombstoneObservedAt: parentUiBridgeOptionalString,
+    activeKindCounts: parentUiBridgeArray(parentUiBridgeTrackingCount),
+    activeDeviceCounts: parentUiBridgeArray(parentUiBridgeTrackingCount),
+    activeCapabilityStatusCounts: parentUiBridgeArray(parentUiBridgeTrackingCount),
+    deletedEvidenceReferenceIds: parentUiBridgeStringArray,
+    rows: parentUiBridgeArray(parentUiBridgeTrackingRow),
+  });
+  const parentUiBridgeTrackingFailureReason = parentUiBridgeLiteral([
+    'wrong-event',
+    'missing-json-field',
+    'invalid-json',
+    'invalid-payload',
+  ]);
+  const parentUiBridgeTrackingReadModelResult = parentUiBridgeObject({
+    ok: parentUiBridgeBoolean,
+    reason: parentUiBridgeOptionalNullable(parentUiBridgeTrackingFailureReason),
+    value: parentUiBridgeOptionalNullable(parentUiBridgeTrackingReadModel),
+  });
+  const parentUiBridgeNetworkEventValue = parentUiBridgeObject({
+    aiAnalysisRef: parentUiBridgeOptionalString,
+    policyDecisionRef: parentUiBridgeOptionalString,
+    enforcementResultRef: parentUiBridgeOptionalString,
+  });
+  const parentUiBridgeNetworkEvidenceSummary = parentUiBridgeObject({
+    aiAuditRef: parentUiBridgeOptionalString,
+    policyDecisionRef: parentUiBridgeOptionalString,
+    networkEvidenceGrade: parentUiBridgeOptionalString,
+    interventionResultRef: parentUiBridgeOptionalString,
+  });
+  const parentUiBridgeNetworkEventResult = parentUiBridgeObject({
+    ok: parentUiBridgeBoolean,
+    reason: parentUiBridgeOptionalString,
+    eventType: parentUiBridgeOptionalString,
+    value: parentUiBridgeOptionalNullable(parentUiBridgeNetworkEventValue),
+  });
+  const parentUiBridgeNetworkEventChain = parentUiBridgeObject({
+    streamedEventCount: parentUiBridgeOptionalInteger,
+    events: parentUiBridgeArray(parentUiBridgeNetworkEventResult),
+    invalidEventCount: parentUiBridgeNonNegativeInteger,
+  });
+  const parentUiBridgeActionPayload: ParentUiBridgeRuntimeValidator = (value) => {
+    if (!parentUiBridgeIsRecord(value)) return false;
+    const entries = Object.values(value);
+    return (
+      entries.length <= ParentUiBridgeDecodeLimit.MaxCollectionEntries &&
+      entries.every(
+        (entry) =>
+          entry === null ||
+          typeof entry === 'string' ||
+          typeof entry === 'boolean' ||
+          (typeof entry === 'number' && Number.isFinite(entry))
+      )
+    );
+  };
+  const parentUiBridgeActionKind = parentUiBridgeLiteral([
+    'refresh-route',
+    'reconnect',
+    'agent-command-requested',
+    'policy-preview-authoring-draft-staged',
+    'policy-preview-authoring-draft-cancelled',
+    'policy-request-assistant-preview-confirm-requested',
+    'policy-request-parent-resolution-requested',
+    'lan-pairing-browser-discovery-scan-requested',
+    'network-flow-read-model-refresh-requested',
+    'tracking-retention-settings-write-requested',
+    'screen-settings-get-requested',
+    'screen-settings-replace-requested',
+    'app-game-adapter-dispatch-execute-requested',
+    'app-game-timer-parent-preference-setup-requested',
+  ]);
+  const parentUiBridgePolicyAction = parentUiBridgeObject({
+    action: parentUiBridgeActionKind,
+    label: parentUiBridgeString,
+    payload: parentUiBridgeOptionalNullable(parentUiBridgeActionPayload),
+  });
+  const parentUiBridgePolicyAuthoring = parentUiBridgeObject({
+    targetValue: parentUiBridgeString,
+    requestedAction: parentUiBridgeString,
+    stageAction: parentUiBridgePolicyAction,
+    confirmAction: parentUiBridgeOptionalNullable(parentUiBridgePolicyAction),
+    cancelAction: parentUiBridgePolicyAction,
+  });
+  const parentUiBridgePolicyCard = parentUiBridgeObject({
+    title: parentUiBridgeString,
+    summary: parentUiBridgeString,
+    details: parentUiBridgeArray(parentUiBridgeDetail),
+  });
+  const parentUiBridgePolicyPanel = parentUiBridgeObject({
+    title: parentUiBridgeString,
+    body: parentUiBridgeString,
+    summary: parentUiBridgeString,
+    summaryDetails: parentUiBridgeArray(parentUiBridgeDetail),
+    cards: parentUiBridgeArray(parentUiBridgePolicyCard),
+    emptyMessage: parentUiBridgeString,
+    productClaim: parentUiBridgeString,
+    authoring: parentUiBridgeOptionalNullable(parentUiBridgePolicyAuthoring),
+  });
+  const parentUiBridgeAppGameRow = parentUiBridgeObject({
+    title: parentUiBridgeString,
+    details: parentUiBridgeArray(parentUiBridgeDetail),
+  });
+  const parentUiBridgeAppGamePanel = parentUiBridgeObject({
+    eyebrow: parentUiBridgeString,
+    title: parentUiBridgeString,
+    body: parentUiBridgeString,
+    loadState: parentUiBridgeString,
+    summaryDetails: parentUiBridgeArray(parentUiBridgeDetail),
+    rows: parentUiBridgeArray(parentUiBridgeAppGameRow),
+    emptyMessage: parentUiBridgeString,
+    productClaim: parentUiBridgeString,
+  });
+  const parentUiBridgeAppGameActionRow = parentUiBridgeObject({
+    title: parentUiBridgeString,
+    details: parentUiBridgeArray(parentUiBridgeDetail),
+    actionLabel: parentUiBridgeOptionalString,
+    actionPayload: parentUiBridgeOptionalUnknownRecord,
+  });
+  const parentUiBridgeAppGameDispatchPanel = parentUiBridgeObject({
+    eyebrow: parentUiBridgeString,
+    title: parentUiBridgeString,
+    body: parentUiBridgeString,
+    preflightPanel: parentUiBridgeAppGamePanel,
+    resultPanel: parentUiBridgeAppGamePanel,
+    executeActionLabel: parentUiBridgeOptionalString,
+  });
+  const parentUiBridgeAppGameTimerPanel = parentUiBridgeObject({
+    eyebrow: parentUiBridgeString,
+    title: parentUiBridgeString,
+    body: parentUiBridgeString,
+    loadState: parentUiBridgeString,
+    summaryDetails: parentUiBridgeArray(parentUiBridgeDetail),
+    parentActionRows: parentUiBridgeArray(parentUiBridgeAppGameRow),
+    parentPreferenceSetupRows: parentUiBridgeArray(parentUiBridgeAppGameActionRow),
+    localHandoffArtifactRows: parentUiBridgeArray(parentUiBridgeAppGameRow),
+    rows: parentUiBridgeArray(parentUiBridgeAppGameRow),
+    emptyMessage: parentUiBridgeString,
+    productClaim: parentUiBridgeString,
+  });
+  const parentUiBridgeAppGameNotificationRow = parentUiBridgeObject({
+    key: parentUiBridgeString,
+    title: parentUiBridgeString,
+    details: parentUiBridgeArray(parentUiBridgeDetail),
+  });
+  const parentUiBridgeAppGameNotificationPanel = parentUiBridgeObject({
+    eyebrow: parentUiBridgeString,
+    title: parentUiBridgeString,
+    body: parentUiBridgeString,
+    state: parentUiBridgeString,
+    summary: parentUiBridgeString,
+    productClaim: parentUiBridgeString,
+    metrics: parentUiBridgeArray(parentUiBridgeDetail),
+    rows: parentUiBridgeArray(parentUiBridgeAppGameNotificationRow),
+    emptyMessage: parentUiBridgeString,
+  });
+  const parentUiBridgeScreenRow = parentUiBridgeObject({
+    title: parentUiBridgeString,
+    details: parentUiBridgeArray(parentUiBridgeDetail),
+  });
+  const parentUiBridgeScreenPanel = parentUiBridgeObject({
+    eyebrow: parentUiBridgeString,
+    title: parentUiBridgeString,
+    body: parentUiBridgeString,
+    loadState: parentUiBridgeString,
+    summaryDetails: parentUiBridgeArray(parentUiBridgeDetail),
+    rows: parentUiBridgeArray(parentUiBridgeScreenRow),
+    emptyMessage: parentUiBridgeString,
+    productClaim: parentUiBridgeString,
+  });
+  const parentUiBridgeTrackingCard = parentUiBridgeObject({
+    key: parentUiBridgeString,
+    title: parentUiBridgeString,
+    details: parentUiBridgeArray(parentUiBridgeDetail),
+  });
+  const parentUiBridgeTrackingPanel = parentUiBridgeObject({
+    eyebrow: parentUiBridgeString,
+    title: parentUiBridgeString,
+    body: parentUiBridgeString,
+    summaryCards: parentUiBridgeArray(parentUiBridgeTrackingCard),
+    cards: parentUiBridgeArray(parentUiBridgeTrackingCard),
+    emptyMessage: parentUiBridgeString,
+    productClaim: parentUiBridgeString,
+  });
+
+  function parentUiBridgeTrackingPanelSnapshot(
+    value: unknown,
+  ): value is ParentTrackingStatusPanelSnapshot {
+    return parentUiBridgeTrackingPanel(value);
+  }
+
+  function decodeParentTrackingStatusPanelSnapshot(
+    value: unknown,
+  ): ParentTrackingStatusPanelSnapshot {
+    if (!parentUiBridgeTrackingPanelSnapshot(value)) {
+      throw new TypeError('parent tracking status panel does not match the Rust-owned contract');
+    }
+    return value;
+  }
+
+  const parentUiBridgeSetupCard = parentUiBridgeObject({
+    title: parentUiBridgeString,
+    summary: parentUiBridgeString,
+    details: parentUiBridgeArray(parentUiBridgeDetail),
+  });
+  const parentUiBridgeSetupPanel = parentUiBridgeObject({
+    eyebrow: parentUiBridgeString,
+    title: parentUiBridgeString,
+    body: parentUiBridgeString,
+    summaryCardTitle: parentUiBridgeString,
+    summary: parentUiBridgeString,
+    summaryDetails: parentUiBridgeArray(parentUiBridgeDetail),
+    cards: parentUiBridgeArray(parentUiBridgeSetupCard),
+    productClaim: parentUiBridgeString,
+  });
+  const parentUiBridgeBrowserRow = parentUiBridgeObject({
+    key: parentUiBridgeString,
+    title: parentUiBridgeString,
+    details: parentUiBridgeArray(parentUiBridgeDetail),
+  });
+  const parentUiBridgeBrowserPanel = parentUiBridgeObject({
+    eyebrow: parentUiBridgeString,
+    title: parentUiBridgeString,
+    body: parentUiBridgeString,
+    summary: parentUiBridgeString,
+    summaryDetails: parentUiBridgeArray(parentUiBridgeDetail),
+    rows: parentUiBridgeArray(parentUiBridgeBrowserRow),
+    emptyMessage: parentUiBridgeString,
+    productClaim: parentUiBridgeString,
+  });
+  const parentUiBridgeBrowserPanels = parentUiBridgeObject({
+    browserParentExplanation: parentUiBridgeOptionalNullable(parentUiBridgeBrowserPanel),
+    socialAuditExplanation: parentUiBridgeOptionalNullable(parentUiBridgeBrowserPanel),
+    socialAlertReport: parentUiBridgeOptionalNullable(parentUiBridgeBrowserPanel),
+    socialAlertReportParentSurface: parentUiBridgeOptionalNullable(parentUiBridgeBrowserPanel),
+    socialParentNotificationDelivery: parentUiBridgeOptionalNullable(parentUiBridgeBrowserPanel),
+    socialDashboard: parentUiBridgeOptionalNullable(parentUiBridgeBrowserPanel),
+    browserActionIntentStreamStatus: parentUiBridgeOptionalNullable(parentUiBridgeBrowserPanel),
+    browserSocialProviderReceiptStreamStatus: parentUiBridgeOptionalNullable(parentUiBridgeBrowserPanel),
+    browserSocialProviderReceiptIngestionReadinessStatus:
+      parentUiBridgeOptionalNullable(parentUiBridgeBrowserPanel),
+  });
+  const parentUiBridgeLiveActivity = parentUiBridgeObject({
+    recentSummary: parentUiBridgeOptionalUnknownRecord,
+    ingestStatus: parentUiBridgeOptionalUnknownRecord,
+    activityScreenReadModel: parentUiBridgeOptionalUnknownRecord,
+    activityAppUseReadModel: parentUiBridgeOptionalUnknownRecord,
+    activityAppGamePlatformExtensionReadModel: parentUiBridgeOptionalUnknownRecord,
+    activityBrowserReadModel: parentUiBridgeOptionalUnknownRecord,
+    activityGamesReadModel: parentUiBridgeOptionalUnknownRecord,
+    screenSummaryPanel: parentUiBridgeOptionalNullable(parentUiBridgeScreenPanel),
+    browserInventoryEvent: parentUiBridgeOptionalNullable(parentUiBridgeRouteEvent),
+    browserInventoryReadModel: parentUiBridgeOptionalUnknownRecord,
+    browserEvidenceEvent: parentUiBridgeOptionalNullable(parentUiBridgeRouteEvent),
+    browserEvidenceReadModel: parentUiBridgeOptionalUnknownRecord,
+    browserManagedEvent: parentUiBridgeOptionalNullable(parentUiBridgeRouteEvent),
+    browserManagedStatus: parentUiBridgeOptionalUnknownRecord,
+    localAiRuntimeStatusEvent: parentUiBridgeOptionalNullable(parentUiBridgeRouteEvent),
+    lanAiJobEvent: parentUiBridgeOptionalNullable(parentUiBridgeRouteEvent),
+    parentAssistantBoundaryEvent: parentUiBridgeOptionalNullable(parentUiBridgeRouteEvent),
+    activityMemoryGraphReadModel: parentUiBridgeOptionalNullable(
+      parentUiBridgeDecodedBy(decodeParentActivityMemoryGraphReadModelSnapshot)
+    ),
+    networkFlowEvent: parentUiBridgeOptionalNullable(parentUiBridgeRouteEvent),
+    networkFlowReadModel: parentUiBridgeOptionalNullable(parentUiBridgeNetworkFlowReadModel),
+    networkEvidenceSummary: parentUiBridgeOptionalNullable(parentUiBridgeNetworkEvidenceSummary),
+    networkRuntimeEventChainStream: parentUiBridgeOptionalNullable(parentUiBridgeNetworkEventChain),
+    lanPairingBrowserDiscoveryEvent: parentUiBridgeOptionalNullable(parentUiBridgeRouteEvent),
+    lanAddDeviceReadModel: parentUiBridgeOptionalNullable(parentUiBridgeLanAddDeviceReadModel),
+    policyPreviewPanel: parentUiBridgeOptionalNullable(parentUiBridgePolicyPanel),
+    appGameNotificationParentSurfacePanel:
+      parentUiBridgeOptionalNullable(parentUiBridgeAppGameNotificationPanel),
+    appGamePolicyReadinessPanel: parentUiBridgeOptionalNullable(parentUiBridgeAppGamePanel),
+    appGamePlatformProofStatusPanel: parentUiBridgeOptionalNullable(parentUiBridgeAppGamePanel),
+    appGameChildRuntimeTransportReceiptPanel:
+      parentUiBridgeOptionalNullable(parentUiBridgeAppGamePanel),
+    appGameAdapterDispatchPanel: parentUiBridgeOptionalNullable(parentUiBridgeAppGameDispatchPanel),
+    appGameTimerParentSurfacePanel: parentUiBridgeOptionalNullable(parentUiBridgeAppGameTimerPanel),
+    browserInterventionEvent: parentUiBridgeOptionalNullable(parentUiBridgeRouteEvent),
+    browserInterventionReadModel: parentUiBridgeOptionalUnknownRecord,
+    activityTrackingReadModelEvent: parentUiBridgeOptionalNullable(parentUiBridgeRouteEvent),
+    activityTrackingReadModel: parentUiBridgeOptionalNullable(parentUiBridgeTrackingReadModelResult),
+    activityTrackingPanel: parentUiBridgeOptionalNullable(parentUiBridgeTrackingPanel),
+    activityTrackingRetentionSettingsWriteResult: parentUiBridgeOptionalUnknownRecord,
+  });
+  const parentUiBridgeRouteSummary = parentUiBridgeObject({
+    title: parentUiBridgeString,
+    routeCapability: parentUiBridgeString,
+    parentAccess: parentUiBridgeString,
+    household: parentUiBridgeString,
+    childDevice: parentUiBridgeString,
+  });
+  const parentUiBridgeServiceHealthTrace = parentUiBridgeObject({
+    requestId: parentUiBridgeOptionalString,
+    correlationId: parentUiBridgeOptionalString,
+    responseEventId: parentUiBridgeOptionalString,
+    requestSentAt: parentUiBridgeOptionalString,
+    responseSentAt: parentUiBridgeOptionalString,
+  });
+  const parentUiBridgeServiceHealth = parentUiBridgeObject({
+    state: parentUiBridgeLiteral(Object.values(ParentServiceHealthState)),
+    route: parentUiBridgeOptionalNullable(parentUiBridgeLiteral(Object.values(ParentServiceHealthRoute))),
+    protocolSchemaVersion: parentUiBridgeOptionalInteger,
+    serviceVersion: parentUiBridgeOptionalString,
+    transport: parentUiBridgeOptionalNullable(parentUiBridgeLiteral(Object.values(ParentServiceHealthTransport))),
+    authenticationState: parentUiBridgeLiteral(Object.values(ParentServiceHealthAuthenticationState)),
+    reason: parentUiBridgeLiteral(Object.values(ParentServiceHealthReason)),
+    trace: parentUiBridgeServiceHealthTrace,
+  });
+  const parentUiBridgeDistribution = parentUiBridgeObject({
+    payloadSource: parentUiBridgeLiteral([ParentDesktopDistributionRuntime.PayloadSource]),
+    sourceCustodyState: parentUiBridgeLiteral([ParentDesktopDistributionRuntime.SourceCustodyState]),
+    productClaimState: parentUiBridgeLiteral([ParentDesktopDistributionRuntime.ProductClaimState]),
+    noClaim: parentUiBridgeLiteral([ParentDesktopDistributionRuntime.NoClaim]),
+    packageFrontendState: parentUiBridgeLiteral([ParentDesktopDistributionRuntime.PackageFrontendState]),
+    packageServiceManagerState: parentUiBridgeLiteral([
+      ParentDesktopDistributionRuntime.PackageServiceManagerState,
+    ]),
+    packageHealthProbeState: parentUiBridgeLiteral([
+      ParentDesktopDistributionRuntime.PackageHealthProbeState,
+    ]),
+    packagePreviewState: parentUiBridgeLiteral([ParentDesktopDistributionRuntime.PackagePreviewState]),
+    updateChannelState: parentUiBridgeLiteral([ParentDesktopDistributionRuntime.UpdateChannelState]),
+    rollbackState: parentUiBridgeLiteral([ParentDesktopDistributionRuntime.RollbackState]),
+    signingState: parentUiBridgeLiteral([ParentDesktopDistributionRuntime.SigningState]),
+    notarizationState: parentUiBridgeLiteral([ParentDesktopDistributionRuntime.NotarizationState]),
+    storeDistributionState: parentUiBridgeLiteral([
+      ParentDesktopDistributionRuntime.StoreDistributionState,
+    ]),
+    platformMatrixState: parentUiBridgeLiteral([ParentDesktopDistributionRuntime.PlatformMatrixState]),
+    releaseBranchState: parentUiBridgeLiteral([ParentDesktopDistributionRuntime.ReleaseBranchState]),
+    artifactProofState: parentUiBridgeLiteral([ParentDesktopDistributionRuntime.ArtifactProofState]),
+    actionsAvailable: parentUiBridgeLiteral([ParentDesktopDistributionRuntime.ActionsAvailable]),
+  });
+
+  function parentUiBridgeDistributionSnapshot(
+    value: unknown
+  ): value is ParentDesktopDistributionSnapshot {
+    return parentUiBridgeDistribution(value);
+  }
+
+  const parentUiBridgeRouteSnapshotFields = parentUiBridgeObject({
+    schemaVersion: parentUiBridgeLiteral([ParentHostBridgeRuntime.SchemaVersion]),
+    route: parentUiBridgeLiteral(Object.values(ParentRoute)),
+    generatedAt: parentUiBridgeString,
+    seasonLabel: parentUiBridgeString,
+    lastUpdated: parentUiBridgeString,
+    connectionState: parentUiBridgeLiteral(Object.values(ParentBridgeConnectionState)),
+    commandEnabled: parentUiBridgeBoolean,
+    agentEndpoint: parentUiBridgeString,
+    dataSource: parentUiBridgeLiteral(Object.values(ParentRouteDataSource)),
+    summary: parentUiBridgeRouteSummary,
+    serviceHealth: parentUiBridgeOptionalNullable(parentUiBridgeServiceHealth),
+    parentDesktopDistribution: parentUiBridgeOptionalNullable(parentUiBridgeDistribution),
+    diagnosticPanelsEnabled: parentUiBridgeBoolean,
+    parentPortalRows: parentUiBridgeOptionalNullable(parentUiBridgeArray(parentUiBridgePortalRow)),
+    parentPortalShellStatus: parentUiBridgeOptionalNullable(parentUiBridgeShellStatus),
+    liveActivity: parentUiBridgeOptionalNullable(parentUiBridgeLiveActivity),
+    browserPanels: parentUiBridgeOptionalNullable(parentUiBridgeBrowserPanels),
+    setupFirstRunPanel: parentUiBridgeOptionalNullable(parentUiBridgeSetupPanel),
+    screenSettingsServiceResponse: parentUiBridgeOptionalUnknownRecord,
+  });
+
+  function parentUiBridgeDistributionPlacementIsValid(
+    snapshot: Readonly<Record<string, unknown>>
+  ): boolean {
+    const distribution = snapshot['parentDesktopDistribution'];
+    if (distribution === undefined || distribution === null) return true;
+    const route = snapshot['route'];
+    const distributionRoute = route === ParentRoute.PlatformsInstall || route === ParentRoute.InstallUpdates;
+    return distributionRoute && snapshot['commandEnabled'] === false;
+  }
+
+  function parentUiBridgeRouteSnapshot(value: unknown): value is ParentRouteSnapshot {
+    return (
+      parentUiBridgeRouteSnapshotFields(value) &&
+      parentUiBridgeIsRecord(value) &&
+      parentUiBridgeDistributionPlacementIsValid(value)
+    );
+  }
+
+  function decodeParentDesktopDistributionSnapshot(
+    value: unknown
+  ): ParentDesktopDistributionSnapshot {
+    if (!parentUiBridgeDistributionSnapshot(value)) {
+      throw new TypeError('parent desktop distribution payload does not match the Rust-owned contract');
+    }
+    return value;
+  }
+
+  function decodeParentRouteSnapshot(value: unknown): ParentRouteSnapshot {
+    if (!parentUiBridgeRouteSnapshot(value)) {
+      throw new TypeError('parent route snapshot does not match the Rust-owned contract');
+    }
+    return value;
+  }
+
+  function decodeParentRouteSnapshotForRoute(
+    value: unknown,
+    expectedRoute: ParentRouteId
+  ): ParentRouteSnapshot {
+    const snapshot = decodeParentRouteSnapshot(value);
+    if (snapshot.route !== expectedRoute) {
+      throw new TypeError('parent route snapshot does not match the requested route');
+    }
+    return snapshot;
+  }
+
+  function parentUiBridgeActionResult(value: unknown): value is ParentUiActionResult {
+    return parentUiBridgeObject({
+      schemaVersion: parentUiBridgeLiteral([ParentHostBridgeRuntime.SchemaVersion]),
+      accepted: parentUiBridgeBoolean,
+      connectionState: parentUiBridgeLiteral(Object.values(ParentBridgeConnectionState)),
+      message: parentUiBridgeString,
+      snapshot: parentUiBridgeNullable(parentUiBridgeRouteSnapshot),
+      events: parentUiBridgeArray(parentUiBridgeRouteEvent),
+    })(value);
+  }
+
+  function decodeParentUiActionResult(value: unknown): ParentUiActionResult {
+    if (!parentUiBridgeActionResult(value)) {
+      throw new TypeError('parent UI action result does not match the Rust-owned contract');
+    }
+    return value;
+  }
+
+  function parentUiBridgeSubscriptionEvent(value: unknown): value is ParentSubscriptionEvent {
+    if (
+      !parentUiBridgeObject({
+        schemaVersion: parentUiBridgeLiteral([ParentHostBridgeRuntime.SchemaVersion]),
+        route: parentUiBridgeLiteral(Object.values(ParentRoute)),
+        snapshot: parentUiBridgeRouteSnapshot,
+        events: parentUiBridgeOptionalNullable(parentUiBridgeArray(parentUiBridgeRouteEvent)),
+      })(value) ||
+      !parentUiBridgeIsRecord(value)
+    ) {
+      return false;
+    }
+    const snapshot = value['snapshot'];
+    return parentUiBridgeIsRecord(snapshot) && value['route'] === snapshot['route'];
+  }
+
+  function decodeParentSubscriptionEvent(value: unknown): ParentSubscriptionEvent {
+    if (!parentUiBridgeSubscriptionEvent(value)) {
+      throw new TypeError('parent subscription event does not match the Rust-owned contract');
+    }
+    return value;
+  }
+
+  function decodeParentRouteSubscriptionId(value: unknown): ParentRouteSubscriptionId {
+    if (typeof value !== 'string' || value.trim().length === 0) {
+      throw new TypeError('parent route subscription id must be a non-empty string');
+    }
+    return value;
+  }
+
+  function decodeParentBridgeUnsubscribeResult(value: unknown): boolean {
+    if (typeof value !== 'boolean') {
+      throw new TypeError('parent route unsubscribe result must be a boolean');
+    }
+    return value;
+  }
+  return {
+decodeParentTrackingStatusPanelSnapshot,
+decodeParentDesktopDistributionSnapshot,
+decodeParentRouteSnapshot,
+decodeParentRouteSnapshotForRoute,
+decodeParentUiActionResult,
+decodeParentSubscriptionEvent,
+decodeParentRouteSubscriptionId,
+decodeParentBridgeUnsubscribeResult,
+};
+}

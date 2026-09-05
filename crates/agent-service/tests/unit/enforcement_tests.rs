@@ -1,6 +1,3 @@
-#[path = "../support/test_invariants.rs"]
-mod test_invariants;
-
 use std::fs::{read, remove_file};
 
 use ocentra_parent_agent_core::activity_store::ActivityStore;
@@ -23,7 +20,9 @@ use ocentra_parent_agent_protocol::transport::AgentRoute;
 use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
 use crate::enforcement_api::{build_enforcement_audit_report_with_paths, EnforcementJournalPaths};
-use crate::test_invariants::{require_json_decode, require_ok, require_some};
+use crate::test_require_json_decode::require_json_decode;
+use crate::test_require_ok::require_ok;
+use crate::test_require_some::require_some;
 use crate::test_text::{optional_log_string, TestText};
 
 const ENFORCEMENT_TEST_PATH_PREFIX: &str = "enforcement-tests";
@@ -74,41 +73,20 @@ async fn enforcement_execute_records_audit_event_to_journal_and_store() {
             TestText::from_display(constants::enforcement::TEST_AUDIT_EVENT_ID)
         ]
     );
-    #[cfg(windows)]
-    {
-        assert_eq!(
-            event.payload.get(constants::field::ENFORCEMENT_STATUS),
-            Some(&LogFieldValue::String(
-                constants::enforcement::RESULT_NO_OP.to_string()
-            ))
-        );
-        assert_eq!(
-            event
-                .payload
-                .get(constants::field::ENFORCEMENT_ADAPTER_RESULT_CODE),
-            Some(&LogFieldValue::String(
-                constants::enforcement::ADAPTER_PROCESS_ALREADY_EXITED.to_string()
-            ))
-        );
-    }
-
-    #[cfg(not(windows))]
-    {
-        assert_eq!(
-            event.payload.get(constants::field::ENFORCEMENT_STATUS),
-            Some(&LogFieldValue::String(
-                constants::enforcement::RESULT_UNAVAILABLE.to_string()
-            ))
-        );
-        assert_eq!(
-            event
-                .payload
-                .get(constants::field::ENFORCEMENT_ADAPTER_RESULT_CODE),
-            Some(&LogFieldValue::String(
-                constants::enforcement::ADAPTER_UNSUPPORTED_PLATFORM.to_string()
-            ))
-        );
-    }
+    assert_eq!(
+        event.payload.get(constants::field::ENFORCEMENT_STATUS),
+        Some(&LogFieldValue::String(
+            constants::enforcement::RESULT_UNAVAILABLE.to_string()
+        ))
+    );
+    assert_eq!(
+        event
+            .payload
+            .get(constants::field::ENFORCEMENT_ADAPTER_RESULT_CODE),
+        Some(&LogFieldValue::String(
+            constants::enforcement::ADAPTER_UNAVAILABLE.to_string()
+        ))
+    );
 }
 
 #[tokio::test]
@@ -141,37 +119,24 @@ async fn enforcement_execute_reports_final_adapter_result_after_before_action_jo
     );
     assert_eq!(summary.returned, 2);
 
-    #[cfg(windows)]
-    {
-        assert_eq!(
-            event.payload.get(constants::field::ENFORCEMENT_STATUS),
-            Some(&LogFieldValue::String(
-                constants::enforcement::RESULT_NO_OP.to_string()
-            ))
-        );
-        assert_eq!(
-            event
-                .payload
-                .get(constants::field::ENFORCEMENT_ADAPTER_RESULT_CODE),
-            Some(&LogFieldValue::String(
-                constants::enforcement::ADAPTER_PROCESS_ALREADY_EXITED.to_string()
-            ))
-        );
-    }
-
-    #[cfg(not(windows))]
+    assert_eq!(
+        event.payload.get(constants::field::ENFORCEMENT_STATUS),
+        Some(&LogFieldValue::String(
+            constants::enforcement::RESULT_UNAVAILABLE.to_string()
+        ))
+    );
     assert_eq!(
         event
             .payload
             .get(constants::field::ENFORCEMENT_ADAPTER_RESULT_CODE),
         Some(&LogFieldValue::String(
-            constants::enforcement::ADAPTER_UNSUPPORTED_PLATFORM.to_string()
+            constants::enforcement::ADAPTER_UNAVAILABLE.to_string()
         ))
     );
 }
 
 #[tokio::test]
-async fn enforcement_execute_rejects_missing_process_id_before_adapter_execution() {
+async fn enforcement_execute_without_process_id_reports_manual_required_unavailable() {
     let paths = temp_paths(constants::enforcement::REJECTION_PROCESS_ID_REQUIRED);
     cleanup_paths(&paths);
     let mut command = command(false);
@@ -179,27 +144,21 @@ async fn enforcement_execute_rejects_missing_process_id_before_adapter_execution
     let event = build_enforcement_audit_report_with_paths(command, paths.clone()).await;
     cleanup_paths(&paths);
 
-    #[cfg(windows)]
-    {
-        assert_eq!(event.event, AgentEventName::AgentCommandRejected);
-        assert_eq!(
-            event.payload.get(constants::field::REASON),
-            Some(&LogFieldValue::String(
-                constants::enforcement::REJECTION_PROCESS_ID_REQUIRED.to_string()
-            ))
-        );
-    }
-
-    #[cfg(not(windows))]
-    {
-        assert_eq!(event.event, AgentEventName::AgentEnforcementAuditReported);
-        assert_eq!(
-            event.payload.get(constants::field::ENFORCEMENT_STATUS),
-            Some(&LogFieldValue::String(
-                constants::enforcement::RESULT_UNAVAILABLE.to_string()
-            ))
-        );
-    }
+    assert_eq!(event.event, AgentEventName::AgentEnforcementAuditReported);
+    assert_eq!(
+        event.payload.get(constants::field::ENFORCEMENT_STATUS),
+        Some(&LogFieldValue::String(
+            constants::enforcement::RESULT_UNAVAILABLE.to_string()
+        ))
+    );
+    assert_eq!(
+        event
+            .payload
+            .get(constants::field::ENFORCEMENT_ADAPTER_RESULT_CODE),
+        Some(&LogFieldValue::String(
+            constants::enforcement::ADAPTER_UNAVAILABLE.to_string()
+        ))
+    );
 }
 
 #[tokio::test]
@@ -293,13 +252,13 @@ fn assert_unwired_adapter_readiness(
         broad_os_adapter_readiness(policy_constants::TEST_EVALUATED_AT)
             .entries
             .into_iter()
-            .find(|entry| entry.readiness_id == readiness_id.to_string()),
+            .find(|entry| entry.readiness_id.as_bytes() == readiness_id.as_bytes()),
         &readiness_id,
     );
 
     assert_eq!(
-        TestText::from_display(action.adapter_kind.as_protocol_str()),
-        expected_kind
+        action.adapter_kind.as_protocol_str(),
+        expected_kind.as_str()
     );
     assert_eq!(
         TestText::from_display(readiness.adapter_kind.as_protocol_str()),

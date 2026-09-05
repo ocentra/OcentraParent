@@ -3,6 +3,15 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { ParentRoute, type ParentSetupFirstRunPanelSnapshot } from '../../generated/parent-ui-bridge';
 import { SetupFirstRunRoutePanel, shouldRenderSetupFirstRunRoute } from '../../src/SetupFirstRunRoutePanel';
+import type { PortalRenderActions } from '../../src/portal-actions';
+
+const actions: PortalRenderActions = {
+  reconnect() {},
+  selectCommandResult() {},
+  async sendCommand() {
+    return null;
+  },
+};
 
 const sampleSetupFirstRunPanelValue: ParentSetupFirstRunPanelSnapshot = {
   eyebrow: 'Setup route',
@@ -96,7 +105,7 @@ function sampleSetupFirstRunPanel(): ParentSetupFirstRunPanelSnapshot {
   return sampleSetupFirstRunPanelValue;
 }
 
-describe('setup first-run portal route panel', () => {
+describe('setup first-run portal route panel boundaries', () => {
   it('attaches only to the start route', () => {
     expect(shouldRenderSetupFirstRunRoute(ParentRoute.Start)).toBe(true);
     expect(shouldRenderSetupFirstRunRoute(ParentRoute.Overview)).toBe(false);
@@ -104,10 +113,15 @@ describe('setup first-run portal route panel', () => {
   });
 
   it('renders an honest boundary-status panel instead of an invented setup state machine', () => {
-    const markup = renderToStaticMarkup(createElement(SetupFirstRunRoutePanel, { panel: sampleSetupFirstRunPanel() }));
+    const markup = renderToStaticMarkup(
+      createElement(SetupFirstRunRoutePanel, { actions, panel: sampleSetupFirstRunPanel() })
+    );
 
     expect(markup).toContain('Setup-first-run boundary status');
+    expect(markup).toContain('data-ocentra-setup-proof="first-run-route"');
     expect(markup).toContain('Current boundary status');
+    expect(markup.match(/<details class="setup-first-run-detail-card">/g)).toHaveLength(3);
+    expect(markup.match(/<summary>/g)).toHaveLength(3);
     expect(markup).toContain('What is real now');
     expect(markup).toContain('What is missing');
     expect(markup).toContain('Where it belongs');
@@ -126,12 +140,145 @@ describe('setup first-run portal route panel', () => {
     expect(markup).not.toContain('setup-complete-screen');
     expect(markup).not.toContain('parent-desktop-runtime-package-plan');
   });
+});
 
-  it('renders an unavailable panel when the Rust snapshot is missing', () => {
-    const markup = renderToStaticMarkup(createElement(SetupFirstRunRoutePanel, { panel: null }));
+describe('setup first-run portal route panel details', () => {
+  it('keeps the current boundary visible while collapsing the detailed setup ledger', () => {
+    const markup = renderToStaticMarkup(
+      createElement(SetupFirstRunRoutePanel, { actions, panel: sampleSetupFirstRunPanel() })
+    );
 
-    expect(markup).toContain('Start route unavailable');
-    expect(markup).toContain('Parent Rust snapshot unavailable for the setup-first-run route.');
+    expect(markup).toContain('<article class="summary product-status-card"><h2>Current boundary status</h2>');
+    expect(markup).toContain('<summary><span class="setup-first-run-detail-title">What is real now</span>');
+    expect(markup).toContain('class="setup-first-run-detail-content"');
+    expect(markup).not.toContain('<details class="setup-first-run-detail-card" open=""');
+  });
+
+  it('renders manual-required authority and source boundaries supplied by the Rust snapshot', () => {
+    const panel: ParentSetupFirstRunPanelSnapshot = {
+      ...sampleSetupFirstRunPanelValue,
+      summaryDetails: [
+        ...sampleSetupFirstRunPanelValue.summaryDetails,
+        { label: 'Setup state', value: 'manual-required' },
+      ],
+      cards: [
+        {
+          ...sampleSetupFirstRunPanelValue.cards[0]!,
+          details: [
+            ...sampleSetupFirstRunPanelValue.cards[0]!.details,
+            { label: 'LAN authority', value: 'observation only; ownership and trust remain unavailable' },
+          ],
+        },
+        {
+          ...sampleSetupFirstRunPanelValue.cards[1]!,
+          details: [
+            ...sampleSetupFirstRunPanelValue.cards[1]!.details,
+            { label: 'Account identity', value: 'manual-required' },
+          ],
+        },
+        {
+          ...sampleSetupFirstRunPanelValue.cards[2]!,
+          details: [
+            ...sampleSetupFirstRunPanelValue.cards[2]!.details,
+            { label: 'Degraded/manual state', value: 'manual-required' },
+          ],
+        },
+      ],
+    };
+    const markup = renderToStaticMarkup(createElement(SetupFirstRunRoutePanel, { actions, panel }));
+
+    expect(markup).toContain('Setup state');
+    expect(markup).toContain('manual-required');
+    expect(markup).toContain('LAN authority');
+    expect(markup).toContain('observation only; ownership and trust remain unavailable');
+    expect(markup).toContain('Account identity');
+    expect(markup).toContain('Degraded/manual state');
+    expect(markup).not.toContain('onboarding complete');
+  });
+});
+
+describe('setup first-run portal route panel owner states', () => {
+  it('renders owner-gated first-run states and safe next actions supplied by the Rust snapshot', () => {
+    const panel: ParentSetupFirstRunPanelSnapshot = {
+      ...sampleSetupFirstRunPanelValue,
+      cards: [
+        ...sampleSetupFirstRunPanelValue.cards,
+        {
+          title: 'First-run states and next actions',
+          summary:
+            'The parent route names each setup boundary and the safe next action. Status stays unavailable until the owning authority supplies a typed, current read model.',
+          details: [
+            {
+              label: 'No account / session',
+              value: 'unavailable — Account/session owner must provide current state',
+            },
+            {
+              label: 'Next action — no account / session',
+              value: 'manual-required — request an owner-backed current session',
+            },
+            {
+              label: 'Household exists / no child profile',
+              value: 'unavailable — family authority must provide child-profile state',
+            },
+            {
+              label: 'Next action — household exists / no child profile',
+              value: 'manual-required — request an owner-backed child profile',
+            },
+            {
+              label: 'Discovered unpaired device',
+              value: 'unavailable — LAN may only observe discovery; pairing and ownership are not bound',
+            },
+            {
+              label: 'Next action — discovered unpaired device',
+              value: 'manual-required — use the trusted pairing owner flow',
+            },
+            {
+              label: 'Invite expiry',
+              value: 'unavailable — invite owner must report active, expired, or consumed state',
+            },
+            {
+              label: 'Next action — invite expiry',
+              value: 'manual-required — request a current invite receipt before retrying',
+            },
+            {
+              label: 'Session expiry',
+              value: 'unavailable — Account/session owner must report fresh, stale, or expired state',
+            },
+            {
+              label: 'Next action — session expiry',
+              value: 'manual-required — request a current session receipt before retrying',
+            },
+            {
+              label: 'Child safety',
+              value:
+                'Private child activity is not shown on setup; only authority and readiness boundaries are projected',
+            },
+          ],
+        },
+      ],
+    };
+    const markup = renderToStaticMarkup(createElement(SetupFirstRunRoutePanel, { actions, panel }));
+
+    expect(markup).toContain('First-run states and next actions');
+    for (const detail of panel.cards[3]!.details) {
+      expect(markup).toContain(detail.label);
+      expect(markup).toContain(detail.value);
+    }
+    expect(markup).not.toContain('onboarding complete');
+  });
+});
+
+describe('setup first-run portal route panel unavailable state', () => {
+  it('keeps the setup guide usable when current service status is missing', () => {
+    const markup = renderToStaticMarkup(createElement(SetupFirstRunRoutePanel, { actions, panel: null }));
+
+    expect(markup).toContain('Setup status unavailable');
+    expect(markup).toContain('setup-first-run-route-panel');
+    expect(markup).toContain('data-ocentra-setup-state="unavailable"');
+    expect(markup).toContain('Connect the local service to load current setup progress.');
+    expect(markup).toContain('The setup guide remains available above.');
+    expect(markup).toContain('>Retry status<');
+    expect(markup).not.toContain('Rust snapshot');
     expect(markup).not.toContain('Setup-first-run boundary status');
     expect(markup).not.toContain('Current boundary status');
   });

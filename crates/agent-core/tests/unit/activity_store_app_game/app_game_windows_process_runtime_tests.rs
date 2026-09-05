@@ -74,6 +74,52 @@ fn same_process_persists_and_session_can_continue() {
 }
 
 #[test]
+fn pid_reuse_with_new_generation_does_not_merge_runtime_sessions() {
+    let mut previous_generation = running_app_record(
+        APP_GAME_TEST_RUNTIME_EVIDENCE_ID,
+        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+        APP_GAME_OBSERVATION_MODE_PROCESS_SNAPSHOT,
+        60000,
+    );
+    previous_generation.process_identity = Some(format!(
+        "{}-100",
+        constants::activity_capture::PROCESS_SUBJECT_ID_PREFIX
+    ));
+
+    let mut current_generation = running_app_record(
+        APP_GAME_TEST_RUNTIME_EXIT_EVIDENCE_ID,
+        constants::activity_store::TEST_SECOND_OBSERVED_AT,
+        APP_GAME_OBSERVATION_MODE_PROCESS_SNAPSHOT,
+        30000,
+    );
+    current_generation.process_identity = Some(format!(
+        "{}-200",
+        constants::activity_capture::PROCESS_SUBJECT_ID_PREFIX
+    ));
+
+    let rows =
+        windows_process_runtime_rows_from_records(&[previous_generation, current_generation]);
+    let summaries = runtime_session_summaries_from_rows(&rows);
+
+    assert_eq!(summaries.len(), 2);
+    assert_ne!(summaries[0].session_id, summaries[1].session_id);
+    assert!(summaries.iter().any(|summary| {
+        summary.primary_process_identity
+            == format!(
+                "{}-100",
+                constants::activity_capture::PROCESS_SUBJECT_ID_PREFIX
+            )
+    }));
+    assert!(summaries.iter().any(|summary| {
+        summary.primary_process_identity
+            == format!(
+                "{}-200",
+                constants::activity_capture::PROCESS_SUBJECT_ID_PREFIX
+            )
+    }));
+}
+
+#[test]
 fn process_exit_closes_runtime_session() {
     let rows = windows_process_runtime_rows_from_records(&[
         running_app_record(

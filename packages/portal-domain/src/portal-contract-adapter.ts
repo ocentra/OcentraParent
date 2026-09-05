@@ -1,4 +1,8 @@
 import {
+  GeneratedPortalAgentActivityReportFrequency,
+  type GeneratedPortalAgentActivityReportFrequency as GeneratedPortalAgentActivityReportFrequencyValue,
+  GeneratedPortalAgentActivitySurfaceScopeKind,
+  type GeneratedPortalAgentActivitySurfaceScopeKind as GeneratedPortalAgentActivitySurfaceScopeKindValue,
   GeneratedPortalAgentCommand,
   type GeneratedPortalAgentCommandEnvelope,
   type GeneratedPortalAgentCommandName,
@@ -26,8 +30,6 @@ import {
   GeneratedPortalAgentTargetDefaults,
   GeneratedPortalConnectionState,
   type GeneratedPortalConnectionState as GeneratedPortalConnectionStateValue,
-  type GeneratedPortalClipboardText,
-  type GeneratedPortalDetailValue,
   type GeneratedPortalRouteEventPayloadRecord,
   type GeneratedPortalRouteEventSnapshot,
   GeneratedPortalRoute,
@@ -37,7 +39,6 @@ import {
   type GeneratedPortalRouteHashQueryPath as GeneratedPortalRouteHashQueryPathValue,
   GeneratedPortalRouteHashQuerySeparator,
   GeneratedPortalRouteLiteral,
-  type GeneratedTrackingStatusProofArtifact,
   decodeGeneratedPortalAgentCommandEnvelope,
 } from './generated-portal-contracts';
 
@@ -76,13 +77,6 @@ function literalSchema<const T extends string>(label: string, allowedValues: rea
   };
 }
 
-function decodeNonEmptyString<T extends string>(input: unknown, label: string): T {
-  if (typeof input !== 'string' || input.length === 0) {
-    throw new TypeError(`${label} must be a non-empty Rust-owned protocol string`);
-  }
-  return input as T;
-}
-
 const PortalRouteValues = Object.values(GeneratedPortalRouteLiteral) as readonly GeneratedPortalRouteValue[];
 
 export const PortalRouteLiteral = GeneratedPortalRouteLiteral;
@@ -99,6 +93,10 @@ export type PortalConnectionState = GeneratedPortalConnectionStateValue;
 export const PortalConnectionState = GeneratedPortalConnectionState;
 
 export const PortalAgentProtocolRuntime = GeneratedPortalAgentProtocolRuntime;
+export const PortalAgentActivityReportFrequency = GeneratedPortalAgentActivityReportFrequency;
+export type PortalAgentActivityReportFrequency = GeneratedPortalAgentActivityReportFrequencyValue;
+export const PortalAgentActivitySurfaceScopeKind = GeneratedPortalAgentActivitySurfaceScopeKind;
+export type PortalAgentActivitySurfaceScopeKind = GeneratedPortalAgentActivitySurfaceScopeKindValue;
 export const PortalAgentProtocolField = GeneratedPortalAgentProtocolField;
 export type PortalAgentProtocolFieldName = GeneratedPortalAgentProtocolFieldName;
 export type PortalAgentProtocolPayload = GeneratedPortalAgentProtocolPayload;
@@ -130,15 +128,3 @@ export type PortalRouteEventSnapshot = GeneratedPortalRouteEventSnapshot;
 export type PortalRouteEventRecord = Omit<GeneratedPortalRouteEventSnapshot, 'payload'> & {
   readonly payload?: PortalRouteEventPayloadRecord;
 };
-
-export type PortalDetailValue = GeneratedPortalDetailValue;
-export const decodePortalDetailValue = (input: unknown): PortalDetailValue =>
-  decodeNonEmptyString<PortalDetailValue>(input, 'PortalDetailValue');
-
-export type PortalClipboardText = GeneratedPortalClipboardText;
-export const decodePortalClipboardText = (input: unknown): PortalClipboardText =>
-  decodeNonEmptyString<PortalClipboardText>(input, 'PortalClipboardText');
-
-export type TrackingStatusProofArtifact = GeneratedTrackingStatusProofArtifact;
-export const decodeTrackingStatusProofArtifact = (input: unknown): TrackingStatusProofArtifact =>
-  decodeNonEmptyString<TrackingStatusProofArtifact>(input, 'TrackingStatusProofArtifact');

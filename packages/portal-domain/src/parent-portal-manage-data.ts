@@ -73,11 +73,11 @@ export const PARENT_PORTAL_MANAGE_QUICK_CONTROLS: ParentPortalContent['quickCont
   {
     id: 'schedules-budgets',
     name: 'SCHEDULES',
-    detail: 'School sleep homework windows',
+    detail: 'Manual-required schedule and budget state',
     icon: 'schedule',
     tone: 'purple',
     category: 'Routine',
-    subcategory: 'Time budgets',
+    subcategory: 'Service-owned time budgets',
     controlCode: 3,
     routePath: portalRouteHashPath(PortalRoute.Schedules),
   },

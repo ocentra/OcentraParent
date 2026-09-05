@@ -1,6 +1,8 @@
 use std::primitive::str as TestStr;
 
-use crate::test_invariants::{require_json_decode, require_log_string_field, require_some};
+use crate::test_require_json_decode::require_json_decode;
+use crate::test_require_log_string_field::require_log_string_field;
+use crate::test_require_some::require_some;
 use ocentra_parent_agent_protocol::app_game_adapter_execution_readiness::{
     AppGameAdapterExecutionReadinessReadModel, APP_GAME_ADAPTER_EXECUTION_DECISION_ALLOWED,
     APP_GAME_ADAPTER_EXECUTION_DECISION_BLOCKED, APP_GAME_ADAPTER_EXECUTION_STATE_DEGRADED,
@@ -14,13 +16,41 @@ use ocentra_parent_agent_protocol::app_game_authority_classifier::{
 use ocentra_parent_agent_protocol::constants::{
     self, v08_supported_adapter_runtime_proof as proof,
 };
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget, AgentPeer,
+    AgentPeerRole, AgentRoute,
+};
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
 use super::app_game_adapter_execution_readiness_payload::{
     app_game_adapter_execution_readiness_payload, app_game_adapter_execution_readiness_read_model,
-    GeneratedAtText,
+    build_activity_app_game_adapter_execution_readiness_report, GeneratedAtText,
 };
 
 const APP_GAME_TEST_TIMESTAMP: &str = "2026-06-03T22:15:00Z";
+
+#[tokio::test]
+async fn app_game_adapter_execution_readiness_default_report_preserves_command_correlation() {
+    let command = execution_readiness_command();
+    let correlation_id = command.message_id.clone();
+    let event = build_activity_app_game_adapter_execution_readiness_report(command).await;
+    let decoded = require_json_decode::<AppGameAdapterExecutionReadinessReadModel>(
+        string_payload(
+            &event.payload,
+            constants::field::APP_GAME_ADAPTER_EXECUTION_READINESS_READ_MODEL,
+        ),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    );
+
+    assert_eq!(
+        event.event,
+        AgentEventName::AgentActivityAppGameAdapterExecutionReadinessReadModelReported
+    );
+    assert_eq!(event.correlation_id, correlation_id);
+    assert_eq!(event.target.peer_id, constants::peer::PORTAL_DEV);
+    assert_eq!(decoded.returned, 8);
+}
 
 #[test]
 fn app_game_adapter_execution_readiness_payload_reports_supported_proof_without_claim_upgrades() {
@@ -188,4 +218,25 @@ fn string_payload<'a>(
         payload.get(field_name),
         constants::error::AGENT_EVENT_SERIALIZES,
     )
+}
+
+fn execution_readiness_command() -> AgentCommandEnvelope {
+    AgentCommandEnvelope {
+        schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
+        message_id:
+            ocentra_parent_agent_protocol::app_game_adapter_execution_readiness::APP_GAME_ADAPTER_EXECUTION_READINESS_READ_MODEL_ID
+                .to_string(),
+        sent_at: APP_GAME_TEST_TIMESTAMP.to_string(),
+        source: AgentPeer {
+            peer_id: constants::peer::PORTAL_DEV.to_string(),
+            role: AgentPeerRole::Portal,
+        },
+        target: AgentMessageTarget {
+            device_id: constants::enforcement::TEST_CHILD_DEVICE_ID.to_string(),
+            platform: constants::enforcement::PLATFORM_WINDOWS.to_string(),
+            route: AgentRoute::Localhost,
+        },
+        command: AgentCommandName::AgentActivityAppGameAdapterExecutionReadinessReadModelGet,
+        payload: LogFields::new(),
+    }
 }

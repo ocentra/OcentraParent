@@ -1,5 +1,9 @@
 import { PortalRoute, type PortalRoute as PortalRouteValue } from './portal-contract-adapter';
 import {
+  GeneratedPortalAgentEvent as AgentEvent,
+  GeneratedPortalAgentProtocolField as ProtocolField,
+} from './generated-portal-contracts';
+import {
   generatedParentPortalManageLaneForRoute,
   generatedParentPortalRouteState,
   type GeneratedParentPortalManageLane,
@@ -58,6 +62,97 @@ export type ParentPortalIconName =
 export type ParentPortalRowSource = 'api' | 'aiBenchmarkRows';
 export type ParentPortalPageMode = GeneratedParentPortalPageMode;
 export type ParentPortalManageLane = GeneratedParentPortalManageLane;
+export type ParentPortalAssistantResponseKind = 'answer' | 'error' | 'unavailable';
+
+export type ParentPortalAssistantEventSnapshot = Readonly<{
+  event?: string | null;
+  eventId?: string | null;
+  payload?: Readonly<Record<string, unknown>> | null;
+}>;
+
+export type ParentPortalAssistantResponse = Readonly<{
+  eventId: string;
+  kind: ParentPortalAssistantResponseKind;
+  state: string;
+  text: string;
+}>;
+
+export function latestParentAssistantResponse(
+  events: readonly ParentPortalAssistantEventSnapshot[]
+): ParentPortalAssistantResponse | null {
+  for (const event of events) {
+    const response = parentAssistantResponseFromEvent(event);
+    if (response !== null) {
+      return response;
+    }
+  }
+  return null;
+}
+
+function parentAssistantResponseFromEvent(
+  event: ParentPortalAssistantEventSnapshot
+): ParentPortalAssistantResponse | null {
+  const eventId = nonEmptyAssistantValue(event.eventId);
+  if (eventId === null) {
+    return null;
+  }
+
+  if (event.event === AgentEvent.ParentAssistantAnswerReported) {
+    return answerResponse(event, eventId);
+  }
+
+  if (event.event === AgentEvent.ParentAssistantProviderDegraded) {
+    return {
+      eventId,
+      kind: 'unavailable',
+      state: 'provider-degraded',
+      text:
+        assistantPayloadValue(event, ProtocolField.LocalAiUnavailableReason) ??
+        assistantPayloadValue(event, ProtocolField.Reason) ??
+        'The MIA provider is unavailable.',
+    };
+  }
+
+  if (event.event === AgentEvent.ParentAssistantErrorReported) {
+    return {
+      eventId,
+      kind: 'error',
+      state: 'error',
+      text: assistantPayloadValue(event, ProtocolField.Reason) ?? 'MIA could not complete the request.',
+    };
+  }
+
+  return null;
+}
+
+function answerResponse(event: ParentPortalAssistantEventSnapshot, eventId: string): ParentPortalAssistantResponse {
+  const answerText = assistantPayloadValue(event, ProtocolField.ParentAssistantAnswerText);
+  const answerState = assistantPayloadValue(event, ProtocolField.ParentAssistantAnswerState) ?? 'unavailable';
+  if (answerText !== null) {
+    return { eventId, kind: 'answer', state: answerState, text: answerText };
+  }
+  return {
+    eventId,
+    kind: 'unavailable',
+    state: answerState,
+    text:
+      assistantPayloadValue(event, ProtocolField.LocalAiUnavailableReason) ??
+      assistantPayloadValue(event, ProtocolField.Reason) ??
+      'MIA returned no displayable answer.',
+  };
+}
+
+function assistantPayloadValue(event: ParentPortalAssistantEventSnapshot, field: string): string | null {
+  return nonEmptyAssistantValue(event.payload?.[field]);
+}
+
+function nonEmptyAssistantValue(value: unknown): string | null {
+  if (typeof value !== 'string') {
+    return null;
+  }
+  const normalized = value.trim();
+  return normalized.length > 0 ? normalized : null;
+}
 
 export type ParentPortalRow = {
   label: string;
@@ -202,7 +297,7 @@ export const PARENT_PORTAL_ROUTE = {
 
 const PARENT_PORTAL_ROUTE_NAV_LABELS: Readonly<Record<PortalRouteValue, ParentPortalNavLabel>> = {
   [PortalRoute.Overview]: PARENT_PORTAL_NAV_LABELS.Overview,
-  [PortalRoute.Assistant]: PARENT_PORTAL_NAV_LABELS.AiSetup,
+  [PortalRoute.Assistant]: PARENT_PORTAL_NAV_LABELS.Ai,
   [PortalRoute.Start]: PARENT_PORTAL_NAV_LABELS.StartHere,
   [PortalRoute.Activity]: PARENT_PORTAL_NAV_LABELS.Activity,
   [PortalRoute.Browser]: PARENT_PORTAL_NAV_LABELS.Web,
@@ -226,22 +321,22 @@ const PARENT_PORTAL_ROUTE_NAV_LABELS: Readonly<Record<PortalRouteValue, ParentPo
   [PortalRoute.ApiProviders]: PARENT_PORTAL_NAV_LABELS.AiMemory,
   [PortalRoute.ReportsGuide]: PARENT_PORTAL_NAV_LABELS.ReportsGuide,
   [PortalRoute.ScreenAnalysis]: PARENT_PORTAL_NAV_LABELS.Activity,
-  [PortalRoute.AppGameSessions]: PARENT_PORTAL_NAV_LABELS.Activity,
+  [PortalRoute.AppGameSessions]: PARENT_PORTAL_NAV_LABELS.AppsGames,
   [PortalRoute.NetworkActivity]: PARENT_PORTAL_NAV_LABELS.Activity,
   [PortalRoute.Devices]: PARENT_PORTAL_NAV_LABELS.Devices,
   [PortalRoute.LanPairing]: PARENT_PORTAL_NAV_LABELS.Devices,
-  [PortalRoute.CapabilityStatus]: PARENT_PORTAL_NAV_LABELS.Devices,
+  [PortalRoute.CapabilityStatus]: PARENT_PORTAL_NAV_LABELS.Capability,
   [PortalRoute.Notifications]: PARENT_PORTAL_NAV_LABELS.Portal,
   [PortalRoute.NotificationChannels]: PARENT_PORTAL_NAV_LABELS.Portal,
   [PortalRoute.DriveConnections]: PARENT_PORTAL_NAV_LABELS.DataPrivacy,
   [PortalRoute.ExportRetention]: PARENT_PORTAL_NAV_LABELS.DataPrivacy,
-  [PortalRoute.RemoteAccess]: PARENT_PORTAL_NAV_LABELS.DataPrivacy,
+  [PortalRoute.RemoteAccess]: PARENT_PORTAL_NAV_LABELS.Remote,
   [PortalRoute.ReportCompiler]: PARENT_PORTAL_NAV_LABELS.Activity,
   [PortalRoute.AuditHistory]: PARENT_PORTAL_NAV_LABELS.DataPrivacy,
   [PortalRoute.Subscription]: PARENT_PORTAL_NAV_LABELS.Account,
   [PortalRoute.Entitlements]: PARENT_PORTAL_NAV_LABELS.Account,
-  [PortalRoute.PlatformsInstall]: PARENT_PORTAL_NAV_LABELS.Devices,
-  [PortalRoute.InstallUpdates]: PARENT_PORTAL_NAV_LABELS.Devices,
+  [PortalRoute.PlatformsInstall]: PARENT_PORTAL_NAV_LABELS.Platforms,
+  [PortalRoute.InstallUpdates]: PARENT_PORTAL_NAV_LABELS.Updates,
   [PortalRoute.Diagnostics]: PARENT_PORTAL_NAV_LABELS.Diagnostics,
   [PortalRoute.ProofPanels]: PARENT_PORTAL_NAV_LABELS.ProofPanels,
   [PortalRoute.SettingsRules]: PARENT_PORTAL_NAV_LABELS.Portal,

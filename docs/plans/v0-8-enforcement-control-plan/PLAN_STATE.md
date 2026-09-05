@@ -152,6 +152,13 @@ parent-visible receipt claims are considered.
   generic journal/replay handoff, but WP04 remains unscheduled/manual-required until WP11 supplies
   enforcement-specific durable-journal proof and trusted dispatch. The closed
   #606 unsafe/no-op slice does not reduce this gap.
+- WP04's reachable `agent-service` execution path now fails closed with
+  `ManualRequired` in `crates/agent-service/src/enforcement_api/enforcement_command_execution/adapter_outcome.rs`;
+  it no longer turns caller-shaped PID/name fields into raw process termination.
+  The authenticated grant/managed-target executor in
+  `crates/agent-core/src/authenticated_delivery_execution.rs` remains uncalled
+  because the service command payload has no canonical persisted grant, binding,
+  trusted issuer, or WP11 durable-dispatch composition.
 - Live code audit (2026-07-23): WP06 has a Rust managed-profile/launch/bridge
   boundary, but it is not an adapter-backed enforcement action. The policy
   mapper returns `ManagedBrowserControl` as manual-required for browser
@@ -162,7 +169,12 @@ parent-visible receipt claims are considered.
   proof until this contradiction is removed.
 - Approval/audit/read-model visibility gaps remain open in WP10, WP11, WP12,
   WP13, and WP14. WP11's Eventing prerequisite is documented by a durable manifest; WP11
-  remains open until its own durable audit/journal contract and query proof exist.
+  now has a focused-green completed-command retry/recovery seam that returns the
+  exact persisted report without adapter reexecution and fails closed on
+  before-only, missing-store, incomplete, or mismatched custody. WP11 remains
+  open until the remaining approval/denial/expiry/override transition families
+  and its enforcement-specific durable query/proof contract are complete. This
+  slice does not authorize WP04 dispatch or trusted adapter execution.
 - Integrity and anti-claim boundaries remain open in WP15, WP16, and WP17.
 - Playwright/UI and rollout gate closure remain open in WP19 and WP20.
 - Notification delivery, exact-URL control, network blocking, broad app

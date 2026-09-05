@@ -59,7 +59,7 @@ fn broad_os_adapter_readiness_keeps_unproved_claims_manual_or_not_claimed() -> T
 }
 
 #[test]
-fn implemented_readiness_entries_stay_limited_to_supported_capabilities() -> TestResult {
+fn readiness_entries_stay_limited_to_supported_or_manual_capabilities() -> TestResult {
     let matrix = broad_os_adapter_readiness(policy::TEST_EVALUATED_AT);
 
     for capability in [
@@ -68,6 +68,25 @@ fn implemented_readiness_entries_stay_limited_to_supported_capabilities() -> Tes
         EnforcementBroadAdapterCapability::UnmanagedBrowserProcessOnly,
     ] {
         let entry = entry(&matrix, capability)?;
+        if capability == EnforcementBroadAdapterCapability::AppTimeLimit {
+            assert_eq!(
+                entry.capability_state,
+                EnforcementCapabilityState::ManualRequired
+            );
+            assert_eq!(
+                entry.readiness_state,
+                EnforcementReadinessState::ManualRequired
+            );
+            assert_eq!(
+                entry.proof_level,
+                EnforcementReadinessProofLevel::ManualProofRequired
+            );
+            assert_eq!(
+                entry.required_artifacts,
+                vec![enforcement::ARTIFACT_APP_TIME_LIMIT_EXECUTOR.to_string()]
+            );
+            continue;
+        }
         #[cfg(windows)]
         {
             assert_eq!(

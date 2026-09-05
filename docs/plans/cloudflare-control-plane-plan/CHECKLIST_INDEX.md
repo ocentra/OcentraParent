@@ -32,7 +32,7 @@
 | CF-03 | WP03 | Entry guard chain, env validation, request-size/origin behavior, kill switch, and scheduled hook shape are explicit. |
 | CF-04 | WP04 | Route manifest, route groups, and domain contract ownership are explicit. |
 | CF-05 | WP05 | Auth/admin/support/webhook states and adapter boundaries are explicit, with unsupported provider assumptions blocked. |
-| CF-06 | WP06 | DO/D1/KV/R2/Queue ownership and coordination/storage responsibilities are explicit. |
+| [ ] CF-06 | WP06 | Existing binding/migration/read-adapter source is retained, but Account WP02 target-aware authority, authoritative Account D1 create/update/revoke/currentness/CAS, the shipped Firebase/provider-to-sealed-authority caller, expected tests, migration execution, retained proof, and runtime reachability remain open. |
 | CF-07 | WP07 | Local dev, fixture, seed, teardown, and missing-runtime blockers are explicit. |
 | CF-08 | WP08 | Test runner commands, required test files, exact assertion IDs, and blockers are mapped. |
 | CF-09 | WP09 | Portal-to-worker smoke scope, redaction, and no-claim boundary are explicit. |

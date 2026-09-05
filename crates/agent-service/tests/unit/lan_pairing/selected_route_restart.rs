@@ -16,7 +16,7 @@ use ocentra_parent_agent_protocol::transport::AgentRoute;
 use crate::{
     app::{lan_pairing::LanPairingRuntime, websocket::handle_command_text_for_test},
     lan_pairing_test_assertions::{
-        assert_accepted_control, assert_persistent_selected_route_support_surface,
+        assert_persistent_status_support_surface, assert_rejection, assert_rejection_with_audit,
         assert_status_selected_route_trust, assert_status_selection,
     },
     lan_pairing_test_commands::{
@@ -26,14 +26,14 @@ use crate::{
 };
 
 #[tokio::test]
-async fn lan_pairing_persistent_registry_recovers_selected_route_after_restart() {
+async fn lan_pairing_persistent_registry_remains_unpaired_after_uncomposed_selection_restart() {
     let mut path = std::env::temp_dir();
     path.push(temp_registry_name().0);
     path.set_extension(constants::lan_pairing::REGISTRY_FILE_EXTENSION);
     let _ = remove_file(&path);
     let runtime = LanPairingRuntime::persistent_json(&path);
-    let _ = signed_pairing(runtime.clone()).await;
-    let _ = signed_route_select(runtime).await;
+    let pairing_event = signed_pairing(runtime.clone()).await;
+    let route_selected = signed_route_select(runtime).await;
     let restarted_runtime = LanPairingRuntime::persistent_json(&path);
     let restarted_status = loopback_lan_status(restarted_runtime.clone()).await;
     let accepted_after_restart = old_signed_control(restarted_runtime).await;
@@ -43,22 +43,34 @@ async fn lan_pairing_persistent_registry_recovers_selected_route_after_restart()
         restarted_status.event,
         AgentEventName::AgentLanPairingStatusReported
     );
-    assert_persistent_selected_route_support_surface(&restarted_status);
+    assert_rejection_with_audit(
+        &pairing_event,
+        constants::value::LAN_REASON_ANONYMOUS,
+        constants::value::LAN_AUDIT_PAIRING_PROOF_REJECTED,
+    );
+    assert_rejection(
+        &route_selected,
+        constants::value::LAN_REASON_SIGNED_CHILD_AGENT_CONTEXT_UNAVAILABLE,
+    );
+    assert_persistent_status_support_surface(&restarted_status);
     assert_status_selection(
         &restarted_status,
-        constants::value::LAN_AUTH_PAIRED,
-        constants::lan_pairing::CHILD_DEVICE_ID,
-        constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK,
-        constants::lan_pairing::CHILD_DEVICE_ID,
+        constants::value::LAN_AUTH_UNPAIRED,
+        constants::value::EMPTY,
+        constants::value::EMPTY,
+        constants::value::EMPTY,
     );
     assert_status_selected_route_trust(
         &restarted_status,
-        constants::lan_pairing::PAIRING_ID,
-        constants::value::LAN_PAIRING_PAIRED,
+        constants::value::EMPTY,
+        constants::value::EMPTY,
         constants::value::EMPTY,
         constants::value::EMPTY,
     );
-    assert_accepted_control(&accepted_after_restart);
+    assert_rejection(
+        &accepted_after_restart,
+        constants::value::LAN_REASON_ANONYMOUS,
+    );
 }
 
 async fn signed_pairing(runtime: LanPairingRuntime) -> AgentEventEnvelope {

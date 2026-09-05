@@ -3,7 +3,7 @@ use ocentra_parent_agent_protocol::local_ai_runtime::generation::LocalAiChatGene
 use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiGenerationState;
 
 use crate::{
-    local_ai_chat_generation_request::LocalAiChatGenerationRequest,
+    local_ai_chat_generation_request_input::LocalAiChatGenerationRequest,
     local_ai_runtime_config::LocalAiRuntimeConfigSnapshot,
     local_ai_runtime_config_values::{LocalAiRuntimeText, LocalAiUnavailableReason},
     local_ai_runtime_model_selection::model_reference_for_request,

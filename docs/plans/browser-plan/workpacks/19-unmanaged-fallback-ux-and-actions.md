@@ -25,6 +25,22 @@ claiming unmanaged exact URL evidence.
 Parents can choose and understand unmanaged browser posture without seeing fake
 exact URL claims.
 
+## Production-code pass (2026-08-16)
+
+The read-model fallback projection now remains `unavailable` when the latest
+intervention is managed, when no intervention has been observed, or when the
+unmanaged enforcement provider is unsupported. Block, redirect, and time-limit
+actions on an unmanaged boundary remain `os-block-manual-required` rather than
+falling through to report-only. This is a code-drafted,
+tests/proof/checklist-deferred slice and does not claim OS blocking, process
+termination, relaunch, or exact unmanaged URL control.
+
+Owning production paths:
+
+- `crates/agent-core/src/activity_store_browser_intervention.rs`
+- `crates/agent-core/src/activity_store_browser_intervention_fallback_action.rs`
+- `crates/agent-core/src/activity_store_browser_intervention_fallback_top_level.rs`
+
 ## Scope
 
 - Report only.

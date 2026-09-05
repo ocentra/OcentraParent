@@ -20,12 +20,21 @@ handoffs without claiming rendered UI or notification delivery.
   production runtime, durable production storage, adapter dispatch, broad app
   blocking, and platform support unclaimed.
 
+## Source/test status
+
+The Rust-owned intent joins the typed WP64 provider boundary and WP65
+preference boundary into a redacted parent-surface read model. Matching family
+and status-entry cardinality are required; a mismatch is rejected. Real Rust
+contract tests cover joined/manual/unavailable rows, preserved drill-in/audit/
+manual-proof refs, generated parity, and every delivery, preference-mutation,
+runtime, storage, child-delivery, and adapter nonclaim. Bounded source/test
+writing is complete; focused execution, proof, and checklist review remain.
+
 ## Proof
 
-- `packages/parent-domain/src/app-game-notification-parent-surface-intent.ts`
-- `packages/parent-domain/tests/app-game-notification-parent-surface-intent.test.ts`
-- `scripts/test/app-game-notification-parent-surface-intent-proof.mjs`
-- `test-results/app-game-notification-parent-surface-intent-proof/proof.json`
+- `crates/app-game-core/src/app_game_notification_parent_surface_intent.rs`
+- `crates/app-game-core/tests/contract/app_game_notification_parent_surface_intent.rs`
+- `crates/app-game-core/tests/generated/app-game-notification-parent-surface-intent.ts`
 - `output/app-plan-proof/66-notification-parent-surface-intent/`
 - `output/app-game-plan-proof/66-notification-parent-surface-intent/`
 

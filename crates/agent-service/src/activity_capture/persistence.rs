@@ -1,22 +1,52 @@
 use std::{collections::HashSet, path::Path};
 
-use ocentra_parent_agent_core::{activity_store::ActivityStore, journal::ActivityJournal};
+use ocentra_parent_agent_core::activity_store::ActivityStore;
 use ocentra_parent_agent_protocol::{
     activity::ActivityEvent, activity_query::ActivityIngestStatus,
 };
 
-use super::{load_or_create_journal_key, ActivityCaptureError};
+#[path = "persistence/error.rs"]
+pub(crate) mod error;
+#[path = "persistence/journal.rs"]
+mod journal;
 
-pub(super) fn record_unseen_activity_events(
+use error::ActivityCapturePersistenceError;
+
+pub(crate) fn record_activity_events_to_paths(
     journal_path: &Path,
     key_path: &Path,
     store_path: &Path,
     events: &[ActivityEvent],
-) -> Result<ActivityIngestStatus, ActivityCaptureError> {
+) -> Result<ActivityIngestStatus, ActivityCapturePersistenceError> {
     let store = ActivityStore::open(store_path)?;
+    let (events_to_append, duplicate_events_in_batch) = unseen_events(&store, events)?;
+    if events_to_append.is_empty() {
+        return Ok(store.status()?);
+    }
+
+    let journal_append =
+        journal::replay_and_append(journal_path, key_path, &store, events_to_append)?;
+    if journal_append.appended_events.is_empty() {
+        let mut status = journal_append.replay_status;
+        status.duplicate_events += duplicate_events_in_batch;
+        return Ok(status);
+    }
+
+    let mut status = store.ingest_events(&journal_append.appended_events)?;
+    status.events_ingested += journal_append.replay_status.events_ingested;
+    status.duplicate_events +=
+        journal_append.replay_status.duplicate_events + duplicate_events_in_batch;
+    Ok(status)
+}
+
+fn unseen_events<'a>(
+    store: &ActivityStore,
+    events: &'a [ActivityEvent],
+) -> Result<(Vec<&'a ActivityEvent>, u64), ActivityCapturePersistenceError> {
     let mut events_to_append = Vec::new();
     let mut accepted_event_ids = HashSet::new();
     let mut duplicate_events_in_batch = 0;
+
     for event in events {
         if !accepted_event_ids.insert(event.event_id.as_str()) {
             duplicate_events_in_batch += 1;
@@ -24,33 +54,6 @@ pub(super) fn record_unseen_activity_events(
             events_to_append.push(event);
         }
     }
-    if events_to_append.is_empty() {
-        return Ok(store.status()?);
-    }
-    let key = load_or_create_journal_key(key_path)?;
-    let mut journal = ActivityJournal::open(journal_path.to_path_buf(), key)?;
-    let replay_status = store.ingest_journal(&journal)?;
-    let mut events_missing_after_replay = Vec::new();
-    for event in events_to_append {
-        if !store.contains_event_id(&event.event_id)? {
-            events_missing_after_replay.push(event);
-        }
-    }
-    if events_missing_after_replay.is_empty() {
-        let mut status = replay_status;
-        status.duplicate_events += duplicate_events_in_batch;
-        return Ok(status);
-    }
-    let existing_line_count = journal.lines()?.len();
-    for event in events_missing_after_replay {
-        journal.append(event)?;
-    }
-    let mut appended_events = Vec::new();
-    for line in journal.lines()?.into_iter().skip(existing_line_count) {
-        appended_events.push(journal.decrypt_line(&line)?);
-    }
-    let mut status = store.ingest_events(&appended_events)?;
-    status.events_ingested += replay_status.events_ingested;
-    status.duplicate_events += replay_status.duplicate_events + duplicate_events_in_batch;
-    Ok(status)
+
+    Ok((events_to_append, duplicate_events_in_batch))
 }

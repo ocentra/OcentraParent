@@ -108,6 +108,19 @@ Current evidence mapping:
 
 - The typed-request authorization-rejection subcase is durable and queryable;
   see `docs/proof/v0-8-enforcement-control-plan/wp11-audit-journal-events.md`.
+- The production command path now recovers a completed retry before
+  authorization or adapter execution from hash-verified before/after Eventing
+  rows plus the exact persisted enforcement report. It binds correlation,
+  command observation identity, action/result/policy/target/capability,
+  device/source/route, provenance, journal sequence, timer state, and the real
+  completion timestamp. Before-only, missing-store, incomplete replay/report,
+  mismatched identity, and corrupted report-journal identity remain
+  reconciliation-required and do not execute the adapter or append another
+  adapter result.
+- The retry family passes 7/7 focused service regressions, and the exact
+  ActivityStore replacement/missing-row regressions pass 2/2. Focused compile,
+  architecture, nine routed Enforcer checks, Rust format, diff check, and hub
+  guard also pass for this slice.
 - `ActivityStore::recent_enforcement_audit_fields` now returns a caller-bounded,
   newest-first view of stored enforcement-audit fields. Its focused regression
   proves the cap, SQLite timestamp/rowid order, and the zero-limit boundary.
@@ -127,11 +140,28 @@ The recent-history query row is now covered, but the workpack remains open
 until each remaining transition family has its own selected validation and
 durable query proof.
 
+The current production journal writer is
+`crates/agent-service/src/enforcement_api/enforcement_pre_action_journal/eventing_journal.rs`
+and the projection reader is `crates/agent-service/src/enforcement_audit_history.rs`.
+Completed-command recovery is owned by
+`crates/agent-service/src/enforcement_api/enforcement_command_execution/retry.rs`
+and its child modules, with exact final-report persistence through
+`ActivityStore::replace_enforcement_audit_fields_by_event_id`.
+Those seams are reachable for the existing service audit flow, but they do not
+yet compose the authenticated grant/managed-target executor into WP04's
+dispatch lifecycle. Until the WP11 enforcement-specific durable handoff and
+that trusted composition are connected, WP04 remains manual-required and no
+execution receipt may be advanced from journal evidence alone.
+
 ## Negative Cases
 
 - missing audit entries must block ready claims
 - redaction gaps must not be hidden behind generic success summaries
 - replay/idempotency drift must stay explicit rather than silently duplicating outcomes
+- incomplete before/after custody, missing stored reports, or retry identity
+  drift must fail closed before authorization or adapter execution
+- a completed retry must return the exact persisted report and real completion
+  timestamp; it must not synthesize status counters or timestamps
 - actor, target, or route-less events must not count as complete audit proof
 - UI/report summaries must not invent action history that the journal cannot query
 

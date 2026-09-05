@@ -2,6 +2,7 @@ use std::fs::{read, remove_file};
 use std::path::Path;
 
 use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_parent_agent_core::activity_store_error::ActivityStoreError;
 use ocentra_parent_agent_protocol::activity::ACTIVITY_SCHEMA_VERSION;
 use ocentra_parent_agent_protocol::activity::{
     ActivityEvent, ActivityEventKind, ActivityEvidenceKind, ActivityEvidenceRef, ActivityObserver,
@@ -13,7 +14,7 @@ use ocentra_parent_agent_protocol::activity_capture::{
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 
-use crate::test_text::{test_ok as ok, TestResult, TestText};
+use crate::test_text::{test_err as err, test_ok as ok, TestResult, TestText};
 use crate::{
     network_observation_event, ActivityJournal, ActivityStore, JournalKey, NetworkObservation,
     JOURNAL_KEY_BYTES,
@@ -188,6 +189,102 @@ fn activity_store_reports_empty_network_flow_without_inventing_rows() -> TestRes
         constants::activity_capture::CAPABILITY_STATUS_NO_NETWORK_OBSERVATIONS
     );
     Ok(())
+}
+
+#[test]
+fn activity_store_accepts_absent_optional_network_pid_from_sqlite() -> TestResult {
+    let store = store_with_network_fields(|fields| {
+        let mut values = std::mem::take(fields).into_inner();
+        values.remove(constants::field::PID);
+        *fields = LogFields::from(values);
+    })?;
+    let read_model = ok(
+        store.network_flow_read_model(
+            constants::activity_store::DEFAULT_RECENT_LIMIT,
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+        ),
+        constants::error::ACTIVITY_STORE_QUERIES,
+    )?;
+    let row = read_model
+        .rows
+        .first()
+        .expect_value(constants::error::ACTIVITY_STORE_QUERIES);
+
+    assert_eq!(row.process_id, None);
+    assert_eq!(row.associated_pid_count, Some(1));
+    Ok(())
+}
+
+#[test]
+fn activity_store_rejects_each_invalid_present_network_number_from_sqlite() -> TestResult {
+    let cases = [
+        (constants::field::PID, LogFieldValue::Number(4242.5)),
+        (
+            constants::field::ASSOCIATED_PID_COUNT,
+            LogFieldValue::Number(1.5),
+        ),
+        (constants::field::PID, LogFieldValue::Number(-1.0)),
+        (
+            constants::field::ASSOCIATED_PID_COUNT,
+            LogFieldValue::Number(u64::MAX as f64),
+        ),
+        (
+            constants::field::PID,
+            LogFieldValue::String("not-a-process-id".to_string()),
+        ),
+        (
+            constants::field::ASSOCIATED_PID_COUNT,
+            LogFieldValue::Boolean(true),
+        ),
+    ];
+
+    for (field, invalid_value) in cases {
+        let store = store_with_network_fields(|fields| {
+            fields.insert(field.to_string(), invalid_value);
+        })?;
+        let read_error = err(
+            store.network_flow_read_model(
+                constants::activity_store::DEFAULT_RECENT_LIMIT,
+                constants::activity_store::TEST_SECOND_OBSERVED_AT,
+            ),
+            constants::error::ACTIVITY_STORE_QUERIES,
+        )?;
+
+        assert!(matches!(
+            read_error,
+            ActivityStoreError::InvalidNetworkField { field: rejected_field }
+                if rejected_field == field
+        ));
+    }
+    Ok(())
+}
+
+fn store_with_network_fields(
+    update: impl FnOnce(&mut LogFields),
+) -> Result<ActivityStore, TestText> {
+    let store = ok(
+        ActivityStore::open_in_memory(),
+        constants::error::ACTIVITY_STORE_OPENS,
+    )?;
+    let event = network_event();
+    ok(
+        store.ingest_events(std::slice::from_ref(&event)),
+        constants::error::ACTIVITY_STORE_INGESTS,
+    )?;
+
+    let mut fields = event.fields;
+    update(&mut fields);
+    let fields_json = serde_json::to_string(&fields)
+        .map_err(|error| TestText::from_display(format!("serialize fields: {error}")))?;
+    store
+        .connection_for_test()
+        .execute(
+            "UPDATE activity_events SET fields_json = ?1 WHERE event_id = ?2",
+            rusqlite::params![fields_json, event.event_id],
+        )
+        .map_err(|error| TestText::from_display(format!("update persisted fields: {error}")))?;
+
+    Ok(store)
 }
 
 fn network_event() -> ActivityEvent {

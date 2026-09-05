@@ -7,7 +7,7 @@ export const PARENT_PORTAL_PRIVACY_GUIDES: readonly ParentPortalGuideTopic[] = [
   {
     id: 'data-custody',
     navLabel: 'PRIVATE',
-    rank: 10,
+    rank: 11,
     title: 'Privacy And Data',
     subtitle: 'Local-first custody by default',
     detail: 'Who owns the data',
@@ -77,7 +77,7 @@ export const PARENT_PORTAL_PRIVACY_GUIDES: readonly ParentPortalGuideTopic[] = [
   {
     id: 'drives-export',
     navLabel: 'DRIVES',
-    rank: 11,
+    rank: 12,
     title: 'Drives And Export',
     subtitle: 'Google Drive, OneDrive, iCloud, NAS',
     detail: 'Parent-owned storage',
@@ -140,7 +140,7 @@ export const PARENT_PORTAL_PRIVACY_GUIDES: readonly ParentPortalGuideTopic[] = [
   {
     id: 'remote-access',
     navLabel: 'PRIVATE',
-    rank: 12,
+    rank: 13,
     title: 'Remote Access',
     subtitle: 'Away from home without Ocentra custody',
     detail: 'Local cache and relay',

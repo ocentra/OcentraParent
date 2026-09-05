@@ -45,6 +45,20 @@ with a tracked hand-authored durable manifest under
 This does not assert a Cloudflare runtime, migration, deployment, account final
 gate, or whole-plan completion.
 
+Current production-handoff overlay (the checked historical packet below does
+not satisfy these rows):
+
+- [x] WP02 resolves actor parent-controller and target child/profile/device
+  separately and derives current account, household, member, device, role, and
+  same-family identity from owned state. Capability, controller-lease, and
+  step-up actions remain fail-closed because those authority sources are not
+  present. Reviewed source: `86caae334` and `7934fb41b`.
+- [ ] Cloudflare WP06 owns authoritative Account D1
+  write/update/revocation/CAS and a shipped Firebase/provider-to-sealed-
+  authority caller; its current read adapter is not closure.
+- [ ] Device Trust WP03 consumes live Account and Device Trust currentness;
+  mapped contracts and prior proof are not runtime reachability.
+
 - [x] Rust-owned canonical account/family schema and compatibility boundary exists, including the encoded TS-edge artifact `packages/schema-domain/src/generated-family-references.ts` generated from `crates/schema/src/family_references_ts.rs` and the matching contract drift test. Proof: `docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/00-rust-schema-authority-proof.md`.
 - [x] Account, household, membership, role, device, invite/recovery, and session authority paths preserve canonical schema ownership. Proof: `docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/01-account-authority-parity-proof.md`.
 - [x] Cross-household, revoked, stale, malformed, duplicate, and schema-incompatible authority cases reject or degrade safely. Proof: `docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/02-account-authority-negative-proof.md`.
@@ -56,6 +70,25 @@ gate, or whole-plan completion.
 - [x] Workpack completion section is filled only after all prior WP08 rows are proven. Proof: `docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md`.
 
 ## WP02 Identity Household Role Model
+
+Current production-closure overlay (the checked rows below retain historical
+contract/proof evidence and do not satisfy these rows):
+
+- [x] A target-aware Account resolver keeps the actor parent-controller device
+  distinct from the target child/profile/device for Pair, Register, Revoke,
+  View, ChangePolicy, and Remote actions; callers cannot supply `same_family`,
+  capability, controller lease, step-up, support, or lifecycle authority, and
+  actions that require unavailable capability/lease/step-up sources reject.
+  Reviewed source: `86caae334` and `7934fb41b`.
+- [x] ParentOwner, CoParent, and Observer `ViewChildStatus` is evaluated as a
+  parent action over an independently resolved child/profile/device target.
+  Reviewed source: `86caae334` and `7934fb41b`.
+- [ ] Cloudflare WP06 supplies the authoritative D1 writer/currentness/
+  revocation/CAS owner and provider-to-sealed-authority production caller.
+- [ ] Expected tests cover actor/target mismatch, cross-child/cross-household
+  targets, caller-supplied trust rejection, correct parent `ViewChildStatus`,
+  repository reload/concurrency, membership-state denial, audited support
+  scope, and production-caller use of the sealed binding.
 
 - [x] Account user model defined. Proof: `output/account-identity-family-plan-proof/02-identity-household-role-model/00-identity-entity-model-proof.md`.
 - [x] Household model defined. Proof: `output/account-identity-family-plan-proof/02-identity-household-role-model/00-identity-entity-model-proof.md`.
@@ -72,6 +105,17 @@ gate, or whole-plan completion.
 - [x] Workpack completion section filled. Proof: `docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md`.
 
 ## WP03 Session Token Lifecycle
+
+Current production-closure overlay (the checked rows below retain historical
+contract/proof evidence and do not satisfy these rows):
+
+- [ ] A durable session/refresh-family repository owns token digests, rotation
+  generations, replay prevention, logout/global-revoke epochs, issued/expiry
+  times, and real account request integration; lifecycle flags are not supplied
+  by the caller.
+- [ ] Expected tests cover atomic concurrent rotation, replay after restart,
+  global revoke, clock skew, malformed/backdated state, exact audit emission,
+  and CSRF/origin/fetch-metadata behavior on the real account browser route.
 
 - [x] Credential type matrix defined. Proof: `output/account-identity-family-plan-proof/03-session-token-lifecycle/00-credential-type-matrix.md`.
 - [x] Browser session lifecycle defined. Proof: `output/account-identity-family-plan-proof/03-session-token-lifecycle/01-session-lifecycle-proof.md`.
@@ -90,6 +134,16 @@ gate, or whole-plan completion.
 
 ## WP04 Invites Recovery Lifecycle
 
+Current production-closure overlay (the checked rows below retain historical
+contract/proof evidence and do not satisfy these rows):
+
+- [ ] A durable invite/recovery transition owner derives household/role/time,
+  enforces atomic single use and monotonic terminal state, consumes opaque
+  identity/owner/support authorization, and emits the typed custody handoff.
+- [ ] Expected tests cover concurrent redemption, pre-issuance, expiry,
+  revocation, replay, wrong household/role, rejected recovery non-advancement,
+  enumeration/rate-limit behavior, restart, and audited support scope.
+
 - [x] Invite state machine defined. Proof: `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/00-invite-state-machine-proof.md`.
 - [x] Co-parent/observer/child-device invite scopes separated. Proof: `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/00-invite-state-machine-proof.md`.
 - [x] Invite single-use proof exists. Proof: `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/00-invite-state-machine-proof.md`.
@@ -105,6 +159,27 @@ gate, or whole-plan completion.
 - [x] Workpack completion section filled. Proof: `docs/plans/account-identity-family-plan/workpacks/04-invites-recovery-lifecycle.md`.
 
 ## WP05 Device Ownership AuthZ
+
+Current production-closure overlay (the checked rows below retain historical
+contract/proof evidence and do not satisfy these rows):
+
+- [ ] The production authorization composer derives current household,
+  membership, device trust, session freshness, capability scope, controller
+  lease, and step-up state from owned repositories/opaque receipts instead of a
+  caller-provided flag bundle.
+- [ ] A durable Account-owned CAS repository/fence owns the opaque,
+  target-bound effect handoff and atomically compares current generations,
+  revocation, lease, capability, and one-time step-up state before consumption;
+  the existing manual-required runtime fence and current-authority CAS do not
+  satisfy this row.
+- [ ] Exact-idempotent replay/recovery is durable across crash/restart and
+  partial commit: an already committed outcome may be returned only for the
+  exact target/generation/nonce, while mismatch, stale, replay, and recovery
+  ambiguity fail closed.
+- [ ] Expected tests cover view-versus-control grant separation, lease identity
+  and expiry, revoke/rebind races, required step-up consumption, audit emission,
+  typed remote/export/delete/billing consumers, and the durable CAS/recovery
+  packet's exact-idempotent replay and crash/restart cases.
 
 - [x] Actor/household/role/device/session/capability matrix defined. Proof: `output/account-identity-family-plan-proof/05-device-ownership-authz/00-device-authority-matrix.md`.
 - [x] Parent controller authority proof exists. Proof: `output/account-identity-family-plan-proof/05-device-ownership-authz/00-device-authority-matrix.md`.
@@ -156,3 +231,22 @@ gate, or whole-plan completion.
 - [x] Manual-required gap register written. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/08-manual-required-gap-register.md`.
 - [ ] Focused validation commands are rerun after WP08 input and pass or blockers recorded. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/16-validation-commands.log`.
 - [ ] Workpack completion section is re-filled only after the Account WP08 and Cloudflare WP06/WP08 final-gate inputs are aggregated. Proof: `docs/plans/account-identity-family-plan/workpacks/06-security-proof-and-route-gate.md`.
+
+## 2026-08-17 live-code completion overlay
+
+Historical checked WP02 rows retain their prior contract/proof meaning only.
+They do not close the reviewed production gap:
+
+- [ ] Target child/device is distinct from the actor parent-controller device
+  for Pair, Register, Revoke, View, ChangePolicy, and Remote actions.
+- [ ] Target-aware resolver derives current household/member/role/device state
+  through the sealed authority boundary; callers cannot select authority facts.
+- [ ] Capability, controller lease, and step-up requirements bind to the target
+  action and are denied when stale, revoked, cross-household, or mismatched.
+- [ ] Provider-to-authority production caller exists and is covered by focused
+  expected tests; raw evaluator remains diagnostic-only or is retired safely.
+- [ ] Focused tests, proof, and route-gate aggregation are rerun after the
+  bounded source correction.
+
+No WP02 completion or downstream Data custody readiness is claimed by these
+unchecked rows.

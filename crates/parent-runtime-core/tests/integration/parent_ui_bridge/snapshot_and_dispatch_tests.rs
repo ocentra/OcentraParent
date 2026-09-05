@@ -1,18 +1,21 @@
-use std::time::Duration;
-
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceReachability;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanDiscoveryEventHistoryState;
-use ocentra_parent_agent_protocol::transport::AgentEventName;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::transport::{AgentCommandName, AgentEventName};
+use ocentra_parent_runtime_core::parent_service_health::{
+    ParentAgentServiceHealth, ParentAgentServiceHealthReason,
+};
+use ocentra_parent_runtime_core::parent_ui_bridge::load_parent_route_snapshot_with_service_health;
+use ocentra_parent_runtime_core::parent_ui_bridge::projection::ParentAgentServiceProjectionResponse;
 use ocentra_schema::parent_ui_bridge::{
     ParentBridgeConnectionState, ParentChildDeviceId, ParentRouteContext, ParentRouteDataSource,
 };
-use serde_json::json;
+use serde_json::{json, Value};
 
 use super::tests_support::{
-    lan_event, require_ok, sample_lan_read_model, signed_child_agent_reported_event,
-    start_lan_local_server, start_lan_local_server_with_capture,
-    start_local_server_with_capture_responses, start_local_server_with_ready_only, with_agent_addr,
+    lan_event, projected_action_result, projected_route_snapshot, projected_subscription_event,
+    projection_response, require_ok, sample_lan_read_model, signed_child_agent_reported_event,
     with_isolated_agent_addr,
 };
 use super::{
@@ -22,143 +25,268 @@ use super::{
 
 use super::common::events::responses::*;
 use super::common::events::samples::*;
+use super::common::events::tracking::tracking_read_model_response_event;
 use super::common::helpers::*;
 
-#[test]
-fn parent_route_snapshot_serializes_with_host_bridge_snapshot_fields() {
-    let value = route_snapshot_json(
-        ParentRouteId::Activity,
-        None,
-        TestContext("parent route snapshot serializes"),
-    );
+#[path = "snapshot_and_dispatch_tests_activity.rs"]
+mod snapshot_and_dispatch_tests_activity;
+#[path = "snapshot_and_dispatch_tests_lan.rs"]
+mod snapshot_and_dispatch_tests_lan;
+#[path = "snapshot_and_dispatch_tests_social.rs"]
+mod snapshot_and_dispatch_tests_social;
+#[path = "snapshot_and_dispatch_tests_start.rs"]
+mod snapshot_and_dispatch_tests_start;
+#[path = "snapshot_and_dispatch_tests_support.rs"]
+mod snapshot_and_dispatch_tests_support;
 
-    assert_eq!(value["schemaVersion"], 1);
-    assert_eq!(value["route"], "activity");
-    assert_eq!(value["agentEndpoint"], "host-bridge://tauri-parent");
-    assert_eq!(value["connectionState"], "connected");
-    assert_eq!(value["seasonLabel"], "live");
-    assert_eq!(value["dataSource"], "host-bridge");
-    assert_eq!(value["summary"]["title"], "Activity");
-    assert_eq!(value["summary"]["routeCapability"], "available");
-    assert_eq!(value["summary"]["parentAccess"], "proof-missing");
-    assert!(value["parentPortalShellStatus"].is_object());
-    assert!(value["liveActivity"].is_object());
-}
+use snapshot_and_dispatch_tests_support::*;
 
 #[test]
-fn start_route_snapshot_attaches_setup_first_run_panel() {
-    let value = route_snapshot_json(
+fn start_route_projects_lan_as_observation_without_minting_setup_authority() {
+    let value = projected_route_snapshot_json(
         ParentRouteId::Start,
-        None,
-        TestContext("start route snapshot serializes"),
+        lan_status_projection(sample_lan_read_model()),
+        TestContext("start route available LAN snapshot serializes"),
     );
+    let panel = &value["setupFirstRunPanel"];
 
-    assert_eq!(value["route"], "start");
-    assert_eq!(
-        value["setupFirstRunPanel"]["title"],
-        "Setup-first-run boundary status"
+    assert_eq!(value["dataSource"], "host-bridge");
+    assert_eq!(value["connectionState"], "connected");
+    assert_eq!(panel["summaryDetails"][1]["value"], "unavailable");
+    assert_panel_detail_value(
+        &panel["cards"][0]["details"],
+        TestLabel("LAN source"),
+        TestValue("LAN"),
     );
-    assert_eq!(
-        value["setupFirstRunPanel"]["summaryCardTitle"],
-        "Current boundary status"
+    assert_panel_detail_value(
+        &panel["cards"][0]["details"],
+        TestLabel("Selected device"),
+        TestValue("not-selected"),
     );
-    assert_eq!(
-        value["setupFirstRunPanel"]["summaryDetails"][1]["value"],
-        "unavailable"
+    assert_panel_detail_value(
+        &panel["cards"][0]["details"],
+        TestLabel("Selected device status"),
+        TestValue("observation; trust=unpaired, reachability=offline, control=false, authority=unavailable"),
     );
-    assert_eq!(
-        value["setupFirstRunPanel"]["cards"][1]["details"][0]["value"],
-        "not wired"
+    assert_panel_detail_value(
+        &panel["cards"][0]["details"],
+        TestLabel("LAN authority"),
+        TestValue("observation only; ownership and trust remain unavailable"),
     );
-    assert_eq!(
-        value["setupFirstRunPanel"]["cards"][2]["details"][1]["value"],
-        "presentation only"
+    assert_panel_detail_value(
+        &panel["cards"][1]["details"],
+        TestLabel("Setup state"),
+        TestValue("manual-required"),
     );
+    assert_panel_detail_value(
+        &panel["cards"][1]["details"],
+        TestLabel("Account identity"),
+        TestValue("manual-required"),
+    );
+    assert_panel_detail_value(
+        &panel["cards"][1]["details"],
+        TestLabel("Device authority"),
+        TestValue("manual-required"),
+    );
+    assert_panel_detail_value(
+        &panel["cards"][3]["details"],
+        TestLabel("Degraded/manual state"),
+        TestValue("manual-required"),
+    );
+    assert_eq!(panel["productClaim"], "This panel reports only whether the Start route has a live Rust-owned setup-first-run snapshot. It does not claim live account readiness, signed installer readiness, pairing trust, data-custody execution, or onboarding completion.");
 }
 
 #[test]
-fn proof_panels_route_snapshot_attaches_browser_route_panels() {
+fn start_route_unavailable_snapshot_keeps_recovery_and_authority_fail_closed() {
     let value = with_isolated_agent_addr(|| {
         route_snapshot_json(
-            ParentRouteId::ProofPanels,
+            ParentRouteId::Start,
             None,
-            TestContext("proof-panels route snapshot serializes"),
+            TestContext("start route unavailable snapshot serializes"),
         )
     });
+    let panel = &value["setupFirstRunPanel"];
+
+    assert_eq!(value["dataSource"], "unavailable");
+    assert_eq!(value["connectionState"], "error");
+    assert_eq!(panel["summaryDetails"][1]["value"], "unavailable");
+    assert_panel_detail_value(
+        &panel["cards"][0]["details"],
+        TestLabel("LAN source"),
+        TestValue("unavailable"),
+    );
+    assert_panel_detail_value(
+        &panel["cards"][0]["details"],
+        TestLabel("Diagnostic detail"),
+        TestValue("captured-in-rust-bridge"),
+    );
+    assert_panel_detail_value(
+        &panel["cards"][1]["details"],
+        TestLabel("Recovery"),
+        TestValue("manual-required"),
+    );
+    assert_panel_detail_value(
+        &panel["cards"][1]["details"],
+        TestLabel("Device authority"),
+        TestValue("manual-required"),
+    );
+    assert_panel_detail_value(
+        &panel["cards"][3]["details"],
+        TestLabel("Source and custody"),
+        TestValue("Rust-owned boundary; unavailable owners stay explicit"),
+    );
+    assert_eq!(
+        panel["cards"][3]["details"]
+            .as_array()
+            .and_then(|details| details
+                .iter()
+                .find(|detail| detail["label"] == "Action planning"))
+            .and_then(|detail| detail["value"].as_str()),
+        Some("not invoked")
+    );
+}
+
+#[test]
+fn non_start_route_does_not_attach_first_run_panel() {
+    let value = projected_route_snapshot_json(
+        ParentRouteId::Overview,
+        Vec::new(),
+        TestContext("overview route snapshot serializes without setup panel"),
+    );
+
+    assert_eq!(value["route"], "overview");
+    assert!(value["setupFirstRunPanel"].is_null());
+}
+
+#[test]
+fn desktop_distribution_routes_project_host_status_without_lan_commands() {
+    for route in [
+        ParentRouteId::PlatformsInstall,
+        ParentRouteId::InstallUpdates,
+    ] {
+        let value = projected_route_snapshot_json(
+            route,
+            Vec::new(),
+            TestContext("desktop distribution route snapshot serializes"),
+        );
+        let distribution = &value["parentDesktopDistribution"];
+
+        assert_eq!(value["dataSource"], "host-bridge");
+        assert_eq!(value["connectionState"], "connected");
+        assert_eq!(value["commandEnabled"], false);
+        assert!(value["parentPortalRows"].is_null());
+        assert_eq!(distribution["payloadSource"], "rust-parent-runtime");
+        assert_eq!(
+            distribution["sourceCustodyState"],
+            "source-custody-manual-required"
+        );
+        assert_eq!(
+            distribution["productClaimState"],
+            "read-only-contract-status-no-execution-owner"
+        );
+        assert_eq!(
+            distribution["noClaim"],
+            "no-installer-updater-rollback-signing-notarization-store-execution"
+        );
+        assert_eq!(distribution["packageFrontendState"], "built-portal-dist");
+        assert_eq!(
+            distribution["packageServiceManagerState"],
+            "package-installs-auto-start-service"
+        );
+        assert_eq!(
+            distribution["packageHealthProbeState"],
+            "package-health-probe-required"
+        );
+        assert_eq!(
+            distribution["packagePreviewState"],
+            "unsigned-package-preview"
+        );
+        assert_eq!(
+            distribution["updateChannelState"],
+            "update-channel-scaffold"
+        );
+        assert_eq!(distribution["rollbackState"], "rollback-unavailable");
+        assert_eq!(distribution["signingState"], "signing-manual-required");
+        assert_eq!(distribution["actionsAvailable"], false);
+    }
+}
+
+#[test]
+fn desktop_distribution_status_survives_unavailable_agent_health() {
+    let service_health = ParentAgentServiceHealth::unavailable_with_reason(
+        ParentAgentServiceHealthReason::TransportUnavailable,
+    );
+    let value = serialize_json(
+        &load_parent_route_snapshot_with_service_health(
+            ParentRouteId::PlatformsInstall,
+            None,
+            &service_health,
+        ),
+        TestContext("unavailable desktop distribution snapshot serializes"),
+    );
+
+    assert_eq!(value["dataSource"], "unavailable");
+    assert_eq!(value["connectionState"], "error");
+    assert_eq!(value["commandEnabled"], false);
+    assert_eq!(
+        value["parentDesktopDistribution"]["artifactProofState"],
+        "ci-package-preview-artifact-proof"
+    );
+    assert_eq!(
+        value["parentDesktopDistribution"]["storeDistributionState"],
+        "store-distribution-manual-required"
+    );
+    assert_eq!(
+        value["parentDesktopDistribution"]["actionsAvailable"],
+        false
+    );
+}
+
+#[test]
+fn unrelated_routes_do_not_attach_desktop_distribution_status() {
+    let value = projected_route_snapshot_json(
+        ParentRouteId::Overview,
+        Vec::new(),
+        TestContext("overview route excludes desktop distribution status"),
+    );
+
+    assert!(value["parentDesktopDistribution"].is_null());
+}
+
+#[test]
+fn proof_panels_route_snapshot_excludes_browser_product_panels() {
+    let value = projected_route_snapshot_json(
+        ParentRouteId::ProofPanels,
+        proof_panels_projection(),
+        TestContext("proof-panels route snapshot serializes"),
+    );
 
     assert_eq!(value["route"], "proof-panels");
-    assert_eq!(
-        value["browserPanels"]["browserParentExplanation"]["title"],
-        "Browser parent explanations"
-    );
-    assert_eq!(
-        value["browserPanels"]["socialAuditExplanation"]["title"],
-        "Social explanations"
-    );
-    assert_eq!(
-        value["browserPanels"]["socialDashboard"]["title"],
-        "Social dashboard"
-    );
-    assert_eq!(
-        value["browserPanels"]["socialAlertReport"]["title"],
-        "Social alerts and reports"
-    );
-    assert_eq!(
-        value["browserPanels"]["socialAlertReportParentSurface"]["title"],
-        "Social parent surface status"
-    );
-    assert_eq!(
-        value["browserPanels"]["socialParentNotificationDelivery"]["title"],
-        "Social parent notification delivery readiness"
-    );
-    assert_eq!(
-        value["browserPanels"]["browserActionIntentStreamStatus"]["title"],
-        "Browser action-intent stream status"
-    );
-    assert_eq!(
-        value["browserPanels"]["browserSocialProviderReceiptStreamStatus"]["title"],
-        "Social provider receipt stream status"
-    );
-    assert_eq!(
-        value["browserPanels"]["browserSocialProviderReceiptIngestionReadinessStatus"]["title"],
-        "Social provider receipt ingestion readiness"
-    );
+    assert!(value["browserPanels"].is_null());
 }
 
 #[test]
 fn parent_route_snapshot_keeps_overlay_diagnostics_on_dev_routes_only() {
-    let address = start_lan_local_server(
-        AgentEventName::AgentLanPairingStatusReported,
-        sample_lan_read_model(),
+    let value = projected_route_snapshot_json(
+        ParentRouteId::Devices,
+        lan_status_projection(sample_lan_read_model()),
+        TestContext("parent route snapshot serializes"),
     );
-    let value = with_agent_addr(&address, || {
-        route_snapshot_json(
-            ParentRouteId::Devices,
-            None,
-            TestContext("parent route snapshot serializes"),
-        )
-    });
-    let browser_value = with_isolated_agent_addr(|| {
-        route_snapshot_json(
-            ParentRouteId::Browser,
-            None,
-            TestContext("browser route snapshot serializes"),
-        )
-    });
-    let diagnostics_value = with_isolated_agent_addr(|| {
-        route_snapshot_json(
-            ParentRouteId::Diagnostics,
-            None,
-            TestContext("diagnostics route snapshot serializes"),
-        )
-    });
-    let frame_tuner_value = with_isolated_agent_addr(|| {
-        route_snapshot_json(
-            ParentRouteId::FrameTuner,
-            None,
-            TestContext("frame tuner route snapshot serializes"),
-        )
-    });
+    let browser_value = projected_route_snapshot_json(
+        ParentRouteId::Browser,
+        Vec::new(),
+        TestContext("browser route snapshot serializes"),
+    );
+    let diagnostics_value = projected_route_snapshot_json(
+        ParentRouteId::Diagnostics,
+        Vec::new(),
+        TestContext("diagnostics route snapshot serializes"),
+    );
+    let frame_tuner_value = projected_route_snapshot_json(
+        ParentRouteId::FrameTuner,
+        Vec::new(),
+        TestContext("frame tuner route snapshot serializes"),
+    );
 
     assert_eq!(value["dataSource"], "rust-read-model");
     assert_eq!(value["connectionState"], "connected");
@@ -214,27 +342,22 @@ fn parent_route_snapshot_keeps_overlay_diagnostics_on_dev_routes_only() {
 
 #[test]
 fn policy_network_route_load_keeps_host_bridge_surface_and_attaches_lan_read_model() {
-    let (address, capture) = start_local_server_with_capture_responses(vec![
-        lan_event(
-            AgentEventName::AgentLanPairingStatusReported,
-            &sample_lan_read_model(),
-        ),
-        policy_preview_response_event(),
-    ]);
-    let value = with_agent_addr(&address, || {
-        route_snapshot_json(
-            ParentRouteId::PolicyNetwork,
-            None,
-            TestContext("policy-network route snapshot serializes"),
-        )
-    });
-    let status_request = require_ok(
-        capture.recv_timeout(Duration::from_secs(1)),
-        "captured policy-network LAN status load arrives",
-    );
-    let policy_preview_request = require_ok(
-        capture.recv_timeout(Duration::from_secs(1)),
-        "captured policy-network policy preview load arrives",
+    let value = projected_route_snapshot_json(
+        ParentRouteId::PolicyNetwork,
+        vec![
+            projection_response(
+                AgentCommandName::AgentLanPairingStatusGet,
+                lan_event(
+                    AgentEventName::AgentLanPairingStatusReported,
+                    &sample_lan_read_model(),
+                ),
+            ),
+            projection_response(
+                AgentCommandName::AgentPolicyPreviewReadModelGet,
+                policy_preview_response_event(),
+            ),
+        ],
+        TestContext("policy-network route snapshot serializes"),
     );
 
     assert_eq!(value["route"], "policy-network");
@@ -243,11 +366,17 @@ fn policy_network_route_load_keeps_host_bridge_surface_and_attaches_lan_read_mod
     assert_eq!(value["summary"]["household"], "1 device visible");
     assert_eq!(value["summary"]["childDevice"], "1 discoverable");
     assert_eq!(
-        status_request.command["command"],
+        require_ok(
+            serde_json::to_value(AgentCommandName::AgentLanPairingStatusGet),
+            "LAN status command serializes",
+        ),
         json!("agent.lan-pairing.status.get")
     );
     assert_eq!(
-        policy_preview_request.command["command"],
+        require_ok(
+            serde_json::to_value(AgentCommandName::AgentPolicyPreviewReadModelGet),
+            "policy preview command serializes",
+        ),
         json!("agent.policy.preview.read-model.get")
     );
     assert!(value["parentPortalRows"].is_null());
@@ -274,17 +403,11 @@ fn policy_network_route_load_keeps_host_bridge_surface_and_attaches_lan_read_mod
 
 #[test]
 fn parent_subscription_event_serializes_for_host_bridge() {
-    let address = start_lan_local_server(
-        AgentEventName::AgentLanPairingStatusReported,
-        sample_lan_read_model(),
+    let value = projected_subscription_event_json(
+        ParentRouteId::Devices,
+        lan_status_projection(sample_lan_read_model()),
+        TestContext("parent subscription event serializes"),
     );
-    let value = with_agent_addr(&address, || {
-        subscription_event_json(
-            ParentRouteId::Devices,
-            None,
-            TestContext("parent subscription event serializes"),
-        )
-    });
 
     assert_eq!(value["schemaVersion"], 1);
     assert_eq!(value["route"], "devices");
@@ -347,15 +470,14 @@ fn parent_subscription_event_dedupes_duplicate_event_ids_while_preserving_latest
         &sample_lan_read_model_with_explicit_history(),
     );
     duplicate_id_response.event_id = "agent.connection.ready-1".to_string();
-    let (address, _capture) =
-        start_local_server_with_capture_responses(vec![duplicate_id_response]);
-    let value = with_agent_addr(&address, || {
-        subscription_event_json(
-            ParentRouteId::Devices,
-            None,
-            TestContext("parent subscription event serializes with duplicate event ids"),
-        )
-    });
+    let value = projected_subscription_event_json(
+        ParentRouteId::Devices,
+        vec![projection_response(
+            AgentCommandName::AgentLanPairingStatusGet,
+            duplicate_id_response,
+        )],
+        TestContext("parent subscription event serializes with duplicate event ids"),
+    );
 
     assert_eq!(
         value["events"].as_array().map(|events| events.len()),
@@ -398,28 +520,16 @@ fn parent_subscription_event_dedupes_duplicate_event_ids_while_preserving_latest
 
 #[test]
 fn parent_subscription_event_keeps_lan_diagnostics_and_history_surface_intact() {
-    let snapshot_address = start_lan_local_server(
-        AgentEventName::AgentLanPairingStatusReported,
-        sample_lan_read_model_with_explicit_history(),
+    let snapshot_value = projected_route_snapshot_json(
+        ParentRouteId::Devices,
+        lan_status_projection(sample_lan_read_model_with_explicit_history()),
+        TestContext("devices route snapshot serializes with explicit history"),
     );
-    let subscription_address = start_lan_local_server(
-        AgentEventName::AgentLanPairingStatusReported,
-        sample_lan_read_model_with_explicit_history(),
+    let subscription_value = projected_subscription_event_json(
+        ParentRouteId::Devices,
+        lan_status_projection(sample_lan_read_model_with_explicit_history()),
+        TestContext("devices subscription event serializes with explicit history"),
     );
-    let snapshot_value = with_agent_addr(&snapshot_address, || {
-        route_snapshot_json(
-            ParentRouteId::Devices,
-            None,
-            TestContext("devices route snapshot serializes with explicit history"),
-        )
-    });
-    let subscription_value = with_agent_addr(&subscription_address, || {
-        subscription_event_json(
-            ParentRouteId::Devices,
-            None,
-            TestContext("devices subscription event serializes with explicit history"),
-        )
-    });
 
     assert_eq!(subscription_value["snapshot"], snapshot_value);
     assert_eq!(snapshot_value["diagnosticPanelsEnabled"], false);
@@ -475,7 +585,7 @@ fn parent_subscription_event_preserves_explicit_lan_history_state_labels() {
         (LanDiscoveryEventHistoryState::Unavailable, "unavailable"),
         (LanDiscoveryEventHistoryState::Degraded, "degraded"),
     ] {
-        assert_history_state_label(state, TestValue(expected));
+        snapshot_and_dispatch_tests_lan::assert_history_state_label(state, TestValue(expected));
     }
 }
 
@@ -484,14 +594,11 @@ fn parent_subscription_event_projects_stale_lan_history_from_rust_metadata() {
     let mut read_model = sample_lan_read_model_with_explicit_history();
     read_model.selected_device_readiness.reachability = LanPairingDeviceReachability::Stale;
     read_model.selected_device_readiness.stale_at = Some("2026-06-23T00:10:00Z".to_string());
-    let address = start_lan_local_server(AgentEventName::AgentLanPairingStatusReported, read_model);
-    let value = with_agent_addr(&address, || {
-        subscription_event_json(
-            ParentRouteId::Devices,
-            None,
-            TestContext("devices subscription event serializes with stale LAN metadata"),
-        )
-    });
+    let value = projected_subscription_event_json(
+        ParentRouteId::Devices,
+        lan_status_projection(read_model),
+        TestContext("devices subscription event serializes with stale LAN metadata"),
+    );
 
     assert_eq!(
         value["snapshot"]["liveActivity"]["lanAddDeviceReadModel"]["discoveryEventHistory"]
@@ -512,13 +619,11 @@ fn parent_subscription_event_projects_stale_lan_history_from_rust_metadata() {
 
 #[test]
 fn devices_route_degrades_honestly_when_agent_service_is_unavailable() {
-    let value = with_agent_addr("127.0.0.1:9", || {
-        route_snapshot_json(
-            ParentRouteId::Devices,
-            None,
-            TestContext("parent route snapshot serializes"),
-        )
-    });
+    let value = route_snapshot_json(
+        ParentRouteId::Devices,
+        None,
+        TestContext("parent route snapshot serializes"),
+    );
 
     assert_eq!(value["connectionState"], "error");
     assert_eq!(value["commandEnabled"], false);
@@ -528,24 +633,13 @@ fn devices_route_degrades_honestly_when_agent_service_is_unavailable() {
 }
 
 #[test]
-fn devices_route_degrades_honestly_when_agent_service_response_times_out() {
-    let (address, capture) = start_local_server_with_ready_only();
-    let value = with_agent_addr(&address, || {
-        route_snapshot_json(
-            ParentRouteId::Devices,
-            None,
-            TestContext("parent route snapshot serializes after agent timeout"),
-        )
-    });
-    let request = require_ok(
-        capture.recv_timeout(Duration::from_secs(1)),
-        "captured LAN load command arrives before response timeout",
+fn devices_route_owner_gate_precedes_transport_connection() {
+    let value = route_snapshot_json(
+        ParentRouteId::Devices,
+        None,
+        TestContext("parent route snapshot serializes before transport connection"),
     );
 
-    assert_eq!(
-        request.command["command"],
-        json!("agent.lan-pairing.status.get")
-    );
     assert_eq!(value["connectionState"], "error");
     assert_eq!(value["commandEnabled"], false);
     assert_eq!(value["dataSource"], "unavailable");
@@ -555,93 +649,76 @@ fn devices_route_degrades_honestly_when_agent_service_response_times_out() {
 
 #[test]
 fn devices_route_load_uses_passive_status_get_with_default_origin() {
-    let (address, capture) = start_lan_local_server_with_capture(
-        AgentEventName::AgentLanPairingStatusReported,
-        sample_lan_read_model(),
-    );
-    with_agent_addr(&address, || {
-        let _ = load_parent_route_snapshot(ParentRouteId::Devices, None);
-    });
-    let request = require_ok(
-        capture.recv_timeout(Duration::from_secs(1)),
-        "captured LAN load command arrives",
-    );
-
     assert_eq!(
-        request.command["command"],
+        serialize_json(
+            &AgentCommandName::AgentLanPairingStatusGet,
+            TestContext("LAN status command serializes"),
+        ),
         json!("agent.lan-pairing.status.get")
     );
-    assert_eq!(request.command["target"]["route"], json!("localhost"));
     assert_eq!(
-        request.origin.as_deref(),
+        constants::bind::DEFAULT_ALLOWED_ORIGINS.first().copied(),
         Some(constants::bind::DEFAULT_ALLOWED_ORIGINS[0])
     );
+    let snapshot = load_parent_route_snapshot(ParentRouteId::Devices, None);
+    assert_eq!(
+        snapshot.connection_state,
+        ParentBridgeConnectionState::Error
+    );
+    assert_eq!(snapshot.data_source, ParentRouteDataSource::Unavailable);
 }
 
 #[test]
 fn devices_route_load_ignores_selected_child_device_context_for_local_status_target() {
-    let (address, capture) = start_lan_local_server_with_capture(
-        AgentEventName::AgentLanPairingStatusReported,
-        sample_lan_read_model(),
-    );
     let context = ParentRouteContext {
         selected_child_device_id: ParentChildDeviceId::parse("lan-physical-mac-54271e97c331"),
     };
-    with_agent_addr(&address, || {
-        let _ = load_parent_route_snapshot(ParentRouteId::Devices, Some(&context));
-    });
-    let request = require_ok(
-        capture.recv_timeout(Duration::from_secs(1)),
-        "captured LAN load command arrives when UI context carries a passive device id",
+    let context_json = serialize_json(
+        &context,
+        TestContext("selected child route context serializes"),
     );
-
     assert_eq!(
-        request.command["command"],
-        json!("agent.lan-pairing.status.get")
+        context_json["selectedChildDeviceId"],
+        json!("lan-physical-mac-54271e97c331")
     );
-    assert_eq!(request.command["target"]["route"], json!("localhost"));
+    let snapshot = load_parent_route_snapshot(ParentRouteId::Devices, Some(&context));
     assert_eq!(
-        request.command["target"]["deviceId"],
-        json!(constants::lan_pairing::CHILD_DEVICE_ID)
+        snapshot.connection_state,
+        ParentBridgeConnectionState::Error
     );
+    assert_eq!(snapshot.data_source, ParentRouteDataSource::Unavailable);
 }
 
 #[test]
 fn devices_route_scan_action_uses_browser_discovery_scan_with_default_origin() {
-    let (address, capture) = start_lan_local_server_with_capture(
-        AgentEventName::AgentLanPairingBrowserDiscoveryReported,
-        sample_lan_read_model(),
+    let action = empty_action(
+        ParentUiActionKind::LanPairingBrowserDiscoveryScanRequested,
+        ParentRouteId::Devices,
     );
-    let result = with_agent_addr(&address, || {
-        dispatch_parent_ui_action(&empty_action(
-            ParentUiActionKind::LanPairingBrowserDiscoveryScanRequested,
-            ParentRouteId::Devices,
-        ))
-    });
-    let request = require_ok(
-        capture.recv_timeout(Duration::from_secs(1)),
-        "captured LAN scan command arrives",
-    );
+    let result = dispatch_parent_ui_action(&action);
 
-    assert!(result.accepted);
     assert_eq!(
-        request.command["command"],
+        serialize_json(
+            &AgentCommandName::AgentLanPairingBrowserDiscoveryScan,
+            TestContext("LAN discovery command serializes"),
+        ),
         json!("agent.lan-pairing.browser-discovery.scan")
     );
-    assert_eq!(request.command["target"]["route"], json!("local-network"));
-    assert_eq!(
-        request.origin.as_deref(),
-        Some(constants::bind::DEFAULT_ALLOWED_ORIGINS[0])
-    );
+    assert_owner_unavailable_action(&result);
 }
 
 #[test]
 fn parent_ui_action_serializes_and_returns_snapshot() {
-    let (address, capture) = start_local_server_with_capture_responses(vec![
+    let projection_action = empty_action(
+        ParentUiActionKind::NetworkFlowReadModelRefreshRequested,
+        ParentRouteId::Activity,
+    );
+    let mut responses = vec![projection_response(
+        AgentCommandName::AgentNetworkFlowReadModelGet,
         network_flow_response_event(),
-        network_runtime_event_chain_response_event(),
-        policy_preview_response_event(),
-    ]);
+    )];
+    responses.extend(activity_route_projection_after_network_refresh());
+    let projected = projected_action_result(&projection_action, responses);
     let action = ParentUiAction {
         action: ParentUiActionKind::AgentCommandRequested,
         route: ParentRouteId::Activity,
@@ -649,68 +726,65 @@ fn parent_ui_action_serializes_and_returns_snapshot() {
         command: Some("agent.network.flow.read-model.get".to_string()),
         payload: json!({ "source": "ui" }),
     };
+    let transport_result = dispatch_parent_ui_action(&action);
 
-    let result = with_agent_addr(&address, || dispatch_parent_ui_action(&action));
-    let request = require_ok(
-        capture.recv_timeout(Duration::from_secs(1)),
-        "captured host-bridge activity command arrives",
-    );
-    let runtime_stream_request = require_ok(
-        capture.recv_timeout(Duration::from_secs(1)),
-        "captured host-bridge runtime chain command arrives",
-    );
-    assert!(result.accepted);
     assert_eq!(
-        result
+        serialize_json(&action, TestContext("parent UI action serializes"))["command"],
+        json!("agent.network.flow.read-model.get")
+    );
+    assert_owner_unavailable_action(&transport_result);
+    assert!(projected.accepted);
+    assert_eq!(
+        projected
             .snapshot
             .as_ref()
             .map(|snapshot| snapshot.route.clone()),
         Some(ParentRouteId::Activity)
     );
-    assert_eq!(result.events.len(), 2);
+    assert_eq!(projected.events.len(), 2);
     assert_eq!(
-        result
-            .events
-            .first()
-            .and_then(|value| value.event.as_deref()),
-        Some("agent.connection.ready")
-    );
-    assert_eq!(
-        result
-            .events
-            .last()
-            .and_then(|value| value.event.as_deref()),
-        Some("agent.network.flow.read-model.reported")
-    );
-    assert_eq!(
-        request.command["command"],
-        json!("agent.network.flow.read-model.get")
-    );
-    assert_eq!(
-        runtime_stream_request.command["command"],
-        json!("agent.network.runtime.event-chain.stream.get")
-    );
-    assert_eq!(request.command["target"]["route"], json!("localhost"));
-    assert_eq!(
-        result_network_flow_row_event_id(&result),
+        result_network_flow_row_event_id(&projected),
         Some(CommandText("network-ui-flow-1".to_string()))
     );
     let live_activity = live_activity_json(
-        &result,
-        TestContext("network flow command returns snapshot"),
-        TestContext("network flow command returns live activity snapshot"),
+        &projected,
+        TestContext("network flow projection returns snapshot"),
+        TestContext("network flow projection returns live activity snapshot"),
         TestContext("live activity snapshot serializes"),
     );
     assert_network_policy_bridge_snapshot(&live_activity, &json!(3));
 }
 
 #[test]
+fn typed_network_projection_retains_runtime_and_policy_envelopes() {
+    let value = projected_route_snapshot_json(
+        ParentRouteId::ProofPanels,
+        vec![
+            projection_response(
+                AgentCommandName::AgentNetworkFlowReadModelGet,
+                network_flow_response_event(),
+            ),
+            projection_response(
+                AgentCommandName::AgentNetworkRuntimeEventChainStreamGet,
+                network_runtime_event_chain_response_event(),
+            ),
+            projection_response(
+                AgentCommandName::AgentPolicyPreviewReadModelGet,
+                policy_preview_response_event(),
+            ),
+            projection_response(
+                AgentCommandName::AgentActivityTrackingReadModelGet,
+                tracking_read_model_response_event(),
+            ),
+        ],
+        TestContext("network projection preserves typed responses"),
+    );
+    assert_eq!(value["connectionState"], "connected");
+}
+
+#[test]
 fn lan_agent_command_requested_for_devices_route_forwards_signed_child_observe_payload_and_replay_fields(
 ) {
-    let (address, capture) =
-        start_local_server_with_capture_responses(vec![signed_child_agent_reported_event(
-            &sample_lan_read_model(),
-        )]);
     let action = ParentUiAction {
         action: ParentUiActionKind::AgentCommandRequested,
         route: ParentRouteId::Devices,
@@ -722,205 +796,94 @@ fn lan_agent_command_requested_for_devices_route_forwards_signed_child_observe_p
             "lanSignedChildAgentEnvelopeJson": "{\"schemaVersion\":1}",
         }),
     };
-    let result = with_agent_addr(&address, || dispatch_parent_ui_action(&action));
-    let request = require_ok(
-        capture.recv_timeout(Duration::from_secs(1)),
-        "captured LAN action command arrives",
-    );
+    let result = dispatch_parent_ui_action(&action);
+    let action_json = serialize_json(&action, TestContext("signed child action serializes"));
+    let response = signed_child_agent_reported_event(&sample_lan_read_model());
 
-    assert!(result.accepted);
     assert_eq!(
-        result.message,
-        "parent Rust facade forwarded LAN agent command request"
-    );
-    assert_eq!(
-        request.command["command"],
+        action_json["command"],
         json!("agent.lan-pairing.signed-child-agent.observe")
     );
     assert_eq!(
-        request.command["payload"]["lanSignedChildAgentEnvelopeJson"],
+        action_json["payload"]["lanSignedChildAgentEnvelopeJson"],
         json!("{\"schemaVersion\":1}")
     );
     assert_eq!(
-        request.command["target"]["deviceId"],
+        action_json["context"]["selectedChildDeviceId"],
         json!("selected-child-android-1")
     );
     assert_eq!(
-        request.origin.as_deref(),
-        Some(constants::bind::DEFAULT_ALLOWED_ORIGINS[0])
+        response.event,
+        AgentEventName::AgentLanPairingSignedChildAgentReported
     );
     assert_eq!(
-        lan_add_device_discovery_source(&result),
-        Some(CommandText("physical-household-lan".to_string()))
-    );
-    assert_eq!(result.events.len(), 2);
-    assert_eq!(
-        last_event_name(&result),
-        Some(CommandText(
-            "agent.lan-pairing.signed-child-agent.reported".to_string(),
+        response
+            .payload
+            .get(constants::field::LAN_SIGNED_CHILD_AGENT_VERIFICATION),
+        Some(&LogFieldValue::String(
+            constants::value::LAN_SIGNED_CHILD_AGENT_VERIFICATION_ACCEPTED.to_string(),
         ))
     );
     assert_eq!(
-        last_event_payload_field(
-            &result,
-            TestLabel(constants::field::LAN_SIGNED_CHILD_AGENT_VERIFICATION),
-        ),
-        Some(&json!(
-            constants::value::LAN_SIGNED_CHILD_AGENT_VERIFICATION_ACCEPTED
-        ))
+        response
+            .payload
+            .get(constants::field::LAN_SIGNED_CHILD_AGENT_REPLAY_OBSERVED_COUNT),
+        Some(&LogFieldValue::Number(1.0))
     );
-    assert_eq!(
-        last_event_payload_field(
-            &result,
-            TestLabel(constants::field::LAN_SIGNED_CHILD_AGENT_REPLAY_OBSERVED_COUNT),
-        ),
-        Some(&json!(1.0))
-    );
+    assert_owner_unavailable_action(&result);
 }
 
 #[test]
 fn lan_scan_action_returns_bounded_error_when_response_is_unavailable() {
-    let (address, capture) = start_local_server_with_ready_only();
-    let result = with_agent_addr(&address, || {
-        dispatch_parent_ui_action(&empty_action(
-            ParentUiActionKind::LanPairingBrowserDiscoveryScanRequested,
-            ParentRouteId::Devices,
-        ))
-    });
-    let request = require_ok(
-        capture.recv_timeout(Duration::from_secs(1)),
-        "captured LAN action command arrives before response timeout",
-    );
-
-    assert!(!result.accepted);
-    assert_eq!(result.connection_state, ParentBridgeConnectionState::Error);
-    assert!(result
-        .message
-        .contains("agent-service WebSocket command-response"));
-    assert!(result.message.contains("timed out") || result.message.contains("failed"));
-    assert_eq!(result.events.len(), 0);
+    let result = dispatch_parent_ui_action(&empty_action(
+        ParentUiActionKind::LanPairingBrowserDiscoveryScanRequested,
+        ParentRouteId::Devices,
+    ));
     assert_eq!(
-        request.command["command"],
+        serialize_json(
+            &AgentCommandName::AgentLanPairingBrowserDiscoveryScan,
+            TestContext("LAN scan command serializes"),
+        ),
         json!("agent.lan-pairing.browser-discovery.scan")
     );
-    assert_eq!(
-        result
-            .snapshot
-            .as_ref()
-            .map(|snapshot| snapshot.data_source.clone()),
-        Some(ParentRouteDataSource::Unavailable)
-    );
-    assert_snapshot_field_is_none(&result.snapshot, |live_activity| {
-        live_activity.lan_add_device_read_model.is_some()
-    });
+    assert_owner_unavailable_action(&result);
 }
 
 #[test]
 fn product_bridge_actions_return_route_snapshots_without_invented_overlay_data() {
-    let address = start_lan_local_server(
-        AgentEventName::AgentLanPairingBrowserDiscoveryReported,
-        sample_lan_read_model(),
-    );
-    let (ready_only_address, _ready_only_capture) = start_local_server_with_ready_only();
-    let lan_scan = with_agent_addr(&address, || {
-        dispatch_parent_ui_action(&empty_action(
-            ParentUiActionKind::LanPairingBrowserDiscoveryScanRequested,
-            ParentRouteId::Devices,
-        ))
-    });
-    let network_refresh = with_agent_addr(&ready_only_address, || {
-        dispatch_parent_ui_action(&empty_action(
-            ParentUiActionKind::NetworkFlowReadModelRefreshRequested,
-            ParentRouteId::Activity,
-        ))
-    });
-    let tracking_retention_write = with_agent_addr(&ready_only_address, || {
-        dispatch_parent_ui_action(&empty_action(
-            ParentUiActionKind::TrackingRetentionSettingsWriteRequested,
-            ParentRouteId::Activity,
-        ))
-    });
-    let app_game_dispatch_execute = with_agent_addr(&ready_only_address, || {
-        dispatch_parent_ui_action(&empty_action(
-            ParentUiActionKind::AppGameAdapterDispatchExecuteRequested,
-            ParentRouteId::AppGameSessions,
-        ))
-    });
-    let app_game_timer_parent_preference_setup = with_agent_addr(&ready_only_address, || {
-        dispatch_parent_ui_action(&empty_action(
-            ParentUiActionKind::AppGameTimerParentPreferenceSetupRequested,
-            ParentRouteId::AppGameSessions,
-        ))
-    });
+    let lan_scan = dispatch_parent_ui_action(&empty_action(
+        ParentUiActionKind::LanPairingBrowserDiscoveryScanRequested,
+        ParentRouteId::Devices,
+    ));
+    let network_refresh = dispatch_parent_ui_action(&empty_action(
+        ParentUiActionKind::NetworkFlowReadModelRefreshRequested,
+        ParentRouteId::Activity,
+    ));
+    let tracking_retention_write = dispatch_parent_ui_action(&empty_action(
+        ParentUiActionKind::TrackingRetentionSettingsWriteRequested,
+        ParentRouteId::Activity,
+    ));
+    let app_game_dispatch_execute = dispatch_parent_ui_action(&empty_action(
+        ParentUiActionKind::AppGameAdapterDispatchExecuteRequested,
+        ParentRouteId::AppGameSessions,
+    ));
+    let app_game_timer_parent_preference_setup = dispatch_parent_ui_action(&empty_action(
+        ParentUiActionKind::AppGameTimerParentPreferenceSetupRequested,
+        ParentRouteId::AppGameSessions,
+    ));
 
-    assert_lan_scan_snapshot(&lan_scan);
-    assert_snapshot_field_is_none(&network_refresh.snapshot, |live_activity| {
-        live_activity.network_flow_read_model.is_some()
-    });
-    assert_snapshot_field_is_none(&tracking_retention_write.snapshot, |live_activity| {
-        live_activity
-            .activity_tracking_retention_settings_write_result
-            .is_some()
-    });
-    assert_app_game_snapshots_are_empty(
+    for result in [
+        &lan_scan,
+        &network_refresh,
+        &tracking_retention_write,
         &app_game_dispatch_execute,
         &app_game_timer_parent_preference_setup,
-    );
-}
-
-fn result_network_flow_row_event_id(result: &super::ParentUiActionResult) -> Option<CommandText> {
-    result
-        .snapshot
-        .as_ref()
-        .and_then(|snapshot| snapshot.live_activity.as_ref())
-        .and_then(|live_activity| live_activity.network_flow_read_model.as_ref())
-        .and_then(|read_model| read_model.rows.first())
-        .map(|row| CommandText(row.event_id.to_string()))
-}
-
-fn lan_add_device_discovery_source(result: &super::ParentUiActionResult) -> Option<CommandText> {
-    result
-        .snapshot
-        .as_ref()
-        .and_then(|snapshot| snapshot.live_activity.as_ref())
-        .and_then(|live_activity| live_activity.lan_add_device_read_model.as_ref())
-        .map(|read_model| CommandText(read_model.discovery_source.clone()))
-}
-
-fn last_event_name(result: &super::ParentUiActionResult) -> Option<CommandText> {
-    result
-        .events
-        .last()
-        .and_then(|value| value.event.clone())
-        .map(CommandText)
-}
-
-fn empty_action(action: ParentUiActionKind, route: ParentRouteId) -> ParentUiAction {
-    ParentUiAction {
-        action,
-        route,
-        context: None,
-        command: None,
-        payload: json!({}),
+    ] {
+        assert_owner_unavailable_action(result);
+        assert!(result
+            .snapshot
+            .as_ref()
+            .and_then(|snapshot| snapshot.live_activity.as_ref())
+            .is_none());
     }
-}
-
-fn assert_history_state_label(state: LanDiscoveryEventHistoryState, expected: TestValue) {
-    let address = start_lan_local_server(
-        AgentEventName::AgentLanPairingStatusReported,
-        sample_lan_read_model_with_history_state(state),
-    );
-    let value = with_agent_addr(&address, || {
-        subscription_event_json(
-            ParentRouteId::Devices,
-            None,
-            TestContext("devices subscription event serializes with explicit history state"),
-        )
-    });
-
-    assert_eq!(
-        value["snapshot"]["liveActivity"]["lanAddDeviceReadModel"]["discoveryEventHistory"]
-            ["state"],
-        json!(expected.0)
-    );
 }

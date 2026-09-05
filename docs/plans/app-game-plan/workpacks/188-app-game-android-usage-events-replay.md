@@ -25,39 +25,47 @@ boundary over counts and proof refs only.
 
 ## Implementation
 
-- Added `packages/parent-domain/src/app-game-android-usage-events-replay.ts`.
-- Added focused tests for accepted replay readiness, unavailable replay state,
-  and rejection of raw row/enforcement claim upgrades.
-- Updated parent-domain platform proof status so an attached Android replay
-  read model adds `android-usage-events-replay-ref` and removes
-  `android-durable-usage-events-replay-not-proved`.
-- Added `scripts/test/app-game-android-usage-events-replay-proof.mjs`.
+The source phase adds the Android production boundary at:
+
+- `platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsRuntimePreflight.java`
+- `platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsReplayStore.java`
+- `platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/MainActivity.java`
+- `platforms/android/agent/app/src/main/AndroidManifest.xml`
+
+The preflight checks the real child APK identity, reads only count-only
+`UsageEvents` rows, and commits a generation/timestamped count snapshot to
+app-private storage. The manifest declares the Android special permission
+needed for the AppOps grant path. The manifest-declared child composition
+service consumes and revalidates that durable snapshot. Canonical
+`a45575cfa` adds real JVM durable replay coverage and physical-device
+instrumentation for grant, currentness, duplicate/older rejection, and newer
+acceptance. The remaining workpack blocker is the stated parent-runtime
+visibility boundary: no typed Android-to-Rust/parent ingress consumes this
+local status.
 
 ## Validation
 
-Focused validation for this workpack:
-
-```powershell
-cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-android-usage-events-replay app-game-platform-proof-status
-cmd /c node scripts/test/app-game-android-usage-events-replay-proof.mjs
-```
+The focused JVM and instrumentation tests are written but were not executed in
+the code/test-source phase. No proof harness was run or retained.
 
 ## Proof
 
-- `test-results/app-game-android-usage-events-replay-proof/proof.json`
-- `output/app-game-plan-proof/188-app-game-android-usage-events-replay/proof.json`
+No proof artifact exists in this source phase. The graph remains planned and
+the required tests/proof/checklist evidence remain open.
 
 ## Boundaries
 
-Proved:
+Source packet semantics:
 
-- Redacted Android UsageEvents foreground counts can drive a durable replay
-  readiness row.
-- Parent-domain platform proof status can carry the replay proof ref and remove
-  the durable replay gap when the replay read model is attached.
+- Android UsageEvents are queried and persisted as counts only, with monotonic
+  generation and observed-at metadata.
+- Raw rows, package names, activity names, proof refs, delivery, and
+  enforcement are not stored or claimed.
 
 Not proved:
 
+- Typed Android-to-Rust/parent replay projection and runtime proof.
+- Test execution and retained proof artifacts.
 - Raw UsageEvents row storage or raw package/activity data.
 - Android child runtime replay consumer.
 - Device Owner/Profile Owner authority.
