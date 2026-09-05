@@ -141,7 +141,11 @@ WP05: dishonest import bundles are rejected before derivation, and the bounded s
 WP06: an Account-issued authority-snapshot-derived opaque query-source capability, request/row authority and citation binding, session expiry, exact actor-role binding, all-seven-state completeness, source/proof page bounds, and cursor/source/stable-sort continuity now fail closed at the Rust boundary with generated TypeScript parity. The snapshot is not a race-safe repository-currentness claim. No report/query/notification/AI/portal runtime consumer reaches the boundary; stale Rust tests and the unwritten TypeScript contract test remain open.
 WP07: submit_storage_custody_action -> PublishStorageCustody -> dynamic Device Trust gate -> ChildStorageCustodyRuntime::execute -> durable effect/journal/tombstone lifecycle is real source. Default custody authority is manual-required and no trusted Account/family adapter or external caller supplies the opaque handle.
 WP08: schema/storage-custody-core parent-storage settings/apply derivation plus generated edge; no portal/desktop host/provider apply caller found.
-Migrated Data And AI UI: source-only and not executable custody scope.
+Migrated Data And AI UI reference: reference-only and omitted from executable
+workpack routing. Its requirements are preserved in
+`DATA_AND_AI_UI_REFERENCE.md` and execute only through Data WP08/WP11, Parent
+Desktop WP06, Portal WP01/WP12, and AI WP39-WP45. It has no independent
+code/test roots, checklist, proof root, READY state, or completion claim.
 ```
 
 The bounded WP05 source route is now present in its schema,

@@ -36,17 +36,17 @@ pub(crate) fn validate(connection: &Connection) -> Result<(), ()> {
 fn require_pragma_ok(connection: &Connection, sql: &str) -> Result<(), ()> {
     let value = connection
         .query_row(sql, [], |row| row.get::<_, String>(0))
-        .map_err(|_| ())?;
+        .map_err(|_error| ())?;
     (value == "ok").then_some(()).ok_or(())
 }
 
 fn require_no_foreign_key_violations(connection: &Connection) -> Result<(), ()> {
     let mut statement = connection
         .prepare("PRAGMA foreign_key_check")
-        .map_err(|_| ())?;
-    let mut rows = statement.query([]).map_err(|_| ())?;
+        .map_err(|_error| ())?;
+    let mut rows = statement.query([]).map_err(|_error| ())?;
     rows.next()
-        .map_err(|_| ())?
+        .map_err(|_error| ())?
         .is_none()
         .then_some(())
         .ok_or(())
@@ -70,7 +70,7 @@ fn validate_clock_rows(connection: &Connection) -> Result<(), ()> {
             [],
             |row| row.get::<_, i64>(0),
         )
-        .map_err(|_| ())?;
+        .map_err(|_error| ())?;
     if count == 0 {
         return Ok(());
     }
@@ -83,7 +83,7 @@ fn validate_clock_rows(connection: &Connection) -> Result<(), ()> {
             [],
             |row| row.get::<_, i64>(0),
         )
-        .map_err(|_| ())?;
+        .map_err(|_error| ())?;
     (value > 0).then_some(()).ok_or(())
 }
 

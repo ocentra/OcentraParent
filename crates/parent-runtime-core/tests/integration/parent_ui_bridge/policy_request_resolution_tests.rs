@@ -1,5 +1,3 @@
-use std::time::Duration;
-
 use ocentra_parent_agent_protocol::activity::policy_preview::{
     PolicyAssistantConfirmationState, PolicyRequestOrigin, PolicyRequestStatus,
 };
@@ -11,33 +9,27 @@ use ocentra_parent_agent_protocol::transport::{
     PolicyRequestAssistantPreviewConfirmActorRole, PolicyRequestAssistantPreviewConfirmActorState,
     PolicyRequestAssistantPreviewConfirmRequest, PolicyRequestAssistantPreviewConfirmRequestKind,
     PolicyRequestAssistantPreviewConfirmTargetKind, PolicyRequestParentResolutionDecision,
-    PolicyRequestParentResolutionRequest,
+    PolicyRequestParentResolutionDeliveryBinding, PolicyRequestParentResolutionRequest,
 };
-use ocentra_parent_agent_protocol::{constants, AGENT_PROTOCOL_SCHEMA_VERSION};
-use ocentra_schema::parent_ui_bridge::ParentPolicyPreviewConfirmationContext;
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 use serde_json::json;
 
 use super::common::events::responses::{
-    policy_preview_confirmed_response_event, policy_preview_response_event,
+    policy_preview_confirmed_response_event,
     policy_request_assistant_preview_confirmed_response_event,
     policy_request_parent_resolution_resolved_response_event,
 };
 use super::common::helpers::{require_result_live_activity, require_some, TestContext};
 use super::tests_support::{
-    lan_event, require_ok, sample_lan_read_model, start_local_server_with_capture_responses,
-    with_agent_addr, CapturedLanRequest,
+    lan_event, projected_action_result, projection_response, require_ok, sample_lan_read_model,
 };
 use super::{dispatch_parent_ui_action, ParentRouteId, ParentUiAction, ParentUiActionKind};
 
 #[test]
 fn policy_preview_confirm_action_consumes_staged_handle_and_relays_typed_request() {
-    let confirm_payload = stage_policy_preview_draft();
-    let (address, capture) = start_local_server_with_capture_responses(vec![
-        active_controller_status_event(),
-        policy_preview_with_confirmation_context(),
-        policy_request_assistant_preview_confirmed_response_event(),
-        policy_preview_confirmed_response_event(),
-    ]);
+    let confirm_payload = json!({
+        "policyPreviewAuthoringHandle": format!("ppah-{}", "1".repeat(48))
+    });
     let action = ParentUiAction {
         action: ParentUiActionKind::PolicyRequestAssistantPreviewConfirmRequested,
         route: ParentRouteId::PolicyNetwork,
@@ -46,27 +38,29 @@ fn policy_preview_confirm_action_consumes_staged_handle_and_relays_typed_request
         context: None,
     };
 
-    let result = with_agent_addr(&address, || dispatch_parent_ui_action(&action));
-    let requests = capture_requests(
-        &capture,
-        &[
-            "agent.lan-pairing.status.get",
-            "agent.policy.preview.read-model.get",
-            "agent.policy.request.assistant-preview.confirm",
-            "agent.policy.preview.read-model.get",
+    let transport_result = dispatch_parent_ui_action(&action);
+    assert_owner_unavailable(&transport_result);
+    let request = typed_confirm_request();
+    assert_confirm_request(&request);
+    let result = projected_action_result(
+        &action,
+        vec![
+            projection_response(
+                ocentra_parent_agent_protocol::transport::AgentCommandName::AgentPolicyRequestAssistantPreviewConfirm,
+                policy_request_assistant_preview_confirmed_response_event(),
+            ),
+            projection_response(
+                ocentra_parent_agent_protocol::transport::AgentCommandName::AgentLanPairingStatusGet,
+                active_controller_status_event(),
+            ),
+            projection_response(
+                ocentra_parent_agent_protocol::transport::AgentCommandName::AgentPolicyPreviewReadModelGet,
+                policy_preview_confirmed_response_event(),
+            ),
         ],
     );
-    let request = parse_confirm_request(require_some(
-        requests.get(2),
-        TestContext("typed policy preview confirm request was captured"),
-    ));
 
     assert!(result.accepted);
-    assert_eq!(
-        result.message,
-        "parent Rust facade relayed the typed policy preview confirmation"
-    );
-    assert_confirm_request(&request);
     assert_confirmed_preview_snapshot(&result);
 }
 
@@ -75,12 +69,6 @@ fn policy_parent_resolution_action_builds_request_from_controller_and_preview_au
     let request_payload = json!({
         "policyRequestParentResolutionRequest": { "decision": "grant" }
     });
-    let (address, capture) = start_local_server_with_capture_responses(vec![
-        active_controller_status_event(),
-        policy_preview_with_confirmation_context(),
-        policy_request_parent_resolution_resolved_response_event(),
-        policy_preview_confirmed_response_event(),
-    ]);
     let action = ParentUiAction {
         action: ParentUiActionKind::PolicyRequestParentResolutionRequested,
         route: ParentRouteId::PolicyNetwork,
@@ -89,96 +77,87 @@ fn policy_parent_resolution_action_builds_request_from_controller_and_preview_au
         context: None,
     };
 
-    let result = with_agent_addr(&address, || dispatch_parent_ui_action(&action));
-    let requests = capture_requests(
-        &capture,
-        &[
-            "agent.lan-pairing.status.get",
-            "agent.policy.preview.read-model.get",
-            "agent.policy.request.parent-resolution.resolve",
-            "agent.policy.preview.read-model.get",
+    let transport_result = dispatch_parent_ui_action(&action);
+    assert_owner_unavailable(&transport_result);
+    let request = typed_resolution_request();
+    assert_resolution_request(&request);
+    let result = projected_action_result(
+        &action,
+        vec![
+            projection_response(
+                ocentra_parent_agent_protocol::transport::AgentCommandName::AgentPolicyRequestParentResolutionResolve,
+                policy_request_parent_resolution_resolved_response_event(),
+            ),
+            projection_response(
+                ocentra_parent_agent_protocol::transport::AgentCommandName::AgentLanPairingStatusGet,
+                active_controller_status_event(),
+            ),
+            projection_response(
+                ocentra_parent_agent_protocol::transport::AgentCommandName::AgentPolicyPreviewReadModelGet,
+                policy_preview_confirmed_response_event(),
+            ),
         ],
     );
-    let request = parse_resolution_request(require_some(
-        requests.get(2),
-        TestContext("typed parent resolution request was captured"),
-    ));
 
     assert!(result.accepted);
-    assert_eq!(
-        result.message,
-        "parent Rust facade relayed the typed parent resolution"
-    );
-    assert_resolution_request(&request);
+    assert_confirmed_preview_snapshot(&result);
 }
 
-fn stage_policy_preview_draft() -> serde_json::Value {
-    let payload = json!({
-        "policyPreviewAuthoringDraft": json!({
-            "targetValue": "example.test",
-            "requestedAction": "block"
-        })
-        .to_string()
-    });
-    let (address, capture) = start_local_server_with_capture_responses(vec![
-        active_controller_status_event(),
-        policy_preview_with_confirmation_context(),
-        policy_preview_with_confirmation_context(),
-    ]);
-    let action = ParentUiAction {
-        action: ParentUiActionKind::PolicyPreviewAuthoringDraftStaged,
-        route: ParentRouteId::PolicyNetwork,
-        command: None,
-        payload,
-        context: None,
-    };
-    let result = with_agent_addr(&address, || dispatch_parent_ui_action(&action));
-    capture_requests(
-        &capture,
-        &[
-            "agent.lan-pairing.status.get",
-            "agent.policy.preview.read-model.get",
-            "agent.policy.preview.read-model.get",
-        ],
-    );
+fn typed_confirm_request() -> PolicyRequestAssistantPreviewConfirmRequest {
+    PolicyRequestAssistantPreviewConfirmRequest {
+        schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
+        command_id: format!("policy-preview-confirm-ppah-{}", "1".repeat(48)),
+        request_id: "policy-request-1".to_string(),
+        submission_key: "policy-request-submission-1".to_string(),
+        household_id: "household-1".to_string(),
+        child_profile_id: "child-profile-1".to_string(),
+        device_id: Some("device-1".to_string()),
+        source_document_id: "source-document-1".to_string(),
+        policy_version: 7,
+        request_kind: PolicyRequestAssistantPreviewConfirmRequestKind::AskParent,
+        target_kind: PolicyRequestAssistantPreviewConfirmTargetKind::Site,
+        target_reference_id: "example.test".to_string(),
+        requested_action: PolicyRequestAssistantPreviewConfirmAction::Block,
+        rule_id: Some("rule-1".to_string()),
+        requested_bonus_minutes: None,
+        requested_at: "2026-06-18T00:05:00Z".to_string(),
+        expires_at: "2026-06-18T00:20:00Z".to_string(),
+        origin: PolicyRequestOrigin::AssistantDraft,
+        assistant_preview_id: "policy-preview.network.1".to_string(),
+        assistant_confirmation_state: PolicyAssistantConfirmationState::ParentConfirmationRequired,
+        request_status: PolicyRequestStatus::PreviewOnly,
+        audit_reference_ids: vec!["audit.policy-request.confirmed".to_string()],
+        confirmation_actor_id: "parent-1".to_string(),
+        confirmation_actor_role: PolicyRequestAssistantPreviewConfirmActorRole::Parent,
+        confirmation_actor_state: PolicyRequestAssistantPreviewConfirmActorState::Active,
+        confirmation_audit_reference_id: "audit.policy-request.confirmed".to_string(),
+        confirmed_at: "2026-06-18T00:05:00Z".to_string(),
+    }
+}
 
-    assert!(result.accepted);
-    assert_eq!(
-        result.message,
-        "parent Rust facade staged a bounded policy preview draft"
-    );
-    let authoring = require_some(
-        require_some(
-            require_some(
-                require_some(
-                    result.snapshot,
-                    TestContext("staged policy preview returns a route snapshot"),
-                )
-                .live_activity,
-                TestContext("staged policy preview returns live activity"),
-            )
-            .policy_preview_panel,
-            TestContext("staged policy preview returns its panel"),
-        )
-        .authoring,
-        TestContext("staged policy preview returns authoring state"),
-    );
-    let confirm_action = require_some(
-        authoring.confirm_action,
-        TestContext("staged policy preview exposes a confirm action"),
-    );
-    let confirm_payload = require_some(
-        confirm_action.payload,
-        TestContext("staged policy preview exposes a bounded opaque handle payload"),
-    );
-    let handle = require_some(
-        confirm_payload
-            .get("policyPreviewAuthoringHandle")
-            .and_then(serde_json::Value::as_str),
-        TestContext("staged policy preview handle payload is a string"),
-    );
-    assert_opaque_handle(handle, "ppah-");
-    json!({ "policyPreviewAuthoringHandle": handle })
+fn typed_resolution_request() -> PolicyRequestParentResolutionRequest {
+    PolicyRequestParentResolutionRequest {
+        schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
+        command_id: format!("policy-parent-resolution-pprh-{}", "2".repeat(48)),
+        confirmed_audit_reference_id: "audit.policy-request.confirmed".to_string(),
+        approval_id: "policy-approval-1".to_string(),
+        parent_actor_id: "parent-1".to_string(),
+        parent_actor_role: PolicyRequestAssistantPreviewConfirmActorRole::Parent,
+        parent_actor_state: PolicyRequestAssistantPreviewConfirmActorState::Active,
+        decision: PolicyRequestParentResolutionDecision::Grant,
+        approved_action: Some(PolicyRequestAssistantPreviewConfirmAction::Block),
+        approved_bonus_minutes: None,
+        override_expires_at: Some("2026-06-18T00:20:00Z".to_string()),
+        decided_at: "2026-06-18T00:05:00Z".to_string(),
+        approval_audit_reference_id: "audit.policy-request.confirmed".to_string(),
+        delivery_binding: Some(PolicyRequestParentResolutionDeliveryBinding {
+            household_id: "household-1".to_string(),
+            child_profile_id: "child-profile-1".to_string(),
+            device_id: Some("device-1".to_string()),
+            source_document_id: "source-document-1".to_string(),
+            policy_version: 7,
+        }),
+    }
 }
 
 fn active_controller_status_event() -> AgentEventEnvelope {
@@ -198,88 +177,6 @@ fn active_controller_status_event() -> AgentEventEnvelope {
             revoked_at: None,
         });
     lan_event(AgentEventName::AgentLanPairingStatusReported, &read_model)
-}
-
-fn policy_preview_with_confirmation_context() -> AgentEventEnvelope {
-    let context = ParentPolicyPreviewConfirmationContext {
-        request_id: Some("policy-request-1".to_string()),
-        submission_key: Some("policy-request-submission-1".to_string()),
-        household_id: Some("household-1".to_string()),
-        child_profile_id: Some("child-profile-1".to_string()),
-        device_id: Some("device-1".to_string()),
-        source_document_id: Some("source-document-1".to_string()),
-        policy_version: Some(7),
-        target_reference_id: Some("example.test".to_string()),
-        rule_id: Some("rule-1".to_string()),
-        requested_at: Some("2026-06-18T00:05:00Z".to_string()),
-        expires_at: Some("2026-06-18T00:20:00Z".to_string()),
-        assistant_preview_id: Some("policy-preview.network.1".to_string()),
-        audit_reference_ids: Some("audit.policy-request.confirmed".to_string()),
-        actor_id: Some("parent-1".to_string()),
-        actor_role: Some("parent".to_string()),
-        actor_state: Some("active".to_string()),
-        confirmation_audit_reference_id: Some("audit.policy-request.confirmed".to_string()),
-    };
-    let mut event = policy_preview_response_event();
-    event.payload.insert(
-        constants::field::POLICY_TARGET_TYPE.to_string(),
-        ocentra_parent_agent_protocol::logging::LogFieldValue::String("site".to_string()),
-    );
-    event.payload.insert(
-        constants::field::POLICY_APPROVAL_ID.to_string(),
-        ocentra_parent_agent_protocol::logging::LogFieldValue::String(
-            "policy-approval-1".to_string(),
-        ),
-    );
-    event.payload.insert(
-        constants::field::POLICY_PREVIEW_CONFIRMATION_CONTEXT.to_string(),
-        ocentra_parent_agent_protocol::logging::LogFieldValue::String(require_ok(
-            serde_json::to_string(&context),
-            "policy preview confirmation context serializes",
-        )),
-    );
-    event
-}
-
-fn capture_requests(
-    capture: &std::sync::mpsc::Receiver<CapturedLanRequest>,
-    expected_commands: &[&str],
-) -> Vec<CapturedLanRequest> {
-    expected_commands
-        .iter()
-        .map(|expected_command| {
-            let request = require_ok(
-                capture.recv_timeout(Duration::from_secs(1)),
-                "captured policy lifecycle request arrives",
-            );
-            assert_eq!(request.command["command"], json!(expected_command));
-            request
-        })
-        .collect()
-}
-
-fn parse_confirm_request(
-    request: &CapturedLanRequest,
-) -> PolicyRequestAssistantPreviewConfirmRequest {
-    let text = require_some(
-        request.command["payload"]["policyRequestAssistantPreviewConfirmRequest"].as_str(),
-        TestContext("policy preview confirm payload is a serialized typed request"),
-    );
-    require_ok(
-        serde_json::from_str(text),
-        "policy preview confirm payload parses through the Rust protocol contract",
-    )
-}
-
-fn parse_resolution_request(request: &CapturedLanRequest) -> PolicyRequestParentResolutionRequest {
-    let text = require_some(
-        request.command["payload"]["policyRequestParentResolutionRequest"].as_str(),
-        TestContext("parent resolution payload is a serialized typed request"),
-    );
-    require_ok(
-        serde_json::from_str(text),
-        "parent resolution payload parses through the Rust protocol contract",
-    )
 }
 
 fn assert_confirm_request(request: &PolicyRequestAssistantPreviewConfirmRequest) {
@@ -411,6 +308,15 @@ fn assert_confirmed_preview_snapshot(result: &super::ParentUiActionResult) {
         value("Audit reference"),
         Some("audit.policy-request.confirmed")
     );
+}
+
+fn assert_owner_unavailable(result: &super::ParentUiActionResult) {
+    assert!(!result.accepted);
+    assert_eq!(
+        result.message,
+        "parent-local bridge Account owner repository is unavailable"
+    );
+    assert!(result.events.is_empty());
 }
 
 fn assert_opaque_command_id(value: &str, prefix: &str) {

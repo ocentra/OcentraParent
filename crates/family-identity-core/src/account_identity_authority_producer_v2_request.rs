@@ -11,22 +11,24 @@ use ocentra_schema::account_identity_authority_producer_v2::{
 use ring::digest::{digest, SHA256};
 
 use super::{
-    AccountIdentityAuthorityProducerV2Error, AccountIdentityAuthorityProducerV2Request,
-    VerifiedAccountIdentityAuthority,
+    AccountIdentityAuthorityProducerV2Error, AccountIdentityAuthorityProducerV2IssueInput,
+    AccountIdentityAuthorityProducerV2Request, VerifiedAccountIdentityAuthority,
 };
-use crate::account_identity_authority::VerifiedAccountIdentityAuthority as Authority;
 
 pub(crate) fn issue_request(
-    authority: &Authority,
-    key_id: &str,
-    key_generation: u64,
-    enrollment_generation: u64,
-    public_key: &[u8; ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_PUBLIC_KEY_BYTES],
-    service_binding_id: &str,
-    correlation_id: &str,
-    idempotency_key: &str,
-    issued_at: DateTime<Utc>,
+    input: &AccountIdentityAuthorityProducerV2IssueInput<'_>,
 ) -> Result<AccountIdentityAuthorityProducerV2Request, AccountIdentityAuthorityProducerV2Error> {
+    let &AccountIdentityAuthorityProducerV2IssueInput {
+        authority,
+        key_id,
+        key_generation,
+        enrollment_generation,
+        public_key,
+        service_binding_id,
+        correlation_id,
+        idempotency_key,
+        issued_at,
+    } = input;
     validate_issue_key(
         key_id,
         key_generation,
@@ -59,11 +61,11 @@ pub(crate) fn issue_request(
     };
     binding
         .validate_shape()
-        .map_err(|_| AccountIdentityAuthorityProducerV2Error::InvalidWire)?;
+        .map_err(|_error| AccountIdentityAuthorityProducerV2Error::InvalidWire)?;
     let envelope =
         crate::account_identity_authority_envelope_v2::CanonicalAuthorityProducerV2Envelope {
             operation: AccountIdentityAuthorityProducerV2Operation::IssueCurrentAuthority,
-            receipt_id: receipt_id.clone(),
+            receipt_id,
             key_id: key_id.to_owned(),
             service_binding_id: service_binding_id.to_owned(),
             key_generation,
@@ -74,7 +76,7 @@ pub(crate) fn issue_request(
             idempotency_key: idempotency_key.to_owned(),
             issued_at: issued_at_text.clone(),
             expires_at: expires_at_text.clone(),
-            payload: payload.clone(),
+            payload,
         };
     let signing_bytes = crate::account_identity_authority_envelope_v2::encode(&envelope)?;
     Ok(AccountIdentityAuthorityProducerV2Request {
@@ -100,7 +102,7 @@ pub(crate) fn acknowledge_request(
         return Err(AccountIdentityAuthorityProducerV2Error::InvalidKeyId);
     }
     let payload = serde_json::to_vec(receipt)
-        .map_err(|_| AccountIdentityAuthorityProducerV2Error::InvalidWire)?;
+        .map_err(|_error| AccountIdentityAuthorityProducerV2Error::InvalidWire)?;
     let expires_at = now
         .checked_add_signed(Duration::seconds(
             ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_LIFETIME_SECONDS,
@@ -124,7 +126,7 @@ pub(crate) fn acknowledge_request(
     };
     binding
         .validate_shape()
-        .map_err(|_| AccountIdentityAuthorityProducerV2Error::InvalidWire)?;
+        .map_err(|_error| AccountIdentityAuthorityProducerV2Error::InvalidWire)?;
     let envelope =
         crate::account_identity_authority_envelope_v2::CanonicalAuthorityProducerV2Envelope {
             operation: AccountIdentityAuthorityProducerV2Operation::AcknowledgeReceipt,
@@ -139,7 +141,7 @@ pub(crate) fn acknowledge_request(
             idempotency_key: receipt.idempotency_key.clone(),
             issued_at: issued_at_text.clone(),
             expires_at: expires_at_text.clone(),
-            payload: payload.clone(),
+            payload,
         };
     let signing_bytes = crate::account_identity_authority_envelope_v2::encode(&envelope)?;
     Ok(AccountIdentityAuthorityProducerV2Request {
@@ -219,14 +221,14 @@ fn canonical_authority_claims_payload(
     };
     claims
         .validate_shape()
-        .map_err(|_| AccountIdentityAuthorityProducerV2Error::AuthorityInvalid)?;
+        .map_err(|_error| AccountIdentityAuthorityProducerV2Error::AuthorityInvalid)?;
     let payload = serde_json::to_vec(&claims)
-        .map_err(|_| AccountIdentityAuthorityProducerV2Error::AuthorityInvalid)?;
+        .map_err(|_error| AccountIdentityAuthorityProducerV2Error::AuthorityInvalid)?;
     let canonical_payload = serde_json::to_vec(
         &serde_json::from_slice::<AccountIdentityAuthorityProducerV2Claims>(&payload)
-            .map_err(|_| AccountIdentityAuthorityProducerV2Error::AuthorityInvalid)?,
+            .map_err(|_error| AccountIdentityAuthorityProducerV2Error::AuthorityInvalid)?,
     )
-    .map_err(|_| AccountIdentityAuthorityProducerV2Error::AuthorityInvalid)?;
+    .map_err(|_error| AccountIdentityAuthorityProducerV2Error::AuthorityInvalid)?;
     (canonical_payload == payload)
         .then_some(payload)
         .ok_or(AccountIdentityAuthorityProducerV2Error::AuthorityInvalid)

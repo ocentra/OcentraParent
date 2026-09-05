@@ -6,7 +6,6 @@ import {
   type ParentAppGameNotificationParentSurfacePanelSnapshot,
   type ParentAppGamePanelSnapshot,
   type ParentAppGameTimerParentSurfacePanelSnapshot,
-  type ParentBrowserPanelSnapshot,
   type ParentNetworkEvidenceSummarySnapshot,
   type ParentPolicyPreviewPanelSnapshot,
 } from '../generated/parent-ui-bridge';
@@ -21,12 +20,8 @@ const PortalProofPanel = {
   AppGamePlatformProofStatus: 'app-game-platform-proof-status',
   AppGamePolicyReadiness: 'app-game-policy-readiness',
   AppGameTimerParentSurface: 'app-game-timer-parent-surface',
-  BrowserParentExplanation: 'browser-parent-explanation',
   NetworkActivity: 'network-activity',
   PolicyPreview: 'policy-preview',
-  SocialAlertReport: 'social-alert-report',
-  SocialAuditExplanation: 'social-audit-explanation',
-  SocialDashboard: 'social-dashboard',
   TrackingStatus: 'tracking-status',
 } as const;
 
@@ -50,15 +45,6 @@ export type PortalProofPanelsRoutePanelProps = {
   readonly appGameChildRuntimeTransportReceiptPanel: ParentAppGamePanelSnapshot | null;
   readonly appGameAdapterDispatchPanel: ParentAppGameAdapterDispatchPanelSnapshot | null;
   readonly appGameTimerParentSurfacePanel: ParentAppGameTimerParentSurfacePanelSnapshot | null;
-  readonly browserParentExplanationPanel: ParentBrowserPanelSnapshot | null;
-  readonly socialAuditExplanationPanel: ParentBrowserPanelSnapshot | null;
-  readonly socialDashboardPanel: ParentBrowserPanelSnapshot | null;
-  readonly socialAlertReportPanel: ParentBrowserPanelSnapshot | null;
-  readonly socialAlertReportParentSurfacePanel: ParentBrowserPanelSnapshot | null;
-  readonly socialParentNotificationDeliveryPanel: ParentBrowserPanelSnapshot | null;
-  readonly browserActionIntentStreamStatusPanel: ParentBrowserPanelSnapshot | null;
-  readonly browserSocialProviderReceiptStreamStatusPanel: ParentBrowserPanelSnapshot | null;
-  readonly browserSocialProviderReceiptIngestionReadinessStatusPanel: ParentBrowserPanelSnapshot | null;
   readonly onSelectPanel: (panel: PortalProofPanelId) => void;
 };
 
@@ -66,10 +52,6 @@ const PORTAL_PROOF_PANEL_BUTTONS: ReadonlyArray<PortalProofPanelButtonDefinition
   { panel: PortalProofPanel.TrackingStatus, label: decodeDisplayText('Tracking status') },
   { panel: PortalProofPanel.NetworkActivity, label: decodeDisplayText('Network activity') },
   { panel: PortalProofPanel.PolicyPreview, label: decodeDisplayText('Policy decision') },
-  { panel: PortalProofPanel.BrowserParentExplanation, label: decodeDisplayText('Browser explanation') },
-  { panel: PortalProofPanel.SocialAuditExplanation, label: decodeDisplayText('Social explanation') },
-  { panel: PortalProofPanel.SocialDashboard, label: decodeDisplayText('Social dashboard') },
-  { panel: PortalProofPanel.SocialAlertReport, label: decodeDisplayText('Social alerts') },
   {
     panel: PortalProofPanel.AppGameNotificationParentSurface,
     label: decodeDisplayText('App/game notifications'),
@@ -88,13 +70,10 @@ const PORTAL_PROOF_PANEL_BUTTONS: ReadonlyArray<PortalProofPanelButtonDefinition
 ];
 
 const DefaultProofPanel = PortalProofPanel.TrackingStatus;
+const PORTAL_PROOF_PANELS_ROUTE_PANEL_CLASS = 'portal-proof-panels-route-panel';
 
 export function renderPortalProofPanelsRoutePanel({
   actions,
-  browserActionIntentStreamStatusPanel,
-  browserParentExplanationPanel,
-  browserSocialProviderReceiptIngestionReadinessStatusPanel,
-  browserSocialProviderReceiptStreamStatusPanel,
   commandEnabled,
   liveActivity,
   networkEvidenceSummary,
@@ -105,16 +84,16 @@ export function renderPortalProofPanelsRoutePanel({
   appGameChildRuntimeTransportReceiptPanel,
   appGameAdapterDispatchPanel,
   appGameTimerParentSurfacePanel,
-  socialAlertReportPanel,
-  socialAlertReportParentSurfacePanel,
-  socialAuditExplanationPanel,
-  socialDashboardPanel,
-  socialParentNotificationDeliveryPanel,
   activePanel,
   onSelectPanel,
 }: PortalProofPanelsRoutePanelProps): ReactElement {
   return (
-    <section aria-label="Proof panels" className={PortalDom.Classes.DeveloperRoutePanel}>
+    <section
+      aria-label="Proof panels"
+      className={[PortalDom.Classes.DeveloperRoutePanel, PORTAL_PROOF_PANELS_ROUTE_PANEL_CLASS].join(
+        PortalDom.Classes.ClassNameSeparator
+      )}
+    >
       <PortalProofPanelToolbar activePanel={activePanel} onSelect={onSelectPanel} />
       <div className={PortalDom.Classes.DeveloperRouteContent}>
         {renderPortalProofPanelContent({
@@ -130,15 +109,6 @@ export function renderPortalProofPanelsRoutePanel({
           appGameChildRuntimeTransportReceiptPanel,
           appGameAdapterDispatchPanel,
           appGameTimerParentSurfacePanel,
-          browserParentExplanationPanel,
-          socialAuditExplanationPanel,
-          socialDashboardPanel,
-          socialAlertReportPanel,
-          socialAlertReportParentSurfacePanel,
-          socialParentNotificationDeliveryPanel,
-          browserActionIntentStreamStatusPanel,
-          browserSocialProviderReceiptStreamStatusPanel,
-          browserSocialProviderReceiptIngestionReadinessStatusPanel,
         })}
       </div>
     </section>
@@ -158,16 +128,39 @@ function PortalProofPanelToolbar({
 }): ReactElement {
   return (
     <div className={PortalDom.Classes.DeveloperRouteToolbar}>
-      {PORTAL_PROOF_PANEL_BUTTONS.map(({ panel, label }) => (
-        <PortalProofPanelButton
-          key={panel}
-          active={activePanel === panel}
-          label={label}
-          onClick={() => onSelect(panel)}
-        />
-      ))}
+      <label data-ocentra-proof-panel-picker>
+        <span>{decodeDisplayText('Proof panel')}</span>
+        <select
+          aria-label={decodeDisplayText('Proof panel')}
+          onChange={(event) => selectPortalProofPanel(event.currentTarget.value, onSelect)}
+          value={activePanel}
+        >
+          {PORTAL_PROOF_PANEL_BUTTONS.map(({ panel, label }) => (
+            <option key={panel} value={panel}>
+              {label}
+            </option>
+          ))}
+        </select>
+      </label>
+      <div data-ocentra-proof-panel-tabs>
+        {PORTAL_PROOF_PANEL_BUTTONS.map(({ panel, label }) => (
+          <PortalProofPanelButton
+            key={panel}
+            active={activePanel === panel}
+            label={label}
+            onClick={() => onSelect(panel)}
+          />
+        ))}
+      </div>
     </div>
   );
+}
+
+function selectPortalProofPanel(value: string, onSelect: (panel: PortalProofPanelId) => void): void {
+  const selection = PORTAL_PROOF_PANEL_BUTTONS.find(({ panel }) => panel === value);
+  if (selection) {
+    onSelect(selection.panel);
+  }
 }
 
 function PortalProofPanelButton({

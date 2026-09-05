@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactElement } from 'react';
+import { useEffect, useState, type CSSProperties, type ReactElement } from 'react';
 import { type PortalDisplayText } from '@ocentra-parent/portal-domain/display-text';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/portal-domain/display-text';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
@@ -36,8 +36,10 @@ export function PortalSidebar({
   readonly state: PortalRuntimeState;
 }): ReactElement {
   const activeGroup = ParentRouteMetadata[route].group;
+  const [openGroup, setOpenGroup] = useState<ParentRouteGroupId | null>(activeGroup);
   const sideTopContent = frameContentTarget(frameLayout, PortalFrameTuner.FrameTarget.SideTop);
   const sideBottomContent = frameContentTarget(frameLayout, PortalFrameTuner.FrameTarget.SideBottom);
+  useEffect(() => setOpenGroup(activeGroup), [activeGroup]);
   return (
     <aside className={PortalDom.Classes.AppSidebar}>
       <section
@@ -49,7 +51,13 @@ export function PortalSidebar({
         <PortalFrameBoundsOverlay content={sideTopContent} />
         <nav className={PortalDom.Classes.Routes} role={PortalDom.Attributes.TabList}>
           {ParentSidebarRouteGroups.map((group) => (
-            <RouteGroup activeGroup={activeGroup} activeRoute={route} group={group} key={group} />
+            <RouteGroup
+              activeRoute={route}
+              group={group}
+              key={group}
+              onToggle={() => setOpenGroup((current) => (current === group ? null : group))}
+              open={group === openGroup}
+            />
           ))}
         </nav>
       </section>
@@ -67,22 +75,42 @@ export function PortalSidebar({
 }
 
 function RouteGroup({
-  activeGroup,
   activeRoute,
   group,
+  onToggle,
+  open,
 }: {
-  readonly activeGroup: ParentRouteGroupId;
   readonly activeRoute: ParentRouteId;
   readonly group: ParentRouteGroupId;
+  readonly onToggle: () => void;
+  readonly open: boolean;
 }): ReactElement {
   const label = parentRouteGroupLabel(group);
   return (
-    <details className={PortalDom.Classes.RouteGroup} open={group === activeGroup}>
-      <summary className={PortalDom.Classes.RouteGroupLabel}>{label}</summary>
-      {ParentPortalRouteDescriptors.filter((candidate) => candidate.group === group).map((descriptor) => (
+    <details className={PortalDom.Classes.RouteGroup} open={open}>
+      <summary
+        aria-expanded={open}
+        aria-label={`${open ? 'Collapse' : 'Expand'} ${String(label).toUpperCase()}`}
+        className={PortalDom.Classes.RouteGroupLabel}
+        onClick={(event) => {
+          event.preventDefault();
+          onToggle();
+        }}
+        role="button"
+      >
+        {label}
+      </summary>
+      {portalRouteDescriptorsForGroup(group).map((descriptor) => (
         <RouteLink activeRoute={activeRoute} descriptor={descriptor} key={descriptor.route} />
       ))}
     </details>
+  );
+}
+
+export function portalRouteDescriptorsForGroup(group: ParentRouteGroupId): readonly PortalRouteDescriptor[] {
+  const label = parentRouteGroupLabel(group);
+  return ParentPortalRouteDescriptors.filter(
+    (candidate) => candidate.group === label && ParentRouteMetadata[candidate.route].sidebar
   );
 }
 
@@ -127,7 +155,7 @@ function RouteLink({
   );
 }
 
-function SidebarStatus({
+export function SidebarStatus({
   actions,
   state,
 }: {
@@ -137,20 +165,21 @@ function SidebarStatus({
   return (
     <div className={PortalDom.Classes.ProductSidebarPanel}>
       <div className={PortalDom.Classes.SidebarActions}>
-        <button
-          className={PortalDom.Classes.SidebarStatusButton}
-          onClick={actions.reconnect}
-          type={PortalDom.ButtonType.Button}
-        >
+        <div className={PortalDom.Classes.SidebarStatusButton} role="status">
           {connectionStatus(state)}
-        </button>
+        </div>
         <button
           className={PortalDom.Classes.SidebarReconnectButton}
           onClick={actions.reconnect}
           type={PortalDom.ButtonType.Button}
         >
-          {resolvePortalDevText(PortalDevTextToken.Reconnect)}
+          {resolvePortalDevText(PortalDevTextToken.RetryStatus)}
         </button>
+        {state.lastHostMessage === null ? null : (
+          <p aria-live="polite" className={PortalDom.Classes.SidebarHostMessage}>
+            {state.lastHostMessage}
+          </p>
+        )}
       </div>
     </div>
   );

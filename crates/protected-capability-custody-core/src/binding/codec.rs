@@ -40,9 +40,10 @@ fn wrap(magic: [u8; 4], payload: Vec<u8>) -> Result<Vec<u8>, BindingError> {
     let mut output = Vec::with_capacity(magic.len() + 2 + 4 + payload.len());
     output.extend_from_slice(&magic);
     output.extend_from_slice(&BINDING_VERSION.to_be_bytes());
-    let payload_length = u32::try_from(payload.len()).map_err(|_| BindingError::FieldTooLarge)?;
+    let payload_length =
+        u32::try_from(payload.len()).map_err(|_length_error| BindingError::FieldTooLarge)?;
     output.extend_from_slice(&payload_length.to_be_bytes());
-    output.extend_from_slice(&payload);
+    output.extend(payload);
     Ok(output)
 }
 
@@ -52,7 +53,7 @@ fn append_frame(
     field: BindingField,
 ) -> Result<(), BindingError> {
     validation::validate_field(value, field)?;
-    let length = u32::try_from(value.len()).map_err(|_| BindingError::FieldTooLarge)?;
+    let length = u32::try_from(value.len()).map_err(|_length_error| BindingError::FieldTooLarge)?;
     output.extend_from_slice(&length.to_be_bytes());
     output.extend_from_slice(value);
     Ok(())

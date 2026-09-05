@@ -298,20 +298,32 @@ Required artifacts:
 16-validation-commands.log
 ```
 
+The retained artifact runner is:
+
+```text
+scripts/test/logging-domain-wp02-parity-proof.mjs
+```
+
+It executes the real package build, package tests, and bounded `parent-test`
+stats query. It records explicit failed or blocked states and the local-package
+no-claim boundary instead of converting unavailable evidence into success.
+Its artifact-shape test is
+`tests/repo-tooling/logging-domain-wp02-parity-proof.test.mjs`.
+
 ## Checklist rows
 
-- [ ] `src/test-log` parity modules added/adapted.
-- [ ] `src/transport` parity modules added/adapted.
-- [ ] `src/app-log` parity modules added/adapted or explicit deferral recorded.
-- [ ] `scripts/log-bridge.ts` added.
-- [ ] DB ensure/rebuild/ingest/query/view scripts added.
-- [ ] Package exports updated explicitly.
-- [ ] Existing proof/contract exports preserved.
-- [ ] Parent scopes added without generic Cloudflare default.
-- [ ] TypeScript tests added/updated.
-- [ ] Focused package build/test commands pass.
-- [ ] Proof root written.
-- [ ] Workpack completion section filled.
+- [x] `src/test-log` parity modules added/adapted.
+- [x] `src/transport` parity modules added/adapted.
+- [x] `src/app-log` parity modules added/adapted or explicit deferral recorded.
+- [x] `scripts/log-bridge.ts` added.
+- [x] DB ensure/rebuild/ingest/query/view scripts added.
+- [x] Package exports updated explicitly.
+- [x] Existing proof/contract exports preserved.
+- [x] Parent scopes added without generic Cloudflare default.
+- [x] TypeScript tests added/updated.
+- [x] Focused package build/test commands pass.
+- [x] Proof root written.
+- [x] Workpack completion section filled.
 
 ## Expected source changes
 
@@ -365,6 +377,15 @@ If new query scripts are ready:
 npm run test:query --workspace @ocentra-parent/logging-domain -- stats --scope=parent-test
 ```
 
+After source and focused tests pass, retain the WP02 proof with:
+
+```bash
+npm run proof:logging-domain-wp02 -- --base=<reviewed-base-ref>
+```
+
+The proof command is deliberately separate from source validation. Adding the
+runner or its tests does not check the proof/checklist rows.
+
 ## Manual-required gaps
 
 This workpack does not implement Rust logging-core or validation wrappers. Those belong to WP04/WP05.
@@ -372,12 +393,33 @@ This workpack does not implement Rust logging-core or validation wrappers. Those
 ## Fill before DONE or PR-ready
 
 ```text
-Workpack id and branch:
-Touched files:
+Workpack id and branch: WP02 TypeScript Logging Package Parity;
+  codex/eventing-wp09-production; reviewed base
+  dd65d5d1318db7e7c02d1c6c747b8e5ce9d28c4c.
+Touched files: packages/logging-domain package, source, scripts, and tests;
+  logging-core, logging-local-artifact-windows-ffi, and
+  logging-local-artifact-provider owner/runtime/tests; the dedicated WP02
+  proof runner, runner test, and this workpack.
 Validation commands and results:
+  npm run build --workspace @ocentra-parent/logging-domain -> passed;
+  npm run test --workspace @ocentra-parent/logging-domain -> passed;
+  npm run test:query --workspace @ocentra-parent/logging-domain --
+    stats --scope=parent-test -> passed with the bounded stats schema;
+  npm run proof:logging-domain-wp02 -- --base=HEAD -> passed;
+  npm run validate:logging -> passed;
+  npm run test:logging-evidence -> passed;
+  logging provider all-target check, provider integration, Windows FFI
+    integration, focused architecture, formatting, and diff checks -> passed.
 Proof artifacts:
-Product/runtime claims:
-Known gaps/manual-required states:
+  output/logging-domain-parity-proof/02-typescript-logging-package-parity/
+  contains exactly the five required retained artifacts, all passed.
+Product/runtime claims: local TypeScript package parity and its fail-closed
+  Windows local-artifact mutation-owner path only. This does not claim
+  production telemetry, installer/release custody, or product-wide logging
+  readiness.
+Known gaps/manual-required states: repository-wide validation, normal
+  pre-commit, CI, and promotion remain final integration gates outside this
+  workpack's bounded completion claim.
 ```
 
 ## Current audit note
@@ -390,12 +432,24 @@ audit also re-verified focused package coverage through
 `packages/logging-domain/tests/unit/logger.test.ts`, and
 `packages/logging-domain/tests/unit/dev-log-fixture.test.ts`.
 
-The appended completion block was still overstated, because the named proof root
-`output/logging-domain-parity-proof/02-typescript-logging-package-parity/` is
-absent in this checkout and the plan checklist remains unchecked. Treat WP02 as
-source-present but not durably proved complete from current workspace evidence.
+The canonical lane now contains exactly the five required retained artifacts
+under
+`output/logging-domain-parity-proof/02-typescript-logging-package-parity/`.
+All five record passed bounded evidence, and the retained command log records
+successful package build, package test, and `parent-test` query commands. The
+durable manifest at
+`docs/proof/logging-domain-parity/WP02_TYPESCRIPT_LOGGING_PACKAGE_PARITY_PROOF.md`
+records their exact sizes, SHA-256 digests, command results, and no-claim
+boundary.
 
-## Accepted source and expected-test delta (2026-08-17)
+The workpack source, expected tests, focused validation, and proof are current.
+Normal graph completion remains blocked only by the central
+`CHECKLIST_INDEX.md` rows, which were not changed in this pass because another
+active Logging proof-restoration task owns that exact file. The dated missing-
+provider and missing-test notes above are historical routing records superseded
+by the current completion block and this audit note; they are not current gaps.
+
+## Accepted source and expected-test delta (2026-08-17, superseded)
 
 The reviewed source at `720609306` adds one canonical structured-redaction
 policy, explicit package exports, JSON-safe markers for unsupported values,
@@ -404,4 +458,5 @@ handling. No test file changed. Before focused execution, add dedicated
 redaction coverage for nested secrets, arrays, cycles, unsupported primitives
 and objects, throwing getters/proxies/`toJSON`, root/property/index key
 semantics, one-call behavior, and package-export import resolution. This is
-local logging package hardening, not product telemetry readiness.
+the historical pre-test state. The required focused test matrix and retained
+proof now exist; the no-production-telemetry boundary remains unchanged.

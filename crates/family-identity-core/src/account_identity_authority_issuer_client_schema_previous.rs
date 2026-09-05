@@ -199,7 +199,7 @@ fn validate_previous_metadata(
             [SCHEMA_NAME],
             |row| row.get(0),
         )
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
     valid
         .then_some(())
         .ok_or(AccountIdentityAuthorityIssuerClientError::InvalidSchema)
@@ -252,7 +252,7 @@ fn table_sql(
             |row| row.get::<_, String>(0),
         )
         .optional()
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?
         .ok_or(AccountIdentityAuthorityIssuerClientError::InvalidSchema)
 }
 
@@ -264,7 +264,7 @@ fn validate_table_columns(
     let quoted_table = table.replace('"', "\"\"");
     let actual = connection
         .prepare(&format!("PRAGMA table_info(\"{quoted_table}\")"))
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?
         .query_map([], |row| {
             Ok((
                 row.get::<_, String>(1)?,
@@ -273,9 +273,9 @@ fn validate_table_columns(
                 row.get::<_, i64>(5)?,
             ))
         })
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?
         .collect::<Result<Vec<_>, _>>()
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
     if actual.len() != expected.len()
         || actual.iter().zip(expected).any(|(actual, expected)| {
             actual.0 != expected.0
@@ -296,11 +296,11 @@ fn validate_index(
 ) -> Result<(), AccountIdentityAuthorityIssuerClientError> {
     let columns = connection
         .prepare(&format!("PRAGMA index_info(\"{index}\")"))
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?
         .query_map([], |row| row.get::<_, String>(2))
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?
         .collect::<Result<Vec<_>, _>>()
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
     if columns
         .iter()
         .map(String::as_str)

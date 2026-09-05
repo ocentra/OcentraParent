@@ -9,16 +9,30 @@ use super::{SsdpDiscoveryError, SsdpDiscoveryRecord, SSDP_MAX_RESPONSE_BYTES};
 mod record;
 mod send;
 
+pub(super) struct SsdpCollectionRequest<'a> {
+    pub(super) socket: &'a UdpSocket,
+    pub(super) request: &'a [u8],
+    pub(super) target: SocketAddr,
+    pub(super) response_timeout: Duration,
+    pub(super) attempts: usize,
+    pub(super) description_timeout: Duration,
+    pub(super) cancellation: Option<&'a AtomicBool>,
+    pub(super) outer_deadline: Option<Instant>,
+}
+
 pub(super) fn collect_ssdp_records_with_cancellation(
-    socket: &UdpSocket,
-    request: &[u8],
-    target: SocketAddr,
-    response_timeout: Duration,
-    attempts: usize,
-    description_timeout: Duration,
-    cancellation: Option<&AtomicBool>,
-    outer_deadline: Option<Instant>,
+    collection: &SsdpCollectionRequest<'_>,
 ) -> Result<Vec<SsdpDiscoveryRecord>, SsdpDiscoveryError> {
+    let &SsdpCollectionRequest {
+        socket,
+        request,
+        target,
+        response_timeout,
+        attempts,
+        description_timeout,
+        cancellation,
+        outer_deadline,
+    } = collection;
     let mut results = Vec::new();
     let mut seen = HashSet::new();
     let started_at = Instant::now();

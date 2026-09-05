@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use ocentra_eventing::error::EventingError;
 use ocentra_parent_agent_protocol::schema_domain_mirrors::notification::{
     NotificationLocalOutboxDeliveryClaimState, NotificationLocalOutboxSchedulerRecord,
@@ -11,6 +13,8 @@ use crate::app_game_child_ux_scheduler_types::{
 const INVALID_SOURCE_FIELD: &str = "app_game.child_ux_scheduler.source_record";
 const INVALID_CONTEXT_FIELD: &str = "app_game.child_ux_scheduler.context";
 const INVALID_RECORD_FIELD: &str = "app_game.child_ux_scheduler.scheduler_record";
+const DUPLICATE_SCHEDULER_ENTRY_FIELD: &str = "app_game.child_ux_scheduler.scheduler_entry_id";
+const DUPLICATE_SOURCE_ENTRY_FIELD: &str = "app_game.child_ux_scheduler.source_entry_id";
 
 pub fn build_app_game_child_ux_scheduler_route(
     input: AppGameChildUxSchedulerInput,
@@ -66,6 +70,29 @@ pub(crate) fn validate_scheduler_record(
             INVALID_RECORD_FIELD,
             record.scheduler_entry_id.as_str(),
         ));
+    }
+    Ok(())
+}
+
+pub(crate) fn validate_scheduler_records(
+    records: &[NotificationLocalOutboxSchedulerRecord],
+) -> Result<(), EventingError> {
+    let mut scheduler_entry_ids = HashSet::new();
+    let mut source_entry_ids = HashSet::new();
+    for record in records {
+        validate_scheduler_record(record)?;
+        if !scheduler_entry_ids.insert(record.scheduler_entry_id.as_str()) {
+            return Err(invalid_value(
+                DUPLICATE_SCHEDULER_ENTRY_FIELD,
+                record.scheduler_entry_id.as_str(),
+            ));
+        }
+        if !source_entry_ids.insert(record.source_entry_id.as_str()) {
+            return Err(invalid_value(
+                DUPLICATE_SOURCE_ENTRY_FIELD,
+                record.source_entry_id.as_str(),
+            ));
+        }
     }
     Ok(())
 }

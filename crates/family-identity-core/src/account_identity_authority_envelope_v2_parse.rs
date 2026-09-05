@@ -27,7 +27,7 @@ pub(super) fn parse(
     let signing_bytes = wire[..signing_length].to_vec();
     let signature = wire[signing_length..]
         .try_into()
-        .map_err(|_| AccountIdentityAuthorityProducerV2Error::InvalidSignature)?;
+        .map_err(|_error| AccountIdentityAuthorityProducerV2Error::InvalidSignature)?;
     let mut cursor = ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_INNER_DOMAIN.len();
     if signing_bytes.get(..cursor) != Some(ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_INNER_DOMAIN) {
         return Err(AccountIdentityAuthorityProducerV2Error::InvalidWire);
@@ -141,7 +141,7 @@ fn take_text(
 ) -> Result<String, AccountIdentityAuthorityProducerV2Error> {
     let value = take_field(bytes, cursor)?;
     let value = String::from_utf8(value)
-        .map_err(|_| AccountIdentityAuthorityProducerV2Error::InvalidWire)?;
+        .map_err(|_error| AccountIdentityAuthorityProducerV2Error::InvalidWire)?;
     validate_text(&value)?;
     Ok(value)
 }
@@ -157,7 +157,7 @@ fn take_u64(
     let value = u64::from_be_bytes(
         value
             .try_into()
-            .map_err(|_| AccountIdentityAuthorityProducerV2Error::InvalidWire)?,
+            .map_err(|_error| AccountIdentityAuthorityProducerV2Error::InvalidWire)?,
     );
     (value > 0 && value <= ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_GENERATION)
         .then_some(value)

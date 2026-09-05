@@ -194,6 +194,12 @@ pub const PARENT_DESKTOP_PLATFORM_MATRIX_SPLIT_PROOF_ROWS: &str =
 pub const PARENT_DESKTOP_RELEASE_BRANCH_PRODUCTION_PROMOTION_REQUIRED: &str =
     "production-promotion-required";
 pub const PARENT_DESKTOP_ARTIFACT_PROOF_CI_PREVIEW: &str = "ci-package-preview-artifact-proof";
+pub const PARENT_DESKTOP_DISTRIBUTION_PAYLOAD_SOURCE_RUST_PARENT_RUNTIME: &str =
+    "rust-parent-runtime";
+pub const PARENT_DESKTOP_DISTRIBUTION_PRODUCT_CLAIM_READ_ONLY: &str =
+    "read-only-contract-status-no-execution-owner";
+pub const PARENT_DESKTOP_DISTRIBUTION_NO_EXECUTION_CLAIM: &str =
+    "no-installer-updater-rollback-signing-notarization-store-execution";
 pub const LAN_AI_PROVIDER_STATUS_UNAVAILABLE: &str = "lan-ai-provider-unavailable";
 pub const LAN_AI_PROVIDER_STATUS_AVAILABLE: &str = "lan-ai-provider-available";
 pub const LAN_AI_PROVIDER_STATUS_DEGRADED: &str = "lan-ai-provider-degraded";

@@ -28,7 +28,7 @@ use ocentra_parent_agent_protocol::{
     NetworkEvidenceGrade, NetworkPolicyDecisionAction,
 };
 
-use crate::test_text::TestText;
+use crate::test_text::{test_err, TestText};
 
 type TestResult = Result<(), TestText>;
 
@@ -333,14 +333,16 @@ async fn network_consumer_source_identity_is_deterministic_and_replay_idempotent
 
     let mut conflicting_observation = observation;
     conflicting_observation.destination_domain = Some("different.example".to_owned());
-    let conflict = publish_raw(
-        &reopened_spine,
-        &source_event_id,
-        conflicting_observation,
-        observed_at,
-    )
-    .await
-    .expect_err("same source event id with a different envelope must fail closed");
+    let conflict = test_err(
+        publish_raw(
+            &reopened_spine,
+            &source_event_id,
+            conflicting_observation,
+            observed_at,
+        )
+        .await,
+        "same source event id with a different envelope must fail closed",
+    )?;
     assert!(matches!(conflict, EventingError::DuplicateEventId { .. }));
 
     Ok(())

@@ -11,7 +11,7 @@ pub mod handoff;
 /// policy decision, or capture authority. The router validates it but never
 /// treats it as policy, capture, or browser authority.
 pub trait ManagedBrowserStructuredExtractionOwner: Send + Sync {
-    fn observation(&self) -> ManagedBrowserStructuredExtractionObservation;
+    fn observation(self: Box<Self>) -> ManagedBrowserStructuredExtractionObservation;
 }
 
 /// Bounded, redacted producer observation. This is intentionally untrusted:

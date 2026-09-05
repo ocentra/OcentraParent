@@ -1,6 +1,11 @@
 use super::TestResult;
 use std::collections::BTreeSet;
 
+#[path = "policy_event/replay.rs"]
+mod replay;
+#[path = "policy_event/validation.rs"]
+mod validation;
+
 use ocentra_eventing::envelope::{EventEnvelope, EventMetadata, EventSource};
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::ids::{
@@ -266,138 +271,6 @@ fn policy_event_envelope_preserves_causation_correlation_and_deterministic_keys(
 }
 
 #[test]
-fn policy_event_consistency_rejects_invalid_scope_audit_reason_and_dead_letter_state() -> TestResult
-{
-    let mut wrong_scope = sample_delivery_queued_event(1)?;
-    wrong_scope.scope = source_document_scope()?;
-    assert_eq!(
-        test_err!(wrong_scope.contract(), "mismatched policy event scope"),
-        EventingError::InvalidValue {
-            field: "policy_event.scope",
-            value: "scope does not match event kind: expected delivery, received source-document"
-                .to_string(),
-        }
-    );
-
-    let mut missing_audit = sample_delivery_queued_event(1)?;
-    missing_audit.audit_reference_ids.clear();
-    assert_eq!(
-        test_err!(
-            missing_audit.idempotency_key(),
-            "missing policy event audit refs"
-        ),
-        EventingError::InvalidValue {
-            field: "policy_event.audit_reference_ids",
-            value: "missing audit references".to_string(),
-        }
-    );
-
-    let mut duplicate_audit = sample_delivery_queued_event(1)?;
-    duplicate_audit
-        .audit_reference_ids
-        .push(duplicate_audit.audit_reference_ids[0].clone());
-    assert_eq!(
-        test_err!(
-            duplicate_audit.contract(),
-            "duplicate policy event audit refs"
-        ),
-        EventingError::InvalidValue {
-            field: "policy_event.audit_reference_ids",
-            value: "duplicate audit reference".to_string(),
-        }
-    );
-
-    let missing_reason = sample_policy_event(
-        PolicyEventKind::DeliveryRejected,
-        1,
-        delivery_scope()?,
-        None,
-        None,
-    )?;
-    assert_eq!(
-        test_err!(missing_reason.contract(), "missing policy event reason"),
-        EventingError::InvalidValue {
-            field: "policy_event.reason_code",
-            value: "missing reason code for delivery-rejected".to_string(),
-        }
-    );
-
-    let mut unexpected_reason = sample_delivery_queued_event(1)?;
-    unexpected_reason.reason_code = Some(test_ok!(
-        PolicyReasonCode::parse("caller-supplied-reason"),
-        "unexpected policy event reason"
-    ));
-    assert_eq!(
-        test_err!(
-            unexpected_reason.contract(),
-            "unexpected policy event reason"
-        ),
-        EventingError::InvalidValue {
-            field: "policy_event.reason_code",
-            value: "unexpected reason code for policy.delivery.queued".to_string(),
-        }
-    );
-
-    let mut missing_dead_letter_reason = sample_dead_letter_recorded_event(1)?;
-    missing_dead_letter_reason.dead_letter_reason = None;
-    assert_eq!(
-        test_err!(
-            missing_dead_letter_reason.contract(),
-            "missing policy event dead letter reason"
-        ),
-        EventingError::InvalidValue {
-            field: "policy_event.dead_letter_reason",
-            value: "dead-letter reason required".to_string(),
-        }
-    );
-
-    let mut hidden_dead_letter = sample_delivery_queued_event(1)?;
-    hidden_dead_letter.dead_letter_reason = Some(PolicyEventDeadLetterReason::ManualRequired);
-    assert_eq!(
-        test_err!(
-            hidden_dead_letter.contract(),
-            "unexpected policy event dead letter reason"
-        ),
-        EventingError::InvalidValue {
-            field: "policy_event.dead_letter_reason",
-            value: "dead-letter reason only valid for policy.dead-letter.recorded".to_string(),
-        }
-    );
-    Ok(())
-}
-
-#[test]
-fn policy_event_rejects_rollback_scope_household_mismatch() -> TestResult {
-    let mut event = sample_rollback_applied_event(1)?;
-    match &mut event.scope {
-        PolicyEventScope::Rollback { rollback_ref, .. } => {
-            rollback_ref.household_id = test_ok!(
-                PolicyHouseholdId::parse("household-other"),
-                "other rollback household"
-            );
-        }
-        scope => {
-            return Err(std::io::Error::other(format!(
-                "expected rollback scope, got {scope:?}"
-            ))
-            .into());
-        }
-    }
-
-    assert_eq!(
-        test_err!(
-            event.contract(),
-            "rollback scope household mismatch must fail closed"
-        ),
-        EventingError::InvalidValue {
-            field: "policy_event.scope",
-            value: "rollback household mismatch".to_string(),
-        }
-    );
-    Ok(())
-}
-
-#[test]
 fn policy_event_keys_and_contract_are_stable_for_delivery_events() -> TestResult {
     let event = sample_delivery_queued_event(3)?;
 
@@ -411,82 +284,6 @@ fn policy_event_keys_and_contract_are_stable_for_delivery_events() -> TestResult
     assert_eq!(
         test_ok!(event.idempotency_key(), "policy idempotency key").as_str(),
         "policy-event:policy.delivery.queued|policy-delivery:household-default:policy-delivery-default:child-primary:device-laptop:tracking:5|3|delivery|audit-policy-event|none|none"
-    );
-    Ok(())
-}
-
-#[test]
-fn policy_event_replay_tracks_duplicate_stale_and_conflicting_sequences() -> TestResult {
-    let current = sample_delivery_queued_event(3)?;
-    let current_record = test_ok!(current.replay_record(), "policy event replay record");
-
-    match test_ok!(
-        apply_policy_event_replay(&current_record, &current),
-        "duplicate replay"
-    ) {
-        PolicyEventApplyOutcome::Duplicate(record) => assert_eq!(record, current_record),
-        other => {
-            return Err(std::io::Error::other(format!(
-                "expected duplicate replay outcome, got {other:?}"
-            ))
-            .into());
-        }
-    }
-
-    match apply_policy_event_replay(&current_record, &sample_delivery_queued_event(2)?)
-        .map_err(|error| std::io::Error::other(format!("stale replay: {error}")))?
-    {
-        PolicyEventApplyOutcome::Stale(record) => assert_eq!(record, current_record),
-        other => {
-            return Err(std::io::Error::other(format!(
-                "expected stale replay outcome, got {other:?}"
-            ))
-            .into());
-        }
-    }
-
-    let error = test_err!(
-        apply_policy_event_replay(&current_record, &sample_delivery_sent_event(3)?),
-        "conflicting same-sequence replay must fail"
-    );
-    assert_eq!(
-        error,
-        EventingError::InvalidValue {
-            field: "policy_delivery.sequence",
-            value: "conflicting replay for sequence 3 on policy.delivery.queued".to_string(),
-        }
-    );
-    Ok(())
-}
-
-#[test]
-fn policy_event_replay_aggregate_mismatch_redacts_private_identity() -> TestResult {
-    let current = sample_delivery_queued_event(1)?;
-    let current_record = test_ok!(current.replay_record(), "policy event replay record");
-    let mut next = sample_delivery_queued_event(2)?;
-    match &mut next.scope {
-        PolicyEventScope::Delivery { household_id, .. } => {
-            *household_id = test_ok!(
-                PolicyHouseholdId::parse("household-private-child"),
-                "private household id"
-            );
-        }
-        scope => {
-            return Err(
-                std::io::Error::other(format!("expected delivery scope, got {scope:?}")).into(),
-            );
-        }
-    }
-
-    assert_eq!(
-        test_err!(
-            apply_policy_event_replay(&current_record, &next),
-            "mismatched policy event aggregate"
-        ),
-        EventingError::InvalidValue {
-            field: "policy_event.aggregate_key",
-            value: "[redacted mismatch]".to_string(),
-        }
     );
     Ok(())
 }

@@ -8,7 +8,7 @@ use chrono::{DateTime, Utc};
 use ocentra_lan_core::network_inventory::{
     discover_lan_network_devices_with_hints_refresh_mode_and_scan_and_probe_suppression_and_allowed_snmp_observer_with_cancellation,
     targeted_arp_refresh_evidence_for_scan_plan_until, LanDiscoveryRefreshMode,
-    LanNetworkInventoryDevice,
+    LanNetworkDiscoveryRequest, LanNetworkInventoryDevice,
 };
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceRef;
 use ocentra_parent_agent_protocol::transport::{
@@ -81,19 +81,6 @@ pub(crate) fn network_device_scan_result_for_command(
     LanNetworkDeviceScanResult::default()
 }
 
-pub(super) fn refresh_network_device_scan_history(
-    runtime: &LanPairingRuntime,
-    command: &AgentCommandEnvelope,
-) -> LanNetworkDeviceScanResult {
-    network_device_scan_result_for_command(runtime, command)
-}
-
-pub(crate) fn refresh_network_device_scan_history_from_passive_runtime(
-    runtime: &LanPairingRuntime,
-) -> LanNetworkDeviceScanResult {
-    execute_physical_lan_scan(runtime, None, Utc::now(), LanDiscoveryRefreshMode::Passive)
-}
-
 pub(crate) fn refresh_network_device_scan_history_from_passive_runtime_with_cancellation(
     runtime: &LanPairingRuntime,
     cancellation: &AtomicBool,
@@ -157,22 +144,24 @@ fn execute_physical_lan_scan_locked(
         let _ = runtime.record_allowed_snmp_probe_response_packet(payload);
     };
     let devices = discover_lan_network_devices_with_hints_refresh_mode_and_scan_and_probe_suppression_and_allowed_snmp_observer_with_cancellation(
-        &scan_truth.identity_hint_devices,
-        previous_devices,
-        inventory_refresh_mode,
-        &scan_truth.scan_suppression_devices,
-        &scan_truth.scan_suppression_devices,
-        selected_interface_scope,
-        Some(&allowed_snmp_response_observer),
-        cancellation,
-        deadline,
+        &LanNetworkDiscoveryRequest {
+            identity_hint_devices: &scan_truth.identity_hint_devices,
+            previous_devices,
+            refresh_mode: inventory_refresh_mode,
+            active_refresh_suppression_devices: &scan_truth.scan_suppression_devices,
+            probe_suppression_devices: &scan_truth.scan_suppression_devices,
+            selected_interface_scope,
+            allowed_snmp_response_observer: Some(&allowed_snmp_response_observer),
+            cancellation,
+            deadline,
+        },
     );
     if cancellation.is_some_and(|cancellation| cancellation.load(Ordering::Acquire)) {
         return failed_scan_result(previous_scan_snapshot);
     }
     persisted_scan_result_or_fail(
         runtime,
-        devices,
+        &devices,
         LanScanHistoryMetadata {
             scan_id: scan_session_id(now).0,
             paired_registry_truth_count: scan_truth.paired_registry_truth_count,

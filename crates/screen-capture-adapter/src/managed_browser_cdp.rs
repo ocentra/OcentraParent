@@ -127,7 +127,7 @@ pub(super) fn validate_dimensions(
 }
 
 pub(super) fn max_decoded_bytes() -> u64 {
-    u64::from(MANAGED_BROWSER_CDP_MAX_PIXELS) * 8
+    MANAGED_BROWSER_CDP_MAX_PIXELS * 8
 }
 
 pub(super) fn max_png_bytes() -> usize {

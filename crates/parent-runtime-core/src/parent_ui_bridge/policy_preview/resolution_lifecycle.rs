@@ -4,7 +4,7 @@ pub(super) fn opaque_handle() -> Result<String, String> {
     for _ in 0..4 {
         let mut random = [0_u8; 24];
         getrandom::fill(&mut random)
-            .map_err(|_| "parent resolution handle entropy is unavailable".to_string())?;
+            .map_err(|error| format!("parent resolution handle entropy is unavailable: {error}"))?;
         let handle = format!(
             "pprh-{}",
             random
@@ -14,7 +14,7 @@ pub(super) fn opaque_handle() -> Result<String, String> {
         );
         if !store()
             .lock()
-            .map_err(|_| "parent resolution store is unavailable".to_string())?
+            .map_err(|error| format!("parent resolution store is unavailable: {error}"))?
             .entries
             .contains_key(&handle)
         {
@@ -50,7 +50,7 @@ pub(super) fn local_controller_actor_id(
 pub(super) fn store_new(handle: &str, stored: StoredParentResolution) -> Result<(), String> {
     let mut resolution_store = store()
         .lock()
-        .map_err(|_| "parent resolution store is unavailable".to_string())?;
+        .map_err(|error| format!("parent resolution store is unavailable: {error}"))?;
     let now = Instant::now();
     resolution_store
         .entries

@@ -1450,16 +1450,12 @@ test('repository bootstrap is queryable and keeps plan scope isolated', async ()
   assert.ok(!scoped.some((node) => node.id.startsWith('WP-browser-plan-')));
 
   const globalSummary = summarizeGraph(value, undefined, { root: repoRoot });
-  assert.deepEqual(
-    globalSummary.ready.map((node) => node.id),
-    [
-      'WP-app-game-plan-197-app-game-linux-docker-host-preflight',
-      'WP-app-game-plan-203-app-game-windows-local-policy-evidence-proof',
-      'WP-child-agent-runtime-distribution-plan-01-child-agent-scope-and-route-boundary',
-      'WP-child-agent-runtime-distribution-plan-06-child-ios-agent-capability-package',
-      'WP-data-custody-storage-plan-data-and-ai-ui-plan',
-    ]
+  assert.equal(
+    deriveStates(value, { root: repoRoot }).get('WP-app-game-plan-197-app-game-linux-docker-host-preflight'),
+    'done'
   );
+  const readyIds = globalSummary.ready.map((node) => node.id);
+  assert.deepEqual(readyIds, []);
   assert.ok(globalSummary.blocked.length > 0);
 });
 

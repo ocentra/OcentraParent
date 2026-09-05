@@ -1,4 +1,3 @@
-import fs from 'node:fs';
 import path from 'node:path';
 import { AppLogEntrySchema, type AppLogEntry } from './types';
 import type { TestLogScope } from '../test-log/types';
@@ -7,8 +6,9 @@ import { selectGeneratedPruneCandidates } from '../local-test-log';
 import { durableAppendLocalArtifact, recoverLocalArtifactAppends } from '../local-artifact-append';
 import { readLocalArtifactText, statLocalArtifact } from '../local-artifact-file';
 import { withLocalArtifactLock } from '../local-artifact-lock';
-import { applyLocalArtifactTransaction } from '../local-artifact-transaction';
-import { assertExistingOwnedPath } from '../local-artifact-path';
+import { applyLocalArtifactTransaction, type LocalArtifactMutation } from '../local-artifact-transaction';
+import { providerList } from '../local-artifact-mutation-provider';
+import { relativeLocalArtifactPath } from '../local-artifact-path';
 import { MaximumBridgeBatchBytes, sanitizeAppLogBatchForCustody } from '../core/logCustody';
 import { utf8Bytes } from '../core/logTextCustody';
 import { sanitizeGeneratedPathSegment } from '../local-test-log-paths';
@@ -61,11 +61,13 @@ export function listAppLogSessionFiles(scope: TestLogScope, rootDir?: string): s
   return withLocalArtifactLock(resolvedRoot, () => {
     recoverLocalArtifactAppends(resolvedRoot);
     const scopeDir = getAppLogScopeDir(scope, resolvedRoot);
-    return fs
-      .readdirSync(scopeDir, { withFileTypes: true })
+    const relativeScope = relativeLocalArtifactPath(resolvedRoot, scopeDir).split(path.sep).join('/');
+    return providerList(resolvedRoot, relativeScope)
       .map((entry) => {
+        if (entry.is_directory) {
+          throw new Error('app log scope contains an unexpected directory');
+        }
         const filePath = path.join(scopeDir, entry.name);
-        assertExistingOwnedPath(filePath, 'file');
         return filePath;
       })
       .filter((filePath) => filePath.endsWith('.ndjson'))
@@ -88,7 +90,7 @@ export function pruneAppLogSessions(scope: TestLogScope, keepNewest: number, roo
     const filesToDelete = selectGeneratedPruneCandidates(files, keepNewest);
     applyLocalArtifactTransaction(
       resolvedRoot,
-      filesToDelete.map((filePath) => ({ kind: 'remove' as const, filePath }))
+      filesToDelete.map((filePath): LocalArtifactMutation => ({ kind: 'remove', filePath }))
     );
     return filesToDelete.length;
   });

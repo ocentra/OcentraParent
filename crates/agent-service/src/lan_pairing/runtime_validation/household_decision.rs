@@ -78,8 +78,7 @@ fn validate_timestamps(
             let revoked_at = decision
                 .revoked_at
                 .as_deref()
-                .map(|value| strict_timestamp(&LanPairingText(value.to_owned())))
-                .flatten()
+                .and_then(|value| strict_timestamp(&LanPairingText(value.to_owned())))
                 .ok_or(LanPairingRejectionReason::Malformed)?;
             if revoked_at < decided_at || revoked_at >= expires_at || revoked_at > now {
                 return Err(LanPairingRejectionReason::Stale);

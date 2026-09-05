@@ -24,10 +24,10 @@ pub(super) fn connect_agent_stream(
 
     let mut last_error = None;
     for socket_addr in socket_addrs {
-        let remaining = remaining_timeout(deadline).map_err(|_| {
+        let remaining = remaining_timeout(deadline).map_err(|error| {
             format!(
-                "agent-service WebSocket connect timed out after {}ms at {url}",
-                timeout.as_millis()
+                "agent-service WebSocket connect timed out after {}ms at {url}: {error}",
+                timeout.as_millis(),
             )
         })?;
         match TcpStream::connect_timeout(&socket_addr, remaining) {

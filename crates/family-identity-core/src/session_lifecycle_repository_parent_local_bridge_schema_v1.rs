@@ -131,7 +131,7 @@ pub(super) fn validate_objects(connection: &Connection) -> Result<(), ()> {
                 [kind, name],
                 |row| row.get::<_, String>(0),
             )
-            .map_err(|_| ())?;
+            .map_err(|_error| ())?;
         if normalize_sql(&actual) != normalize_sql(expected) {
             return Err(());
         }
@@ -143,7 +143,7 @@ pub(super) fn validate_objects(connection: &Connection) -> Result<(), ()> {
 fn require_integrity(connection: &Connection) -> Result<(), ()> {
     let value = connection
         .query_row("PRAGMA integrity_check", [], |row| row.get::<_, String>(0))
-        .map_err(|_| ())?;
+        .map_err(|_error| ())?;
     (value == "ok").then_some(()).ok_or(())
 }
 
@@ -164,7 +164,7 @@ fn reject_unknown_objects(connection: &Connection) -> Result<(), ()> {
             [],
             |row| row.get::<_, i64>(0),
         )
-        .map_err(|_| ())?;
+        .map_err(|_error| ())?;
     (unknown == 0).then_some(()).ok_or(())
 }
 
@@ -176,7 +176,7 @@ fn require_no_foreign_keys(connection: &Connection) -> Result<(), ()> {
                 [],
                 |row| row.get::<_, i64>(0),
             )
-            .map_err(|_| ())?;
+            .map_err(|_error| ())?;
         if count != 0 {
             return Err(());
         }

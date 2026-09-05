@@ -9,7 +9,6 @@ import {
   type ParentAppGamePanelSnapshot,
   type ParentRouteId,
 } from '../generated/parent-ui-bridge';
-import type { PortalRenderActions } from './portal-actions';
 
 const EmptyPolicyReadinessPanel: ParentAppGamePanelSnapshot = {
   eyebrow: 'Rust-owned panel',
@@ -27,12 +26,8 @@ export function shouldRenderAppGamePolicyReadinessRoute(route: ParentRouteId): b
 }
 
 export function AppGamePolicyReadinessRoutePanel({
-  actions,
-  commandEnabled,
   panel,
 }: {
-  readonly actions: PortalRenderActions;
-  readonly commandEnabled: boolean;
   readonly panel: ParentAppGamePanelSnapshot | null;
 }): ReactElement {
   const resolvedPanel = panel ?? EmptyPolicyReadinessPanel;
@@ -48,14 +43,6 @@ export function AppGamePolicyReadinessRoutePanel({
           <p className={PortalDom.Classes.ProductEyebrow}>{resolvedPanel.eyebrow}</p>
           <h2>{resolvedPanel.title}</h2>
           <p>{resolvedPanel.body}</p>
-          <button
-            className={PortalDom.Classes.CommandResultTab}
-            disabled={!commandEnabled}
-            type={PortalDom.ButtonType.Button}
-            onClick={() => void actions.refreshRouteSnapshot?.()}
-          >
-            {resolvePortalDevText(PortalDevTextToken.GetActivityAppGamePolicyReadinessReadModel)}
-          </button>
         </header>
         <div
           className={[PortalDom.Classes.ProductDashboard, PortalDom.Classes.TrackingStatusOverlayGrid].join(

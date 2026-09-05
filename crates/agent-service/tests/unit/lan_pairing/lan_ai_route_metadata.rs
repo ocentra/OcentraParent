@@ -7,65 +7,59 @@ use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeRoleEntry;
 use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeRoleState;
 use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeRouteState;
 use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeSurface;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingText;
 use ocentra_parent_agent_protocol::lan_pairing_authority::LanPairingParentAuthority;
 use ocentra_parent_agent_protocol::logging::LogFieldValue;
 use ocentra_parent_agent_protocol::logging::LogFields;
 use ocentra_parent_agent_protocol::transport::AgentCommandName;
-use ocentra_parent_agent_protocol::transport::AgentEventName;
 
 use crate::test_text::TestText;
 
 use crate::{
-    app::{lan_pairing::LanPairingRuntime, websocket::handle_command_text_for_test},
+    app::lan_pairing::LanPairingRuntime,
+    lan_pairing::lan_ai_route_metadata::lan_ai_household_route_fields,
+    lan_pairing_payload::parse_intent,
     lan_pairing_test_commands::{
-        command_for_target, intent_payload_for_kind, local_network_target, paired_runtime,
-        serialize_command,
+        command_for_target, intent_payload_for_kind, local_network_target,
     },
+    test_require_ok::require_ok,
 };
 
-#[tokio::test]
-async fn authorized_lan_ai_job_submit_reports_child_owned_mesh_route_metadata() {
-    let runtime = lan_ai_provider_runtime().await;
-    let event = handle_command_text_for_test(
-        serialize_command(command_for_target(
-            AgentCommandName::AgentLanAiJobSubmit,
-            local_network_target(constants::lan_pairing::CHILD_DEVICE_ID),
-            lan_ai_job_payload(),
-        )),
-        runtime,
-        Some(TestText::from_display(
-            constants::lan_pairing::ALLOWED_ORIGIN,
-        )),
-    )
-    .await;
+#[test]
+fn crate_owned_lan_ai_route_builder_reports_child_owned_mesh_metadata() {
+    let runtime = lan_ai_provider_runtime();
+    let command = command_for_target(
+        AgentCommandName::AgentLanAiJobSubmit,
+        local_network_target(constants::lan_pairing::CHILD_DEVICE_ID),
+        lan_ai_job_payload(),
+    );
+    let intent = require_ok(parse_intent(&command.payload), "LAN AI route intent");
+    let requested_capability =
+        LanPairingText(constants::local_ai_runtime::CAPABILITY_SUMMARIZATION.to_string());
+    let fields = lan_ai_household_route_fields(&runtime, &command, &intent, &requested_capability);
 
-    assert_eq!(event.event, AgentEventName::AgentLanAiJobReported);
     assert_eq!(
-        event
-            .payload
-            .get(constants::field::LAN_AI_SELECTED_PROVIDER_PEER_ID),
+        fields.get(constants::field::LAN_AI_SELECTED_PROVIDER_PEER_ID),
         Some(&LogFieldValue::String(
             constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL.to_string()
         ))
     );
     assert_eq!(
-        event
-            .payload
-            .get(constants::field::LAN_AI_SELECTED_ROUTE_REASON),
+        fields.get(constants::field::LAN_AI_SELECTED_ROUTE_REASON),
         Some(&LogFieldValue::String(
             constants::household_mesh::ROUTE_REASON_SELECTED_DESKTOP.to_string()
         ))
     );
-    assert_child_owned_custody_fields(&event.payload);
+    assert_child_owned_custody_fields(&fields);
     assert_eq!(
-        event.payload.get(constants::field::LAN_AI_CLAIM_ID),
+        fields.get(constants::field::LAN_AI_CLAIM_ID),
         Some(&LogFieldValue::String(lan_ai_claim_id().0))
     );
     assert_eq!(
-        event.payload.get(constants::field::LAN_AI_LEASE_ID),
+        fields.get(constants::field::LAN_AI_LEASE_ID),
         Some(&LogFieldValue::String(lan_ai_lease_id().0))
     );
-    assert_no_raw_lan_ai_markers(&event.payload);
+    assert_no_raw_lan_ai_markers(&fields);
 }
 
 fn assert_child_owned_custody_fields(payload: &LogFields) {
@@ -112,8 +106,8 @@ fn lan_ai_job_payload() -> LogFields {
     payload
 }
 
-async fn lan_ai_provider_runtime() -> LanPairingRuntime {
-    let mut runtime = paired_runtime().await;
+fn lan_ai_provider_runtime() -> LanPairingRuntime {
+    let mut runtime = LanPairingRuntime::empty();
     runtime.device_roles = DeviceRoleRuntimeReadModel {
         schema_version: constants::lan_pairing::SCHEMA_VERSION_TEXT
             .to_string()

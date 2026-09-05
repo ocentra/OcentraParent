@@ -4,12 +4,11 @@ use ocentra_parent_agent_protocol::transport::{
 };
 use std::sync::Arc;
 
-use super::app_game_adapter_execution_readiness_payload::GeneratedAtText;
 use super::app_game_adapter_host_capabilities::HostCapabilitySignals;
 use super::app_game_platform_probe_cache::PlatformProbeCache;
 use super::app_game_platform_proof_status_payload::{
     app_game_platform_proof_status_payload,
-    app_game_platform_proof_status_read_model_from_preflights,
+    app_game_platform_proof_status_read_model_from_preflights, PlatformProofGeneratedAtText,
 };
 use crate::websocket::{WebsocketPeerProvenance, WebsocketPlatformProbeDispatcher};
 use crate::{event_builder::build_event, time::timestamp_now};
@@ -31,7 +30,7 @@ pub(crate) async fn build_activity_app_game_platform_proof_status_report(
     probe_cache: PlatformProbeCache,
     provenance: WebsocketPeerProvenance,
 ) -> AgentEventEnvelope {
-    let generated_at = GeneratedAtText(timestamp_now());
+    let generated_at = PlatformProofGeneratedAtText(timestamp_now());
     let _ = provenance;
     // ADB is a direct, request-time host capability signal. Only the Docker
     // preflight is server-owned and cached; keeping these lifetimes separate

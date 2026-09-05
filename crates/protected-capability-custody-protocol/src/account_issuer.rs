@@ -165,26 +165,28 @@ pub struct AccountIssuerReceipt {
     signed_transport_digest: AccountIssuerField,
 }
 
+pub struct AccountIssuerReceiptInput {
+    pub kind: AccountIssuerMessageKind,
+    pub receipt_id: AccountIssuerField,
+    pub correlation_id: AccountIssuerField,
+    pub idempotency_key: AccountIssuerField,
+    pub key_id: AccountIssuerField,
+    pub lineage: AccountIssuerReceiptLineage,
+    pub result_digest: AccountIssuerField,
+    pub signed_transport_digest: AccountIssuerField,
+}
+
 impl AccountIssuerReceipt {
-    pub fn new(
-        kind: AccountIssuerMessageKind,
-        receipt_id: AccountIssuerField,
-        correlation_id: AccountIssuerField,
-        idempotency_key: AccountIssuerField,
-        key_id: AccountIssuerField,
-        lineage: AccountIssuerReceiptLineage,
-        result_digest: AccountIssuerField,
-        signed_transport_digest: AccountIssuerField,
-    ) -> Result<Self, ProtocolError> {
+    pub fn new(input: AccountIssuerReceiptInput) -> Result<Self, ProtocolError> {
         let receipt = Self {
-            kind,
-            receipt_id,
-            correlation_id,
-            idempotency_key,
-            key_id,
-            lineage,
-            result_digest,
-            signed_transport_digest,
+            kind: input.kind,
+            receipt_id: input.receipt_id,
+            correlation_id: input.correlation_id,
+            idempotency_key: input.idempotency_key,
+            key_id: input.key_id,
+            lineage: input.lineage,
+            result_digest: input.result_digest,
+            signed_transport_digest: input.signed_transport_digest,
         };
         for field in [
             receipt.receipt_id.as_bytes(),

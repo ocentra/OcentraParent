@@ -194,7 +194,8 @@ fn number_field(fields: &LogFields, key: &'static str) -> Result<Option<u64>, Ac
 fn port_field(fields: &LogFields, key: &'static str) -> Result<Option<u16>, ActivityStoreError> {
     number_field(fields, key)?
         .map(|value| {
-            u16::try_from(value).map_err(|_| ActivityStoreError::InvalidNetworkField { field: key })
+            u16::try_from(value)
+                .map_err(|_error| ActivityStoreError::InvalidNetworkField { field: key })
         })
         .transpose()
 }
@@ -203,7 +204,7 @@ fn usize_field(fields: &LogFields, key: &'static str) -> Result<Option<usize>, A
     number_field(fields, key)?
         .map(|value| {
             usize::try_from(value)
-                .map_err(|_| ActivityStoreError::InvalidNetworkField { field: key })
+                .map_err(|_error| ActivityStoreError::InvalidNetworkField { field: key })
         })
         .transpose()
 }

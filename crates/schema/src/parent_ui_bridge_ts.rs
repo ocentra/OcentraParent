@@ -325,42 +325,179 @@ fn assemble_template_fragments(fragments: &[&str]) -> String {
         .collect()
 }
 
-fn parent_ui_bridge_json_literal(value: &str) -> String {
-    let parsed: serde_json::Value = schema_result_or_unreachable(
-        serde_json::from_str(value),
-        "parent UI bridge screen JSON parses",
-    );
-    schema_result_or_unreachable(
-        serde_json::to_string(&parsed),
-        "parent UI bridge screen JSON serializes",
+const PARENT_UI_BRIDGE_VALIDATION_MARKER: &str =
+    "type ParentUiBridgeRuntimeValidator = (value: unknown) => boolean;\n";
+const PARENT_UI_BRIDGE_ACTIONS_MARKER: &str = "export type ParentChildDeviceId = ";
+const PARENT_UI_BRIDGE_VALIDATION_DETAIL_MARKER: &str = "const parentUiBridgeDetail =";
+
+fn parent_ui_bridge_template_parts(template: &str) -> (&str, &str, &str) {
+    let (prefix, validation_and_actions) = template
+        .split_once(PARENT_UI_BRIDGE_VALIDATION_MARKER)
+        .unwrap_or_else(|| unreachable!("parent UI bridge validation marker is present"));
+    let (validation, suffix) = validation_and_actions
+        .split_once(PARENT_UI_BRIDGE_ACTIONS_MARKER)
+        .unwrap_or_else(|| unreachable!("parent UI bridge actions marker is present"));
+    (prefix, validation, suffix)
+}
+
+fn parent_ui_bridge_without_validation_template() -> String {
+    let template = parent_ui_bridge_typescript_template();
+    let (prefix, _, suffix) = parent_ui_bridge_template_parts(&template);
+    format!("{prefix}{PARENT_UI_BRIDGE_ACTIONS_MARKER}{suffix}")
+}
+
+fn indent_typescript_block(value: &str, indentation: &str) -> String {
+    value
+        .lines()
+        .map(|line| {
+            if line.is_empty() {
+                String::new()
+            } else {
+                format!("{indentation}{line}")
+            }
+        })
+        .collect::<Vec<_>>()
+        .join("\n")
+}
+
+fn parent_ui_bridge_validation_source_parts() -> (String, String) {
+    let template = parent_ui_bridge_typescript_template();
+    let (_, validation, _) = parent_ui_bridge_template_parts(&template);
+    let validation_source = format!("{PARENT_UI_BRIDGE_VALIDATION_MARKER}{validation}")
+        .replace("export function ", "function ");
+    let detail_start = validation_source
+        .find(PARENT_UI_BRIDGE_VALIDATION_DETAIL_MARKER)
+        .unwrap_or_else(|| unreachable!("parent UI bridge validation detail marker is present"));
+    (
+        validation_source[..detail_start].to_string(),
+        validation_source[detail_start..].to_string(),
     )
 }
 
-fn activity_memory_graph_typescript(prefix: &str) -> String {
-    ACTIVITY_MEMORY_GRAPH_TYPESCRIPT_TEMPLATE
-        .strip_suffix('\n')
-        .unwrap_or(ACTIVITY_MEMORY_GRAPH_TYPESCRIPT_TEMPLATE)
-        .replace("__ACTIVITY_MEMORY_GRAPH_PREFIX__", prefix)
+fn exported_parent_ui_bridge_validation_primitives(source: &str) -> String {
+    source
+        .lines()
+        .map(|line| {
+            if line.starts_with("type ParentUiBridgeRuntimeValidator")
+                || line.starts_with("const ")
+                || line.starts_with("function ")
+            {
+                format!("export {line}")
+            } else {
+                line.to_string()
+            }
+        })
+        .collect::<Vec<_>>()
+        .join("\n")
 }
 
-fn trim_generated_trailing_whitespace(value: &str) -> String {
-    let mut trimmed = String::with_capacity(value.len());
+const PARENT_UI_BRIDGE_VALIDATION_PRIMITIVE_NAMES: &[&str] = &[
+    "ParentUiBridgeRuntimeValidator",
+    "ParentUiBridgeDecodeLimit",
+    "parentUiBridgeIsRecord",
+    "parentUiBridgeString",
+    "parentUiBridgeNumber",
+    "parentUiBridgeInteger",
+    "parentUiBridgeNonNegativeInteger",
+    "parentUiBridgeBoolean",
+    "parentUiBridgeLiteral",
+    "parentUiBridgeArray",
+    "parentUiBridgeOptionalNullable",
+    "parentUiBridgeNullable",
+    "parentUiBridgeObject",
+    "parentUiBridgeJsonValue",
+    "parentUiBridgeUnknownRecord",
+    "parentUiBridgeStringArray",
+    "parentUiBridgeOptionalString",
+    "parentUiBridgeOptionalNumber",
+    "parentUiBridgeOptionalInteger",
+    "parentUiBridgeOptionalUnknownRecord",
+    "parentUiBridgeDecodedBy",
+];
 
-    for line in value.split_inclusive('\n') {
-        if let Some(content) = line.strip_suffix('\n') {
-            trimmed.push_str(content.trim_end());
-            trimmed.push('\n');
-        } else {
-            trimmed.push_str(line.trim_end());
-        }
-    }
-
-    trimmed
+fn parent_ui_bridge_validation_primitive_imports(validation_body: &str) -> String {
+    let names = PARENT_UI_BRIDGE_VALIDATION_PRIMITIVE_NAMES
+        .iter()
+        .copied()
+        .filter(|name| validation_body.contains(name))
+        .collect::<Vec<_>>();
+    let value_imports = names
+        .iter()
+        .filter(|name| **name != "ParentUiBridgeRuntimeValidator")
+        .map(|name| format!("  {name},"))
+        .collect::<Vec<_>>()
+        .join("\n");
+    let type_import = if names.contains(&"ParentUiBridgeRuntimeValidator") {
+        "  ParentUiBridgeRuntimeValidator,\n"
+    } else {
+        ""
+    };
+    format!(
+        "import {{\n{value_imports}\n}} from './parent-ui-bridge-validation-primitives';\nimport type {{\n{type_import}}} from './parent-ui-bridge-validation-primitives';\n"
+    )
 }
 
-pub fn parent_ui_bridge_typescript() -> String {
+fn parent_ui_bridge_validation_wrappers() -> &'static str {
+    r#"
+const parentUiBridgeValidation = createParentUiBridgeValidation({
+  bridgeConnectionState: ParentBridgeConnectionState,
+  desktopDistributionRuntime: ParentDesktopDistributionRuntime,
+  hostBridgeRuntime: ParentHostBridgeRuntime,
+  portalParentAccessState: ParentPortalParentAccessState,
+  portalTone: ParentPortalTone,
+  route: ParentRoute,
+  routeDataSource: ParentRouteDataSource,
+  serviceHealthAuthenticationState: ParentServiceHealthAuthenticationState,
+  serviceHealthReason: ParentServiceHealthReason,
+  serviceHealthRoute: ParentServiceHealthRoute,
+  serviceHealthState: ParentServiceHealthState,
+  serviceHealthTransport: ParentServiceHealthTransport,
+});
+
+export function decodeParentTrackingStatusPanelSnapshot(
+  value: unknown,
+): ParentTrackingStatusPanelSnapshot {
+  return parentUiBridgeValidation.decodeParentTrackingStatusPanelSnapshot(value);
+}
+
+export function decodeParentDesktopDistributionSnapshot(
+  value: unknown,
+): ParentDesktopDistributionSnapshot {
+  return parentUiBridgeValidation.decodeParentDesktopDistributionSnapshot(value);
+}
+
+export function decodeParentRouteSnapshot(value: unknown): ParentRouteSnapshot {
+  return parentUiBridgeValidation.decodeParentRouteSnapshot(value);
+}
+
+export function decodeParentRouteSnapshotForRoute(
+  value: unknown,
+  expectedRoute: ParentRouteId,
+): ParentRouteSnapshot {
+  return parentUiBridgeValidation.decodeParentRouteSnapshotForRoute(value, expectedRoute);
+}
+
+export function decodeParentUiActionResult(value: unknown): ParentUiActionResult {
+  return parentUiBridgeValidation.decodeParentUiActionResult(value);
+}
+
+export function decodeParentSubscriptionEvent(value: unknown): ParentSubscriptionEvent {
+  return parentUiBridgeValidation.decodeParentSubscriptionEvent(value);
+}
+
+export function decodeParentRouteSubscriptionId(value: unknown): ParentRouteSubscriptionId {
+  return parentUiBridgeValidation.decodeParentRouteSubscriptionId(value);
+}
+
+export function decodeParentBridgeUnsubscribeResult(value: unknown): boolean {
+  return parentUiBridgeValidation.decodeParentBridgeUnsubscribeResult(value);
+}
+"#
+}
+
+fn parent_ui_bridge_render_template(template: &str) -> String {
     trim_generated_trailing_whitespace(
-        &parent_ui_bridge_typescript_template()
+        &template
             .replace(
                 PARENT_BRIDGE_COMMAND_LOAD_ROUTE_TOKEN,
                 PARENT_BRIDGE_COMMAND_LOAD_ROUTE,
@@ -440,6 +577,160 @@ pub fn parent_ui_bridge_typescript() -> String {
                 &activity_memory_graph_typescript("Parent"),
             ),
     )
+}
+
+fn parent_ui_bridge_json_literal(value: &str) -> String {
+    let parsed: serde_json::Value = schema_result_or_unreachable(
+        serde_json::from_str(value),
+        "parent UI bridge screen JSON parses",
+    );
+    schema_result_or_unreachable(
+        serde_json::to_string(&parsed),
+        "parent UI bridge screen JSON serializes",
+    )
+}
+
+fn activity_memory_graph_typescript(prefix: &str) -> String {
+    ACTIVITY_MEMORY_GRAPH_TYPESCRIPT_TEMPLATE
+        .strip_suffix('\n')
+        .unwrap_or(ACTIVITY_MEMORY_GRAPH_TYPESCRIPT_TEMPLATE)
+        .replace("__ACTIVITY_MEMORY_GRAPH_PREFIX__", prefix)
+}
+
+fn trim_generated_trailing_whitespace(value: &str) -> String {
+    let mut trimmed = String::with_capacity(value.len());
+
+    for line in value.split_inclusive('\n') {
+        if let Some(content) = line.strip_suffix('\n') {
+            trimmed.push_str(content.trim_end());
+            trimmed.push('\n');
+        } else {
+            trimmed.push_str(line.trim_end());
+        }
+    }
+
+    trimmed
+}
+
+pub fn parent_ui_bridge_typescript() -> String {
+    let mut generated =
+        parent_ui_bridge_render_template(&parent_ui_bridge_without_validation_template());
+    let import =
+        "import { createParentUiBridgeValidation } from './parent-ui-bridge-validation';\n";
+    let header_end = generated
+        .find('\n')
+        .unwrap_or_else(|| unreachable!("parent UI bridge generated header has a newline"));
+    generated.insert_str(header_end + 1, &format!("\n{import}"));
+    generated.push_str(parent_ui_bridge_validation_wrappers());
+    generated
+}
+
+pub fn parent_ui_bridge_validation_typescript() -> String {
+    let (_, validation_body_source) = parent_ui_bridge_validation_source_parts();
+    let validation_body = indent_typescript_block(&validation_body_source, "  ");
+    let primitive_imports = parent_ui_bridge_validation_primitive_imports(&validation_body_source);
+    let mut generated = String::from(
+        "/* generated from crates/schema/src/parent_ui_bridge.rs */\n\n\
+import { decodeParentActivityMemoryGraphReadModelSnapshot } from './parent-ui-bridge';\n\
+import type {\n\
+  ParentDesktopDistributionSnapshot,\n\
+  ParentRouteId,\n\
+  ParentRouteSnapshot,\n\
+  ParentRouteSubscriptionId,\n\
+  ParentSubscriptionEvent,\n\
+  ParentTrackingStatusPanelSnapshot,\n\
+  ParentUiActionResult,\n\
+} from './parent-ui-bridge';\n\n\
+type ParentUiBridgeValidationRuntimeObject = Readonly<\n\
+  Record<string, string | number | boolean>\n\
+>;\n\n\
+type ParentUiBridgeValidationDesktopDistributionRuntime =\n\
+  ParentUiBridgeValidationRuntimeObject & {\n\
+    readonly PayloadSource: string;\n\
+    readonly SourceCustodyState: string;\n\
+    readonly ProductClaimState: string;\n\
+    readonly NoClaim: string;\n\
+    readonly PackageFrontendState: string;\n\
+    readonly PackageServiceManagerState: string;\n\
+    readonly PackageHealthProbeState: string;\n\
+    readonly PackagePreviewState: string;\n\
+    readonly UpdateChannelState: string;\n\
+    readonly RollbackState: string;\n\
+    readonly SigningState: string;\n\
+    readonly NotarizationState: string;\n\
+    readonly StoreDistributionState: string;\n\
+    readonly PlatformMatrixState: string;\n\
+    readonly ReleaseBranchState: string;\n\
+    readonly ArtifactProofState: string;\n\
+    readonly ActionsAvailable: boolean;\n\
+  };\n\n\
+type ParentUiBridgeValidationHostBridgeRuntime =\n\
+  ParentUiBridgeValidationRuntimeObject & { readonly SchemaVersion: number };\n\
+type ParentUiBridgeValidationRoute = ParentUiBridgeValidationRuntimeObject & {\n\
+  readonly PlatformsInstall: string;\n\
+  readonly InstallUpdates: string;\n\
+};\n\n\
+export function createParentUiBridgeValidation(\n\
+  dependencies: {\n\
+    readonly bridgeConnectionState: ParentUiBridgeValidationRuntimeObject;\n\
+    readonly desktopDistributionRuntime: ParentUiBridgeValidationDesktopDistributionRuntime;\n\
+    readonly hostBridgeRuntime: ParentUiBridgeValidationHostBridgeRuntime;\n\
+    readonly portalParentAccessState: ParentUiBridgeValidationRuntimeObject;\n\
+    readonly portalTone: ParentUiBridgeValidationRuntimeObject;\n\
+    readonly route: ParentUiBridgeValidationRoute;\n\
+    readonly routeDataSource: ParentUiBridgeValidationRuntimeObject;\n\
+    readonly serviceHealthAuthenticationState: ParentUiBridgeValidationRuntimeObject;\n\
+    readonly serviceHealthReason: ParentUiBridgeValidationRuntimeObject;\n\
+    readonly serviceHealthRoute: ParentUiBridgeValidationRuntimeObject;\n\
+    readonly serviceHealthState: ParentUiBridgeValidationRuntimeObject;\n\
+    readonly serviceHealthTransport: ParentUiBridgeValidationRuntimeObject;\n\
+  },\n\
+) {\n\
+  const {\n\
+    bridgeConnectionState: ParentBridgeConnectionState,\n\
+    desktopDistributionRuntime: ParentDesktopDistributionRuntime,\n\
+    hostBridgeRuntime: ParentHostBridgeRuntime,\n\
+    portalParentAccessState: ParentPortalParentAccessState,\n\
+    portalTone: ParentPortalTone,\n\
+    route: ParentRoute,\n\
+    routeDataSource: ParentRouteDataSource,\n\
+    serviceHealthAuthenticationState: ParentServiceHealthAuthenticationState,\n\
+    serviceHealthReason: ParentServiceHealthReason,\n\
+    serviceHealthRoute: ParentServiceHealthRoute,\n\
+    serviceHealthState: ParentServiceHealthState,\n\
+    serviceHealthTransport: ParentServiceHealthTransport,\n\
+  } = dependencies;\n\n",
+    );
+    generated.insert_str(
+        generated
+            .find("type ParentUiBridgeValidationRuntimeObject")
+            .unwrap_or_else(|| unreachable!("parent UI bridge validation runtime type is present")),
+        &primitive_imports,
+    );
+    generated.push_str(&validation_body);
+    generated.push_str(
+        "\n  return {\n\
+    decodeParentTrackingStatusPanelSnapshot,\n\
+    decodeParentDesktopDistributionSnapshot,\n\
+    decodeParentRouteSnapshot,\n\
+    decodeParentRouteSnapshotForRoute,\n\
+    decodeParentUiActionResult,\n\
+    decodeParentSubscriptionEvent,\n\
+    decodeParentRouteSubscriptionId,\n\
+    decodeParentBridgeUnsubscribeResult,\n\
+  };\n\
+}\n",
+    );
+    trim_generated_trailing_whitespace(&generated)
+}
+
+pub fn parent_ui_bridge_validation_primitives_typescript() -> String {
+    let (primitive_source, _) = parent_ui_bridge_validation_source_parts();
+    let exported = exported_parent_ui_bridge_validation_primitives(&primitive_source);
+    trim_generated_trailing_whitespace(&format!(
+        "/* generated from crates/schema/src/parent_ui_bridge.rs */\n\n{}\n",
+        exported.trim_end()
+    ))
 }
 
 pub fn agent_protocol_domain_contracts_typescript() -> String {

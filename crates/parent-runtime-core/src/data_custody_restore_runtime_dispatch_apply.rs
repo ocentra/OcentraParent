@@ -91,7 +91,7 @@ fn validate_existing_migration(
     if migration_receipt_matches_plan(plan, receipt) {
         Ok(())
     } else {
-        Err(RestoreRuntimeError::Ledger(
+        Err(RestoreRuntimeError::from(
             RestoreLedgerError::IdentityMismatch,
         ))
     }

@@ -40,7 +40,7 @@ impl SqliteAccountIdentityAuthorityRepository {
         let transaction = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
-            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
+            .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)?;
         let (now, _) = trusted_now_in_transaction(&transaction)?;
         ensure_current_authority(&transaction, authority, now)?;
         enforce_invite_rate_limit(
@@ -58,18 +58,20 @@ impl SqliteAccountIdentityAuthorityRepository {
         let expires_at = timestamp(expires_at_epoch_millis)?;
         persist_setup_invite(
             &transaction,
-            authority,
-            purpose,
-            target_role,
-            recipient,
-            &invite_id,
-            &token_digest,
-            now,
-            expires_at_epoch_millis,
+            &SetupInvitePersistence {
+                authority,
+                purpose,
+                target_role,
+                recipient,
+                invite_id: &invite_id,
+                token_digest: &token_digest,
+                issued_at: now,
+                expires_at: expires_at_epoch_millis,
+            },
         )?;
         transaction
             .commit()
-            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
+            .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)?;
         Ok(IssuedSetupInvite {
             code: SetupInviteCode { invite_id, token },
             purpose,
@@ -86,11 +88,11 @@ impl SqliteAccountIdentityAuthorityRepository {
         let transaction = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
-            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
+            .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)?;
         let (now, accepted_at) = trusted_now_in_transaction(&transaction)?;
         let row = load_invite_row(&transaction, &code)?;
-        let target_role =
-            target_role_from_label(&row.1).ok_or(InviteRecoveryRepositoryError::InvalidInvite)?;
+        let target_role = target_role_from_label(&row.target_role)
+            .ok_or(InviteRecoveryRepositoryError::InvalidInvite)?;
         validate_redeem_row(&row, recipient, now)?;
         accept_invite(&transaction, &code, now)?;
         insert_pending_membership(&transaction, &code, &row, target_role, now)?;
@@ -106,18 +108,28 @@ impl SqliteAccountIdentityAuthorityRepository {
         )?;
         transaction
             .commit()
-            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
-        redeemed_invite(code, row, recipient, target_role, accepted_at)
+            .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)?;
+        let redeemed = redeemed_invite(&code, row, recipient, target_role, accepted_at);
+        drop(code);
+        redeemed
     }
+}
+
+struct InviteRow {
+    household_id: String,
+    target_role: String,
+    state: String,
+    expires_at: i64,
+    provider: String,
+    provider_subject: String,
+    account_id: String,
+    email_digest: String,
 }
 
 fn load_invite_row(
     transaction: &Transaction<'_>,
     code: &SetupInviteCode,
-) -> Result<
-    (String, String, String, i64, String, String, String, String),
-    InviteRecoveryRepositoryError,
-> {
+) -> Result<InviteRow, InviteRecoveryRepositoryError> {
     transaction
         .query_row(
             "SELECT household_id, target_role, state, expires_at_epoch_millis,
@@ -127,20 +139,20 @@ fn load_invite_row(
                  WHERE invite_id = ?1 AND token_digest = ?2 LIMIT 1",
             params![code.invite_id().as_str(), digest_token(code.as_str())],
             |row| {
-                Ok((
-                    row.get::<_, String>(0)?,
-                    row.get::<_, String>(1)?,
-                    row.get::<_, String>(2)?,
-                    row.get::<_, i64>(3)?,
-                    row.get::<_, String>(4)?,
-                    row.get::<_, String>(5)?,
-                    row.get::<_, String>(6)?,
-                    row.get::<_, String>(7)?,
-                ))
+                Ok(InviteRow {
+                    household_id: row.get::<_, String>(0)?,
+                    target_role: row.get::<_, String>(1)?,
+                    state: row.get::<_, String>(2)?,
+                    expires_at: row.get::<_, i64>(3)?,
+                    provider: row.get::<_, String>(4)?,
+                    provider_subject: row.get::<_, String>(5)?,
+                    account_id: row.get::<_, String>(6)?,
+                    email_digest: row.get::<_, String>(7)?,
+                })
             },
         )
         .optional()
-        .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?
+        .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)?
         .ok_or(InviteRecoveryRepositoryError::InviteRejected)
 }
 
@@ -160,7 +172,7 @@ fn valid_issue_request(
 }
 
 fn invite_expiry(now: i64, ttl: Duration) -> Result<i64, InviteRecoveryRepositoryError> {
-    let ttl_millis = i64::try_from(ttl.as_millis()).map_err(|_| {
+    let ttl_millis = i64::try_from(ttl.as_millis()).map_err(|_error| {
         InviteRecoveryRepositoryError::InvalidValue(EventingError::InvalidValue {
             field: "family_identity.setup_invite.ttl",
             value: String::from("overflow"),
@@ -170,16 +182,20 @@ fn invite_expiry(now: i64, ttl: Duration) -> Result<i64, InviteRecoveryRepositor
         .ok_or(InviteRecoveryRepositoryError::InvalidInvite)
 }
 
-fn persist_setup_invite(
-    transaction: &Transaction<'_>,
-    authority: &VerifiedAccountIdentityAuthority,
+struct SetupInvitePersistence<'a> {
+    authority: &'a VerifiedAccountIdentityAuthority,
     purpose: SetupInvitePurpose,
     target_role: SetupInviteTargetRole,
-    recipient: &VerifiedInviteRecipient,
-    invite_id: &SetupInviteId,
-    token_digest: &str,
-    now: i64,
+    recipient: &'a VerifiedInviteRecipient,
+    invite_id: &'a SetupInviteId,
+    token_digest: &'a str,
+    issued_at: i64,
     expires_at: i64,
+}
+
+fn persist_setup_invite(
+    transaction: &Transaction<'_>,
+    input: &SetupInvitePersistence<'_>,
 ) -> Result<(), InviteRecoveryRepositoryError> {
     transaction
         .execute(
@@ -192,40 +208,40 @@ fn persist_setup_invite(
                  state, use_count
              ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, 'pending', 0)",
             params![
-                invite_id.as_str(),
-                token_digest,
-                authority.household_id().to_string(),
-                authority.account_id().to_string(),
-                authority.member_id().as_str(),
-                authority.device_id().as_str(),
-                authority.authority_generation() as i64,
-                authority.session_generation() as i64,
-                role_label(authority.role()),
-                purpose_label(purpose),
-                target_role_label(target_role),
-                provider_label(&recipient.provider),
-                recipient.provider_subject.as_str(),
-                recipient.account_id.to_string(),
-                recipient.email_digest.as_str(),
-                now,
-                expires_at,
+                input.invite_id.as_str(),
+                input.token_digest,
+                input.authority.household_id().to_string(),
+                input.authority.account_id().to_string(),
+                input.authority.member_id().as_str(),
+                input.authority.device_id().as_str(),
+                input.authority.authority_generation() as i64,
+                input.authority.session_generation() as i64,
+                role_label(input.authority.role()),
+                purpose_label(input.purpose),
+                target_role_label(input.target_role),
+                provider_label(&input.recipient.provider),
+                input.recipient.provider_subject.as_str(),
+                input.recipient.account_id.to_string(),
+                input.recipient.email_digest.as_str(),
+                input.issued_at,
+                input.expires_at,
             ],
         )
         .map(|_| ())
-        .map_err(|_| InviteRecoveryRepositoryError::Unavailable)
+        .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)
 }
 
 fn validate_redeem_row(
-    row: &(String, String, String, i64, String, String, String, String),
+    row: &InviteRow,
     recipient: &VerifiedInviteRecipient,
     now: i64,
 ) -> Result<(), InviteRecoveryRepositoryError> {
-    if row.2 != "pending"
-        || row.3 <= now
-        || row.4 != provider_label(&recipient.provider)
-        || row.5 != recipient.provider_subject.as_str()
-        || row.6 != recipient.account_id.to_string()
-        || row.7 != recipient.email_digest
+    if row.state != "pending"
+        || row.expires_at <= now
+        || row.provider != provider_label(&recipient.provider)
+        || row.provider_subject != recipient.provider_subject.as_str()
+        || row.account_id != recipient.account_id.to_string()
+        || row.email_digest != recipient.email_digest
     {
         return Err(InviteRecoveryRepositoryError::InviteRejected);
     }
@@ -245,7 +261,7 @@ fn accept_invite(
                AND expires_at_epoch_millis > ?3 AND use_count = 0",
             params![code.invite_id().as_str(), digest_token(code.as_str()), now],
         )
-        .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
+        .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)?;
     (changed == 1)
         .then_some(())
         .ok_or(InviteRecoveryRepositoryError::InviteRejected)
@@ -254,7 +270,7 @@ fn accept_invite(
 fn insert_pending_membership(
     transaction: &Transaction<'_>,
     code: &SetupInviteCode,
-    row: &(String, String, String, i64, String, String, String, String),
+    row: &InviteRow,
     target_role: SetupInviteTargetRole,
     now: i64,
 ) -> Result<(), InviteRecoveryRepositoryError> {
@@ -268,27 +284,27 @@ fn insert_pending_membership(
              ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, 'pending', ?7, NULL, NULL, 0)",
             params![
                 code.invite_id().as_str(),
-                row.0,
-                row.4,
-                row.5,
-                row.6,
+                row.household_id,
+                row.provider,
+                row.provider_subject,
+                row.account_id,
                 target_role_label(target_role),
                 now,
             ],
         )
         .map(|_| ())
-        .map_err(|_| InviteRecoveryRepositoryError::Unavailable)
+        .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)
 }
 
 fn redeemed_invite(
-    code: SetupInviteCode,
-    row: (String, String, String, i64, String, String, String, String),
+    code: &SetupInviteCode,
+    row: InviteRow,
     recipient: &VerifiedInviteRecipient,
     target_role: SetupInviteTargetRole,
     accepted_at: String,
 ) -> Result<RedeemedSetupInvite, InviteRecoveryRepositoryError> {
     let household_id =
-        FamilyId::parse(row.0).ok_or(InviteRecoveryRepositoryError::InvalidInvite)?;
+        FamilyId::parse(row.household_id).ok_or(InviteRecoveryRepositoryError::InvalidInvite)?;
     Ok(RedeemedSetupInvite {
         invite_id: code.invite_id().clone(),
         household_id: household_id.clone(),

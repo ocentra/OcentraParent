@@ -66,7 +66,10 @@ export type GeneratedParentStorageUiState =
   | 'ocentraHostedStorageNotUsed'
   | 'ready';
 export type GeneratedParentStorageEncryptionStatus =
-  'encrypted-before-upload' | 'human-readable-parent-authorized' | 'not-applicable' | 'manual-required';
+  | 'encrypted-before-upload'
+  | 'human-readable-parent-authorized'
+  | 'not-applicable'
+  | 'manual-required';
 export type GeneratedParentStorageKeyStatus = 'keyAvailable' | 'keyUnavailable' | 'keyRevoked' | 'manualRequired';
 export type GeneratedParentStoragePreviewState =
   | 'importPreviewPassed'

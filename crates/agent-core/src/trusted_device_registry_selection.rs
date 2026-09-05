@@ -38,7 +38,7 @@ impl TrustedDeviceRegistry {
 
     pub fn selected_target_at(&self, observed_at: &str) -> Option<LanSelectedRouteTarget> {
         self.selected_entry_at(observed_at)?;
-        Some(self.selected_target_with_reachability(self.selected_reachability_at(observed_at))?)
+        self.selected_target_with_reachability(self.selected_reachability_at(observed_at))
     }
 
     pub fn trusted_device_count(&self) -> usize {

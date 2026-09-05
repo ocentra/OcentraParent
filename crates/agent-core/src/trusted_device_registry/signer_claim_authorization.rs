@@ -1,5 +1,4 @@
 use ocentra_lan_core::lan_pairing::signed_household_mesh_ingress::LanCryptographicallyVerifiedHouseholdMeshIngress;
-use ocentra_parent_agent_protocol::lan_pairing::signed_household_mesh_ingress::transport::LanSignedHouseholdMeshTransportClaimDto;
 use ocentra_parent_agent_protocol::lan_pairing::{
     LanPairingDeviceReachability, LanPairingRejectionReason, LanPairingTrustState,
 };

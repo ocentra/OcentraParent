@@ -6,6 +6,9 @@ use crate::{
     SubscriberId, TargetHandler,
 };
 
+#[path = "dead_letter_reason.rs"]
+mod reason;
+
 const DEAD_LETTER_CREATED_EVENT_TYPE: &str = "eventing.dead_letter.created";
 const DEAD_LETTER_CREATED_SCHEMA_VERSION: u16 = 1;
 const DEAD_LETTER_IDEMPOTENCY_PREFIX: &str = "dead-letter";
@@ -103,22 +106,6 @@ pub enum DeadLetterReason {
     Shutdown,
 }
 
-impl DeadLetterReason {
-    pub(crate) fn idempotency_label(self) -> &'static str {
-        match self {
-            Self::HandlerFailed => "handler-failed",
-            Self::HandlerTimedOut => "handler-timed-out",
-            Self::HandlerDeadlineExpired => "handler-deadline-expired",
-            Self::HandlerPanicked => "handler-panicked",
-            Self::NoSubscriber => "no-subscriber",
-            Self::QueueOverflow => "queue-overflow",
-            Self::QueueExpired => "queue-expired",
-            Self::DeadlineExpired => "deadline-expired",
-            Self::Shutdown => "shutdown",
-        }
-    }
-}
-
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct DeadLetterEvent {
     pub original_event_id: EventId,
@@ -151,6 +138,28 @@ impl DomainEvent for DeadLetterEvent {
         value.push_str(self.original_event_id.as_str());
         value.push_str(DEAD_LETTER_IDEMPOTENCY_SEPARATOR);
         value.push_str(self.reason.idempotency_label());
+        if self.subscriber_id.is_some() || self.target_handler.is_some() {
+            append_idempotency_component(
+                &mut value,
+                "subscriber",
+                self.subscriber_id.as_ref().map(SubscriberId::as_str),
+            );
+            append_idempotency_component(
+                &mut value,
+                "target",
+                self.target_handler.as_ref().map(TargetHandler::as_str),
+            );
+        }
         IdempotencyKey::parse(value)
     }
+}
+
+fn append_idempotency_component(value: &mut String, label: &str, component: Option<&str>) {
+    let component = component.unwrap_or_default();
+    value.push_str(DEAD_LETTER_IDEMPOTENCY_SEPARATOR);
+    value.push_str(label);
+    value.push_str(DEAD_LETTER_IDEMPOTENCY_SEPARATOR);
+    value.push_str(&component.len().to_string());
+    value.push(':');
+    value.push_str(component);
 }

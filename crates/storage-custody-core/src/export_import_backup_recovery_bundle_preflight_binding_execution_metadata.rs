@@ -81,7 +81,7 @@ impl RestoreExecutionBinding {
         let mut reservations = self
             .dispatch_reservations
             .lock()
-            .map_err(|_| super::DispatchReservationError::OwnerUnavailable)?;
+            .map_err(|_error| super::DispatchReservationError::OwnerUnavailable)?;
         if !reservations.insert(key) {
             return Err(super::DispatchReservationError::AlreadyReserved);
         }

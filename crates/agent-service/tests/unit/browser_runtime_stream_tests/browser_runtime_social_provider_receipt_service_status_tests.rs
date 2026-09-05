@@ -247,5 +247,5 @@ fn assert_social_provider_durable_refs(report: &BrowserRuntimeServiceStreamRepor
 }
 
 fn json_array_value(values: &[&TestStr]) -> LogFieldValue {
-    LogFieldValue::String(crate::test_invariants::serialize_test_json(values))
+    LogFieldValue::String(super::serialize_test_json(values))
 }

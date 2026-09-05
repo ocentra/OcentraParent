@@ -2,9 +2,9 @@ use super::{scan_history, LanNetworkDeviceScanResult};
 
 pub(crate) fn effective_replay_projection(
     scan_result: &LanNetworkDeviceScanResult,
-    persisted_projection: Option<scan_history::LanReplayCanonicalProjection>,
+    persisted_projection: Option<&scan_history::LanReplayCanonicalProjection>,
 ) -> Option<scan_history::LanReplayCanonicalProjection> {
-    scan_history::valid_replay_projection(persisted_projection.as_ref())
+    scan_history::valid_replay_projection(persisted_projection)
         .cloned()
         .or_else(|| {
             scan_result

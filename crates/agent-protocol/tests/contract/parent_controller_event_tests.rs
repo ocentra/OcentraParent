@@ -6,6 +6,7 @@ use super::{
         ParentControllerEventContract, ParentReadModelProjectedEvent,
     },
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[path = "parent_controller_event_fixtures.rs"]
 mod parent_controller_event_fixtures;
@@ -179,7 +180,7 @@ fn parent_controller_contracts_validate_schema_and_owned_refs() {
 #[test]
 fn parent_controller_contracts_reject_schema_skew_blank_text_and_unknown_fields() {
     let valid = serde_json::to_value(parent_action_received_event())
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     let mut schema_skew = valid.clone();
     schema_skew["schemaVersion"] =

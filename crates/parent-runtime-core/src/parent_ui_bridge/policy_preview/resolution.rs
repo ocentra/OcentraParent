@@ -75,14 +75,14 @@ pub(crate) fn begin(
 
 pub(crate) fn request_payload(staged: &StagedParentResolution) -> Result<Value, String> {
     let request = serde_json::to_string(&staged.request)
-        .map_err(|_| "parent resolution request could not be serialized".to_string())?;
+        .map_err(|error| format!("parent resolution request could not be serialized: {error}"))?;
     Ok(serde_json::json!({ RESOLUTION_PAYLOAD_FIELD: request }))
 }
 
 pub(crate) fn commit(staged: &StagedParentResolution) -> Result<(), String> {
     let mut resolution_store = store()
         .lock()
-        .map_err(|_| "parent resolution store is unavailable".to_string())?;
+        .map_err(|error| format!("parent resolution store is unavailable: {error}"))?;
     let Some(entry) = resolution_store.entries.get(&staged.handle) else {
         return Err("parent resolution handle is unknown or already consumed".to_string());
     };
@@ -99,7 +99,7 @@ pub(crate) fn commit(staged: &StagedParentResolution) -> Result<(), String> {
 pub(crate) fn restore(staged: &StagedParentResolution) -> Result<(), String> {
     let mut resolution_store = store()
         .lock()
-        .map_err(|_| "parent resolution store is unavailable".to_string())?;
+        .map_err(|error| format!("parent resolution store is unavailable: {error}"))?;
     let Some(entry) = resolution_store.entries.get_mut(&staged.handle) else {
         return Err("parent resolution handle is unknown or already consumed".to_string());
     };

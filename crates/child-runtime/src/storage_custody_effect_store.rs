@@ -70,10 +70,25 @@ pub(super) struct StorageCustodyEffectRecord {
     apply_lease_id: Option<String>,
 }
 
+pub(super) struct StorageCustodyEffectRecordPreparation {
+    pub(super) operation_ref: String,
+    pub(super) effect_kind: StorageCustodyEffectKind,
+    pub(super) effect_ref: String,
+    pub(super) relative_path: Option<String>,
+    pub(super) household_id: String,
+    pub(super) child_profile_id: String,
+    pub(super) target_device_id: String,
+    pub(super) authority_generation: u64,
+    pub(super) session_generation: u64,
+    pub(super) custody_input: StorageCustodyInput,
+    pub(super) action: StorageCustodyActionPlannedEvent,
+    pub(super) envelope: StoredEventEnvelope,
+}
+
 #[derive(Clone)]
 pub(super) struct StorageCustodyEffectStore {
     path: PathBuf,
-    instance_lock: Arc<std::fs::File>,
+    _instance_lock: Arc<std::fs::File>,
 }
 
 impl StorageCustodyEffectStore {
@@ -86,7 +101,7 @@ impl StorageCustodyEffectStore {
         let instance_lock = storage_custody_effect_store_io::open_instance_lock(&directory)?;
         Ok(Self {
             path: directory.join("storage-custody-effects.json"),
-            instance_lock: Arc::new(instance_lock),
+            _instance_lock: Arc::new(instance_lock),
         })
     }
 
@@ -104,34 +119,21 @@ impl StorageCustodyEffectStore {
 }
 
 impl StorageCustodyEffectRecord {
-    pub(super) fn prepared(
-        operation_ref: String,
-        effect_kind: StorageCustodyEffectKind,
-        effect_ref: String,
-        relative_path: Option<String>,
-        household_id: String,
-        child_profile_id: String,
-        target_device_id: String,
-        authority_generation: u64,
-        session_generation: u64,
-        custody_input: StorageCustodyInput,
-        action: StorageCustodyActionPlannedEvent,
-        envelope: StoredEventEnvelope,
-    ) -> Self {
+    pub(super) fn prepared(preparation: StorageCustodyEffectRecordPreparation) -> Self {
         Self {
             schema_version: 1,
-            operation_ref,
-            effect_kind,
-            effect_ref,
-            relative_path,
-            household_id,
-            child_profile_id,
-            target_device_id,
-            authority_generation,
-            session_generation,
-            custody_input,
-            action,
-            envelope,
+            operation_ref: preparation.operation_ref,
+            effect_kind: preparation.effect_kind,
+            effect_ref: preparation.effect_ref,
+            relative_path: preparation.relative_path,
+            household_id: preparation.household_id,
+            child_profile_id: preparation.child_profile_id,
+            target_device_id: preparation.target_device_id,
+            authority_generation: preparation.authority_generation,
+            session_generation: preparation.session_generation,
+            custody_input: preparation.custody_input,
+            action: preparation.action,
+            envelope: preparation.envelope,
             status: StorageCustodyEffectStatus::Prepared,
             manual_required_reason: None,
             apply_lease_id: None,
@@ -171,7 +173,7 @@ impl StorageCustodyEffectRecord {
             ));
         }
         if self.effect_kind == StorageCustodyEffectKind::LocalDelete
-            && self.relative_path.as_deref().map_or(true, str::is_empty)
+            && self.relative_path.as_deref().is_none_or(str::is_empty)
         {
             return Err(io::Error::new(
                 io::ErrorKind::InvalidData,
@@ -198,7 +200,7 @@ impl StorageCustodyEffectRecord {
                     && self
                         .apply_lease_id
                         .as_deref()
-                        .map_or(true, |lease| !lease.trim().is_empty())
+                        .is_none_or(|lease| !lease.trim().is_empty())
             }
             StorageCustodyEffectStatus::Applied => {
                 self.apply_lease_id.is_none() && self.manual_required_reason.is_none()

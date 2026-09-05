@@ -159,7 +159,6 @@ fn invalid_identity_rows_are_rejected_before_sqlite_ingest() {
         ),
         Err(AppGameJournalSqliteIngestError::IdentityInvalid)
     );
-
 }
 
 #[test]
@@ -259,7 +258,7 @@ fn invalid_ai_classifier_shape_is_rejected_before_sqlite_ingest() {
 fn replay_rejects_action_shaped_ai_classifier_json() {
     let mut event = protocol_boundary_events()
         .pop()
-        .expect("classifier event fixture is present");
+        .expect_value("classifier event fixture is present");
     let row_json = event
         .fields
         .get(APP_GAME_JOURNAL_FIELD_ROW_JSON)
@@ -269,7 +268,7 @@ fn replay_rejects_action_shaped_ai_classifier_json() {
         })
         .expect_value("classifier event fixture contains row json");
     let mut encoded: serde_json::Value =
-        serde_json::from_str(row_json).expect("classifier event fixture is valid json");
+        serde_json::from_str(row_json).expect_value("classifier event fixture is valid json");
     encoded["block"] = serde_json::Value::Bool(true);
     event.fields.insert(
         APP_GAME_JOURNAL_FIELD_ROW_JSON.to_string(),
@@ -355,8 +354,8 @@ fn durable_protocol_replay_preserves_manual_required_state_after_restart() {
 fn replay_rejects_semantically_invalid_protocol_rows_from_sqlite() {
     let mut invalid_claim = evidence_claim();
     invalid_claim.runtime_state = APP_GAME_RUNTIME_RUNNING.to_string();
-    let invalid_claim_json =
-        serde_json::to_string(&invalid_claim).expect("serialize invalid evidence claim fixture");
+    let invalid_claim_json = serde_json::to_string(&invalid_claim)
+        .expect_value("serialize invalid evidence claim fixture");
     let mut event = protocol_boundary_events().remove(0);
     event.fields.insert(
         APP_GAME_JOURNAL_FIELD_ROW_JSON.to_string(),

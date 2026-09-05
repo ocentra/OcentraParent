@@ -1,27 +1,23 @@
-#[path = "../support/test_invariants.rs"]
-mod test_invariants;
-
 #[path = "app_game_timer_parent_preference_setup_request_outbox_tests.rs"]
 mod app_game_timer_parent_preference_setup_request_outbox_tests;
 
-use std::collections::BTreeSet;
 use std::fs::{read_to_string, remove_file};
 use std::path::PathBuf as TestPathBuf;
 use std::primitive::str as TestStr;
 use std::string::String as TestString;
-use std::sync::Arc;
-use std::thread;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use crate::test_invariants::{
-    require_json_decode, require_log_string_field, require_ok, require_some, serialize_test_json,
-};
-use crate::test_text::TestText;
+use crate::test_require_json_decode::require_json_decode;
+use crate::test_require_log_string_field::require_log_string_field;
+use crate::test_require_ok::require_ok;
+use crate::test_require_some::require_some;
+use crate::test_serialize_json::serialize_test_json;
 use ocentra_parent_agent_core::activity_store::ActivityStore;
 use ocentra_parent_agent_protocol::app_game::AppGameServiceReadModel;
 use ocentra_parent_agent_protocol::app_game_authority_classifier::{
     APP_GAME_CONTROL_ACTION_STATUS_MANUAL_REQUIRED, APP_GAME_CONTROL_PERSISTENCE_REPLAYABLE,
 };
+use ocentra_parent_agent_protocol::app_game_child_runtime_transport_receipt::AppGameChildRuntimeTransportReceiptReadModel;
 use ocentra_parent_agent_protocol::app_game_timer_parent_preference_setup_request::{
     AppGameTimerParentPreferenceSetupRequest, AppGameTimerParentPreferenceSetupRequestResult,
 };
@@ -35,9 +31,8 @@ use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
 use super::{
     app_game_timer_parent_preference_setup_request::AppGameTimerSetupStorePath,
-    app_game_timer_parent_preference_setup_request_outbox::append_setup_outbox_record,
-    build_timer_preference_report, build_timer_preference_report_for_store_path,
-    child_runtime_receipt_read_model_from_service_model,
+    build_child_runtime_receipt_report, build_timer_preference_report,
+    build_timer_preference_report_for_store_path,
 };
 
 const PERSISTED_SETUP_EVENT_COUNT: u64 = 14;
@@ -45,7 +40,7 @@ const PERSISTED_SETUP_EVENT_COUNT: u64 = 14;
 #[tokio::test]
 async fn app_game_timer_parent_preference_setup_request_command_returns_accepted_boundary_result() {
     let event = build_timer_preference_report(command_envelope()).await;
-    let result = request_payload(&crate::test_invariants::log_field(
+    let result = request_payload(&crate::test_log_field::log_field(
         &event.payload,
         constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST,
         constants::error::AGENT_EVENT_SERIALIZES,
@@ -111,9 +106,10 @@ async fn app_game_timer_parent_preference_setup_request_command_returns_accepted
 }
 #[tokio::test]
 async fn app_game_timer_parent_preference_setup_request_persists_action_result_row() {
-    let store_path = temp_path(TestText::from_display(
-        constants::activity_store::TEST_STORE_SUFFIX,
-    ));
+    let _guard = crate::activity_report_env_lock::REPORT_ENV_LOCK
+        .lock()
+        .await;
+    let store_path = temp_path(constants::activity_store::TEST_STORE_SUFFIX);
     cleanup_path(&store_path);
 
     let event = build_timer_preference_report_for_store_path(
@@ -121,7 +117,7 @@ async fn app_game_timer_parent_preference_setup_request_persists_action_result_r
         AppGameTimerSetupStorePath(store_path.clone()),
     )
     .await;
-    let result = request_payload(&crate::test_invariants::log_field(
+    let result = request_payload(&crate::test_log_field::log_field(
         &event.payload,
         constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST,
         constants::error::AGENT_EVENT_SERIALIZES,
@@ -146,11 +142,24 @@ async fn app_game_timer_parent_preference_setup_request_persists_action_result_r
         read_to_string(&outbox_path),
         constants::error::ACTIVITY_STORE_OPENS,
     );
+    let previous_store_path = std::env::var(constants::env_var::ACTIVITY_DB_PATH).ok();
+    std::env::set_var(constants::env_var::ACTIVITY_DB_PATH, &store_path);
+    let receipt_event =
+        build_child_runtime_receipt_report(child_runtime_receipt_command_envelope()).await;
+    match previous_store_path {
+        Some(path) => std::env::set_var(constants::env_var::ACTIVITY_DB_PATH, path),
+        None => std::env::remove_var(constants::env_var::ACTIVITY_DB_PATH),
+    }
+    let receipt_model = child_runtime_receipt_model(&receipt_event);
     cleanup_path(&store_path);
 
     assert_persisted_setup_result(&result);
     assert_eq!(status.events_stored, PERSISTED_SETUP_EVENT_COUNT);
-    assert_persisted_action_result_model(&model);
+    assert_persisted_action_result_model(&model, &receipt_model);
+    assert_eq!(
+        receipt_event.event,
+        AgentEventName::AgentActivityAppGameChildRuntimeTransportReceiptReadModelReported
+    );
     assert_persisted_setup_outbox(&result, &outbox_jsonl);
 }
 
@@ -228,7 +237,10 @@ fn assert_persisted_setup_result(result: &AppGameTimerParentPreferenceSetupReque
     assert_no_delivery_or_platform_claims(result);
 }
 
-fn assert_persisted_action_result_model(model: &AppGameServiceReadModel) {
+fn assert_persisted_action_result_model(
+    model: &AppGameServiceReadModel,
+    receipt_model: &AppGameChildRuntimeTransportReceiptReadModel,
+) {
     assert_eq!(model.approval_action_result_returned, 1);
     assert_eq!(
         model.approval_action_result_rows[0].result_id,
@@ -248,8 +260,6 @@ fn assert_persisted_action_result_model(model: &AppGameServiceReadModel) {
         .enforcement_result
         .is_none());
 
-    let receipt_model = child_runtime_receipt_read_model_from_service_model(model.clone());
-
     assert_eq!(receipt_model.returned, 1);
     assert_eq!(receipt_model.manual_required_count, 1);
     assert_eq!(
@@ -266,6 +276,20 @@ fn assert_persisted_action_result_model(model: &AppGameServiceReadModel) {
     );
     assert!(!receipt_model.runtime_transport_executed);
     assert!(!receipt_model.runtime_receipt_ingested);
+}
+
+fn child_runtime_receipt_model(
+    event: &ocentra_parent_agent_protocol::transport::AgentEventEnvelope,
+) -> AppGameChildRuntimeTransportReceiptReadModel {
+    require_json_decode(
+        require_log_string_field(
+            event
+                .payload
+                .get(constants::field::APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_READ_MODEL),
+            constants::error::AGENT_EVENT_SERIALIZES,
+        ),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    )
 }
 
 fn assert_child_runtime_delivery_handoff_boundary(
@@ -851,13 +875,23 @@ fn command_envelope() -> AgentCommandEnvelope {
     }
 }
 
+fn child_runtime_receipt_command_envelope() -> AgentCommandEnvelope {
+    let mut command = command_envelope();
+    command.message_id =
+        constants::event_id::ACTIVITY_APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_READ_MODEL_REPORTED
+            .to_string();
+    command.command =
+        AgentCommandName::AgentActivityAppGameChildRuntimeTransportReceiptReadModelGet;
+    command.payload = LogFields::new();
+    command
+}
+
 fn request_payload(value: &LogFieldValue) -> AppGameTimerParentPreferenceSetupRequestResult {
     let text = require_log_string_field(Some(value), constants::error::AGENT_EVENT_SERIALIZES);
     require_json_decode(text, constants::error::AGENT_EVENT_SERIALIZES)
 }
 
-fn temp_path(suffix: TestText) -> TestPathBuf {
-    let suffix = suffix;
+fn temp_path(suffix: impl AsRef<TestStr>) -> TestPathBuf {
     let mut name = TestString::from(constants::activity_store::TEST_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);

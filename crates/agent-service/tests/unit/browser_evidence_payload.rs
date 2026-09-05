@@ -6,8 +6,16 @@ declare_agent_service_unit_root_basic_harness!();
 mod browser_evidence_payload;
 #[path = "../../src/fields.rs"]
 mod fields;
-#[path = "../support/test_invariants.rs"]
-mod test_invariants;
+#[path = "../support/test_invariants/require_json_decode.rs"]
+mod test_require_json_decode;
+#[path = "../support/test_invariants/require_log_string_field.rs"]
+mod test_require_log_string_field;
+#[path = "../support/test_invariants/require_ok.rs"]
+mod test_require_ok;
+#[path = "../support/test_invariants/require_some.rs"]
+mod test_require_some;
+#[path = "../support/test_invariants/serialize_test_json.rs"]
+mod test_serialize_json;
 
 use ocentra_parent_agent_protocol::browser::{
     BrowserActiveProofSource, BrowserActiveTabState, BrowserCapabilityStatus, BrowserChannel,
@@ -42,24 +50,24 @@ fn browser_evidence_payload_uses_degraded_reason_field() {
 
 #[test]
 fn browser_evidence_payload_validates_invariant_helpers_with_real_values() {
-    let ok_value = crate::test_invariants::require_ok(
+    let ok_value = crate::test_require_ok::require_ok(
         Ok::<_, &'static str>("invariant-ok"),
         constants::error::AGENT_EVENT_SERIALIZES,
     );
-    let some_value = crate::test_invariants::require_some(
+    let some_value = crate::test_require_some::require_some(
         Some("invariant-some"),
         constants::error::AGENT_EVENT_SERIALIZES,
     );
-    let serialized = crate::test_invariants::serialize_test_json(&serde_json::json!({
+    let serialized = crate::test_serialize_json::serialize_test_json(&serde_json::json!({
         "ok": ok_value,
         "some": some_value,
     }));
-    let decoded: serde_json::Value = crate::test_invariants::require_json_decode(
+    let decoded: serde_json::Value = crate::test_require_json_decode::require_json_decode(
         serialized,
         constants::error::AGENT_EVENT_SERIALIZES,
     );
     let log_field = LogFieldValue::String("invariant-field".to_string());
-    let string_field = crate::test_invariants::require_log_string_field(
+    let string_field = crate::test_require_log_string_field::require_log_string_field(
         Some(&log_field),
         constants::error::AGENT_EVENT_SERIALIZES,
     );
@@ -71,7 +79,7 @@ fn browser_evidence_payload_validates_invariant_helpers_with_real_values() {
     assert_eq!(decoded["ok"], "invariant-ok");
     assert_eq!(decoded["some"], "invariant-some");
     assert_eq!(string_field, "invariant-field");
-    let parsed_now = crate::test_invariants::require_ok(
+    let parsed_now = crate::test_require_ok::require_ok(
         chrono::DateTime::parse_from_rfc3339(&timestamp_now),
         constants::error::AGENT_EVENT_SERIALIZES,
     );

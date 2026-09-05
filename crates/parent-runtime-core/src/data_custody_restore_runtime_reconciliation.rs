@@ -1,6 +1,8 @@
 use super::data_custody_restore_runtime::{ParentRestoreRuntime, RestoreRuntimeError};
 use super::data_custody_restore_runtime_ledger::RestoreLedger;
-use super::data_custody_restore_runtime_receipts::migration_receipt_from_dispatch;
+use super::data_custody_restore_runtime_receipts::{
+    migration_receipt_from_dispatch, MigrationReceiptDispatch,
+};
 use super::data_custody_runtime_eventing::DataCustodyRuntimeEventKind;
 use ocentra_schema::export_import_backup_recovery as contracts;
 use ocentra_storage_custody_core::export_import_backup_recovery::{
@@ -36,17 +38,19 @@ impl ParentRestoreRuntime {
         }
         let reconciled = migration_receipt_from_dispatch(
             plan,
-            contracts::ExportImportMigrationOutcome::Reconciled,
-            receipt.applied_sections,
-            receipt.rejected_sections,
-            PartialWriteCompensation::NotRequired,
-            receipt.provider_operation_ref.as_ref(),
-            receipt.rollback_provider_operation_ref.as_ref(),
-            self.next_recorded_at()?,
-            Some(
-                "Restore or migration receipt requires parent-runtime restart reconciliation."
-                    .to_owned(),
-            ),
+            MigrationReceiptDispatch {
+                outcome: contracts::ExportImportMigrationOutcome::Reconciled,
+                applied_sections: receipt.applied_sections,
+                rejected_sections: receipt.rejected_sections,
+                compensation: PartialWriteCompensation::NotRequired,
+                provider_operation: receipt.provider_operation_ref.as_ref(),
+                rollback_provider_operation: receipt.rollback_provider_operation_ref.as_ref(),
+                recorded_at: self.next_recorded_at()?,
+                note: Some(
+                    "Restore or migration receipt requires parent-runtime restart reconciliation."
+                        .to_owned(),
+                ),
+            },
         )
         .map_err(RestoreRuntimeError::Migration)?;
         self.persist_migration(

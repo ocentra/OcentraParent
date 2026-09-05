@@ -891,6 +891,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "doctest-file"
+version = "1.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c2db04e74f0a9a93103b50e90b96024c9b2bdca8bce6a632ec71b88736d3d359"
+
+[[package]]
 name = "downcast-rs"
 version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1068,6 +1074,25 @@ name = "fiat-crypto"
 version = "0.2.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "28dea519a9695b9977216879a3ebfddf92f1c08c05d984f8996aecd6ecdc811d"
+
+[[package]]
+name = "field-offset"
+version = "0.3.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "38e2275cc4e4fc009b0669731a1e5ab7ebf11f469eaede2bab9309a5b4d6057f"
+dependencies = [
+ "memoffset",
+ "rustc_version",
+]
+
+[[package]]
+name = "file-id"
+version = "0.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e1fc6a637b6dc58414714eddd9170ff187ecb0933d4c7024d1abbd23a3cc26e9"
+dependencies = [
+ "windows-sys 0.60.2",
+]
 
 [[package]]
 name = "find-msvc-tools"
@@ -1657,6 +1682,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "interprocess"
+version = "2.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "798de1433ba514cc6c04c4144c2469af81396e4906195218737c776d47769572"
+dependencies = [
+ "doctest-file",
+ "libc",
+ "recvmsg",
+ "widestring 1.2.1",
+ "windows-sys 0.61.2",
+]
+
+[[package]]
 name = "itertools"
 version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1944,6 +1982,7 @@ dependencies = [
  "cfg-if",
  "cfg_aliases",
  "libc",
+ "memoffset",
 ]
 
 [[package]]
@@ -2306,6 +2345,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "ocentra-ai-contracts"
+version = "0.1.1"
+dependencies = [
+ "serde",
+ "serde_json",
+ "sha2",
+]
+
+[[package]]
 name = "ocentra-app-core"
 version = "0.1.1"
 dependencies = [
@@ -2318,9 +2366,12 @@ dependencies = [
 name = "ocentra-app-game-core"
 version = "0.1.1"
 dependencies = [
+ "atomicwrites",
+ "fs2",
  "ocentra-eventing",
  "ocentra-parent-agent-protocol",
  "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -2375,6 +2426,8 @@ dependencies = [
 name = "ocentra-child-runtime"
 version = "0.1.1"
 dependencies = [
+ "atomicwrites",
+ "fs2",
  "ocentra-app-core",
  "ocentra-app-game-core",
  "ocentra-browser-core",
@@ -2396,6 +2449,7 @@ dependencies = [
  "ocentra-storage-custody-core",
  "ocentra-tracking-core",
  "serde",
+ "serde_json",
  "tokio",
 ]
 
@@ -2403,8 +2457,10 @@ dependencies = [
 name = "ocentra-entitlement-core"
 version = "0.1.1"
 dependencies = [
+ "chrono",
  "ocentra-eventing",
  "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -2413,6 +2469,7 @@ version = "0.1.1"
 dependencies = [
  "chrono",
  "futures",
+ "getrandom 0.3.4",
  "serde",
  "serde_json",
  "sha2",
@@ -2430,9 +2487,15 @@ dependencies = [
 name = "ocentra-family-identity-core"
 version = "0.1.1"
 dependencies = [
+ "atomicwrites",
+ "chrono",
+ "ed25519-dalek",
+ "fs2",
  "getrandom 0.3.4",
+ "num-bigint",
  "ocentra-eventing",
  "ocentra-schema",
+ "ring",
  "rusqlite",
  "rustix 1.1.4",
  "same-file",
@@ -2455,6 +2518,8 @@ dependencies = [
  "serde",
  "serde_json",
  "sha2",
+ "socket2",
+ "thiserror 2.0.18",
  "x509-parser",
 ]
 
@@ -2488,8 +2553,11 @@ dependencies = [
  "ed25519-dalek",
  "fs2",
  "ocentra-eventing",
+ "ocentra-lan-core",
+ "ocentra-network-core",
  "ocentra-network-evidence",
  "ocentra-parent-agent-protocol",
+ "ocentra-schema",
  "ocentra-tracking-core",
  "roxmltree",
  "rusqlite",
@@ -2497,6 +2565,8 @@ dependencies = [
  "serde_json",
  "sha2",
  "sysinfo",
+ "tokio",
+ "tungstenite",
  "winreg",
 ]
 
@@ -2504,6 +2574,7 @@ dependencies = [
 name = "ocentra-parent-agent-protocol"
 version = "0.1.1"
 dependencies = [
+ "ocentra-ai-contracts",
  "ocentra-eventing",
  "ocentra-evidence",
  "serde",
@@ -2529,10 +2600,23 @@ name = "ocentra-parent-logging-core"
 version = "0.1.1"
 dependencies = [
  "chrono",
+ "getrandom 0.3.4",
+ "ocentra-parent-logging-local-artifact-windows-ffi",
  "ocentra-schema",
  "serde",
  "serde_json",
  "sha2",
+]
+
+[[package]]
+name = "ocentra-parent-logging-local-artifact-windows-ffi"
+version = "0.1.1"
+dependencies = [
+ "fs2",
+ "serde",
+ "serde_json",
+ "sha2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -2546,12 +2630,14 @@ dependencies = [
  "ocentra-family-identity-core",
  "ocentra-parent-agent-protocol",
  "ocentra-policy-control-core",
+ "ocentra-protected-capability-custody-client",
  "ocentra-schema",
  "ocentra-storage-custody-core",
  "serde",
  "serde_json",
  "sha2",
  "tungstenite",
+ "zeroize",
 ]
 
 [[package]]
@@ -2559,8 +2645,12 @@ name = "ocentra-parent-screen-capture-adapter"
 version = "0.1.1"
 dependencies = [
  "base64",
+ "crc32fast",
+ "nix",
  "ocentra-parent-agent-core",
  "ocentra-parent-agent-protocol",
+ "ocentra-schema",
+ "png",
  "serde_json",
  "sha2",
  "xcap",
@@ -2570,13 +2660,70 @@ dependencies = [
 name = "ocentra-policy-control-core"
 version = "0.1.1"
 dependencies = [
- "ed25519-dalek",
+ "chrono",
  "ocentra-eventing",
  "ocentra-evidence",
- "ocentra-family-identity-core",
  "ocentra-parent-agent-protocol",
+ "ocentra-schema",
  "serde",
+ "serde_json",
  "sha2",
+]
+
+[[package]]
+name = "ocentra-protected-capability-custody-client"
+version = "0.1.1"
+dependencies = [
+ "dunce",
+ "interprocess",
+ "ocentra-protected-capability-custody-core",
+ "ocentra-protected-capability-custody-protocol",
+ "ocentra-schema",
+ "sysinfo",
+ "zeroize",
+]
+
+[[package]]
+name = "ocentra-protected-capability-custody-core"
+version = "0.1.1"
+dependencies = [
+ "dunce",
+ "file-id",
+ "fs2",
+ "getrandom 0.3.4",
+ "ocentra-family-identity-core",
+ "ocentra-protected-capability-custody-protocol",
+ "ocentra-protected-capability-custody-windows-ffi",
+ "rusqlite",
+ "rustix 1.1.4",
+ "same-file",
+ "sha2",
+ "thiserror 2.0.18",
+ "windows-acl",
+ "windows-dpapi",
+ "windows-sys 0.61.2",
+ "winreg",
+ "zeroize",
+]
+
+[[package]]
+name = "ocentra-protected-capability-custody-protocol"
+version = "0.1.1"
+dependencies = [
+ "getrandom 0.3.4",
+ "ocentra-schema",
+ "ring",
+ "sha2",
+ "zeroize",
+]
+
+[[package]]
+name = "ocentra-protected-capability-custody-windows-ffi"
+version = "0.1.1"
+dependencies = [
+ "ocentra-family-identity-core",
+ "sha2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -2603,9 +2750,11 @@ dependencies = [
 name = "ocentra-schema"
 version = "0.1.1"
 dependencies = [
+ "ocentra-ai-contracts",
  "ocentra-parent-agent-protocol",
  "serde",
  "serde_json",
+ "sha2",
 ]
 
 [[package]]
@@ -2631,6 +2780,7 @@ name = "ocentra-storage-custody-core"
 version = "0.1.1"
 dependencies = [
  "atomicwrites",
+ "chrono",
  "fs2",
  "getrandom 0.3.4",
  "ocentra-eventing",
@@ -3046,6 +3196,12 @@ checksum = "76afc826de14238e6e8c374ddcc1fa19e374fd8dd986b0d2af0d02377261d83c"
 dependencies = [
  "getrandom 0.3.4",
 ]
+
+[[package]]
+name = "recvmsg"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d3edd4d5d42c92f0a659926464d4cce56b562761267ecf0f469d85b7de384175"
 
 [[package]]
 name = "regex"
@@ -3630,6 +3786,7 @@ dependencies = [
  "libc",
  "mio",
  "pin-project-lite",
+ "signal-hook-registry",
  "socket2",
  "tokio-macros",
  "windows-sys 0.61.2",
@@ -4061,6 +4218,12 @@ dependencies = [
 
 [[package]]
 name = "widestring"
+version = "0.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c168940144dd21fd8046987c16a46a33d5fc84eec29ef9dcddc2ac9e31526b7c"
+
+[[package]]
+name = "widestring"
 version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "72069c3113ab32ab29e5584db3c6ec55d416895e60715417b5b883a357c3e471"
@@ -4128,6 +4291,18 @@ dependencies = [
  "windows-core 0.62.2",
  "windows-future 0.3.2",
  "windows-numerics 0.3.1",
+]
+
+[[package]]
+name = "windows-acl"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "177b1723986bcb4c606058e77f6e8614b51c7f9ad2face6f6fd63dd5c8b3cec3"
+dependencies = [
+ "field-offset",
+ "libc",
+ "widestring 0.4.3",
+ "winapi",
 ]
 
 [[package]]
@@ -4317,6 +4492,15 @@ dependencies = [
 
 [[package]]
 name = "windows-sys"
+version = "0.60.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f2f500e4d28234f72040990ec9d39e3a6b950f9f22d3dba18416c35882612bcb"
+dependencies = [
+ "windows-targets 0.53.5",
+]
+
+[[package]]
+name = "windows-sys"
 version = "0.61.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ae137229bcbd6cdf0f7b80a31df61766145077ddf49416a728b02cb3921ff3fc"
@@ -4348,11 +4532,28 @@ dependencies = [
  "windows_aarch64_gnullvm 0.52.6",
  "windows_aarch64_msvc 0.52.6",
  "windows_i686_gnu 0.52.6",
- "windows_i686_gnullvm",
+ "windows_i686_gnullvm 0.52.6",
  "windows_i686_msvc 0.52.6",
  "windows_x86_64_gnu 0.52.6",
  "windows_x86_64_gnullvm 0.52.6",
  "windows_x86_64_msvc 0.52.6",
+]
+
+[[package]]
+name = "windows-targets"
+version = "0.53.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4945f9f551b88e0d65f3db0bc25c33b8acea4d9e41163edf90dcd0b19f9069f3"
+dependencies = [
+ "windows-link 0.2.1",
+ "windows_aarch64_gnullvm 0.53.1",
+ "windows_aarch64_msvc 0.53.1",
+ "windows_i686_gnu 0.53.1",
+ "windows_i686_gnullvm 0.53.1",
+ "windows_i686_msvc 0.53.1",
+ "windows_x86_64_gnu 0.53.1",
+ "windows_x86_64_gnullvm 0.53.1",
+ "windows_x86_64_msvc 0.53.1",
 ]
 
 [[package]]
@@ -4386,6 +4587,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "32a4622180e7a0ec044bb555404c800bc9fd9ec262ec147edd5989ccd0c02cd3"
 
 [[package]]
+name = "windows_aarch64_gnullvm"
+version = "0.53.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a9d8416fa8b42f5c947f8482c43e7d89e73a173cead56d044f6a56104a6d1b53"
+
+[[package]]
 name = "windows_aarch64_msvc"
 version = "0.48.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4396,6 +4603,12 @@ name = "windows_aarch64_msvc"
 version = "0.52.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "09ec2a7bb152e2252b53fa7803150007879548bc709c039df7627cabbd05d469"
+
+[[package]]
+name = "windows_aarch64_msvc"
+version = "0.53.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b9d782e804c2f632e395708e99a94275910eb9100b2114651e04744e9b125006"
 
 [[package]]
 name = "windows_i686_gnu"
@@ -4410,10 +4623,22 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8e9b5ad5ab802e97eb8e295ac6720e509ee4c243f69d781394014ebfe8bbfa0b"
 
 [[package]]
+name = "windows_i686_gnu"
+version = "0.53.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "960e6da069d81e09becb0ca57a65220ddff016ff2d6af6a223cf372a506593a3"
+
+[[package]]
 name = "windows_i686_gnullvm"
 version = "0.52.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0eee52d38c090b3caa76c563b86c3a4bd71ef1a819287c19d586d7334ae8ed66"
+
+[[package]]
+name = "windows_i686_gnullvm"
+version = "0.53.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fa7359d10048f68ab8b09fa71c3daccfb0e9b559aed648a8f95469c27057180c"
 
 [[package]]
 name = "windows_i686_msvc"
@@ -4428,6 +4653,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "240948bc05c5e7c6dabba28bf89d89ffce3e303022809e73deaefe4f6ec56c66"
 
 [[package]]
+name = "windows_i686_msvc"
+version = "0.53.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1e7ac75179f18232fe9c285163565a57ef8d3c89254a30685b57d83a38d326c2"
+
+[[package]]
 name = "windows_x86_64_gnu"
 version = "0.48.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4438,6 +4669,12 @@ name = "windows_x86_64_gnu"
 version = "0.52.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "147a5c80aabfbf0c7d901cb5895d1de30ef2907eb21fbbab29ca94c5b08b1a78"
+
+[[package]]
+name = "windows_x86_64_gnu"
+version = "0.53.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9c3842cdd74a865a8066ab39c8a7a473c0778a3f29370b5fd6b4b9aa7df4a499"
 
 [[package]]
 name = "windows_x86_64_gnullvm"
@@ -4452,6 +4689,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "24d5b23dc417412679681396f2b49f3de8c1473deb516bd34410872eff51ed0d"
 
 [[package]]
+name = "windows_x86_64_gnullvm"
+version = "0.53.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0ffa179e2d07eee8ad8f57493436566c7cc30ac536a3379fdf008f47f6bb7ae1"
+
+[[package]]
 name = "windows_x86_64_msvc"
 version = "0.48.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4462,6 +4705,12 @@ name = "windows_x86_64_msvc"
 version = "0.52.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "589f6da84c646204747d1270a2a5661ea66ed1cced2631d546fdfb155959f9ec"
+
+[[package]]
+name = "windows_x86_64_msvc"
+version = "0.53.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d6bbff5f0aada427a1e5a6da5f1f98158182f26556f345ac9e04d36d0ebed650"
 
 [[package]]
 name = "winnow"
@@ -4536,7 +4785,7 @@ dependencies = [
  "serde",
  "thiserror 2.0.18",
  "url",
- "widestring",
+ "widestring 1.2.1",
  "windows 0.62.2",
  "xcb",
  "zbus",

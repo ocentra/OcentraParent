@@ -74,15 +74,15 @@ impl<'a> AccountIdentityAuthorityIssuerTransaction<'a> {
                 },
             )
             .optional()
-            .map_err(|_| AccountIdentityAuthorityIssuerClientError::CurrentnessUnavailable)?
+            .map_err(|_error| AccountIdentityAuthorityIssuerClientError::CurrentnessUnavailable)?
             .ok_or(AccountIdentityAuthorityIssuerClientError::CurrentnessUnavailable)?;
         let stored: ocentra_schema::account_identity_authority::
             AccountIdentityCurrentMemberDeviceAuthorityHandoff = serde_json::from_str(&row.4)
-            .map_err(|_| AccountIdentityAuthorityIssuerClientError::CurrentnessRejected)?;
+            .map_err(|_error| AccountIdentityAuthorityIssuerClientError::CurrentnessRejected)?;
         let authority_generation = i64::try_from(currentness.authority().authority_generation())
-            .map_err(|_| AccountIdentityAuthorityIssuerClientError::CurrentnessRejected)?;
+            .map_err(|_error| AccountIdentityAuthorityIssuerClientError::CurrentnessRejected)?;
         let session_generation = i64::try_from(currentness.authority().session_generation())
-            .map_err(|_| AccountIdentityAuthorityIssuerClientError::CurrentnessRejected)?;
+            .map_err(|_error| AccountIdentityAuthorityIssuerClientError::CurrentnessRejected)?;
         if row.0 != "active"
             || row.1 != authority_generation
             || row.2 != currentness.authority().session_id().as_str()
@@ -93,11 +93,11 @@ impl<'a> AccountIdentityAuthorityIssuerTransaction<'a> {
         }
         stored
             .validate_shape()
-            .map_err(|_| AccountIdentityAuthorityIssuerClientError::CurrentnessRejected)
+            .map_err(|_error| AccountIdentityAuthorityIssuerClientError::CurrentnessRejected)
     }
 
     pub(crate) fn register_protected_key(
-        &mut self,
+        &self,
         currentness: &AccountIdentityIssuerCurrentness,
         registration: &ProtectedAccountIssuerKeyRegistration,
     ) -> Result<AccountIdentityIssuerV2KeyRecord, AccountIdentityAuthorityIssuerClientError> {
@@ -108,7 +108,7 @@ impl<'a> AccountIdentityAuthorityIssuerTransaction<'a> {
         let service_binding_id = service_binding_id(currentness.authority());
         let enrollment_generation = registration.enrollment_generation();
         let enrollment_generation_sql = i64::try_from(enrollment_generation)
-            .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidKey)?;
+            .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidKey)?;
         let key_generation = next_key_generation(
             &self.transaction,
             currentness.account_id().as_str(),
@@ -116,9 +116,9 @@ impl<'a> AccountIdentityAuthorityIssuerTransaction<'a> {
             &service_binding_id,
         )?;
         let key_generation_u64 = u64::try_from(key_generation)
-            .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidKey)?;
+            .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidKey)?;
         let authority_generation = i64::try_from(currentness.authority_generation())
-            .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidKey)?;
+            .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidKey)?;
         revoke_active_keys(
             &self.transaction,
             currentness.account_id().as_str(),
@@ -143,7 +143,7 @@ impl<'a> AccountIdentityAuthorityIssuerTransaction<'a> {
                     authority_generation
                 ],
             )
-            .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidKey)?;
+            .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidKey)?;
         Ok(AccountIdentityIssuerV2KeyRecord {
             key_id: AccountIdentityIssuerV2KeyId::from_value(key_id),
             key_generation: key_generation_u64,
@@ -191,18 +191,18 @@ impl<'a> AccountIdentityAuthorityIssuerTransaction<'a> {
                 },
             )
             .optional()
-            .map_err(|_| AccountIdentityAuthorityIssuerClientError::Unavailable)?
+            .map_err(|_error| AccountIdentityAuthorityIssuerClientError::Unavailable)?
             .ok_or(AccountIdentityAuthorityIssuerClientError::KeyUnavailable)?;
         let public_key: [u8; 65] = row
             .4
             .try_into()
-            .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidKey)?;
+            .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidKey)?;
         let key_generation = u64::try_from(row.2)
-            .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidKey)?;
+            .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidKey)?;
         let enrollment_generation = u64::try_from(row.3)
-            .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidKey)?;
+            .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidKey)?;
         let authority_generation = u64::try_from(row.5)
-            .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidKey)?;
+            .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidKey)?;
         if row.0 != ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE
             || authority_generation != currentness.authority_generation()
             || enrollment_generation == 0
@@ -239,15 +239,17 @@ impl<'a> AccountIdentityAuthorityIssuerTransaction<'a> {
         let (now, now_text) = super::clock::now(&self.transaction)?;
         let issued_at = super::clock::parse_timestamp(&now_text)?;
         let request = account_identity_authority_producer_v2::issue_request(
-            currentness.authority(),
-            key.key_id().as_str(),
-            key.key_generation(),
-            key.enrollment_generation(),
-            key.public_key(),
-            key.service_binding_id().as_str(),
-            correlation_id,
-            idempotency_key,
-            issued_at,
+            &account_identity_authority_producer_v2::AccountIdentityAuthorityProducerV2IssueInput {
+                authority: currentness.authority(),
+                key_id: key.key_id().as_str(),
+                key_generation: key.key_generation(),
+                enrollment_generation: key.enrollment_generation(),
+                public_key: key.public_key(),
+                service_binding_id: key.service_binding_id().as_str(),
+                correlation_id,
+                idempotency_key,
+                issued_at,
+            },
         )
         .map_err(AccountIdentityAuthorityIssuerClientError::from)?;
         let reservation =
@@ -304,20 +306,10 @@ impl<'a> AccountIdentityAuthorityIssuerTransaction<'a> {
         .map_err(Into::into)
     }
 
-    pub(crate) fn pending_outbox_count(
-        &self,
-    ) -> Result<u64, AccountIdentityAuthorityIssuerClientError> {
-        count_transaction(
-            &self.transaction,
-            "SELECT COUNT(*) FROM account_identity_issuer_v2_outbox
-              WHERE delivery_state IN ('pending','claimed','failed')",
-        )
-    }
-
     pub(crate) fn commit(self) -> Result<(), AccountIdentityAuthorityIssuerClientError> {
         self.transaction
             .commit()
-            .map_err(|_| AccountIdentityAuthorityIssuerClientError::Unavailable)
+            .map_err(|_error| AccountIdentityAuthorityIssuerClientError::Unavailable)
     }
 }
 
@@ -326,16 +318,6 @@ pub(super) fn reconcile_issue_reservations(
     now: i64,
 ) -> Result<bool, AccountIdentityAuthorityIssuerClientError> {
     recovery::reconcile_issue_reservations(transaction, now)
-}
-
-fn count_transaction(
-    transaction: &Transaction<'_>,
-    query: &str,
-) -> Result<u64, AccountIdentityAuthorityIssuerClientError> {
-    let value: i64 = transaction
-        .query_row(query, [], |row| row.get(0))
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::Unavailable)?;
-    u64::try_from(value).map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)
 }
 
 fn next_key_generation(
@@ -357,7 +339,7 @@ fn next_key_generation(
             ],
             |row| row.get(0),
         )
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::Unavailable)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::Unavailable)?;
     latest
         .unwrap_or(0)
         .checked_add(1)
@@ -385,7 +367,7 @@ fn revoke_active_keys(
             ],
         )
         .map(|_| ())
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::Unavailable)
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::Unavailable)
 }
 
 fn provider_label(provider: &AccountIdentityProvider) -> &'static str {

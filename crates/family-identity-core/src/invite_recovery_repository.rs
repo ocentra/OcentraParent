@@ -411,8 +411,6 @@ mod support_recovery_handoff;
 mod support_recovery_kind_from_label;
 #[path = "invite_recovery_repository_support_recovery_kind_label.rs"]
 mod support_recovery_kind_label;
-#[path = "invite_recovery_repository_support_recovery_labels.rs"]
-mod support_recovery_labels;
 #[path = "invite_recovery_repository_support_recovery_policy.rs"]
 mod support_recovery_policy;
 #[path = "invite_recovery_repository_support_recovery_scope.rs"]

@@ -1,8 +1,5 @@
-use std::collections::{BTreeMap, VecDeque};
-use std::net::TcpListener;
-use std::sync::{mpsc, Arc, Mutex, OnceLock};
-use std::thread;
-use std::time::Duration;
+use std::collections::BTreeMap;
+use std::sync::{Mutex, OnceLock};
 
 use ocentra_lan_core::read_model_builder::{
     build_lan_add_device_read_model, LanAddDeviceReadModelInput,
@@ -19,16 +16,57 @@ use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
 };
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogLevel};
 use ocentra_parent_agent_protocol::transport::{
-    AgentEventEnvelope, AgentEventName, AgentPeer, AgentPeerRole,
+    AgentCommandName, AgentEventEnvelope, AgentEventName, AgentPeer, AgentPeerRole,
 };
-use serde_json::Value;
-use tungstenite::{
-    accept_hdr,
-    handshake::server::{Request, Response},
-    Message,
+use ocentra_parent_runtime_core::parent_ui_bridge::{
+    lan_replay_rejection_episode::ParentRouteSubscriptionLoadState,
+    projection::{ParentAgentServiceProjection, ParentAgentServiceProjectionResponse},
+};
+use ocentra_schema::parent_ui_bridge::{
+    ParentRouteId, ParentRouteSnapshot, ParentSubscriptionEvent, ParentUiAction,
+    ParentUiActionResult,
 };
 
 pub(super) const REQUEST_MESSAGE_ID_CORRELATION: &str = "test-request-message-id";
+
+pub(super) fn projection_response(
+    command: AgentCommandName,
+    response_event: AgentEventEnvelope,
+) -> ParentAgentServiceProjectionResponse {
+    require_ok(
+        ParentAgentServiceProjectionResponse::from_envelopes(
+            command,
+            REQUEST_MESSAGE_ID_CORRELATION.to_string(),
+            vec![ready_event(), response_event],
+        ),
+        "typed agent response projects",
+    )
+}
+
+pub(super) fn projected_route_snapshot(
+    route: ParentRouteId,
+    responses: Vec<ParentAgentServiceProjectionResponse>,
+) -> ParentRouteSnapshot {
+    ParentAgentServiceProjection::new(responses).route_snapshot(route)
+}
+
+pub(super) fn projected_subscription_event(
+    route: ParentRouteId,
+    responses: Vec<ParentAgentServiceProjectionResponse>,
+) -> ParentSubscriptionEvent {
+    let mut state = ParentRouteSubscriptionLoadState::default();
+    ParentAgentServiceProjection::new(responses).subscription_event(&mut state, route)
+}
+
+pub(super) fn projected_action_result(
+    action: &ParentUiAction,
+    responses: Vec<ParentAgentServiceProjectionResponse>,
+) -> ParentUiActionResult {
+    require_ok(
+        ParentAgentServiceProjection::new(responses).action_result(action),
+        "typed action response projects",
+    )
+}
 
 pub(super) fn require_ok<T, E: std::fmt::Debug>(result: Result<T, E>, context: &'static str) -> T {
     match result {
@@ -51,156 +89,6 @@ pub(super) fn with_isolated_agent_addr<T>(action: impl FnOnce() -> T) -> T {
         std::env::set_var(constants::env_var::AGENT_ADDR, value);
     }
     result
-}
-
-pub(super) fn with_agent_addr<T>(address: &str, action: impl FnOnce() -> T) -> T {
-    let _guard = require_ok(env_lock().lock(), "agent env lock remains available");
-    let previous = std::env::var(constants::env_var::AGENT_ADDR).ok();
-    std::env::set_var(constants::env_var::AGENT_ADDR, address);
-    let result = action();
-    if let Some(value) = previous {
-        std::env::set_var(constants::env_var::AGENT_ADDR, value);
-    } else {
-        std::env::remove_var(constants::env_var::AGENT_ADDR);
-    }
-    result
-}
-
-pub(super) fn start_lan_local_server(
-    event_name: AgentEventName,
-    read_model: LanBrowserAddDeviceReadModel,
-) -> String {
-    let (address, _capture) = start_lan_local_server_with_capture(event_name, read_model);
-    address
-}
-
-pub(super) fn start_lan_local_server_with_capture(
-    event_name: AgentEventName,
-    read_model: LanBrowserAddDeviceReadModel,
-) -> (String, mpsc::Receiver<CapturedLanRequest>) {
-    let response_event = lan_event(event_name, &read_model);
-    drop(read_model);
-    start_local_server_with_capture_response(response_event)
-}
-
-pub(super) fn start_local_server_with_capture_response(
-    response_event: AgentEventEnvelope,
-) -> (String, mpsc::Receiver<CapturedLanRequest>) {
-    start_local_server_with_capture_responses(vec![response_event])
-}
-
-pub(super) fn start_local_server_with_capture_responses(
-    response_events: Vec<AgentEventEnvelope>,
-) -> (String, mpsc::Receiver<CapturedLanRequest>) {
-    start_local_server_with_capture_responses_inner(response_events, false)
-}
-
-pub(super) fn start_local_server_with_ready_only() -> (String, mpsc::Receiver<CapturedLanRequest>) {
-    start_local_server_with_capture_responses_inner(Vec::new(), true)
-}
-
-fn start_local_server_with_capture_responses_inner(
-    response_events: Vec<AgentEventEnvelope>,
-    accept_without_response: bool,
-) -> (String, mpsc::Receiver<CapturedLanRequest>) {
-    let listener = require_ok(TcpListener::bind("127.0.0.1:0"), "local listener binds");
-    let address = require_ok(listener.local_addr(), "local listener exposes address");
-    let (tx, rx) = mpsc::channel();
-    let observed_origin = Arc::new(Mutex::new(None::<String>));
-    let response_queue = Arc::new(Mutex::new(VecDeque::from(response_events)));
-    let response_queue_for_thread = Arc::clone(&response_queue);
-    thread::spawn(move || loop {
-        let next_response = {
-            let mut queue = require_ok(
-                response_queue_for_thread.lock(),
-                "response queue lock remains available",
-            );
-            queue.pop_front()
-        };
-        if next_response.is_none() && !accept_without_response {
-            break;
-        }
-        let (stream, _) = require_ok(listener.accept(), "local listener accepts");
-        let header_origin = Arc::clone(&observed_origin);
-        let socket = accept_hdr(stream, move |request: &Request, response: Response| {
-            *require_ok(
-                header_origin.lock(),
-                "captured header origin lock remains available",
-            ) = request_origin(request);
-            Ok(response)
-        });
-        let mut socket = require_ok(socket, "local websocket handshake succeeds");
-        send_json_message(&mut socket, &ready_event(), "ready event sends");
-        let command_text = expect_text_message(require_ok(socket.read(), "command reads"));
-        let command: Value = require_ok(serde_json::from_str(&command_text), "command parses");
-        let command_message_id = command
-            .get("messageId")
-            .and_then(Value::as_str)
-            .unwrap_or_default()
-            .to_string();
-        let _ = tx.send(CapturedLanRequest {
-            origin: require_ok(
-                observed_origin.lock(),
-                "captured origin lock remains available",
-            )
-            .clone(),
-            command,
-        });
-        if let Some(mut response_event) = next_response {
-            if response_event.correlation_id == REQUEST_MESSAGE_ID_CORRELATION {
-                assert!(
-                    !command_message_id.is_empty(),
-                    "correlated local response requires command messageId"
-                );
-                response_event.correlation_id = command_message_id;
-            }
-            send_json_message(&mut socket, &response_event, "response event sends");
-        } else {
-            thread::sleep(Duration::from_millis(750));
-            break;
-        }
-    });
-    (address.to_string(), rx)
-}
-
-fn request_origin(request: &Request) -> Option<String> {
-    request
-        .headers()
-        .get("origin")
-        .and_then(|value| value.to_str().ok())
-        .map(ToOwned::to_owned)
-}
-
-fn send_json_message(
-    socket: &mut tungstenite::WebSocket<std::net::TcpStream>,
-    value: &AgentEventEnvelope,
-    context: &'static str,
-) {
-    require_ok(
-        socket.send(Message::Text(require_ok(
-            serde_json::to_string(value),
-            "agent event serializes",
-        ))),
-        context,
-    );
-}
-
-fn expect_text_message(message: Message) -> String {
-    let is_text = matches!(message, Message::Text(_));
-    assert!(
-        is_text,
-        "local agent receives one text command as text frame"
-    );
-    match message {
-        Message::Text(text) => text,
-        _ => String::new(),
-    }
-}
-
-#[derive(Debug)]
-pub(super) struct CapturedLanRequest {
-    pub(super) origin: Option<String>,
-    pub(super) command: Value,
 }
 
 fn ready_event() -> AgentEventEnvelope {

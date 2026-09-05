@@ -22,12 +22,6 @@ pub(crate) struct ParsedAuthorityProducerEnvelope {
     pub(crate) handoff: AccountIdentityCurrentMemberDeviceAuthorityHandoff,
 }
 
-pub(crate) fn parse_wire(
-    wire: &[u8],
-) -> Result<ParsedAuthorityProducerEnvelope, AccountIdentityAuthorityProducerError> {
-    parse_wire_at(wire, Utc::now())
-}
-
 pub(crate) fn parse_wire_at(
     wire: &[u8],
     now: DateTime<Utc>,
@@ -42,7 +36,7 @@ pub(crate) fn parse_wire_at(
     let signature = <[u8; ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_SIGNATURE_BYTES]>::try_from(
         &wire[signing_length..],
     )
-    .map_err(|_| AccountIdentityAuthorityProducerError::InvalidWire)?;
+    .map_err(|_error| AccountIdentityAuthorityProducerError::InvalidWire)?;
     if !signing_bytes.starts_with(domain_separator()) {
         return Err(AccountIdentityAuthorityProducerError::InvalidWire);
     }
@@ -66,16 +60,16 @@ pub(crate) fn parse_wire_at(
     }
     let handoff: AccountIdentityCurrentMemberDeviceAuthorityHandoff =
         serde_json::from_slice(&payload)
-            .map_err(|_| AccountIdentityAuthorityProducerError::InvalidWire)?;
+            .map_err(|_error| AccountIdentityAuthorityProducerError::InvalidWire)?;
     if serde_json::to_vec(&handoff)
-        .map_err(|_| AccountIdentityAuthorityProducerError::InvalidWire)?
+        .map_err(|_error| AccountIdentityAuthorityProducerError::InvalidWire)?
         != payload
     {
         return Err(AccountIdentityAuthorityProducerError::InvalidWire);
     }
     handoff
         .validate_shape()
-        .map_err(|_| AccountIdentityAuthorityProducerError::InvalidWire)?;
+        .map_err(|_error| AccountIdentityAuthorityProducerError::InvalidWire)?;
     let issued = parse_timestamp(&issued_at)?;
     let expires = parse_timestamp(&expires_at)?;
     let max_future_issued = now
@@ -94,12 +88,7 @@ pub(crate) fn parse_wire_at(
     Ok(ParsedAuthorityProducerEnvelope {
         signing_bytes,
         signature,
-        envelope: CanonicalAuthorityProducerEnvelope {
-            key_id,
-            issued_at,
-            expires_at,
-            payload,
-        },
+        envelope: CanonicalAuthorityProducerEnvelope { key_id },
         handoff,
     })
 }
@@ -107,7 +96,7 @@ pub(crate) fn parse_wire_at(
 fn parse_timestamp(value: &str) -> Result<DateTime<Utc>, AccountIdentityAuthorityProducerError> {
     let parsed = DateTime::parse_from_rfc3339(value)
         .map(|value| value.with_timezone(&Utc))
-        .map_err(|_| AccountIdentityAuthorityProducerError::InvalidWire)?;
+        .map_err(|_error| AccountIdentityAuthorityProducerError::InvalidWire)?;
     if parsed.to_rfc3339_opts(SecondsFormat::Millis, true) != value {
         return Err(AccountIdentityAuthorityProducerError::InvalidWire);
     }
@@ -127,7 +116,7 @@ impl<'a> Cursor<'a> {
     fn read_string(&mut self) -> Result<String, AccountIdentityAuthorityProducerError> {
         let bytes = self.read_bytes()?;
         let value = String::from_utf8(bytes)
-            .map_err(|_| AccountIdentityAuthorityProducerError::InvalidWire)?;
+            .map_err(|_error| AccountIdentityAuthorityProducerError::InvalidWire)?;
         if value.is_empty() || value.len() > ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_MAX_FIELD_BYTES {
             return Err(AccountIdentityAuthorityProducerError::InvalidWire);
         }

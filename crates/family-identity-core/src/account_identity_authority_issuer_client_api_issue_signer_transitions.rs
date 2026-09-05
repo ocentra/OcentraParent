@@ -5,7 +5,6 @@ use super::super::{
     AccountIdentityIssuerPreparedIssue,
 };
 
-use super::super::account_identity_authority_issuer_client_reservation::AccountIdentityIssuerReservation;
 pub(super) fn finalize_for_legacy(
     transaction: AccountIdentityAuthorityIssuerTransaction<'_>,
     currentness: &AccountIdentityIssuerCurrentness,
@@ -47,7 +46,7 @@ pub(super) fn prepare_for_legacy(
 }
 
 fn finalize_and_commit(
-    mut transaction: AccountIdentityAuthorityIssuerTransaction<'_>,
+    transaction: AccountIdentityAuthorityIssuerTransaction<'_>,
     currentness: &AccountIdentityIssuerCurrentness,
     reservation: super::super::account_identity_authority_issuer_client_reservation::
         AccountIdentityIssuerReservation,
@@ -81,17 +80,19 @@ fn prepare_issue_transition(
     if let Some(transport) =
         transaction.existing_issued_transport(currentness, correlation_id, idempotency_key)?
     {
-        return Ok(AccountIdentityIssuerIssuePreparation::Replay(transport));
+        return Ok(AccountIdentityIssuerIssuePreparation::Replay(Box::new(
+            transport,
+        )));
     }
     let (request, reservation) = transaction.prepare_issue_current_authority(
         currentness,
         correlation_id,
         idempotency_key,
     )?;
-    Ok(AccountIdentityIssuerIssuePreparation::Prepared(
+    Ok(AccountIdentityIssuerIssuePreparation::Prepared(Box::new(
         AccountIdentityIssuerPreparedIssue {
             request,
             reservation,
         },
-    ))
+    )))
 }

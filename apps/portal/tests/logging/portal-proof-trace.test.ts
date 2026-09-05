@@ -5,9 +5,12 @@ import type { AddressInfo } from 'node:net';
 import { afterEach, describe, expect, it } from 'vitest';
 import { GeneratedDevLogMessage as DevLogMessage } from '@ocentra-parent/logging-domain/generated/logging-contracts';
 import { Logger } from '@ocentra-parent/logging-domain/core/logger';
+import { createLocalArtifactBridgeQueueStorage } from '@ocentra-parent/logging-domain/core/localArtifactBridgeQueueStorage';
+import { closeLocalArtifactMutationProvider } from '@ocentra-parent/logging-domain/local-artifact-mutation-provider';
+import { localArtifactDirectoryDurability } from '@ocentra-parent/logging-domain/local-artifact-path';
 import { createBridgeServer } from '@ocentra-parent/logging-domain/transport/bridgeServer';
+import type { PortalLoggerRuntime } from '@ocentra-parent/portal-domain/dev-logger';
 import { getProofTrace, getProofTraceGaps } from '../../../../scripts/dev/lib/log-query-service.mjs';
-import { localArtifactDirectoryDurability } from '../../../../packages/logging-domain/src/local-artifact-path';
 import { resolvePortalProofTraceConfig, sendPortalProofTraceLog } from '../../src/dev-logger';
 
 const LOG_ROOT_ENV = 'OCENTRA_PARENT_LOG_DIR';
@@ -55,6 +58,7 @@ describe('portal proof trace logging', () => {
     }
 
     for (const tempDir of tempDirs.splice(0, tempDirs.length)) {
+      await closeLocalArtifactMutationProvider(tempDir);
       fs.rmSync(tempDir, { force: true, recursive: true });
     }
   });
@@ -87,9 +91,9 @@ function portalProofTraceConfigTests(): void {
 
 function portalProofTraceLoggingTests(servers: Array<ReturnType<typeof createBridgeServer>>, tempDirs: string[]): void {
   it('sendPortalProofTraceLog: writes queryable ordered proof-trace rows', async () => {
-    const { endpoint, proofId } = await createPortalProofTraceEnvironment(servers, tempDirs);
+    const { endpoint, proofId, runtime } = await createPortalProofTraceEnvironment(servers, tempDirs);
 
-    await emitPortalProofTraceSequence(endpoint, proofId);
+    await emitPortalProofTraceSequence(endpoint, proofId, runtime);
     await expectPortalProofTraceRows(proofId);
     await expectPortalProofTraceGapResults(proofId);
   });
@@ -104,7 +108,7 @@ function portalProofTraceCapabilityTests(): void {
 async function createPortalProofTraceEnvironment(
   servers: Array<ReturnType<typeof createBridgeServer>>,
   tempDirs: string[]
-): Promise<{ endpoint: string; proofId: string }> {
+): Promise<{ endpoint: string; proofId: string; runtime: PortalProofTraceRuntime }> {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'portal-proof-trace-'));
   tempDirs.push(tempDir);
   process.env[LOG_ROOT_ENV] = tempDir;
@@ -119,10 +123,19 @@ async function createPortalProofTraceEnvironment(
   return {
     endpoint: `http://127.0.0.1:${address.port}`,
     proofId: 'proof-portal-click',
+    runtime: { localStorage: createLocalArtifactBridgeQueueStorage(tempDir) },
   };
 }
 
-async function emitPortalProofTraceSequence(endpoint: string, proofId: string): Promise<void> {
+interface PortalProofTraceRuntime extends PortalLoggerRuntime {
+  readonly localStorage: ReturnType<typeof createLocalArtifactBridgeQueueStorage>;
+}
+
+async function emitPortalProofTraceSequence(
+  endpoint: string,
+  proofId: string,
+  runtime: PortalProofTraceRuntime
+): Promise<void> {
   const routeOpened = await sendPortalProofTraceLog(
     DevLogMessage.PortalStarted,
     {
@@ -133,7 +146,8 @@ async function emitPortalProofTraceSequence(endpoint: string, proofId: string): 
       expectedNext: 'portal.action.clicked',
     },
     {},
-    endpoint
+    endpoint,
+    runtime
   );
   const actionClicked = await sendPortalProofTraceLog(
     DevLogMessage.PortalCommandSent,
@@ -148,7 +162,8 @@ async function emitPortalProofTraceSequence(endpoint: string, proofId: string): 
     {
       uiTarget: 'open-dev-panel',
     },
-    endpoint
+    endpoint,
+    runtime
   );
   const uiRendered = await sendPortalProofTraceLog(
     DevLogMessage.PortalEventReceived,
@@ -162,7 +177,8 @@ async function emitPortalProofTraceSequence(endpoint: string, proofId: string): 
     {
       renderState: 'visible',
     },
-    endpoint
+    endpoint,
+    runtime
   );
 
   expect(routeOpened).toBe(true);

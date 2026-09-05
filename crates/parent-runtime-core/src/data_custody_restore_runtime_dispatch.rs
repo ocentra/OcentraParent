@@ -11,7 +11,9 @@ use super::data_custody_restore_runtime_dispatch_preflight::RestorePreparation;
 use super::data_custody_restore_runtime_executor::{
     execute_restore_operation, RestoreExecutorMount,
 };
-use super::data_custody_restore_runtime_receipts::restore_receipt_from_dispatch;
+use super::data_custody_restore_runtime_receipts::{
+    restore_receipt_from_dispatch, RestoreReceiptDispatch,
+};
 use super::data_custody_runtime_eventing::DataCustodyRuntimeEventKind;
 
 pub(crate) const RESTORE_MIGRATION_BEFORE_DISPATCH_NOTE: &str =
@@ -72,14 +74,16 @@ impl ParentRestoreRuntime {
             .then(|| "Restore result failed the no-resurrection compensation gate.".to_owned());
         let restore = restore_receipt_from_dispatch(
             plan,
-            observation.state(),
-            observation.applied_sections().to_vec(),
-            observation.rejected_sections().to_vec(),
-            observation.compensation(),
-            observation.provider_operation_ref(),
-            None,
-            self.next_recorded_at()?,
-            note,
+            RestoreReceiptDispatch {
+                state: observation.state(),
+                applied_sections: observation.applied_sections().to_vec(),
+                rejected_sections: observation.rejected_sections().to_vec(),
+                compensation: observation.compensation(),
+                provider_operation: observation.provider_operation_ref(),
+                rollback_provider_operation: None,
+                recorded_at: self.next_recorded_at()?,
+                note,
+            },
         )?;
         self.persist_restore(
             &restore,

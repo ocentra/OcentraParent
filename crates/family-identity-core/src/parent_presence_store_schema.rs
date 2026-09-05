@@ -130,7 +130,7 @@ pub(crate) fn open_initialized_store(
 ) -> Result<(Connection, StoreFileGuard), ParentPresenceStoreError> {
     publish_initialized_store_if_absent(path, initialize_temporary_store)?;
     let file_guard = open_store_file_guard(path)?;
-    let mut connection = open_connection(path)?;
+    let connection = open_connection(path)?;
     // Legacy stores may legitimately omit the step-up intent table, so that
     // table is migrated on first open.  Validate every pre-existing core
     // object before that migration, however: malformed stores must be
@@ -149,7 +149,7 @@ pub(crate) fn open_initialized_store(
     } else {
         validate_core_store_schema(&connection, false)?;
     }
-    step_up::migrate(&mut connection)?;
+    step_up::migrate(&connection)?;
     file_guard.validate_path_identity(path)?;
     validate_store_schema(&connection)?;
     runtime::configure_runtime_durability(&connection)?;

@@ -47,8 +47,8 @@ fn broker_hello(now_unix_millis: u64) -> Result<UntrustedBrokerHello, ProtocolEr
 fn current_unix_millis() -> Result<u64, ProtocolError> {
     let duration = SystemTime::now()
         .duration_since(UNIX_EPOCH)
-        .map_err(|_| ProtocolError::InvalidExpiry)?;
-    u64::try_from(duration.as_millis()).map_err(|_| ProtocolError::InvalidExpiry)
+        .map_err(|_error| ProtocolError::InvalidExpiry)?;
+    u64::try_from(duration.as_millis()).map_err(|_error| ProtocolError::InvalidExpiry)
 }
 
 #[test]
@@ -121,9 +121,6 @@ fn authenticated_broker_hello_codec_preserves_the_os_identity_fields() -> Result
     assert_eq!(decoded.broker_process_id(), hello.broker_process_id());
     assert_eq!(decoded.broker_session_id(), hello.broker_session_id());
     assert_eq!(decoded.broker_epoch(), hello.broker_epoch());
-    assert!(matches!(
-        decoded.verify_authenticated_provenance(&client, now + 1),
-        Ok(_)
-    ));
+    decoded.verify_authenticated_provenance(&client, now + 1)?;
     Ok(())
 }

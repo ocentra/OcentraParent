@@ -56,13 +56,13 @@ pub fn live_windows_launcher_journal_events_with_limit(
     #[cfg(windows)]
     {
         let system = super::app_game_windows_process_source::live_windows_process_snapshot_system();
-        return launcher_journal_events_from_process_snapshot(
+        launcher_journal_events_from_process_snapshot(
             device_id,
             platform,
             observed_at,
             limit,
             &system,
-        );
+        )
     }
     #[cfg(not(windows))]
     {

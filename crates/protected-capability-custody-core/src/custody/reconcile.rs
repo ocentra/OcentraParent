@@ -20,7 +20,7 @@ pub(super) fn current(
     let broker = store
         .platform
         .current(super::support::lookup(&digest, &store.secured_path))
-        .map_err(map_platform_error)?;
+        .map_err(|error| map_platform_error(&error))?;
     let local = load_local(store, &digest)?;
     reconcile(store, &binding, local, broker, attestation)
 }
@@ -35,9 +35,9 @@ fn reconcile(
     match (local, broker) {
         (None, None) => Err(CustodyError::Missing),
         (Some(_), None) => Err(CustodyError::BrokerBehind),
-        (None, Some(broker)) => persist::recover_initial(store, binding, broker, attestation),
+        (None, Some(broker)) => persist::recover_initial(store, binding, &broker, attestation),
         (Some(local), Some(broker)) => {
-            reconcile_existing(store, binding, local, broker, attestation)
+            reconcile_existing(store, binding, local, &broker, attestation)
         }
     }
 }
@@ -46,11 +46,11 @@ fn reconcile_existing(
     store: &CustodyStore,
     binding: &Binding,
     local: Record,
-    broker: BrokerRecord,
+    broker: &BrokerRecord,
     attestation: PlatformAttestation,
 ) -> Result<Record, CustodyError> {
     let local = authenticate_local(store, binding, local, attestation)?;
-    let broker = verify_broker(store.platform.as_ref(), &broker, &store.secured_path)?;
+    let broker = verify_broker(store.platform.as_ref(), broker, &store.secured_path)?;
     validate_current(&broker, binding)?;
     validate_attestation(&broker, attestation)?;
     if broker.sequence == local.sequence {
@@ -88,11 +88,13 @@ fn load_local(store: &CustodyStore, digest: &[u8; 32]) -> Result<Option<Record>,
     store
         .secured_path
         .revalidate()
-        .map_err(super::support::map_path_error)?;
+        .map_err(|error| super::support::map_path_error(&error))?;
     let connection = lock_connection(store)?;
     let result = storage::validate_all(&connection, store.secured_path.identity())
-        .map_err(map_storage_error)
-        .and_then(|()| storage::load_by_lookup(&connection, digest).map_err(map_storage_error));
+        .map_err(|error| map_storage_error(&error))
+        .and_then(|()| {
+            storage::load_by_lookup(&connection, digest).map_err(|error| map_storage_error(&error))
+        });
     drop(connection);
     finish_step(store, result)
 }

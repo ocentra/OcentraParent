@@ -41,8 +41,9 @@ pub(super) async fn recover_completed_enforcement_command(
     let stored_audit = store::read_stored_audit(paths, &audit_event_id).await?;
     match (journal_state, stored_audit) {
         (RetryJournalState::Empty, None) => Ok(None),
-        (RetryJournalState::Complete { before, completed }, Some(stored)) => {
-            recover_completed_pair(
+        (RetryJournalState::Complete(completed_journal), Some(stored)) => {
+            let journal::CompletedRetryJournal { before, completed } = *completed_journal;
+            recover_completed_pair(RecoveredPairInput {
                 command_correlation_id,
                 command_sent_at,
                 request,
@@ -51,7 +52,7 @@ pub(super) async fn recover_completed_enforcement_command(
                 completed,
                 stored,
                 provenance,
-            )
+            })
             .await
             .map(Some)
         }
@@ -59,16 +60,30 @@ pub(super) async fn recover_completed_enforcement_command(
     }
 }
 
-async fn recover_completed_pair(
-    command_correlation_id: &EnforcementText,
-    command_sent_at: &EnforcementText,
-    request: &EnforcementCommandPayload,
-    paths: &EnforcementJournalPaths,
+struct RecoveredPairInput<'a> {
+    command_correlation_id: &'a EnforcementText,
+    command_sent_at: &'a EnforcementText,
+    request: &'a EnforcementCommandPayload,
+    paths: &'a EnforcementJournalPaths,
     before: journal::AuditJournalRow,
     completed: journal::AuditJournalRow,
     stored: store::StoredAudit,
     provenance: Option<EnforcementAuditProvenance>,
+}
+
+async fn recover_completed_pair(
+    input: RecoveredPairInput<'_>,
 ) -> Result<RecoveredEnforcementCommand, EnforcementRetryRecoveryError> {
+    let RecoveredPairInput {
+        command_correlation_id,
+        command_sent_at,
+        request,
+        paths,
+        before,
+        completed,
+        stored,
+        provenance,
+    } = input;
     if !identity::pair_matches_command(
         &before,
         &completed,

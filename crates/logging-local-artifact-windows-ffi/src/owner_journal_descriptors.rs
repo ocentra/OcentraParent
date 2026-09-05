@@ -1,0 +1,10 @@
+#[path = "owner_journal_descriptors_digests.rs"]
+pub(super) mod digests;
+#[path = "owner_journal_descriptors_generated_names.rs"]
+pub(super) mod generated_names;
+#[path = "owner_journal_descriptors_names.rs"]
+pub(super) mod names;
+#[path = "owner_journal_descriptors_request.rs"]
+pub(super) mod request;
+#[path = "owner_journal_descriptors_transaction.rs"]
+pub(super) mod transaction;

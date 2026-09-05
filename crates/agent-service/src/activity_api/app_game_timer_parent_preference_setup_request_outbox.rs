@@ -81,6 +81,7 @@ pub(crate) fn append_setup_outbox_record(
     let lock_path = outbox_path.0.with_extension(OUTBOX_LOCK_EXTENSION);
     let lock_file = OpenOptions::new()
         .create(true)
+        .truncate(false)
         .read(true)
         .write(true)
         .open(lock_path)

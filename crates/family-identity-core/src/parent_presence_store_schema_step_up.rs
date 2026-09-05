@@ -3,11 +3,13 @@ use rusqlite::{Connection, OptionalExtension};
 use crate::household_authority::HouseholdAuthorityAction;
 use crate::parent_presence::{ParentPresenceChallenge, ParentPresenceObservedAt};
 use crate::parent_presence_store::ParentPresenceStoreError;
-use crate::parent_presence_store_schema::{load_columns, ColumnShape};
+use crate::parent_presence_store_schema::load_columns;
 use crate::parent_presence_store_sql_shape::{
     legacy_parent_step_up_intent_table_is_canonical, parent_step_up_intent_table_is_canonical,
 };
-use crate::parent_step_up_ceremony::RegisterLanSignerAnchorIntent;
+use crate::parent_step_up_ceremony::{
+    RegisterLanSignerAnchorIntent, RegisterLanSignerAnchorIntentInput,
+};
 
 #[path = "parent_presence_store_schema_step_up_lifecycle.rs"]
 mod lifecycle;
@@ -79,7 +81,7 @@ const LEGACY_INDEXES: &[&str] = &[
     "sqlite_autoindex_parent_step_up_intents_3",
 ];
 
-pub(crate) fn migrate(connection: &mut Connection) -> Result<(), ParentPresenceStoreError> {
+pub(crate) fn migrate(connection: &Connection) -> Result<(), ParentPresenceStoreError> {
     let object = existing_object(connection)?;
     let Some((object_type, sql)) = object else {
         return create_missing(connection);
@@ -186,7 +188,7 @@ fn validate_legacy_objects(connection: &Connection) -> Result<(), ParentPresence
     )
 }
 
-fn rebuild_legacy(connection: &mut Connection) -> Result<(), ParentPresenceStoreError> {
+fn rebuild_legacy(connection: &Connection) -> Result<(), ParentPresenceStoreError> {
     let migration = (|| {
         connection.execute_batch("BEGIN IMMEDIATE;")?;
         connection.execute_batch(
@@ -360,21 +362,21 @@ fn validate_row(row: &PersistedIntentRow) -> Result<(), ParentPresenceStoreError
         .as_slice()
         .try_into()
         .map_err(|_error| ParentPresenceStoreError::IntegrityRejected)?;
-    let intent = RegisterLanSignerAnchorIntent::new(
-        row.family_id.clone(),
-        row.trust_subject.clone(),
-        row.parent_account_id.clone(),
-        row.parent_device_id.clone(),
-        row.child_device_id.clone(),
-        row.installation_id.clone(),
-        row.pairing_id.clone(),
-        row.route_id.clone(),
-        signer_public_key,
-        generation(row.lifecycle_generation)?,
-        generation(row.installation_binding_generation)?,
-        generation(row.authority_generation)?,
-        row.correlation_id.clone(),
-    )
+    let intent = RegisterLanSignerAnchorIntent::new(RegisterLanSignerAnchorIntentInput {
+        family_id: row.family_id.as_str(),
+        trust_subject: row.trust_subject.as_str(),
+        parent_account_id: row.parent_account_id.as_str(),
+        parent_device_id: row.parent_device_id.as_str(),
+        child_device_id: row.child_device_id.as_str(),
+        installation_id: row.installation_id.as_str(),
+        pairing_id: row.pairing_id.as_str(),
+        route_id: row.route_id.as_str(),
+        signer_public_key: &signer_public_key,
+        lifecycle_generation: generation(row.lifecycle_generation)?,
+        installation_binding_generation: generation(row.installation_binding_generation)?,
+        authority_generation: generation(row.authority_generation)?,
+        correlation_id: row.correlation_id.as_str(),
+    })
     .map_err(|_error| ParentPresenceStoreError::IntegrityRejected)?;
     super::require(intent.intent_digest() == row.intent_digest)?;
     validate_challenge_identity(row, &intent)?;

@@ -8,10 +8,11 @@ pub(super) fn attest_path(
     platform: &dyn PlatformDatabaseGuard,
     path: &SecuredPath,
 ) -> Result<PlatformAttestation, CustodyError> {
-    path.revalidate().map_err(super::map_path_error)?;
+    path.revalidate()
+        .map_err(|error| super::map_path_error(&error))?;
     let attestation = platform
         .attest_database(path.canonical(), path.identity())
-        .map_err(super::map_platform_error)?;
+        .map_err(|error| super::map_platform_error(&error))?;
     if attestation.security_level() != SecurityLevel::DedicatedServiceIsolated
         || attestation.database_path_security()
             != DatabasePathSecurity::BrokerExclusiveWriterNoFollowRollbackJournal
@@ -24,7 +25,7 @@ pub(super) fn attest_path(
     Ok(attestation)
 }
 
-pub(super) fn map_path_error(error: PathSecurityError) -> CustodyError {
+pub(super) fn map_path_error(error: &PathSecurityError) -> CustodyError {
     match error {
         PathSecurityError::UnsupportedPlatform => CustodyError::UnsupportedPlatform,
         PathSecurityError::Unavailable => CustodyError::Unavailable,

@@ -17,15 +17,13 @@ use windows_sys::Win32::Security::Cryptography::{
 
 pub(super) fn open_existing() -> Result<AccountIssuerP256Key> {
     let provider = open_provider()?;
-    let key = open_persisted_key(provider).map_err(|error| {
+    let key = open_persisted_key(provider).inspect_err(|_error| {
         release_provider(provider);
-        error
     })?;
-    let baseline =
-        super::cng_account_issuer_p256_security::observe_key(provider, key).map_err(|error| {
+    let baseline = super::cng_account_issuer_p256_security::observe_key(provider, key)
+        .inspect_err(|_error| {
             release_key(key);
             release_provider(provider);
-            error
         })?;
     Ok(AccountIssuerP256Key {
         handles: AccountIssuerP256Handles { provider, key },
@@ -36,12 +34,10 @@ pub(super) fn open_existing() -> Result<AccountIssuerP256Key> {
 
 pub(super) fn create_for_external_provisioning() -> Result<AccountIssuerP256Key> {
     let provider = open_provider()?;
-    super::cng_account_issuer_p256_security::ensure_security_descriptor_support(provider).map_err(
-        |error| {
+    super::cng_account_issuer_p256_security::ensure_security_descriptor_support(provider)
+        .inspect_err(|_error| {
             release_provider(provider);
-            error
-        },
-    )?;
+        })?;
     create_key(provider)
 }
 
@@ -56,9 +52,8 @@ fn open_persisted_key(provider: NCRYPT_PROV_HANDLE) -> Result<NCRYPT_KEY_HANDLE>
             NCRYPT_MACHINE_KEY_FLAG | NCRYPT_SILENT_FLAG,
         )
     };
-    validate_handle_status(status, key).map_err(|error| {
+    validate_handle_status(status, key).inspect_err(|_error| {
         release_key(key);
-        error
     })?;
     Ok(key)
 }
@@ -75,17 +70,15 @@ fn create_persisted_key(provider: NCRYPT_PROV_HANDLE) -> Result<NCRYPT_KEY_HANDL
             NCRYPT_MACHINE_KEY_FLAG,
         )
     };
-    validate_handle_status(status, key).map_err(|error| {
+    validate_handle_status(status, key).inspect_err(|_error| {
         release_key(key);
-        error
     })?;
     Ok(key)
 }
 
 fn create_key(provider: NCRYPT_PROV_HANDLE) -> Result<AccountIssuerP256Key> {
-    let key = create_persisted_key(provider).map_err(|error| {
+    let key = create_persisted_key(provider).inspect_err(|_error| {
         release_provider(provider);
-        error
     })?;
     finish_created_key(provider, key)
 }
@@ -94,19 +87,17 @@ fn finish_created_key(
     provider: NCRYPT_PROV_HANDLE,
     key: NCRYPT_KEY_HANDLE,
 ) -> Result<AccountIssuerP256Key> {
-    configure_and_finalize(key).map_err(|error| {
+    configure_and_finalize(key).inspect_err(|_error| {
         delete_or_release_key(key);
         release_provider(provider);
-        error
     })?;
     let baseline =
         super::cng_account_issuer_p256_security::observe_key_for_external_acl_transition(
             provider, key,
         )
-        .map_err(|error| {
+        .inspect_err(|_error| {
             delete_or_release_key(key);
             release_provider(provider);
-            error
         })?;
     Ok(AccountIssuerP256Key {
         handles: AccountIssuerP256Handles { provider, key },
@@ -119,14 +110,12 @@ fn open_provider() -> Result<NCRYPT_PROV_HANDLE> {
     let mut provider = 0_usize;
     let status =
         unsafe { NCryptOpenStorageProvider(&mut provider, MS_PLATFORM_CRYPTO_PROVIDER, 0) };
-    validate_handle_status(status, provider).map_err(|error| {
+    validate_handle_status(status, provider).inspect_err(|_error| {
         release_provider(provider);
-        error
     })?;
-    super::cng_account_issuer_p256_algorithm::validate_provider_algorithm(provider).map_err(
-        |error| {
+    super::cng_account_issuer_p256_algorithm::validate_provider_algorithm(provider).inspect_err(
+        |_error| {
             release_provider(provider);
-            error
         },
     )?;
     Ok(provider)

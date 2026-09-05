@@ -23,14 +23,10 @@ impl SqliteAccountIdentityAuthorityRepository {
         let transaction = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
-            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
+            .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)?;
         let (now, _) = trusted_now_in_transaction(&transaction)?;
-        ensure_recovery_proof_current(
-            &transaction,
-            recovery_id,
-            authority.household_id().to_string(),
-            now,
-        )?;
+        let household_id = authority.household_id().to_string();
+        ensure_recovery_proof_current(&transaction, recovery_id, household_id.as_str(), now)?;
         ensure_current_authority(&transaction, authority, now)?;
         let transition_at = next_transition_at(&transaction, recovery_id, now)?;
         let changed = transaction
@@ -46,20 +42,20 @@ impl SqliteAccountIdentityAuthorityRepository {
                     transition_at
                 ],
             )
-            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
+            .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)?;
         if changed != 1 {
             return Err(InviteRecoveryRepositoryError::RecoveryRejected);
         }
         transaction
             .commit()
-            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)
+            .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)
     }
 }
 
 pub(crate) fn ensure_recovery_proof_current(
     transaction: &rusqlite::Transaction<'_>,
     recovery_id: &RecoveryId,
-    household_id: String,
+    household_id: &str,
     now: i64,
 ) -> Result<RecoveryKind, InviteRecoveryRepositoryError> {
     let row = transaction
@@ -85,7 +81,7 @@ pub(crate) fn ensure_recovery_proof_current(
             },
         )
         .optional()
-        .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?
+        .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)?
         .ok_or(InviteRecoveryRepositoryError::Missing)?;
     let kind =
         recovery_kind_from_label(&row.0).ok_or(InviteRecoveryRepositoryError::RecoveryRejected)?;

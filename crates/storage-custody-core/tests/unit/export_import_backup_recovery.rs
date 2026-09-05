@@ -4,14 +4,16 @@ use ocentra_storage_custody_core::export_import_backup_recovery::
         advance_backup_job, BackupJobStateError, BackupJobTransition,
     };
 
+use super::support::StorageCustodyTestValueExt;
+
 macro_rules! parsed {
     ($type:ty, $value:expr) => {
-        <$type>::parse($value).expect("typed export/import reference")
+        <$type>::parse($value).assume_ok()
     };
 }
 
 #[test]
-fn export_import_backup_recovery_backup_job_lifecycle_preserves_typed_execution_and_attempts() {
+fn export_import_backup_recovery_backup_job_lifecycle_preserves_attempts_across_retry() {
     let scheduled = sample_backup_job();
 
     let claimed = advance_backup_job(
@@ -24,7 +26,7 @@ fn export_import_backup_recovery_backup_job_lifecycle_preserves_typed_execution_
             None,
         ),
     )
-    .expect("scheduled job can be claimed");
+    .assume_ok();
     assert_eq!(
         claimed.lifecycle,
         contracts::ExportImportBackupJobLifecycle::Claimed
@@ -45,7 +47,7 @@ fn export_import_backup_recovery_backup_job_lifecycle_preserves_typed_execution_
             None,
         ),
     )
-    .expect("claimed job can enter running state with execution reference");
+    .assume_ok();
     assert_eq!(
         running.execution_ref.as_ref().map(|value| value.as_str()),
         Some("execution-wp05-runtime-1")
@@ -61,7 +63,7 @@ fn export_import_backup_recovery_backup_job_lifecycle_preserves_typed_execution_
             None,
         ),
     )
-    .expect("running job can be retried without replacing its execution reference");
+    .assume_ok();
     assert_eq!(
         retryable.lifecycle,
         contracts::ExportImportBackupJobLifecycle::Retryable
@@ -79,27 +81,20 @@ fn export_import_backup_recovery_backup_job_lifecycle_preserves_typed_execution_
             None,
         ),
     )
-    .expect("retryable job can be claimed again");
+    .assume_ok();
     assert_eq!(reclaimed.attempt, 2);
     assert_eq!(
         reclaimed.idempotency_ref.as_str(),
         "backup-job-wp05-runtime:attempt-2"
     );
     assert_eq!(reclaimed.execution_ref, retryable.execution_ref);
+}
 
+#[test]
+fn export_import_backup_recovery_backup_job_success_preserves_typed_execution() {
+    let running = reclaimed_running_backup_job();
     let succeeded = advance_backup_job(
-        &reclaimed,
-        transition(
-            contracts::ExportImportBackupJobLifecycle::Running,
-            "2026-08-28T18:35:00.000Z",
-            None,
-            None,
-            None,
-        ),
-    )
-    .expect("reclaimed job can resume running");
-    let succeeded = advance_backup_job(
-        &succeeded,
+        &running,
         transition(
             contracts::ExportImportBackupJobLifecycle::Succeeded,
             "2026-08-28T18:36:00.000Z",
@@ -108,7 +103,7 @@ fn export_import_backup_recovery_backup_job_lifecycle_preserves_typed_execution_
             None,
         ),
     )
-    .expect("running job can succeed only with provider operation reference");
+    .assume_ok();
     assert_eq!(
         succeeded.lifecycle,
         contracts::ExportImportBackupJobLifecycle::Succeeded
@@ -120,6 +115,7 @@ fn export_import_backup_recovery_backup_job_lifecycle_preserves_typed_execution_
             .map(|value| value.as_str()),
         Some("provider-operation-wp05-runtime-1")
     );
+    assert_eq!(succeeded.execution_ref, running.execution_ref);
 }
 
 #[test]
@@ -150,7 +146,7 @@ fn export_import_backup_recovery_backup_job_rejects_unbound_execution_and_provid
             None,
         ),
     )
-    .expect("scheduled job can be claimed");
+    .assume_ok();
     assert_eq!(
         advance_backup_job(
             &claimed,
@@ -175,7 +171,7 @@ fn export_import_backup_recovery_backup_job_rejects_unbound_execution_and_provid
             None,
         ),
     )
-    .expect("execution reference binds the running state");
+    .assume_ok();
     assert_eq!(
         advance_backup_job(
             &running,
@@ -219,7 +215,7 @@ fn export_import_backup_recovery_backup_job_manual_required_requires_a_reason() 
             Some("provider runtime is not mounted by the owning service"),
         ),
     )
-    .expect("manual-required transition carries an explicit reason");
+    .assume_ok();
     assert_eq!(
         manual.lifecycle,
         contracts::ExportImportBackupJobLifecycle::ManualRequired
@@ -228,6 +224,65 @@ fn export_import_backup_recovery_backup_job_manual_required_requires_a_reason() 
         manual.manual_required_note.as_deref(),
         Some("provider runtime is not mounted by the owning service")
     );
+}
+
+fn reclaimed_running_backup_job() -> contracts::ExportImportBackupJobRecord {
+    let scheduled = sample_backup_job();
+    let claimed = advance_backup_job(
+        &scheduled,
+        transition(
+            contracts::ExportImportBackupJobLifecycle::Claimed,
+            "2026-08-28T18:31:00.000Z",
+            None,
+            None,
+            None,
+        ),
+    )
+    .assume_ok();
+    let running = advance_backup_job(
+        &claimed,
+        transition(
+            contracts::ExportImportBackupJobLifecycle::Running,
+            "2026-08-28T18:32:00.000Z",
+            Some("execution-wp05-runtime-1"),
+            None,
+            None,
+        ),
+    )
+    .assume_ok();
+    let retryable = advance_backup_job(
+        &running,
+        transition(
+            contracts::ExportImportBackupJobLifecycle::Retryable,
+            "2026-08-28T18:33:00.000Z",
+            None,
+            None,
+            None,
+        ),
+    )
+    .assume_ok();
+    let reclaimed = advance_backup_job(
+        &retryable,
+        transition(
+            contracts::ExportImportBackupJobLifecycle::Claimed,
+            "2026-08-28T18:34:00.000Z",
+            None,
+            None,
+            None,
+        ),
+    )
+    .assume_ok();
+    advance_backup_job(
+        &reclaimed,
+        transition(
+            contracts::ExportImportBackupJobLifecycle::Running,
+            "2026-08-28T18:35:00.000Z",
+            None,
+            None,
+            None,
+        ),
+    )
+    .assume_ok()
 }
 
 fn sample_backup_job() -> contracts::ExportImportBackupJobRecord {

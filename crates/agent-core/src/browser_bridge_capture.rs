@@ -293,16 +293,16 @@ impl ManagedBrowserCdpTargetAuthority {
             }
             _ => (structured::Payload::unavailable(), None),
         };
-        Ok(structured::bind_extraction(
-            &self.launch_authority,
-            &self.target_id,
-            &live_target.snapshot,
-            self.capability_revoked.clone(),
+        Ok(structured::bind_extraction(structured::BindingInput {
+            binding: &self.launch_authority,
+            target_id: &self.target_id,
+            snapshot: &live_target.snapshot,
+            capability_revoked: Arc::clone(&self.capability_revoked),
             captured_at_epoch_ms,
             captured_at_monotonic,
-            document_identity.as_ref(),
+            document_identity: document_identity.as_ref(),
             payload,
-        ))
+        }))
     }
 
     pub fn capture(

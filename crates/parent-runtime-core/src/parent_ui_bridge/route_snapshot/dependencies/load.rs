@@ -6,6 +6,8 @@ mod activity;
 mod app_game;
 #[path = "load/browser.rs"]
 mod browser;
+#[path = "load/browser_social.rs"]
+mod browser_social;
 #[path = "load/network.rs"]
 mod network;
 
@@ -25,6 +27,7 @@ pub(super) fn load_parent_route_snapshot_dependencies_impl(
     let browser_evidence_read_model_snapshot =
         browser::load_evidence(route, &mut dependency_failures);
     let browser_status = browser::load_status(route, &mut dependency_failures);
+    let browser_social = browser_social::load(route);
     let app_game = app_game::load_remaining(route, &mut dependency_failures);
     ParentRouteSnapshotDependencies {
         dependency_failures,
@@ -40,6 +43,11 @@ pub(super) fn load_parent_route_snapshot_dependencies_impl(
         browser_evidence_read_model_snapshot,
         browser_managed_status_snapshot: browser_status.managed_status_snapshot,
         browser_intervention_read_model_snapshot: browser_status.intervention_read_model_snapshot,
+        social_dashboard_snapshot: browser_social.dashboard,
+        social_audit_explanation_snapshot: browser_social.audit_explanation,
+        social_alert_report_snapshot: browser_social.alert_report,
+        social_alert_report_parent_surface_snapshot: browser_social.alert_report_parent_surface,
+        social_parent_notification_delivery_snapshot: browser_social.parent_notification_delivery,
         app_game_notification_readiness_snapshot: app_game.notification_readiness_snapshot,
         app_game_policy_readiness_snapshot: app_game.policy_readiness_snapshot,
         app_game_platform_proof_status_snapshot: app_game.platform_proof_status_snapshot,

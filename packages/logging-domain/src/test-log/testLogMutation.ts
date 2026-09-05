@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { getGeneratedDefaultDuckDbFileName } from '../duckdb-log-query';
 import { getGeneratedDbDir, getGeneratedManifestPath } from '../local-test-log';
+import { statLocalArtifact } from '../local-artifact-file';
 import { applyLocalArtifactTransaction, type LocalArtifactMutation } from '../local-artifact-transaction';
 import { bridgeLifecycleReconciliationMutation } from '../transport/bridgeLifecycleState';
 import { getDefaultLogRoot, listNdjsonFiles } from './ndjsonPaths';
@@ -30,11 +31,9 @@ export function testLogDerivedArtifactPaths(scope: TestLogScope, rootDir?: strin
 
 export function testLogDerivedArtifactMutations(scope: TestLogScope, rootDir: string): LocalArtifactMutation[] {
   const artifacts = testLogDerivedArtifactPaths(scope, rootDir);
-  return [
-    { kind: 'remove', filePath: artifacts.databaseWal },
-    { kind: 'remove', filePath: artifacts.database },
-    { kind: 'remove', filePath: artifacts.manifest },
-  ];
+  return [artifacts.databaseWal, artifacts.database, artifacts.manifest]
+    .filter((filePath) => statLocalArtifact(filePath, rootDir) != null)
+    .map((filePath) => ({ kind: 'remove', filePath }));
 }
 
 function remainingRunCounts(

@@ -6,6 +6,7 @@ import { appendTestLogEntries, readTestLogEntriesFromFile } from '../../src/test
 import { getRunNdjsonFilePath, getTestLogScopeDir, listNdjsonFiles } from '../../src/test-log/ndjsonPaths';
 import { RunType, TestLogScope, TestSuiteType, TestLogSchemaVersion } from '../../src/test-log/types';
 import { wipeNdjsonScope } from '../../src/test-log/wipeNdjsonScope';
+import { closeLocalArtifactMutationProvider } from '../../src/local-artifact-mutation-provider';
 
 function makeEntry(
   runId: string,
@@ -42,11 +43,12 @@ function makeEntry(
   };
 }
 
-describe('wipe ndjson scope', () => {
+describe.skipIf(process.platform !== 'win32')('wipe ndjson scope', () => {
   const tempDirs: string[] = [];
 
-  afterEach(() => {
+  afterEach(async () => {
     for (const tempDir of tempDirs.splice(0, tempDirs.length)) {
+      await closeLocalArtifactMutationProvider(tempDir);
       fs.rmSync(tempDir, { force: true, recursive: true });
     }
   });

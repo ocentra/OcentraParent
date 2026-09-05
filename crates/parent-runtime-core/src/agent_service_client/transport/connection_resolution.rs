@@ -28,10 +28,10 @@ pub(super) fn resolve_socket_addrs(
             format!("agent-service address {agent_addr} resolution worker could not start: {error}")
         })?;
 
-    let remaining = super::remaining_timeout(deadline).map_err(|_| {
+    let remaining = super::remaining_timeout(deadline).map_err(|error| {
         format!(
-            "agent-service address {agent_addr} resolution timed out after {}ms",
-            timeout.as_millis()
+            "agent-service address {agent_addr} resolution timed out after {}ms: {error}",
+            timeout.as_millis(),
         )
     })?;
     match receiver.recv_timeout(remaining) {

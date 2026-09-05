@@ -119,6 +119,20 @@ portal-domain / apps/portal:
 - Parent config and child detection event cascades over the shared EventBus.
 - SQLite/ActivityStore tracking read-model queries and portal presentation.
 
+## WP30 bounded UI truthfulness closeout (2026-09-05)
+
+- The real `PolicyTracking` route mounts the typed Rust tracking snapshot.
+- Fixed proof fixtures remain confined to `ProofPanels`; the product route does
+  not fabricate rows when the service boundary is unavailable.
+- Missing, unavailable, and malformed snapshots fail closed in behavioral
+  Portal tests, and the hosted desktop/mobile route proof passed without
+  overlap or product overclaim.
+- The retained bundle and exact validation results are recorded in
+  [WP30_PARENT_CHILD_UI_UX_SURFACES_PROOF.md](../../proof/tracking-plan/WP30_PARENT_CHILD_UI_UX_SURFACES_PROOF.md).
+- This closes only the bounded product-consumer truthfulness slice. Full live
+  location, authenticated child delivery, retention mutation, notification
+  delivery, policy action authority, and restart projection remain open.
+
 ## Open runtime gaps
 
 - WP07: production retention/custody execution.
@@ -132,7 +146,9 @@ portal-domain / apps/portal:
 - WP24: selected AI provider routing/execution.
 - WP27/WP38: escalation plus durable notification delivery lifecycle.
 - WP28/WP29: durable live/missing-device runtime ownership.
-- WP30: complete parent/child product UI.
+- WP30 follow-on: complete the broader live parent/child product UI after the
+  upstream runtime, authority, delivery, and restart owners are available; the
+  bounded product-route truthfulness slice is complete.
 - WP33: tracked executable aggregate verifier.
 - WP40: trusted tracking runtime ingress and journal composition owner.
 - WP37: durable tracking journal replay and idempotent SQLite projection.

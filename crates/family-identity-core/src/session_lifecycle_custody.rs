@@ -72,13 +72,13 @@ impl SessionLifecyclePolicy {
     }
 
     pub fn production_default() -> Self {
-        Self::new(
-            Duration::from_secs(15 * 60),
-            Duration::from_secs(30 * 24 * 60 * 60),
-            Duration::from_secs(5 * 60),
-            Duration::from_secs(2 * 60),
-        )
-        .expect("production session policy is valid")
+        Self {
+            access_ttl_millis: 15 * 60 * 1_000,
+            refresh_ttl_millis: 30 * 24 * 60 * 60 * 1_000,
+            freshness_ttl_millis: 5 * 60 * 1_000,
+            clock_skew_millis: 2 * 60 * 1_000,
+            audit_delivery_lease_millis: 5 * 60 * 1_000,
+        }
     }
 }
 
@@ -86,5 +86,5 @@ fn duration_millis(value: Duration) -> Result<i64, SessionLifecyclePolicyError> 
     if value.is_zero() {
         return Err(SessionLifecyclePolicyError::ZeroDuration);
     }
-    i64::try_from(value.as_millis()).map_err(|_| SessionLifecyclePolicyError::DurationTooLarge)
+    i64::try_from(value.as_millis()).map_err(|_error| SessionLifecyclePolicyError::DurationTooLarge)
 }

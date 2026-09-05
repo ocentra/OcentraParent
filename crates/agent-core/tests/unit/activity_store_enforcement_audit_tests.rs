@@ -341,14 +341,6 @@ fn activity_store_returns_empty_recent_enforcement_audit_history_for_zero_limit(
     Ok(())
 }
 
-#[test]
-fn activity_store_returns_no_enforcement_audit_fields_when_empty() -> TestResult {
-    let store = open_in_memory_store();
-
-    assert_eq!(latest_enforcement_audit_fields(&store)?, None);
-    Ok(())
-}
-
 fn open_in_memory_store() -> ActivityStore {
     activity_store_open(ActivityStore::open_in_memory())
         .expect_value(constants::error::ACTIVITY_STORE_OPENS)

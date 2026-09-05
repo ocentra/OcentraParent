@@ -14,6 +14,19 @@
 
 <!-- /agent-capsule -->
 
+## Bounded Completion Status
+
+**DONE for the reviewed product-consumer truthfulness slice.** The real
+`PolicyTracking` route consumes the typed Rust tracking snapshot, proof fixtures
+remain confined to `ProofPanels`, malformed or missing snapshots fail closed,
+and the hosted desktop and mobile routes render an honest unavailable state
+without fabricated tracking rows.
+
+This bounded result does not close the broader parent/child product-ready UI
+backlog below. Live location, authenticated child delivery, retention mutation,
+notification delivery, policy action authority, and end-to-end restart
+projection remain owned by their upstream runtime workpacks.
+
 ## Purpose
 
 Render parent map/list/status, alert cards, evidence drawer, exception editor,
@@ -34,6 +47,9 @@ surfaces.
 ## Tests And Proof
 
 Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
+
+Durable manifest:
+[`WP30_PARENT_CHILD_UI_UX_SURFACES_PROOF.md`](../../../proof/tracking-plan/WP30_PARENT_CHILD_UI_UX_SURFACES_PROOF.md)
 
 - `11-ui-snapshots/`
 - `11-ui-fixture-state-matrix.json`
@@ -77,7 +93,16 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 - Pre-device gate:
   `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json`
 
-## AI Worker Checklist
+## Bounded Completion Checklist
+
+- [x] Mount the Rust-owned tracking snapshot on the real `PolicyTracking` route.
+- [x] Keep fixed proof fixtures confined to the `ProofPanels` route.
+- [x] Remove the false vendor `unwired` state for the mounted tracking surface.
+- [x] Fail closed for missing, unavailable, and malformed tracking snapshots.
+- [x] Pass the focused Rust, Portal-domain, Portal, and hosted route behavior tests.
+- [x] Retain the generated proof bundle through a checked-in manifest with exact hashes.
+
+## Broader Product-Ready Backlog (Not Closed By This Bounded Slice)
 
 - [ ] Add Playwright coverage for all hosted proof-route screens and badges.
 - [ ] Add no-overlap/no-overclaim screenshot proof for the hosted proof route.
@@ -197,7 +222,7 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 
 ## Where We Are
 
-A P1 parent portal fixture route now renders a first-target tracking state
+A P1 parent portal proof route renders a first-target tracking state
 matrix for tracking off, permission-required, stale, offline, low accuracy,
 ambiguous nearby place, policy alert, parent acknowledgement, exception,
 child check-in, temporary live, missing device, and retention-deleted states,
@@ -205,20 +230,26 @@ including a retention-deleted row that marks deleted history hidden and does
 not render the deleted evidence id. Each row also renders the local proof
 artifact path that backs the fixture state.
 The fixture is implemented in `apps/portal/src/tracking-status-panel.ts` and
-`apps/portal/src/TrackingStatusRoutePanel.tsx`, attached to the live
-`policy-tracking` product route in `apps/portal/src/ParentPortalRoute.tsx`,
-covered by `apps/portal/tests/tracking-status-panel.test.ts`, and recorded in
+`apps/portal/src/TrackingStatusRoutePanel.tsx`, currently attached only to the
+`proof-panels` route. The `policy-tracking` product route does not currently
+mount that panel, the shared Rust snapshot appends the fixed proof fixtures to
+both routes, and the vendor surface still reports that the Rust read model is
+unwired. These are open source defects, not proof of a live product surface.
+The component is covered by
+`apps/portal/tests/unit/tracking-status-panel.test.ts`, and recorded in
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-fixture-state-matrix.json`.
 The repeatable `node scripts/test/tracking-plan-runtime-proof.mjs` command now
 captures and records the local rendered full-page screenshot at
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/policy-tracking-parent-fixture.png`.
-The same route now has a narrow live service summary and service-backed
-citation rows for the P2 `trackingReadModel` event, covered by
-`apps/portal/tests/tracking-status-panel.test.ts` and the service read-model
-proof script. It also renders a service-data coverage panel for the same parsed
-read model, including active/tombstone row counts, latest tombstone metadata,
-kind coverage, custody/capability, active evidence references, deleted evidence
-references, and `productClaimReady=false`. The repeatable
+The Rust bridge already produces a narrow live service summary and
+service-backed citation rows for the P2 `trackingReadModel` event, covered by
+`apps/portal/tests/unit/tracking-status-panel.test.ts` and the service read-model
+proof script. The bounded repair must keep those real rows on the
+`policy-tracking` product route while confining fixed `fixture` and
+`ui-fixture` rows to `proof-panels`. The service-data coverage panel includes
+active/tombstone row counts, latest tombstone metadata, kind coverage,
+custody/capability, active evidence references, deleted evidence references,
+and `productClaimReady=false`. The repeatable
 `npm run test:tracking-plan-service-data-ui-proof` command records this under
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/18-service-data-ui-proof.json`.
 `npm run test:tracking-plan-hosted-ui-proof` now starts the real
@@ -381,10 +412,12 @@ This workpack can be assigned independently, implemented against the owning doma
 - docs/plans/tracking-plan/implementation-checklist.md
 - apps/portal/src/ParentPortalRoute.tsx
 - apps/portal/src/TrackingStatusRoutePanel.tsx
+- vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface.tsx
 - apps/portal/src/portal-route-content.ts
 - apps/portal/src/tracking-status-panel.ts
 - apps/portal/src/styles/parent-portal-route.css
-- apps/portal/tests/tracking-status-panel.test.ts
+- apps/portal/tests/unit/tracking-status-panel.test.ts
+- apps/portal/tests/e2e/tracking-hosted-ui-proof.spec.ts
 - packages/text-domain/src/portal-dev.ts
 - packages/portal-domain/src/contracts.ts
 - packages/portal-domain/src/details.ts

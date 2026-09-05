@@ -29,7 +29,7 @@ pub(crate) fn policy_preview_read_model(
     let parent_rule_contexts = parent_rule_contexts(connection)?;
     let preview_rows = rows
         .into_iter()
-        .filter_map(|row| preview_row(row, generated_at, &parent_rule_contexts))
+        .filter_map(|row| preview_row(&row, generated_at, &parent_rule_contexts))
         .collect::<Vec<_>>();
 
     let capability_status = if preview_rows.is_empty() {
@@ -50,13 +50,13 @@ pub(crate) fn policy_preview_read_model(
 }
 
 fn preview_row(
-    row: PolicyPreviewStoreRow,
+    row: &PolicyPreviewStoreRow,
     generated_at: &str,
     parent_rule_contexts: &[LocalAiParentRuleContextRef],
 ) -> Option<PolicyPreviewReadModelRow> {
-    let targets = targets_from_row(&row)?;
+    let targets = targets_from_row(row)?;
     let target = targets.primary;
-    let evidence_references = evidence_references_from_row(&row);
+    let evidence_references = evidence_references_from_row(row);
     let parent_rule_context_references = parent_rule_contexts_for_row(
         &target,
         &targets.aliases,
@@ -71,7 +71,7 @@ fn preview_row(
         .map(|reference| reference.rule.clone())
         .collect::<Vec<_>>();
     let (decision, network_evidence_mapping) = grade_mapped_network_decision(
-        &row,
+        row,
         evaluate_policy_dry_run(PolicyDryRunEvaluationInput {
             decision_id: prefixed_id(policy::PREVIEW_DECISION_ID_PREFIX, &row.event_id),
             evaluated_at: generated_at.to_string(),
@@ -83,11 +83,11 @@ fn preview_row(
             expires_at: None,
         }),
     );
-    let policy_preview_target_state = target_state_from_row(&row);
+    let policy_preview_target_state = target_state_from_row(row);
     let policy_preview_target_explanation_code =
-        target_explanation_code_from_row(&row, policy_preview_target_state);
+        target_explanation_code_from_row(row, policy_preview_target_state);
     let policy_preview_finding_kinds = target_finding_kinds(policy_preview_target_state);
-    let policy_lifecycle = policy_lifecycle_projection_from_row(&row);
+    let policy_lifecycle = policy_lifecycle_projection_from_row(row);
 
     Some(PolicyPreviewReadModelRow {
         preview_id: prefixed_id(policy::PREVIEW_ID_PREFIX, &row.event_id),
@@ -115,7 +115,7 @@ fn preview_row(
         policy_reviewed_at: policy_lifecycle.policy_reviewed_at,
         policy_audit_reference_id: policy_lifecycle.policy_audit_reference_id,
         network_evidence_mapping,
-        confirmation_context: confirmation_context_projection(&row),
+        confirmation_context: confirmation_context_projection(row),
     })
 }
 

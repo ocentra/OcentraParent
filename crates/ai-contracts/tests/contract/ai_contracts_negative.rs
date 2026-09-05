@@ -35,10 +35,6 @@ fn assert_rejected<T: DeserializeOwned>(
     Ok(())
 }
 
-fn family_id(value: &str) -> Result<AiFamilyId, Box<dyn Error>> {
-    AiFamilyId::parse(value).ok_or_else(|| test_error("family id fixture"))
-}
-
 fn actor_id(value: &str) -> Result<AiActorId, Box<dyn Error>> {
     AiActorId::parse(value).ok_or_else(|| test_error("actor id fixture"))
 }
@@ -100,7 +96,7 @@ fn confidence_rejects_values_outside_the_finite_unit_interval() -> TestResult {
 
 #[test]
 fn identifiers_and_timestamps_reject_hostile_or_noncanonical_values() {
-    assert_eq!(family_id("").is_err(), true);
+    assert_eq!(AiFamilyId::parse(""), None);
     assert_eq!(AiFamilyId::parse(" family-1"), None);
     assert_eq!(AiFamilyId::parse("family\n1"), None);
     assert_eq!(
@@ -111,7 +107,10 @@ fn identifiers_and_timestamps_reject_hostile_or_noncanonical_values() {
 
     assert_eq!(AiTimestamp::parse("2026-08-28T09:00:00"), None);
     assert_eq!(AiTimestamp::parse("2026-02-29T09:00:00Z"), None);
-    assert_eq!(AiTimestamp::parse("2024-02-29T09:00:00Z").is_some(), true);
+    assert_eq!(
+        AiTimestamp::parse("2024-02-29T09:00:00Z").map(|timestamp| timestamp.to_string()),
+        Some("2024-02-29T09:00:00Z".to_owned())
+    );
     assert_eq!(AiTimestamp::parse("2026-08-28T24:00:00Z"), None);
     assert_eq!(AiTimestamp::parse("2026-08-28T09:00:00+00:00"), None);
 }

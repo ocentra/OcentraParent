@@ -19,7 +19,7 @@ use ocentra_parent_agent_protocol::policy_constants;
 use super::test_text::{count_for_display, test_ok, TestResult, TestText};
 use crate::{
     enforcement_browser_domain_adapter_proof_read_model::v08_browser_domain_adapter_proof_read_model,
-    test_invariants::require_some,
+    test_require_some::require_some,
 };
 
 #[test]

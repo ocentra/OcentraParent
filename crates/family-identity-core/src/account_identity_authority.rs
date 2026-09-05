@@ -124,11 +124,11 @@ where
         };
         handoff
             .validate_shape()
-            .map_err(|_| AccountIdentityCurrentBindingReadError::MemberAuthorityInvalid)?;
+            .map_err(|_error| AccountIdentityCurrentBindingReadError::MemberAuthorityInvalid)?;
         account_identity_authority_validation::validate_current_session(&handoff)
-            .map_err(|_| AccountIdentityCurrentBindingReadError::SessionInvalid)?;
+            .map_err(|_error| AccountIdentityCurrentBindingReadError::SessionInvalid)?;
         account_identity_authority_validation::validate_support_receipt(&handoff, provider_subject)
-            .map_err(|_| AccountIdentityCurrentBindingReadError::SupportReceiptInvalid)?;
+            .map_err(|_error| AccountIdentityCurrentBindingReadError::SupportReceiptInvalid)?;
 
         let provenance = account_identity_authority_capability::provenance_from_handoff(&handoff);
         Ok(VerifiedAccountIdentityAuthority {

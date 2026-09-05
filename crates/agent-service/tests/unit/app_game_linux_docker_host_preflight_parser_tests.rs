@@ -19,22 +19,19 @@ fn fixed_marker_requires_success_exact_bytes_and_valid_utf8() {
     let exact_marker = format!("{}\n", proof::DOCKER_READY_MARKER);
     let extra_output = format!("{} extra\n", proof::DOCKER_READY_MARKER);
 
-    assert_eq!(
-        probe_has_fixed_marker(probe_output(true, exact_marker.as_bytes())),
-        true
-    );
-    assert_eq!(
-        probe_has_fixed_marker(probe_output(true, extra_output.as_bytes())),
-        false
-    );
-    assert_eq!(
-        probe_has_fixed_marker(probe_output(false, exact_marker.as_bytes())),
-        false
-    );
-    assert_eq!(
-        probe_has_fixed_marker(probe_output(true, &[0xff])),
-        false
-    );
+    assert!(probe_has_fixed_marker(probe_output(
+        true,
+        exact_marker.as_bytes()
+    )));
+    assert!(!probe_has_fixed_marker(probe_output(
+        true,
+        extra_output.as_bytes()
+    )));
+    assert!(!probe_has_fixed_marker(probe_output(
+        false,
+        exact_marker.as_bytes()
+    )));
+    assert!(!probe_has_fixed_marker(probe_output(true, &[0xff])));
 }
 
 #[test]
@@ -64,10 +61,7 @@ fn context_parser_rejects_marker_streams_over_the_configured_bound() {
     let over_bound_output = format!("{}\n{}\n{}\n", marker, marker, marker);
 
     assert_eq!(
-        parse_context_count_with_limit(
-            probe_output(true, over_bound_output.as_bytes()),
-            2,
-        ),
+        parse_context_count_with_limit(probe_output(true, over_bound_output.as_bytes()), 2,),
         None
     );
 }
@@ -78,19 +72,13 @@ fn inventory_parser_requires_exactly_two_bounded_counts_from_successful_output()
         parse_inventory_counts(probe_output(true, b"3 4\n")),
         Some((3, 4))
     );
-    assert_eq!(
-        parse_inventory_counts(probe_output(true, b"3 4 5\n")),
-        None
-    );
+    assert_eq!(parse_inventory_counts(probe_output(true, b"3 4 5\n")), None);
     assert_eq!(
         parse_inventory_counts(probe_output(true, b"three 4\n")),
         None
     );
     assert_eq!(parse_inventory_counts(probe_output(true, b"3\n")), None);
-    assert_eq!(
-        parse_inventory_counts(probe_output(false, b"3 4\n")),
-        None
-    );
+    assert_eq!(parse_inventory_counts(probe_output(false, b"3 4\n")), None);
     assert_eq!(
         parse_inventory_counts(probe_output(
             true,
@@ -128,7 +116,7 @@ fn built_preflight_keeps_counts_redacted_and_makes_no_claims() {
         ),
         (true, 2, true, 3, true, 1)
     );
-    assert_eq!(preflight.identifiers_redacted, true);
+    assert!(preflight.identifiers_redacted);
     assert_eq!(preflight.proof_refs, Vec::<String>::new());
     assert_eq!(preflight.open_gaps, Vec::<String>::new());
     assert_eq!(

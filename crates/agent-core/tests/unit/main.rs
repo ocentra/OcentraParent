@@ -110,6 +110,8 @@ mod activity_store_app_game_tests;
 mod activity_store_browser_intervention_tests;
 #[path = "activity_store_browser_tests.rs"]
 mod activity_store_browser_tests;
+#[path = "activity_store_enforcement_audit_empty_tests.rs"]
+mod activity_store_enforcement_audit_empty_tests;
 #[path = "activity_store_enforcement_audit_tests.rs"]
 mod activity_store_enforcement_audit_tests;
 #[path = "activity_store_memory_graph_index_tests.rs"]

@@ -28,7 +28,7 @@ impl ParentBackupRuntime {
                 .map_err(BackupRuntimeError::ReplayDecode)?;
             self.ledger
                 .apply_event(&event)
-                .map_err(|_| BackupRuntimeError::ScheduleJob)?;
+                .map_err(BackupRuntimeError::schedule_job)?;
         }
         self.recovered = true;
         Ok(())
@@ -46,11 +46,11 @@ impl ParentBackupRuntime {
             .current_household_authority(&input.input.household_id)
             .map_err(BackupRuntimeError::AuthorityUnavailable)?;
         let schedule = derive_backup_schedule(schedule_request_for(input), authority)?;
-        let job = job_for_schedule(&schedule).map_err(|_| BackupRuntimeError::ScheduleJob)?;
+        let job = job_for_schedule(&schedule).map_err(BackupRuntimeError::schedule_job)?;
         if let Some(existing_job) = self
             .ledger
             .existing_job_for_schedule(&schedule)
-            .map_err(|_| BackupRuntimeError::ScheduleJob)?
+            .map_err(BackupRuntimeError::schedule_job)?
         {
             return Ok(existing_job);
         }
@@ -68,7 +68,7 @@ impl ParentBackupRuntime {
             .await?;
         self.ledger
             .apply_event(&event)
-            .map_err(|_| BackupRuntimeError::ScheduleJob)?;
+            .map_err(BackupRuntimeError::schedule_job)?;
         Ok(job)
     }
 }

@@ -105,36 +105,6 @@ impl fmt::Debug for LanSignedHouseholdMeshCryptographicVerificationContext {
     }
 }
 
-impl LanSignedHouseholdMeshCryptographicVerificationContext {
-    /// Constructs the cryptographic expectation only inside LAN's trusted
-    /// registry adapter. Peer request code cannot construct or deserialize it.
-    pub(super) fn from_registry_source(
-        expected_family_hash: LanHouseholdMeshFamilyHash,
-        expected_parent_device_id: LanHouseholdMeshParentDeviceId,
-        expected_child_device_id: LanHouseholdMeshChildDeviceId,
-        expected_target_device_id: LanHouseholdMeshTargetDeviceId,
-        expected_install_id: LanHouseholdMeshInstallId,
-        expected_route_id: LanHouseholdMeshRouteId,
-        expected_pairing_id: LanHouseholdMeshPairingId,
-        expected_registry_proof_digest: LanHouseholdMeshRegistryProofDigest,
-        expected_signer_public_key_id: LanHouseholdMeshPublicKeyId,
-        expected_signer_public_key_sha256: LanHouseholdMeshPublicKeySha256,
-    ) -> Self {
-        Self {
-            expected_family_hash,
-            expected_parent_device_id,
-            expected_child_device_id,
-            expected_target_device_id,
-            expected_install_id,
-            expected_route_id,
-            expected_pairing_id,
-            expected_registry_proof_digest,
-            expected_signer_public_key_id,
-            expected_signer_public_key_sha256,
-        }
-    }
-}
-
 /// A cryptographic verification result, deliberately distinct from LAN runtime
 /// authorization. It is non-serializable and has no public constructor.
 pub struct LanCryptographicallyVerifiedHouseholdMeshIngress {

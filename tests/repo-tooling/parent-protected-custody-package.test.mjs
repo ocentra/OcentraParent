@@ -7,11 +7,7 @@ import { test } from 'node:test';
 const repoRoot = process.cwd();
 const packageTestRoot = join(repoRoot, 'scripts', 'release', 'windows', 'parent-protected-custody', 'tests');
 
-const packageSuites = [
-  'package-contract.Tests.ps1',
-  'package-publication.Tests.ps1',
-  'package-journal.Tests.ps1',
-];
+const packageSuites = ['package-contract.Tests.ps1', 'package-publication.Tests.ps1', 'package-journal.Tests.ps1'];
 
 test('Parent WP12 executes the real Windows package contract and lifecycle suites', (context) => {
   if (process.platform !== 'win32') {
@@ -23,13 +19,7 @@ test('Parent WP12 executes the real Windows package contract and lifecycle suite
     const suitePath = join(packageTestRoot, suite);
     assert.equal(existsSync(suitePath), true, `missing WP12 PowerShell suite ${suite}`);
 
-    const result = spawnSync('pwsh', [
-      '-NoLogo',
-      '-NoProfile',
-      '-NonInteractive',
-      '-File',
-      suitePath,
-    ], {
+    const result = spawnSync('pwsh', ['-NoLogo', '-NoProfile', '-NonInteractive', '-File', suitePath], {
       cwd: repoRoot,
       encoding: 'utf8',
       windowsHide: true,
@@ -38,12 +28,12 @@ test('Parent WP12 executes the real Windows package contract and lifecycle suite
     assert.equal(
       result.error,
       undefined,
-      `pwsh could not execute ${suite}: ${result.error?.message ?? '<unknown error>'}`,
+      `pwsh could not execute ${suite}: ${result.error?.message ?? '<unknown error>'}`
     );
     assert.equal(
       result.status,
       0,
-      `${suite} failed with exit code ${result.status}.\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`,
+      `${suite} failed with exit code ${result.status}.\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`
     );
     assert.match(result.stdout, /^PASS:/mu, `${suite} did not report its behavioral pass result`);
   }

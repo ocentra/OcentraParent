@@ -11,7 +11,6 @@ import {
   type PortalBackgroundRenderConfig,
   type PortalBackgroundThemeColors,
 } from '@ocentra-parent/portal-domain/portal-background';
-import savedPortalBackgroundConfig from '../public/portal-background-config.json';
 
 export {
   DEFAULT_PORTAL_BACKGROUND_CONFIG,
@@ -26,8 +25,9 @@ export {
   type PortalBackgroundThemeColors,
 };
 
-export const SAVED_PORTAL_BACKGROUND_CONFIG: PortalBackgroundConfig =
-  normalizePortalBackgroundConfig(savedPortalBackgroundConfig);
+export const SAVED_PORTAL_BACKGROUND_CONFIG: PortalBackgroundConfig = normalizePortalBackgroundConfig(
+  DEFAULT_PORTAL_BACKGROUND_CONFIG
+);
 
 export async function loadPortalBackgroundConfig(): Promise<PortalBackgroundConfig> {
   const endpointConfig = await getPortalBackgroundConfig(PortalBackgroundRuntime.Api.ConfigEndpoint);

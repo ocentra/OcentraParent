@@ -116,7 +116,7 @@ pub fn live_windows_process_and_launcher_snapshot_journal_events_from_system(
             limit,
             system,
         )
-        .map_err(|_| AppGameLiveProcessSnapshotError::LauncherJournalEventRejected)?;
+        .map_err(|_error| AppGameLiveProcessSnapshotError::LauncherJournalEventRejected)?;
         events.extend(launcher_events);
     }
     Ok(events)

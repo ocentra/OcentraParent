@@ -12,8 +12,8 @@ pub(super) fn components(path: &Path) -> Result<(), PathSecurityError> {
         if current.parent().is_none() {
             continue;
         }
-        let metadata =
-            std::fs::symlink_metadata(&current).map_err(|_| PathSecurityError::Unavailable)?;
+        let metadata = std::fs::symlink_metadata(&current)
+            .map_err(|_component_metadata_error| PathSecurityError::Unavailable)?;
         if metadata.file_type().is_symlink() || is_reparse_point(&metadata) {
             return Err(PathSecurityError::UnsafePath);
         }
@@ -35,13 +35,14 @@ fn is_reparse_point(_metadata: &std::fs::Metadata) -> bool {
 }
 
 pub(super) fn metadata(path: &Path) -> Result<(), PathSecurityError> {
-    let metadata = std::fs::symlink_metadata(path).map_err(|_| PathSecurityError::Unavailable)?;
+    let metadata = std::fs::symlink_metadata(path)
+        .map_err(|_file_metadata_error| PathSecurityError::Unavailable)?;
     if !metadata.is_file() || metadata.file_type().is_symlink() {
         return Err(PathSecurityError::UnsafePath);
     }
     let parent = path.parent().ok_or(PathSecurityError::UnsafePath)?;
-    let parent_metadata =
-        std::fs::symlink_metadata(parent).map_err(|_| PathSecurityError::Unavailable)?;
+    let parent_metadata = std::fs::symlink_metadata(parent)
+        .map_err(|_parent_metadata_error| PathSecurityError::Unavailable)?;
     if !parent_metadata.is_dir() || parent_metadata.file_type().is_symlink() {
         return Err(PathSecurityError::UnsafePath);
     }

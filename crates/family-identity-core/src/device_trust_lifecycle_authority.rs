@@ -10,7 +10,7 @@ use crate::{
     device_trust_lifecycle::DeviceTrustLifecycleError,
     device_trust_lifecycle_authority_fence::{self, AuthorityTransition},
     device_trust_lifecycle_authority_intent,
-    device_trust_lifecycle_authority_lock::{self, AuthorityReadFence},
+    device_trust_lifecycle_authority_lock::{self},
     device_trust_lifecycle_authority_reconciliation,
     device_trust_lifecycle_authority_store::{load_values, open_lock, persist_values},
 };
@@ -102,24 +102,14 @@ impl ExternalLifecycleAuthority {
         device_ref: &str,
         generation: u64,
     ) -> bool {
-        match device_trust_lifecycle_authority_fence::matches(
+        device_trust_lifecycle_authority_fence::matches(
             &self.path,
             &self.intent_path,
             &self.lock_path,
             &authority_key(family_id, trust_subject, device_ref),
             generation,
-        ) {
-            Ok(matches) => matches,
-            Err(_error) => false,
-        }
-    }
-
-    pub(crate) fn read_fence(&self) -> Result<AuthorityReadFence, DeviceTrustLifecycleError> {
-        device_trust_lifecycle_authority_lock::read_fence(
-            &self.path,
-            &self.intent_path,
-            &self.lock_path,
         )
+        .unwrap_or_default()
     }
 
     fn persist(&self) -> Result<(), DeviceTrustLifecycleError> {

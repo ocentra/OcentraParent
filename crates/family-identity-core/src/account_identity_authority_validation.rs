@@ -15,7 +15,7 @@ pub(super) fn validate_current_session(
         return Err(());
     }
     let expires_at = DateTime::parse_from_rfc3339(&handoff.member.session_expires_at)
-        .map_err(|_| ())?
+        .map_err(|_error| ())?
         .with_timezone(&Utc);
     (expires_at > Utc::now()).then_some(()).ok_or(())
 }
@@ -41,10 +41,10 @@ pub(super) fn validate_support_receipt(
         return Err(());
     }
     let issued_at = DateTime::parse_from_rfc3339(&receipt.issued_at)
-        .map_err(|_| ())?
+        .map_err(|_error| ())?
         .with_timezone(&Utc);
     let expires_at = DateTime::parse_from_rfc3339(&receipt.expires_at)
-        .map_err(|_| ())?
+        .map_err(|_error| ())?
         .with_timezone(&Utc);
     let now = Utc::now();
     (issued_at <= now && now < expires_at)

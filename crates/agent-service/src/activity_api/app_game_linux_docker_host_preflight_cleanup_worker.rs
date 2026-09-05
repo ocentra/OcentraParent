@@ -6,10 +6,14 @@ use std::sync::{
 use super::app_game_linux_docker_host_preflight_cleanup_owner::{
     recover_lock, recover_wait, CleanupMailbox,
 };
-pub(super) fn cleanup_worker(
-    mailbox: Arc<(std::sync::Mutex<CleanupMailbox>, std::sync::Condvar)>,
-    degraded: Arc<AtomicBool>,
-) {
+
+pub(super) struct CleanupWorkerContext {
+    pub(super) mailbox: Arc<(std::sync::Mutex<CleanupMailbox>, std::sync::Condvar)>,
+    pub(super) degraded: Arc<AtomicBool>,
+}
+
+pub(super) fn cleanup_worker(context: CleanupWorkerContext) {
+    let CleanupWorkerContext { mailbox, degraded } = context;
     let (lock, wake) = &*mailbox;
     let mut mailbox = recover_lock(lock);
     while mailbox.owner.is_none() && !mailbox.stop {

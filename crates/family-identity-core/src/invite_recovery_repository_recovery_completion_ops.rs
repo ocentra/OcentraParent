@@ -23,21 +23,14 @@ impl SqliteAccountIdentityAuthorityRepository {
         let transaction = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
-            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
+            .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)?;
         let (now, _) = trusted_now_in_transaction(&transaction)?;
-        let kind = ensure_recovery_proof_current(
-            &transaction,
-            recovery_id,
-            authority.household_id().to_string(),
-            now,
-        )?;
+        let household_id = authority.household_id().to_string();
+        let kind =
+            ensure_recovery_proof_current(&transaction, recovery_id, household_id.as_str(), now)?;
         ensure_current_authority(&transaction, authority, now)?;
         let transition_at = next_transition_at(&transaction, recovery_id, now)?;
-        let row = load_approved_recovery(
-            &transaction,
-            recovery_id,
-            authority.household_id().to_string(),
-        )?;
+        let row = load_approved_recovery(&transaction, recovery_id, household_id.as_str())?;
         let stored_kind = recovery_kind_from_label(&row.kind)
             .ok_or(InviteRecoveryRepositoryError::RecoveryRejected)?;
         if stored_kind != kind {
@@ -64,10 +57,10 @@ impl SqliteAccountIdentityAuthorityRepository {
                     authority.household_id().to_string(),
                 ],
             )
-            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
+            .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)?;
         transaction
             .commit()
-            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
+            .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)?;
         Ok(RecoveryCompletion {
             state: RecoveryState::Approved,
             handoff_enqueued: true,
@@ -87,7 +80,7 @@ struct ApprovedRecoveryRow {
 fn load_approved_recovery(
     transaction: &rusqlite::Transaction<'_>,
     recovery_id: &RecoveryId,
-    household_id: String,
+    household_id: &str,
 ) -> Result<ApprovedRecoveryRow, InviteRecoveryRepositoryError> {
     transaction
         .query_row(
@@ -108,7 +101,7 @@ fn load_approved_recovery(
             },
         )
         .optional()
-        .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?
+        .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)?
         .ok_or(InviteRecoveryRepositoryError::RecoveryRejected)
 }
 
@@ -143,5 +136,5 @@ fn enqueue_handoff(
             ],
         )
         .map(|_| ())
-        .map_err(|_| InviteRecoveryRepositoryError::Unavailable)
+        .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)
 }

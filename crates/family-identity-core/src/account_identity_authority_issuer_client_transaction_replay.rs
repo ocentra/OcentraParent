@@ -117,7 +117,7 @@ pub(super) fn load_stored_issue_by_idempotency(
             },
         )
         .optional()
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::ReceiptUnavailable)
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::ReceiptUnavailable)
 }
 
 pub(super) fn verify_stored_issue(
@@ -130,7 +130,7 @@ pub(super) fn verify_stored_issue(
     let receipt = receipt_from_stored(&stored)?;
     validate_current_receipt(currentness, key, &receipt)?;
     let transport = crate::account_identity_authority_producer_v2::from_durable_transport(
-        stored.wire.clone(),
+        stored.wire,
         receipt.clone(),
     );
     let (_, now) = super::super::clock::now(transaction)?;
@@ -177,19 +177,19 @@ fn receipt_from_stored(
         payload_digest: stored.payload_digest.clone(),
         key_id: stored.key_id.clone(),
         key_generation: u64::try_from(stored.key_generation)
-            .map_err(|_| AccountIdentityAuthorityIssuerClientError::ReceiptUnavailable)?,
+            .map_err(|_error| AccountIdentityAuthorityIssuerClientError::ReceiptUnavailable)?,
         enrollment_generation: u64::try_from(stored.enrollment_generation)
-            .map_err(|_| AccountIdentityAuthorityIssuerClientError::ReceiptUnavailable)?,
+            .map_err(|_error| AccountIdentityAuthorityIssuerClientError::ReceiptUnavailable)?,
         authority_generation: u64::try_from(stored.authority_generation)
-            .map_err(|_| AccountIdentityAuthorityIssuerClientError::ReceiptUnavailable)?,
+            .map_err(|_error| AccountIdentityAuthorityIssuerClientError::ReceiptUnavailable)?,
         session_generation: u64::try_from(stored.session_generation)
-            .map_err(|_| AccountIdentityAuthorityIssuerClientError::ReceiptUnavailable)?,
+            .map_err(|_error| AccountIdentityAuthorityIssuerClientError::ReceiptUnavailable)?,
         issued_at: stored.issued_at.clone(),
         expires_at: stored.expires_at.clone(),
     };
     receipt
         .validate_shape()
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::ReceiptUnavailable)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::ReceiptUnavailable)?;
     Ok(receipt)
 }
 

@@ -31,7 +31,9 @@ use super::test_text::{optional_log_string, test_ok, test_some, TestResult, Test
 use crate::{
     enforcement_api::{build_enforcement_audit_report_with_paths, EnforcementJournalPaths},
     enforcement_payload::EnforcementPayloadError,
-    enforcement_timer_api::build_enforcement_timer_report_with_paths,
+    enforcement_timer_api::{
+        build_enforcement_timer_report, build_enforcement_timer_report_with_paths,
+    },
 };
 
 #[test]
@@ -52,6 +54,20 @@ fn unsupported_capability_rejection_is_protocol_stable() {
     assert_eq!(
         EnforcementPayloadError::UnsupportedCapability.to_string(),
         constants::enforcement::REJECTION_UNSUPPORTED_CAPABILITY
+    );
+}
+
+#[tokio::test]
+async fn timer_default_report_rejects_non_timer_command_before_state_access() {
+    let event = build_enforcement_timer_report(execute_command()).await;
+
+    assert_eq!(event.event, AgentEventName::AgentCommandRejected);
+    assert_eq!(event.target.peer_id, constants::peer::PORTAL_DEV);
+    assert_eq!(
+        event.payload.get(constants::field::REASON),
+        Some(&LogFieldValue::String(
+            constants::enforcement::REJECTION_COMMAND_PAYLOAD_INVALID.to_string()
+        ))
     );
 }
 

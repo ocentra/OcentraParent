@@ -20,6 +20,7 @@ pub mod duckdb_log_query;
 pub mod event;
 pub mod field;
 pub mod level;
+pub mod local_artifact_mutation;
 pub mod local_ndjson_log;
 pub mod local_ndjson_log_typescript;
 mod ndjson_append_rollback;

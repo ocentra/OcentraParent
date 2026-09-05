@@ -43,7 +43,7 @@ pub(super) fn spawn(
     pipeline_health: LanPassiveDiscoveryPipelineHealth,
     stop: Arc<AtomicBool>,
 ) -> io::Result<JoinHandle<()>> {
-    let stop_for_runtime = stop.clone();
+    let stop_for_runtime = stop;
     let capability_store = LanPassiveDiscoveryCapabilityStore::for_runtime(&runtime);
     let async_runtime = tokio::runtime::Builder::new_current_thread()
         .enable_time()

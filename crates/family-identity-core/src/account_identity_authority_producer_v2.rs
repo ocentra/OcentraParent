@@ -87,6 +87,18 @@ pub struct AccountIdentityAuthorityProducerV2VerifiedReceipt {
     receipt: AccountIdentityAuthorityProducerV2Receipt,
 }
 
+pub(crate) struct AccountIdentityAuthorityProducerV2IssueInput<'a> {
+    pub(crate) authority: &'a VerifiedAccountIdentityAuthority,
+    pub(crate) key_id: &'a str,
+    pub(crate) key_generation: u64,
+    pub(crate) enrollment_generation: u64,
+    pub(crate) public_key: &'a [u8; ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_PUBLIC_KEY_BYTES],
+    pub(crate) service_binding_id: &'a str,
+    pub(crate) correlation_id: &'a str,
+    pub(crate) idempotency_key: &'a str,
+    pub(crate) issued_at: DateTime<Utc>,
+}
+
 pub(crate) fn from_durable_transport(
     wire: Vec<u8>,
     receipt: AccountIdentityAuthorityProducerV2Receipt,
@@ -95,27 +107,9 @@ pub(crate) fn from_durable_transport(
 }
 
 pub(crate) fn issue_request(
-    authority: &VerifiedAccountIdentityAuthority,
-    key_id: &str,
-    key_generation: u64,
-    enrollment_generation: u64,
-    public_key: &[u8; ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_PUBLIC_KEY_BYTES],
-    service_binding_id: &str,
-    correlation_id: &str,
-    idempotency_key: &str,
-    issued_at: DateTime<Utc>,
+    input: &AccountIdentityAuthorityProducerV2IssueInput<'_>,
 ) -> Result<AccountIdentityAuthorityProducerV2Request, AccountIdentityAuthorityProducerV2Error> {
-    account_identity_authority_producer_v2_request::issue_request(
-        authority,
-        key_id,
-        key_generation,
-        enrollment_generation,
-        public_key,
-        service_binding_id,
-        correlation_id,
-        idempotency_key,
-        issued_at,
-    )
+    account_identity_authority_producer_v2_request::issue_request(input)
 }
 
 pub(crate) fn acknowledge_request(

@@ -15,11 +15,11 @@ pub(super) fn validate(connection: &Connection) -> Result<(), ()> {
              FROM account_identity_recovery_custody_handoff h
              JOIN account_identity_recovery r ON r.recovery_id = h.recovery_id",
         )
-        .map_err(|_| ())?;
-    let mut rows = statement.query([]).map_err(|_| ())?;
-    while let Some(row) = rows.next().map_err(|_| ())? {
-        let state = row.get::<_, String>(8).map_err(|_| ())?;
-        let recovery_state = row.get::<_, String>(19).map_err(|_| ())?;
+        .map_err(|_error| ())?;
+    let mut rows = statement.query([]).map_err(|_error| ())?;
+    while let Some(row) = rows.next().map_err(|_error| ())? {
+        let state = row.get::<_, String>(8).map_err(|_error| ())?;
+        let recovery_state = row.get::<_, String>(19).map_err(|_error| ())?;
         if !binding_valid(row)? || !state_valid(row, &state, &recovery_state)? {
             return Err(());
         }
@@ -29,30 +29,35 @@ pub(super) fn validate(connection: &Connection) -> Result<(), ()> {
 
 fn binding_valid(row: &rusqlite::Row<'_>) -> Result<bool, ()> {
     let nonempty = [
-        row.get::<_, String>(0).map_err(|_| ())?,
-        row.get::<_, String>(1).map_err(|_| ())?,
+        row.get::<_, String>(0).map_err(|_error| ())?,
+        row.get::<_, String>(1).map_err(|_error| ())?,
     ];
     Ok(nonempty.iter().all(|value| !value.trim().is_empty())
-        && row.get::<_, String>(2).map_err(|_| ())? == row.get::<_, String>(14).map_err(|_| ())?
-        && row.get::<_, String>(3).map_err(|_| ())? == row.get::<_, String>(15).map_err(|_| ())?
-        && row.get::<_, String>(4).map_err(|_| ())? == row.get::<_, String>(16).map_err(|_| ())?
-        && row.get::<_, String>(5).map_err(|_| ())? == row.get::<_, String>(17).map_err(|_| ())?
-        && row.get::<_, String>(6).map_err(|_| ())? == row.get::<_, String>(18).map_err(|_| ())?
-        && row.get::<_, i64>(7).map_err(|_| ())? > 0
-        && row.get::<_, i64>(11).map_err(|_| ())? >= 0)
+        && row.get::<_, String>(2).map_err(|_error| ())?
+            == row.get::<_, String>(14).map_err(|_error| ())?
+        && row.get::<_, String>(3).map_err(|_error| ())?
+            == row.get::<_, String>(15).map_err(|_error| ())?
+        && row.get::<_, String>(4).map_err(|_error| ())?
+            == row.get::<_, String>(16).map_err(|_error| ())?
+        && row.get::<_, String>(5).map_err(|_error| ())?
+            == row.get::<_, String>(17).map_err(|_error| ())?
+        && row.get::<_, String>(6).map_err(|_error| ())?
+            == row.get::<_, String>(18).map_err(|_error| ())?
+        && row.get::<_, i64>(7).map_err(|_error| ())? > 0
+        && row.get::<_, i64>(11).map_err(|_error| ())? >= 0)
 }
 
 fn state_valid(row: &rusqlite::Row<'_>, state: &str, recovery_state: &str) -> Result<bool, ()> {
-    let attempt = row.get::<_, Option<String>>(9).map_err(|_| ())?;
-    let lease = row.get::<_, Option<i64>>(10).map_err(|_| ())?;
-    let owner_transition = row.get::<_, Option<String>>(12).map_err(|_| ())?;
-    let owner_receipt = row.get::<_, Option<String>>(13).map_err(|_| ())?;
-    let recovery_receipt = row.get::<_, Option<String>>(20).map_err(|_| ())?;
-    let recovery_transition = row.get::<_, Option<String>>(21).map_err(|_| ())?;
+    let attempt = row.get::<_, Option<String>>(9).map_err(|_error| ())?;
+    let lease = row.get::<_, Option<i64>>(10).map_err(|_error| ())?;
+    let owner_transition = row.get::<_, Option<String>>(12).map_err(|_error| ())?;
+    let owner_receipt = row.get::<_, Option<String>>(13).map_err(|_error| ())?;
+    let recovery_receipt = row.get::<_, Option<String>>(20).map_err(|_error| ())?;
+    let recovery_transition = row.get::<_, Option<String>>(21).map_err(|_error| ())?;
     Ok(handoff_state_valid(
         state,
         recovery_state,
-        row.get::<_, i64>(7).map_err(|_| ())?,
+        row.get::<_, i64>(7).map_err(|_error| ())?,
         attempt.as_deref(),
         lease,
         owner_transition.as_deref(),

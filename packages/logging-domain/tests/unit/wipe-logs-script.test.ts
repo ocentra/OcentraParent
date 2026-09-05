@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { appendTestLogEntries } from '../../src/test-log/ndjsonWriter';
 import { RunType, TestLogScope } from '../../src/test-log/types';
+import { closeLocalArtifactMutationProvider } from '../../src/local-artifact-mutation-provider';
 
 const TSX_CLI = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -40,8 +41,8 @@ function runScript(
   return { stdout: result.stdout, stderr: result.stderr, status: result.status };
 }
 
-describe('wipe-logs script', () => {
-  it('removes the scoped NDJSON tree', () => {
+describe.skipIf(process.platform !== 'win32')('wipe-logs script', () => {
+  it('removes the scoped NDJSON tree', async () => {
     const tempDir = makeTempDir();
     try {
       const scopeDir = path.join(tempDir, 'test-logs', 'parent-test', 'single', 'unit');
@@ -75,6 +76,7 @@ describe('wipe-logs script', () => {
         ],
         tempDir
       );
+      await closeLocalArtifactMutationProvider(tempDir);
 
       const env = {
         ...process.env,
@@ -92,6 +94,7 @@ describe('wipe-logs script', () => {
       });
       expect(fs.existsSync(path.join(scopeDir, 'run-a.ndjson'))).toBe(false);
     } finally {
+      await closeLocalArtifactMutationProvider(tempDir);
       fs.rmSync(tempDir, { force: true, recursive: true });
     }
   });

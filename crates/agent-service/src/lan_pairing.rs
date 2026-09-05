@@ -25,8 +25,6 @@ pub(crate) mod lan_ai_job_lease_events;
 pub(crate) mod lan_ai_route_metadata;
 #[path = "lan_pairing/runtime_commands.rs"]
 mod runtime_commands;
-#[path = "lan_pairing/runtime_device_ref.rs"]
-mod runtime_device_ref;
 #[path = "lan_pairing/runtime_rejection.rs"]
 mod runtime_rejection;
 #[path = "lan_pairing/runtime_validation.rs"]
@@ -36,7 +34,6 @@ use ocentra_lan_core::lan_pairing::LanSignedChildAgentReplayGuard;
 use ocentra_lan_core::network_inventory::passive_discovery::LanPassiveDiscoveryListenerState;
 use ocentra_parent_agent_core::trusted_device_registry::TrustedDeviceRegistry;
 use ocentra_parent_agent_protocol::lan_pairing::DeviceRoleRuntimeReadModel;
-use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceRef;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingOptionalText;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingRejectionReason;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingText;
@@ -191,8 +188,4 @@ pub(crate) fn rejection_event(
     origin: &LanPairingOptionalText,
 ) -> AgentEventEnvelope {
     runtime_rejection::rejection_event(command, reason, intent, origin)
-}
-
-fn device_ref(paired_device_id: LanPairingText, platform: LanPairingText) -> LanPairingDeviceRef {
-    runtime_device_ref::device_ref(paired_device_id, platform)
 }

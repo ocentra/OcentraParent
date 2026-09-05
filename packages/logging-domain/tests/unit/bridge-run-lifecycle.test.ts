@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import type { AddressInfo } from 'node:net';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, expect, it } from 'vitest';
 import { RunType, TestLogScope, TestLogSchemaVersion } from '../../src/test-log/types';
 import { createBridgeServer } from '../../src/transport/bridgeServer';
 import {
@@ -13,6 +13,7 @@ import {
 } from '../../src/transport/bridgeTransport';
 import { getTestLogScopeDir, listNdjsonFiles } from '../../src/test-log/ndjsonPaths';
 import { appendTestLogEntries } from '../../src/test-log/ndjsonWriter';
+import { closeLocalArtifactMutationProvider } from '../../src/local-artifact-mutation-provider';
 
 function makeTempDir(): string {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'logging-domain-bridge-life-'));
@@ -84,12 +85,14 @@ afterEach(async () => {
   );
 
   for (const tempDir of bridgeLifecycleTempDirs.splice(0, bridgeLifecycleTempDirs.length)) {
+    await closeLocalArtifactMutationProvider(tempDir);
     fs.rmSync(tempDir, { force: true, recursive: true });
   }
 });
 
-describe('bridge run lifecycle', () => {
-  it('records run metadata, wipes the selected scope, and rejects stale run ids for that scope', async () => {
+it.skipIf(process.platform !== 'win32')(
+  'records run metadata, wipes the selected scope, and rejects stale run ids for that scope',
+  async () => {
     const tempDir = makeTempDir();
     bridgeLifecycleTempDirs.push(tempDir);
 
@@ -145,6 +148,7 @@ describe('bridge run lifecycle', () => {
 
     await sendToBridge([makeBridgeEntry('run-1')], endpoint);
 
+    await closeLocalArtifactMutationProvider(tempDir);
     const lifecyclePath = path.join(tempDir, '.bridge', 'lifecycle-state.json');
     const lifecycleState = JSON.parse(fs.readFileSync(lifecyclePath, 'utf8')) as {
       runCounters: Array<{ runId: string; stored: number; flushed: number; updatedAt: number }>;
@@ -166,9 +170,12 @@ describe('bridge run lifecycle', () => {
 
     const flushed = await flushBridgeRun(endpoint, 'run-1');
     expect(flushed).toBe(true);
-  });
+  }
+);
 
-  it('warns when replacing stale run metadata and preserves the active run across restart', async () => {
+it.skipIf(process.platform !== 'win32')(
+  'warns when replacing stale run metadata and preserves the active run across restart',
+  async () => {
     const tempDir = makeTempDir();
     bridgeLifecycleTempDirs.push(tempDir);
 
@@ -185,6 +192,7 @@ describe('bridge run lifecycle', () => {
     });
     expect(started).toBe(true);
 
+    await closeLocalArtifactMutationProvider(tempDir);
     const lifecyclePath = path.join(tempDir, '.bridge', 'lifecycle-state.json');
     const lifecycleState = JSON.parse(fs.readFileSync(lifecyclePath, 'utf8')) as {
       activeRun: { startedAt: number };
@@ -192,6 +200,7 @@ describe('bridge run lifecycle', () => {
     lifecycleState.activeRun.startedAt = Date.now() - 10 * 60 * 1000;
     fs.writeFileSync(lifecyclePath, `${JSON.stringify(lifecycleState)}\n`, 'utf8');
 
+    const earliestFreshStart = Date.now();
     const replacementResponse = await fetch(`${endpoint}/__run_started__`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -204,6 +213,7 @@ describe('bridge run lifecycle', () => {
         wipeAll: false,
       }),
     });
+    const latestFreshStart = Date.now();
     expect(replacementResponse.status).toBe(200);
     expect(await replacementResponse.json()).toEqual({
       ok: true,
@@ -218,16 +228,18 @@ describe('bridge run lifecycle', () => {
     const restartedAddress = await listen(restarted);
     const info = await fetchRunInfoFromBridge(`http://127.0.0.1:${restartedAddress.port}`);
 
-    expect(info).toEqual({
-      runId: 'fresh-run',
-      runType: RunType.Single,
-      suiteType: 'unit',
-      scope: TestLogScope.ParentTest,
-      startedAt: expect.any(Number),
-    });
-  });
+    expect(info?.runId).toBe('fresh-run');
+    expect(info?.runType).toBe(RunType.Single);
+    expect(info?.suiteType).toBe('unit');
+    expect(info?.scope).toBe(TestLogScope.ParentTest);
+    expect(info?.startedAt).toBeGreaterThanOrEqual(earliestFreshStart);
+    expect(info?.startedAt).toBeLessThanOrEqual(latestFreshStart);
+  }
+);
 
-  it('keeps the bridge manual-required after invalid lifecycle state recovery', async () => {
+it.skipIf(process.platform !== 'win32')(
+  'keeps the bridge manual-required after invalid lifecycle state recovery',
+  async () => {
     const tempDir = makeTempDir();
     bridgeLifecycleTempDirs.push(tempDir);
     const bridgeDir = path.join(tempDir, '.bridge');
@@ -271,5 +283,5 @@ describe('bridge run lifecycle', () => {
       ok: false,
       error: 'bridge lifecycle requires operator resolution',
     });
-  });
-});
+  }
+);

@@ -1,13 +1,11 @@
 use std::collections::BTreeMap;
 
-use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::constants::v08_supported_adapter_runtime_proof as proof;
 use ocentra_parent_agent_protocol::enforcement::ParentPlatform;
 use ocentra_parent_agent_protocol::enforcement_supported_adapter_runtime_proof::V08SupportedAdapterRefusalReason;
 use ocentra_parent_agent_protocol::enforcement_supported_adapter_runtime_proof::V08SupportedAdapterResult;
 use ocentra_parent_agent_protocol::enforcement_supported_adapter_runtime_proof::V08SupportedAdapterRuntimeBoundary;
 use ocentra_parent_agent_protocol::enforcement_supported_adapter_runtime_proof::V08SupportedAdapterRuntimeProofEntry;
-use ocentra_parent_agent_protocol::enforcement_supported_adapter_runtime_proof::V08SupportedAdapterRuntimeProofReadModel;
 use ocentra_parent_agent_protocol::enforcement_supported_adapter_runtime_proof::V08SupportedAdapterRuntimeState;
 use ocentra_parent_agent_protocol::policy_constants;
 
@@ -15,7 +13,7 @@ use super::enforcement_api::enforcement_supported_adapter_runtime_proof_read_mod
     v08_supported_adapter_runtime_proof_read_model, GeneratedAtTextRef,
 };
 use super::test_text::{count_for_display, TestText};
-use crate::test_invariants::require_some;
+use crate::test_require_some::require_some;
 
 #[test]
 fn supported_adapter_runtime_proof_read_model_preserves_honest_states() {

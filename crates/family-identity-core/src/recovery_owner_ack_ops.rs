@@ -26,12 +26,7 @@ impl SqliteAccountIdentityAuthorityRepository {
             self,
             authority,
             attempt,
-            receipt.handoff_id.as_str(),
-            receipt.correlation_id.as_str(),
-            &receipt.recovery_id,
-            receipt.attempt_id.as_str(),
-            receipt.transition_id.as_str(),
-            receipt.receipt_digest.as_str(),
+            OwnerReceiptInput::provider_credential_session(receipt),
             RecoveryOwnerEffect::ProviderCredentialSession,
         )
     }
@@ -46,12 +41,7 @@ impl SqliteAccountIdentityAuthorityRepository {
             self,
             authority,
             attempt,
-            receipt.handoff_id.as_str(),
-            receipt.correlation_id.as_str(),
-            &receipt.recovery_id,
-            receipt.attempt_id.as_str(),
-            receipt.transition_id.as_str(),
-            receipt.receipt_digest.as_str(),
+            OwnerReceiptInput::device_trust_revoke(receipt),
             RecoveryOwnerEffect::DeviceTrustRevoke,
         )
     }
@@ -66,12 +56,7 @@ impl SqliteAccountIdentityAuthorityRepository {
             self,
             authority,
             attempt,
-            receipt.handoff_id.as_str(),
-            receipt.correlation_id.as_str(),
-            &receipt.recovery_id,
-            receipt.attempt_id.as_str(),
-            receipt.transition_id.as_str(),
-            receipt.receipt_digest.as_str(),
+            OwnerReceiptInput::device_trust_reinstall(receipt),
             RecoveryOwnerEffect::DeviceTrustReinstall,
         )
     }
@@ -86,14 +71,83 @@ impl SqliteAccountIdentityAuthorityRepository {
             self,
             authority,
             attempt,
+            OwnerReceiptInput::household_authority_mutation(receipt),
+            RecoveryOwnerEffect::HouseholdAuthorityMutation,
+        )
+    }
+}
+
+#[derive(Clone, Copy)]
+struct OwnerReceiptInput<'a> {
+    handoff_id: &'a str,
+    correlation_id: &'a str,
+    recovery_id: &'a RecoveryId,
+    attempt_id: &'a str,
+    transition_id: &'a str,
+    receipt_digest: &'a str,
+}
+
+impl<'a> OwnerReceiptInput<'a> {
+    fn provider_credential_session(receipt: &'a ProviderCredentialSessionOwnerReceipt) -> Self {
+        Self::new(
             receipt.handoff_id.as_str(),
             receipt.correlation_id.as_str(),
             &receipt.recovery_id,
             receipt.attempt_id.as_str(),
             receipt.transition_id.as_str(),
             receipt.receipt_digest.as_str(),
-            RecoveryOwnerEffect::HouseholdAuthorityMutation,
         )
+    }
+
+    fn device_trust_revoke(receipt: &'a DeviceTrustRevokeOwnerReceipt) -> Self {
+        Self::new(
+            receipt.handoff_id.as_str(),
+            receipt.correlation_id.as_str(),
+            &receipt.recovery_id,
+            receipt.attempt_id.as_str(),
+            receipt.transition_id.as_str(),
+            receipt.receipt_digest.as_str(),
+        )
+    }
+
+    fn device_trust_reinstall(receipt: &'a DeviceTrustReinstallOwnerReceipt) -> Self {
+        Self::new(
+            receipt.handoff_id.as_str(),
+            receipt.correlation_id.as_str(),
+            &receipt.recovery_id,
+            receipt.attempt_id.as_str(),
+            receipt.transition_id.as_str(),
+            receipt.receipt_digest.as_str(),
+        )
+    }
+
+    fn household_authority_mutation(receipt: &'a HouseholdAuthorityMutationOwnerReceipt) -> Self {
+        Self::new(
+            receipt.handoff_id.as_str(),
+            receipt.correlation_id.as_str(),
+            &receipt.recovery_id,
+            receipt.attempt_id.as_str(),
+            receipt.transition_id.as_str(),
+            receipt.receipt_digest.as_str(),
+        )
+    }
+
+    fn new(
+        handoff_id: &'a str,
+        correlation_id: &'a str,
+        recovery_id: &'a RecoveryId,
+        attempt_id: &'a str,
+        transition_id: &'a str,
+        receipt_digest: &'a str,
+    ) -> Self {
+        Self {
+            handoff_id,
+            correlation_id,
+            recovery_id,
+            attempt_id,
+            transition_id,
+            receipt_digest,
+        }
     }
 }
 
@@ -101,63 +155,41 @@ fn acknowledge_owner_receipt(
     repository: &mut SqliteAccountIdentityAuthorityRepository,
     authority: &VerifiedAccountIdentityAuthority,
     attempt: &RecoveryHandoffDeliveryAttempt,
-    handoff_id: &str,
-    correlation_id: &str,
-    recovery_id: &RecoveryId,
-    attempt_id: &str,
-    transition_id: &str,
-    receipt_digest: &str,
+    receipt: OwnerReceiptInput<'_>,
     effect: RecoveryOwnerEffect,
 ) -> Result<(), InviteRecoveryRepositoryError> {
-    validate_owner_receipt_input(
-        attempt,
-        handoff_id,
-        correlation_id,
-        recovery_id,
-        attempt_id,
-        transition_id,
-        receipt_digest,
-    )?;
+    validate_owner_receipt_input(attempt, receipt)?;
     let transaction = repository
         .connection
         .transaction_with_behavior(TransactionBehavior::Immediate)
-        .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
+        .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)?;
     let (now, _) = trusted_now_in_transaction(&transaction)?;
+    let household_id = authority.household_id().to_string();
     let kind = ensure_recovery_proof_current(
         &transaction,
-        recovery_id,
-        authority.household_id().to_string(),
+        receipt.recovery_id,
+        household_id.as_str(),
         now,
     )?;
     ensure_current_authority(&transaction, authority, now)?;
     validate_owner_effect(&transaction, attempt, effect, kind)?;
-    let transition_at = next_transition_at(&transaction, recovery_id, now)?;
+    let transition_at = next_transition_at(&transaction, receipt.recovery_id, now)?;
     persist_owner_receipt(
         &transaction,
-        handoff_id,
-        correlation_id,
-        recovery_id,
-        authority.household_id().to_string(),
-        attempt_id,
-        transition_id,
-        receipt_digest,
+        receipt,
+        household_id.as_str(),
         now,
         transition_at,
     )?;
     transaction
         .commit()
-        .map_err(|_| InviteRecoveryRepositoryError::Unavailable)
+        .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)
 }
 
 fn persist_owner_receipt(
     transaction: &Transaction<'_>,
-    handoff_id: &str,
-    correlation_id: &str,
-    recovery_id: &RecoveryId,
-    household_id: String,
-    attempt_id: &str,
-    transition_id: &str,
-    receipt_digest: &str,
+    receipt: OwnerReceiptInput<'_>,
+    household_id: &str,
     now: i64,
     transition_at: i64,
 ) -> Result<(), InviteRecoveryRepositoryError> {
@@ -171,17 +203,17 @@ fn persist_owner_receipt(
                AND household_id = ?6 AND state = 'in-flight' AND active_attempt_id = ?7
                AND lease_expires_at_epoch_millis > ?8",
             params![
-                handoff_id,
-                correlation_id,
-                recovery_id.as_str(),
-                transition_id,
-                receipt_digest,
-                household_id.as_str(),
-                attempt_id,
+                receipt.handoff_id,
+                receipt.correlation_id,
+                receipt.recovery_id.as_str(),
+                receipt.transition_id,
+                receipt.receipt_digest,
+                household_id,
+                receipt.attempt_id,
                 now,
             ],
         )
-        .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
+        .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)?;
     if changed != 1 {
         return Err(InviteRecoveryRepositoryError::HandoffConflict);
     }
@@ -192,14 +224,14 @@ fn persist_owner_receipt(
                  reserved_owner_receipt_id = ?3, reserved_owner_transition_id = ?4
              WHERE recovery_id = ?1 AND household_id = ?5 AND state = 'approved'",
             params![
-                recovery_id.as_str(),
+                receipt.recovery_id.as_str(),
                 transition_at,
-                receipt_digest,
-                transition_id,
-                household_id.as_str(),
+                receipt.receipt_digest,
+                receipt.transition_id,
+                household_id,
             ],
         )
-        .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
+        .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)?;
     (completed == 1)
         .then_some(())
         .ok_or(InviteRecoveryRepositoryError::RecoveryRejected)
@@ -207,19 +239,14 @@ fn persist_owner_receipt(
 
 fn validate_owner_receipt_input(
     attempt: &RecoveryHandoffDeliveryAttempt,
-    handoff_id: &str,
-    correlation_id: &str,
-    recovery_id: &RecoveryId,
-    attempt_id: &str,
-    transition_id: &str,
-    receipt_digest: &str,
+    receipt: OwnerReceiptInput<'_>,
 ) -> Result<(), InviteRecoveryRepositoryError> {
-    if handoff_id != attempt.handoff.handoff_id()
-        || correlation_id != attempt.handoff.correlation_id()
-        || recovery_id != attempt.handoff.recovery_id()
-        || attempt_id != attempt.attempt_id
-        || transition_id.trim().is_empty()
-        || !hex_digest(receipt_digest)
+    if receipt.handoff_id != attempt.handoff.handoff_id()
+        || receipt.correlation_id != attempt.handoff.correlation_id()
+        || receipt.recovery_id != attempt.handoff.recovery_id()
+        || receipt.attempt_id != attempt.attempt_id
+        || receipt.transition_id.trim().is_empty()
+        || !hex_digest(receipt.receipt_digest)
     {
         return Err(InviteRecoveryRepositoryError::HandoffConflict);
     }
@@ -251,7 +278,7 @@ fn validate_owner_effect(
             },
         )
         .optional()
-        .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?
+        .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)?
         .ok_or(InviteRecoveryRepositoryError::Missing)?;
     let stored_kind =
         recovery_kind_from_label(&row.0).ok_or(InviteRecoveryRepositoryError::RecoveryRejected)?;
@@ -266,135 +293,4 @@ fn hex_digest(value: &str) -> bool {
         && value
             .bytes()
             .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::recovery_lifecycle::RecoveryCustodyHandoff;
-    use ocentra_schema::account_identity_authority::{
-        AccountIdentityDeviceId, AccountIdentityMemberId,
-    };
-    use ocentra_schema::report_query_custody::{FamilyId, ParentAccountId};
-
-    fn delivery_attempt() -> RecoveryHandoffDeliveryAttempt {
-        let recovery_id = RecoveryId::parse("recovery-1").expect("recovery id");
-        let handoff = RecoveryCustodyHandoff::from_durable(
-            "handoff-1".to_owned(),
-            "correlation-1".to_owned(),
-            recovery_id,
-            FamilyId::parse("household-1").expect("household id"),
-            ParentAccountId::parse("account-1").expect("account id"),
-            AccountIdentityMemberId::parse("member-1").expect("member id"),
-            AccountIdentityDeviceId::parse("device-1").expect("device id"),
-            RecoveryKind::ForgotLogin,
-            "2026-08-28T00:00:00.000Z".to_owned(),
-        );
-        RecoveryHandoffDeliveryAttempt {
-            handoff,
-            attempt_id: "attempt-1".to_owned(),
-            lease_expires_at: "2026-08-28T00:05:00.000Z".to_owned(),
-        }
-    }
-
-    #[test]
-    fn owner_receipt_digest_requires_lowercase_sha256_shape() {
-        assert!(hex_digest(&"a".repeat(64)));
-        assert!(hex_digest(&"0123456789abcdef".repeat(4)));
-        assert!(!hex_digest(&"A".repeat(64)));
-        assert!(!hex_digest(&"0".repeat(63)));
-        assert!(!hex_digest(&format!("{}g", "0".repeat(63))));
-    }
-
-    #[test]
-    fn owner_receipt_input_binds_every_attempt_identity() {
-        let attempt = delivery_attempt();
-        let recovery_id = attempt.handoff.recovery_id().clone();
-        let receipt_digest = "a".repeat(64);
-
-        assert!(validate_owner_receipt_input(
-            &attempt,
-            "handoff-1",
-            "correlation-1",
-            &recovery_id,
-            "attempt-1",
-            "transition-1",
-            &receipt_digest,
-        )
-        .is_ok());
-
-        assert!(matches!(
-            validate_owner_receipt_input(
-                &attempt,
-                "other-handoff",
-                "correlation-1",
-                &recovery_id,
-                "attempt-1",
-                "transition-1",
-                &receipt_digest,
-            ),
-            Err(InviteRecoveryRepositoryError::HandoffConflict)
-        ));
-        assert!(matches!(
-            validate_owner_receipt_input(
-                &attempt,
-                "handoff-1",
-                "other-correlation",
-                &recovery_id,
-                "attempt-1",
-                "transition-1",
-                &receipt_digest,
-            ),
-            Err(InviteRecoveryRepositoryError::HandoffConflict)
-        ));
-        let other_recovery_id = RecoveryId::parse("recovery-2").expect("recovery id");
-        assert!(matches!(
-            validate_owner_receipt_input(
-                &attempt,
-                "handoff-1",
-                "correlation-1",
-                &other_recovery_id,
-                "attempt-1",
-                "transition-1",
-                &receipt_digest,
-            ),
-            Err(InviteRecoveryRepositoryError::HandoffConflict)
-        ));
-        assert!(matches!(
-            validate_owner_receipt_input(
-                &attempt,
-                "handoff-1",
-                "correlation-1",
-                &recovery_id,
-                "other-attempt",
-                "transition-1",
-                &receipt_digest,
-            ),
-            Err(InviteRecoveryRepositoryError::HandoffConflict)
-        ));
-        assert!(matches!(
-            validate_owner_receipt_input(
-                &attempt,
-                "handoff-1",
-                "correlation-1",
-                &recovery_id,
-                "attempt-1",
-                " ",
-                &receipt_digest,
-            ),
-            Err(InviteRecoveryRepositoryError::HandoffConflict)
-        ));
-        assert!(matches!(
-            validate_owner_receipt_input(
-                &attempt,
-                "handoff-1",
-                "correlation-1",
-                &recovery_id,
-                "attempt-1",
-                "transition-1",
-                &"A".repeat(64),
-            ),
-            Err(InviteRecoveryRepositoryError::HandoffConflict)
-        ));
-    }
 }

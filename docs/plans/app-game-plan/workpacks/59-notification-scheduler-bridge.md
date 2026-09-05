@@ -80,6 +80,8 @@ scheduler handoff without claiming provider delivery or production runtime.
 - `test-results/app-game-notification-scheduler-bridge-proof/proof.json`
 - `output/app-game-plan-proof/59-notification-scheduler-bridge/`
 - `output/app-plan-proof/59-notification-scheduler-bridge/`
+- Durable retained manifest:
+  [`WP59_NOTIFICATION_SCHEDULER_BRIDGE_PROOF.md`](../../../proof/app-game-plan/WP59_NOTIFICATION_SCHEDULER_BRIDGE_PROOF.md)
 
 ## Validation
 
@@ -88,6 +90,6 @@ scheduler handoff without claiming provider delivery or production runtime.
 - [x] Only linked local outbox records become scheduler JSONL rows.
 - [x] Manual-required and unavailable rows remain unscheduled.
 - [x] Scheduler JSONL rereads through the existing scheduler record parser.
-- [ ] Proof pack records no provider delivery, no receipt ingestion, no
+- [x] Proof pack records no provider delivery, no receipt ingestion, no
       retry-worker/quiet-hours timer runtime, no parent UI, no child delivery,
       no adapter dispatch, no durable production outbox, and no platform claim.

@@ -4,6 +4,7 @@ use std::path::Path;
 use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::activity::ActivityEvent;
 use ocentra_parent_agent_protocol::browser::{BrowserChannel, BrowserCustodyLabel, BrowserFamily};
+use ocentra_parent_agent_protocol::browser_intervention::BrowserInterventionReadModel;
 use ocentra_parent_agent_protocol::browser_intervention_values::{
     BrowserBoundaryState, BrowserExactUrlClaimState, BrowserInterventionAction,
     BrowserInterventionCapabilityState, BrowserInterventionDecisionSource,
@@ -311,7 +312,14 @@ fn activity_store_downgrades_unmanaged_exact_url_claim_and_redacts_target_value(
     );
     let serialized =
         serde_json::to_string(&read_model).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
-    assert_eq!(serialized.contains(untrusted_url), false);
+    let reparsed: BrowserInterventionReadModel =
+        serde_json::from_str(&serialized).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
+    assert_eq!(reparsed.rows[0].requested_url, None);
+    assert_eq!(reparsed.rows[0].observed_url, None);
+    assert_eq!(
+        reparsed.rows[0].intervention_target_value,
+        constants::browser::INTERVENTION_TARGET_VALUE_REDACTED
+    );
 }
 
 #[test]

@@ -4,9 +4,21 @@ import { PortalFormatting } from '@ocentra-parent/portal-domain/formatting';
 import { ParentHostBridgeRuntime, type ParentRouteEventSnapshot } from '../generated/parent-ui-bridge';
 
 export function renderEvents(container: HTMLElement, events: readonly ParentRouteEventSnapshot[]): void {
+  const panel = document.createElement(PortalDom.Tags.Section);
+  panel.className = PortalDom.Classes.Summary;
+
   const title = document.createElement(PortalDom.Tags.HeadingTwo);
   title.textContent = resolvePortalDevText(PortalDevTextToken.AgentEvents);
-  container.append(title);
+  panel.append(title);
+
+  if (events.length === 0) {
+    const message = document.createElement(PortalDom.Tags.Paragraph);
+    message.className = PortalDom.Classes.CommandResultEmpty;
+    message.textContent = resolvePortalDevText(PortalDevTextToken.EmptyAgentEvents);
+    panel.append(message);
+    container.append(panel);
+    return;
+  }
 
   const list = document.createElement(PortalDom.Tags.OrderedList);
   list.className = PortalDom.Classes.LogList;
@@ -15,7 +27,8 @@ export function renderEvents(container: HTMLElement, events: readonly ParentRout
     list.append(renderEvent(event));
   }
 
-  container.append(list);
+  panel.append(list);
+  container.append(panel);
 }
 
 function renderEvent(event: ParentRouteEventSnapshot): HTMLLIElement {

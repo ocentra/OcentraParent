@@ -37,7 +37,10 @@ pub(super) async fn handle_publish_result(
 pub(super) async fn handle_receiver_result(
     bus: &EventBus,
     request_id: &RequestId,
-    payload: Result<crate::request::RequestCompletionSignal, tokio::sync::oneshot::error::RecvError>,
+    payload: Result<
+        crate::request::RequestCompletionSignal,
+        tokio::sync::oneshot::error::RecvError,
+    >,
 ) -> Result<crate::request::RequestPayload, EventingError> {
     match payload {
         Ok(crate::request::RequestCompletionSignal::Response(payload)) => Ok(payload),

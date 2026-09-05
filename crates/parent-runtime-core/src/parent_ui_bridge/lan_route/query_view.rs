@@ -36,6 +36,12 @@ pub(super) fn command_enabled_for_route_impl(
     route: &ParentRouteId,
     connection_state: &ParentBridgeConnectionState,
 ) -> bool {
+    if matches!(
+        route,
+        ParentRouteId::PlatformsInstall | ParentRouteId::InstallUpdates
+    ) {
+        return false;
+    }
     if is_lan_surface_route_impl(route) {
         return matches!(connection_state, ParentBridgeConnectionState::Connected);
     }

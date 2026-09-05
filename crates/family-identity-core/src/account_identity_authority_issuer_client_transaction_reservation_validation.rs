@@ -89,7 +89,7 @@ fn load_reservation(
             },
         )
         .optional()
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)
 }
 
 fn validate_state(
@@ -204,7 +204,7 @@ fn mark_manual_required(
             ],
         )
         .map(|_| ())
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)
 }
 
 fn generation_matches(stored: i64, expected: u64) -> bool {

@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
 import { appendTestLogEntries } from '../../src/test-log/ndjsonWriter';
 import { RunType, TestLogScope } from '../../src/test-log/types';
+import { closeLocalArtifactMutationProvider } from '../../src/local-artifact-mutation-provider';
 
 const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const queryScriptPath = path.join(packageRoot, 'scripts', 'query-test-logs.ts');
@@ -24,16 +25,17 @@ function runQueryScript(args: readonly string[], logRoot: string): string {
   return result.stdout.trim();
 }
 
-describe('query-test-logs script', () => {
+describe.skipIf(process.platform !== 'win32')('query-test-logs script', () => {
   const tempDirs: string[] = [];
 
-  afterEach(() => {
+  afterEach(async () => {
     for (const tempDir of tempDirs.splice(0, tempDirs.length)) {
+      await closeLocalArtifactMutationProvider(tempDir);
       fs.rmSync(tempDir, { force: true, recursive: true });
     }
   });
 
-  it('returns stats, failures, and search output from DuckDB', () => {
+  it('returns stats, failures, and search output from DuckDB', async () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'logging-domain-query-'));
     tempDirs.push(tempDir);
 
@@ -66,6 +68,7 @@ describe('query-test-logs script', () => {
       ],
       tempDir
     );
+    await closeLocalArtifactMutationProvider(tempDir);
 
     const stats = JSON.parse(runQueryScript(['stats', '--scope=parent-test'], tempDir)) as {
       totalLogs: number;

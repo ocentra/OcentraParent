@@ -2,71 +2,42 @@ import { expect, test } from '@playwright/test';
 
 const portalShellReadyTimeoutMs = 90_000;
 
-test('start route renders an honest setup boundary panel without invented readiness flow', async ({ page }) => {
+test('start route renders the Rust-owned setup boundary without invented readiness', async ({ page }) => {
   await page.goto('/#/start');
 
   await expect(page.getByRole('button', { exact: true, name: 'Home' })).toBeVisible({
     timeout: portalShellReadyTimeoutMs,
   });
 
-  const setupRegion = page.getByLabel('Setup-first-run boundary status');
+  const setupRegion = page.getByRole('region', { exact: true, name: 'Setup-first-run boundary status' });
   await expect(setupRegion).toBeVisible();
-  await expect(setupRegion.getByRole('heading', { name: 'Current boundary status' })).toBeVisible();
-  await expect(setupRegion.getByRole('heading', { name: 'What is real now' })).toBeVisible();
-  await expect(setupRegion.getByRole('heading', { name: 'What is missing' })).toBeVisible();
-  await expect(setupRegion.getByRole('heading', { name: 'First-run states and next actions' })).toBeVisible();
-  await expect(setupRegion.getByRole('heading', { name: 'Where it belongs' })).toBeVisible();
+  await expect(setupRegion).toHaveAttribute('data-ocentra-setup-proof', 'first-run-route');
   await expect(
-    setupRegion.getByText(
-      'The Start route exists, but live setup-first-run runtime state is not yet wired into the Rust parent snapshot.'
-    )
+    setupRegion.getByRole('heading', { exact: true, name: 'Setup-first-run boundary status' })
   ).toBeVisible();
-  await expect(setupRegion.getByText('unavailable', { exact: true })).toBeVisible();
-  await expect(setupRegion.getByText('Start route is visible in the portal shell')).toBeVisible();
-  await expect(setupRegion.getByText('Host bridge snapshot reaches TS presentation')).toBeVisible();
-  await expect(setupRegion.getByText('Route-contract projection only')).toBeVisible();
-  await expect(setupRegion.getByText('Account/provider state')).toBeVisible();
-  await expect(setupRegion.getByText('Pairing/trust state')).toBeVisible();
-  await expect(setupRegion.getByText('Data-custody/readiness state')).toBeVisible();
-  await expect(setupRegion.getByText('withheld until a live Rust snapshot exists')).toBeVisible();
-  await expect(setupRegion.getByText('parent runtime + setup read model')).toBeVisible();
-  await expect(setupRegion.getByText('presentation only')).toBeVisible();
-  await expect(setupRegion.getByText('claim only what the live Rust snapshot can prove')).toBeVisible();
-  await expect(setupRegion.getByText('No account / session', { exact: true })).toBeVisible();
-  await expect(
-    setupRegion.getByText('manual-required — request an owner-backed current session', { exact: true })
-  ).toBeVisible();
-  await expect(setupRegion.getByText('Household exists / no child profile', { exact: true })).toBeVisible();
-  await expect(
-    setupRegion.getByText('manual-required — request an owner-backed child profile', { exact: true })
-  ).toBeVisible();
-  await expect(setupRegion.getByText('Discovered unpaired device', { exact: true })).toBeVisible();
-  await expect(
-    setupRegion.getByText(
-      'unavailable — LAN may only observe discovery; pairing and ownership are not bound',
-      { exact: true }
-    )
-  ).toBeVisible();
-  await expect(setupRegion.getByText('Invite expiry', { exact: true })).toBeVisible();
-  await expect(
-    setupRegion.getByText('manual-required — request a current invite receipt before retrying', { exact: true })
-  ).toBeVisible();
-  await expect(setupRegion.getByText('Session expiry', { exact: true })).toBeVisible();
-  await expect(
-    setupRegion.getByText('manual-required — request a current session receipt before retrying', { exact: true })
-  ).toBeVisible();
-  await expect(setupRegion.getByText('Child safety', { exact: true })).toBeVisible();
-  await expect(
-    setupRegion.getByText(
-      'Private child activity is not shown on setup; only authority and readiness boundaries are projected',
-      { exact: true }
-    )
-  ).toBeVisible();
-  await expect(setupRegion.getByText('manual-required', { exact: true }).first()).toBeVisible();
-  await expect(
-    setupRegion.getByText('observation only; ownership and trust remain unavailable', { exact: true })
-  ).toBeVisible();
-  await expect(setupRegion.getByText('Action planning', { exact: true })).toBeVisible();
-  await expect(setupRegion.getByText('not invoked', { exact: true }).first()).toBeVisible();
+  await expect(setupRegion).toContainText(
+    'The Start route exists, but live setup-first-run runtime state is not yet wired into the Rust parent snapshot.'
+  );
+  await expect(setupRegion).toContainText('Runtime state');
+  await expect(setupRegion).toContainText('unavailable');
+
+  await expect(page.getByRole('button', { exact: true, name: 'Open Set Up Ocentra Parent' })).toBeVisible();
+  await expect(page.getByRole('button', { exact: true, name: 'Open Devices And Pairing' })).toBeVisible();
   await expect(setupRegion).not.toContainText('onboarding complete');
+});
+
+test('start navigation resets the guide dashboard to the setup topic', async ({ page }) => {
+  await page.goto('/#/policy');
+
+  await expect(
+    page.getByRole('heading', { exact: true, name: 'Start with a family rule, override only when needed' })
+  ).toBeVisible({ timeout: portalShellReadyTimeoutMs });
+
+  await page.getByRole('button', { exact: true, name: 'Open START HERE' }).click();
+  await expect(page).toHaveURL(/#\/start$/);
+  await expect(page.getByRole('button', { exact: true, name: 'Open Set Up Ocentra Parent' })).toHaveAttribute(
+    'aria-pressed',
+    'true'
+  );
+  await expect(page.getByRole('button', { exact: true, name: 'Open Rules' })).toHaveAttribute('aria-pressed', 'false');
 });

@@ -213,16 +213,16 @@ pub(super) fn migrate_from_v3(
                 SET provenance_state = 'legacy-unbound'
               WHERE provenance_state IS NULL;",
         )
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
     connection
         .execute_batch(RESERVATION_SCHEMA_SQL)
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
     connection
         .execute_batch("DROP TABLE account_identity_issuer_v2_schema;")
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
     connection
         .execute_batch(SCHEMA_META_SQL)
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
     connection
         .execute(
             "INSERT INTO account_identity_issuer_v2_schema
@@ -230,7 +230,7 @@ pub(super) fn migrate_from_v3(
              VALUES (?1, ?2, 'ready')",
             rusqlite::params![SCHEMA_NAME, SCHEMA_VERSION],
         )
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
     Ok(())
 }
 
@@ -246,17 +246,17 @@ fn validate_v3_receipt_shape(
             [],
             |row| row.get(0),
         )
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
     if !exists {
         return Err(AccountIdentityAuthorityIssuerClientError::InvalidSchema);
     }
     let actual = connection
         .prepare("PRAGMA table_info(account_identity_issuer_v2_receipt)")
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?
         .query_map([], |row| row.get::<_, String>(1))
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?
         .collect::<Result<Vec<_>, _>>()
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
     if actual
         .iter()
         .map(String::as_str)
@@ -336,7 +336,7 @@ fn validate_v3_metadata(
             [SCHEMA_NAME],
             |row| row.get(0),
         )
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
     valid
         .then_some(())
         .ok_or(AccountIdentityAuthorityIssuerClientError::InvalidSchema)
@@ -359,11 +359,11 @@ fn validate_v3_index(
 ) -> Result<(), AccountIdentityAuthorityIssuerClientError> {
     let columns = connection
         .prepare(&format!("PRAGMA index_info(\"{index}\")"))
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?
         .query_map([], |row| row.get::<_, String>(2))
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?
         .collect::<Result<Vec<_>, _>>()
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
     if columns
         .iter()
         .map(String::as_str)
@@ -382,7 +382,7 @@ fn validate_table_columns(
     let quoted_table = table.replace('"', "\"\"");
     let actual = connection
         .prepare(&format!("PRAGMA table_info(\"{quoted_table}\")"))
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?
         .query_map([], |row| {
             Ok((
                 row.get::<_, String>(1)?,
@@ -391,9 +391,9 @@ fn validate_table_columns(
                 row.get::<_, i64>(5)?,
             ))
         })
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?
         .collect::<Result<Vec<_>, _>>()
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
     if actual.len() != expected.len()
         || actual.iter().zip(expected).any(|(actual, expected)| {
             actual.0 != expected.0
@@ -419,7 +419,7 @@ fn validate_table_sql(
             |row| row.get::<_, String>(0),
         )
         .optional()
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?
         .ok_or(AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
     let marker = format!("CREATETABLE{}", compact_sql(table));
     let expected = expected_schema
@@ -444,7 +444,7 @@ fn validate_index_sql(
             |row| row.get::<_, String>(0),
         )
         .optional()
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?
         .ok_or(AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
     let marker = format!("CREATEINDEX{}", compact_sql(index));
     let expected = expected_schema

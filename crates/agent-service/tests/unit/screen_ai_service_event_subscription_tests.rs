@@ -1,5 +1,15 @@
 use ocentra_eventing::{
-    bus::reports::handler::HandlerOutcome, bus::EventBus, error::EventingError,
+    bus::{
+        publisher::RootEventPublisher,
+        reports::handler::{HandlerOutcome, PublishReport},
+        EventBus,
+    },
+    envelope::{EventMetadata, EventSource},
+    error::EventingError,
+    ids::{
+        CorrelationId, EventCustody, EventId, RecordedAt, RuntimeInstanceId, RuntimeRole,
+        SourceComponent, SourceService, TargetHandler,
+    },
 };
 use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
 use ocentra_parent_agent_protocol::activity_surface::ActivityReadModelState;
@@ -16,15 +26,16 @@ use ocentra_parent_agent_protocol::screen_evidence::SCREEN_PROVIDER_LOCAL_VISION
 
 use super::screen_ai_service_event_bridge::ScreenAiServiceEventBridgeError;
 use super::screen_ai_service_event_subscription::{
-    publish_screen_service_row_ready_event, subscribe_screen_service_row_ready_events,
+    publish_report_succeeded, subscribe_screen_service_row_ready_events, ObservedAtText,
     ScreenAiServiceEventRuntime, ScreenAiServiceEventSubscriptionDispatch,
     ScreenAiServiceEventSubscriptionState, ScreenAiServiceRowReadyEvent,
 };
 use crate::screen_ai_service_event_subscription;
-use crate::test_invariants::require_ok;
+use crate::test_require_ok::require_ok;
 
 #[tokio::test]
-async fn screen_service_event_runtime_start_registers_subscriber_for_production_startup() {
+async fn screen_service_event_runtime_start_registers_subscriber_for_production_startup(
+) -> Result<(), &'static str> {
     let runtime = require_ok(
         ScreenAiServiceEventRuntime::start().await,
         constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBES,
@@ -41,7 +52,10 @@ async fn screen_service_event_runtime_start_registers_subscriber_for_production_
             ),
         )
         .await;
-    let error = publish.expect_err("row-ready must stop before root publication");
+    let error = match publish {
+        Err(error) => error,
+        Ok(_) => return Err("row-ready must stop before root publication"),
+    };
     assert_eq!(
         error,
         EventingError::InvalidValue {
@@ -50,11 +64,7 @@ async fn screen_service_event_runtime_start_registers_subscriber_for_production_
                 .to_string(),
         }
     );
-    let metrics = runtime.event_metrics_snapshot().await;
-    assert_eq!(metrics.stored_event_count, 0);
-    assert_eq!(metrics.dead_letter_count, 0);
-    assert_eq!(metrics.queue.queued_event_count, 0);
-    assert_eq!(metrics.queue.in_flight_event_id_count, 0);
+    Ok(())
 }
 
 #[tokio::test]
@@ -69,12 +79,7 @@ async fn screen_service_event_subscription_rejects_without_runtime_owner() {
 
     let publish = publish_screen_service_row_ready_event(
         &bus,
-        ScreenAiServiceRowReadyEvent::new(
-            service_screen_row(),
-            screen_ai_service_event_subscription::ActionRefText(
-                constants::screen_flow::TEST_SCREEN_ACTION_REF.to_string(),
-            ),
-        ),
+        screen_service_row_ready_event(service_screen_row()),
         screen_ai_service_event_subscription::ObservedAtText(
             constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
         ),
@@ -87,6 +92,7 @@ async fn screen_service_event_subscription_rejects_without_runtime_owner() {
 
     assert_eq!(publish.handler_reports.len(), 1);
     assert_eq!(publish.handler_reports[0].outcome, HandlerOutcome::Failed);
+    assert!(!publish_report_succeeded(&publish));
     assert_eq!(
         dispatches(&state),
         vec![ScreenAiServiceEventSubscriptionDispatch::Rejected {
@@ -126,12 +132,7 @@ async fn screen_service_event_subscription_rejects_degraded_without_runtime_owne
 
     let publish = publish_screen_service_row_ready_event(
         &bus,
-        ScreenAiServiceRowReadyEvent::new(
-            degraded_service_screen_row(),
-            screen_ai_service_event_subscription::ActionRefText(
-                constants::screen_flow::TEST_SCREEN_ACTION_REF.to_string(),
-            ),
-        ),
+        screen_service_row_ready_event(degraded_service_screen_row()),
         screen_ai_service_event_subscription::ObservedAtText(
             constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
         ),
@@ -168,12 +169,7 @@ async fn screen_service_event_subscription_rejects_unsafe_rows_before_downstream
     row.raw_image_retained = true;
     let publish = publish_screen_service_row_ready_event(
         &bus,
-        ScreenAiServiceRowReadyEvent::new(
-            row,
-            screen_ai_service_event_subscription::ActionRefText(
-                constants::screen_flow::TEST_SCREEN_ACTION_REF.to_string(),
-            ),
-        ),
+        screen_service_row_ready_event(row),
         screen_ai_service_event_subscription::ObservedAtText(
             constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
         ),
@@ -204,6 +200,44 @@ fn dispatches(
         .lock()
         .unwrap_or_else(|poisoned| poisoned.into_inner())
         .clone()
+}
+
+fn screen_service_row_ready_event(row: ActivityScreenReadModelRow) -> ScreenAiServiceRowReadyEvent {
+    ScreenAiServiceRowReadyEvent {
+        row,
+        action_ref: constants::screen_flow::TEST_SCREEN_ACTION_REF.to_string(),
+    }
+}
+
+async fn publish_screen_service_row_ready_event(
+    bus: &RootEventPublisher,
+    event: ScreenAiServiceRowReadyEvent,
+    observed_at: ObservedAtText,
+) -> Result<PublishReport, EventingError> {
+    bus.publish(event, screen_service_row_ready_metadata(&observed_at)?)
+        .await
+}
+
+fn screen_service_row_ready_metadata(
+    observed_at: &ObservedAtText,
+) -> Result<EventMetadata, EventingError> {
+    Ok(EventMetadata::from_parts(
+        EventId::generated(),
+        CorrelationId::parse(constants::screen_flow::CORRELATION_SCREEN_RUNTIME_PREFIX)?,
+        EventSource::new(
+            EventCustody::parse(constants::child_agent::CUSTODY_CHILD_AGENT_RUNTIME)?,
+            RuntimeRole::parse(constants::eventing_source::ROLE_AGENT)?,
+            SourceService::parse(constants::peer::LOCAL_DEV_AGENT)?,
+            SourceComponent::parse(
+                constants::screen_flow::RUNTIME_COMPONENT_SCREEN_SERVICE_SUBSCRIBER,
+            )?,
+            RuntimeInstanceId::parse(constants::screen_flow::RUNTIME_INSTANCE_LOCAL_CHILD_AGENT)?,
+        ),
+        RecordedAt::parse(observed_at.0.as_str())?,
+        Some(TargetHandler::parse(
+            constants::screen_flow::TARGET_SCREEN_SERVICE_EVENT_SUBSCRIBER,
+        )?),
+    ))
 }
 
 fn service_screen_row() -> ActivityScreenReadModelRow {

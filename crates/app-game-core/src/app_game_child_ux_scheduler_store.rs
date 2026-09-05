@@ -8,7 +8,7 @@ use atomicwrites::{AllowOverwrite, AtomicFile};
 use fs2::FileExt;
 use ocentra_parent_agent_protocol::schema_domain_mirrors::notification::NotificationLocalOutboxSchedulerRecord;
 
-use crate::app_game_child_ux_scheduler::validate_scheduler_record;
+use crate::app_game_child_ux_scheduler::{validate_scheduler_record, validate_scheduler_records};
 use crate::app_game_child_ux_scheduler_types::AppGameChildUxSchedulerPersistResult;
 
 #[derive(Clone, Debug)]
@@ -36,17 +36,7 @@ impl AppGameChildUxSchedulerProofStore {
 
     pub fn records(&self) -> io::Result<Vec<NotificationLocalOutboxSchedulerRecord>> {
         match fs::read(&self.path) {
-            Ok(bytes) => {
-                let records: Vec<NotificationLocalOutboxSchedulerRecord> =
-                    serde_json::from_slice(&bytes)
-                        .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?;
-                records.iter().try_for_each(|record| {
-                    validate_scheduler_record(record).map_err(|error| {
-                        io::Error::new(io::ErrorKind::InvalidData, error.to_string())
-                    })
-                })?;
-                Ok(records)
-            }
+            Ok(bytes) => decode_records(&bytes),
             Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(Vec::new()),
             Err(error) => Err(error),
         }
@@ -75,16 +65,17 @@ impl AppGameChildUxSchedulerProofStore {
             .iter()
             .find(|existing| existing.scheduler_entry_id == record.scheduler_entry_id)
         {
-            return if existing == &record {
-                Ok(AppGameChildUxSchedulerPersistResult::AlreadyPresent)
-            } else {
-                Err(io::Error::new(
+            return match existing == &record {
+                true => Ok(AppGameChildUxSchedulerPersistResult::AlreadyPresent),
+                false => Err(io::Error::new(
                     io::ErrorKind::InvalidData,
                     "conflicting child UX scheduler entry id",
-                ))
+                )),
             };
         }
         records.push(record);
+        validate_scheduler_records(&records)
+            .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error.to_string()))?;
         self.write(&records)?;
         Ok(AppGameChildUxSchedulerPersistResult::Inserted)
     }
@@ -107,6 +98,14 @@ impl AppGameChildUxSchedulerProofStore {
             .truncate(false)
             .open(self.path.with_extension("lock"))
     }
+}
+
+fn decode_records(bytes: &[u8]) -> io::Result<Vec<NotificationLocalOutboxSchedulerRecord>> {
+    let records: Vec<NotificationLocalOutboxSchedulerRecord> = serde_json::from_slice(bytes)
+        .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?;
+    validate_scheduler_records(&records)
+        .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error.to_string()))?;
+    Ok(records)
 }
 
 #[cfg(not(windows))]

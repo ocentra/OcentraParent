@@ -92,94 +92,110 @@ pub fn active_timer_state_is_consistent(state: &EnforcementActiveTimerState) -> 
         && active_timer_state_timestamps_are_consistent(state)
 }
 
-fn active_timer_state_timestamps_are_consistent(
-    state: &EnforcementActiveTimerState,
-) -> bool {
-    let action_requested_at = parse_timer_timestamp(&state.action.requested_at);
-    let action_expires_at = state
-        .action
-        .expires_at
-        .as_deref()
-        .and_then(parse_timer_timestamp);
-    let stored_at = parse_timer_timestamp(&state.stored_at);
-    let result_started_at = parse_timer_timestamp(&state.result.started_at);
-    let result_completed_at = state
-        .result
-        .completed_at
-        .as_deref()
-        .map(parse_timer_timestamp);
-    let result_next_check_at = state
-        .result
-        .next_check_at
-        .as_deref()
-        .map(parse_timer_timestamp);
-    let audit_observed_at = parse_timer_timestamp(&state.audit_event.observed_at);
-    let timer_scheduled_at = parse_timer_timestamp(&state.timer_event.scheduled_at);
-    let timer_effective_at = state
-        .timer_event
-        .effective_at
-        .as_deref()
-        .map(parse_timer_timestamp);
-    let capability_checked_at = parse_timer_timestamp(&state.action.capability.last_checked_at);
-    let parent_approval_created_at = state
-        .action
-        .parent_approval
-        .as_ref()
-        .map(|approval| parse_timer_timestamp(&approval.created_at));
-    let unavailable_checked_at = state
-        .result
-        .unavailable_status
-        .as_ref()
-        .map(|status| parse_timer_timestamp(&status.checked_at));
-    let app_game_last_observed_at = state
-        .app_game_session
-        .as_ref()
-        .map(|session| parse_timer_timestamp(&session.last_observed_at));
-
-    let Some(action_requested_at) = action_requested_at else {
-        return false;
-    };
-    let Some(action_expires_at) = action_expires_at else {
-        return false;
-    };
-    let Some(stored_at) = stored_at else {
-        return false;
-    };
-    let Some(result_started_at) = result_started_at else {
-        return false;
-    };
-    let Some(audit_observed_at) = audit_observed_at else {
-        return false;
-    };
-    let Some(timer_scheduled_at) = timer_scheduled_at else {
-        return false;
-    };
-    let Some(timer_effective_at) = timer_effective_at.flatten() else {
-        return false;
-    };
-
-    action_requested_at < action_expires_at
-        && result_started_at >= action_requested_at
-        && timer_scheduled_at == action_requested_at
-        && timer_effective_at == action_expires_at
-        && stored_at >= result_started_at
-        && stored_at >= audit_observed_at
-        && audit_observed_at >= result_started_at
-        && result_completed_at.is_none_or(|completed_at| {
-            completed_at.is_some_and(|completed_at| completed_at >= result_started_at)
-        })
-        && result_next_check_at.is_none_or(|next_check_at| {
-            next_check_at
-                .as_ref()
-                .is_some_and(|next_check_at| *next_check_at == action_expires_at)
-        })
-        && capability_checked_at.is_some()
-        && parent_approval_created_at.is_none_or(|created_at| created_at.is_some())
-        && unavailable_checked_at.is_none_or(|checked_at| checked_at.is_some())
-        && app_game_last_observed_at.is_none_or(|observed_at| observed_at.is_some())
+fn active_timer_state_timestamps_are_consistent(state: &EnforcementActiveTimerState) -> bool {
+    parsed_timer_state_timestamps(state).is_some_and(|timestamps| timestamps.are_consistent())
 }
 
-fn parse_timer_timestamp(value: &str) -> Option<chrono::DateTime<chrono::FixedOffset>> {
+type TimerTimestamp = chrono::DateTime<chrono::FixedOffset>;
+
+struct ParsedTimerStateTimestamps {
+    action_requested_at: TimerTimestamp,
+    action_expires_at: TimerTimestamp,
+    stored_at: TimerTimestamp,
+    result_started_at: TimerTimestamp,
+    result_completed_at: Option<TimerTimestamp>,
+    result_next_check_at: Option<TimerTimestamp>,
+    audit_observed_at: TimerTimestamp,
+    timer_scheduled_at: TimerTimestamp,
+    timer_effective_at: TimerTimestamp,
+}
+
+impl ParsedTimerStateTimestamps {
+    fn are_consistent(&self) -> bool {
+        self.action_requested_at < self.action_expires_at
+            && self.result_started_at >= self.action_requested_at
+            && self.timer_scheduled_at == self.action_requested_at
+            && self.timer_effective_at == self.action_expires_at
+            && self.stored_at >= self.result_started_at
+            && self.stored_at >= self.audit_observed_at
+            && self.audit_observed_at >= self.result_started_at
+            && self
+                .result_completed_at
+                .as_ref()
+                .is_none_or(|completed_at| *completed_at >= self.result_started_at)
+            && self
+                .result_next_check_at
+                .as_ref()
+                .is_none_or(|next_check_at| *next_check_at == self.action_expires_at)
+    }
+}
+
+fn parsed_timer_state_timestamps(
+    state: &EnforcementActiveTimerState,
+) -> Option<ParsedTimerStateTimestamps> {
+    let action_requested_at = parse_timer_timestamp(&state.action.requested_at)?;
+    let action_expires_at = parse_required_timer_timestamp(state.action.expires_at.as_deref())?;
+    let stored_at = parse_timer_timestamp(&state.stored_at)?;
+    let result_started_at = parse_timer_timestamp(&state.result.started_at)?;
+    let result_completed_at = parse_optional_timer_timestamp(state.result.completed_at.as_deref())?;
+    let result_next_check_at =
+        parse_optional_timer_timestamp(state.result.next_check_at.as_deref())?;
+    let audit_observed_at = parse_timer_timestamp(&state.audit_event.observed_at)?;
+    let timer_scheduled_at = parse_timer_timestamp(&state.timer_event.scheduled_at)?;
+    let timer_effective_at =
+        parse_required_timer_timestamp(state.timer_event.effective_at.as_deref())?;
+
+    validate_related_timer_timestamps(state)?;
+    Some(ParsedTimerStateTimestamps {
+        action_requested_at,
+        action_expires_at,
+        stored_at,
+        result_started_at,
+        result_completed_at,
+        result_next_check_at,
+        audit_observed_at,
+        timer_scheduled_at,
+        timer_effective_at,
+    })
+}
+
+fn validate_related_timer_timestamps(state: &EnforcementActiveTimerState) -> Option<()> {
+    parse_timer_timestamp(&state.action.capability.last_checked_at)?;
+    parse_optional_timer_timestamp(
+        state
+            .action
+            .parent_approval
+            .as_ref()
+            .map(|approval| approval.created_at.as_str()),
+    )?;
+    parse_optional_timer_timestamp(
+        state
+            .result
+            .unavailable_status
+            .as_ref()
+            .map(|status| status.checked_at.as_str()),
+    )?;
+    parse_optional_timer_timestamp(
+        state
+            .app_game_session
+            .as_ref()
+            .map(|session| session.last_observed_at.as_str()),
+    )?;
+    Some(())
+}
+
+fn parse_required_timer_timestamp(value: Option<&str>) -> Option<TimerTimestamp> {
+    value.and_then(parse_timer_timestamp)
+}
+
+fn parse_optional_timer_timestamp(value: Option<&str>) -> Option<Option<TimerTimestamp>> {
+    match value {
+        Some(value) => parse_timer_timestamp(value).map(Some),
+        None => Some(None),
+    }
+}
+
+fn parse_timer_timestamp(value: &str) -> Option<TimerTimestamp> {
     let value = value.trim();
     (!value.is_empty())
         .then(|| chrono::DateTime::parse_from_rfc3339(value).ok())

@@ -17,12 +17,12 @@ pub(super) fn issue(
 ) -> Result<AccountIdentityMutationAuthority, AccountIdentityMutationAuthorityError> {
     let transaction = connection
         .transaction_with_behavior(TransactionBehavior::Immediate)
-        .map_err(|_| AccountIdentityMutationAuthorityError::RepositoryUnavailable)?;
+        .map_err(|_error| AccountIdentityMutationAuthorityError::RepositoryUnavailable)?;
     let (now, issued_at) =
         super::super::invite_recovery_repository::authority::trusted_now_in_transaction(
             &transaction,
         )
-        .map_err(|_| AccountIdentityMutationAuthorityError::ClockUnavailable)?;
+        .map_err(|_error| AccountIdentityMutationAuthorityError::ClockUnavailable)?;
     super::current::validate_issue_current(&transaction, authority, request, now)?;
     let target = super::target::resolve_request(&transaction, authority, request, now)?;
     let key_id = custody.signing_key_id();
@@ -41,9 +41,9 @@ pub(super) fn issue(
     let signature = custody.sign(&payload)?;
     verifying_key
         .verify_strict(&payload, &ed25519_dalek::Signature::from_bytes(&signature))
-        .map_err(|_| AccountIdentityMutationAuthorityError::SignatureInvalid)?;
+        .map_err(|_error| AccountIdentityMutationAuthorityError::SignatureInvalid)?;
     transaction
         .commit()
-        .map_err(|_| AccountIdentityMutationAuthorityError::RepositoryUnavailable)?;
+        .map_err(|_error| AccountIdentityMutationAuthorityError::RepositoryUnavailable)?;
     AccountIdentityMutationAuthority::from_signed_parts(payload, signature)
 }

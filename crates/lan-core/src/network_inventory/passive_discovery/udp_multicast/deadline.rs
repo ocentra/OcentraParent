@@ -1,9 +1,6 @@
 use std::time::{Duration, Instant};
 
-pub(super) fn remaining_read_timeout_at(
-    deadline: Instant,
-    now: Instant,
-) -> Option<Duration> {
+pub(super) fn remaining_read_timeout_at(deadline: Instant, now: Instant) -> Option<Duration> {
     let remaining = deadline.saturating_duration_since(now);
     if remaining.is_zero() {
         return None;

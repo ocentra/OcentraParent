@@ -33,7 +33,7 @@ impl SqliteAccountIdentityAuthorityRepository {
         let transaction = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
-            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
+            .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)?;
         let (now, _) = trusted_now_in_transaction(&transaction)?;
         let lease_expires = now
             .checked_add(HANDOFF_LEASE_MILLIS)
@@ -41,14 +41,14 @@ impl SqliteAccountIdentityAuthorityRepository {
         let Some(row) = load_pending_membership(&transaction, recipient, now)? else {
             transaction
                 .commit()
-                .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
+                .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)?;
             return Ok(None);
         };
         let attempt_id = claim_membership(&transaction, &row, lease_expires, now)?;
         let attempt = build_attempt(recipient, row, attempt_id, lease_expires)?;
         transaction
             .commit()
-            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
+            .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)?;
         Ok(Some(attempt))
     }
 
@@ -61,7 +61,7 @@ impl SqliteAccountIdentityAuthorityRepository {
         let transaction = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
-            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
+            .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)?;
         let (now, _) = trusted_now_in_transaction(&transaction)?;
         let changed = transaction
             .execute(
@@ -84,13 +84,13 @@ impl SqliteAccountIdentityAuthorityRepository {
                     now,
                 ],
             )
-            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
+            .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)?;
         if changed != 1 {
             return Err(InviteRecoveryRepositoryError::HandoffConflict);
         }
         transaction
             .commit()
-            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)
+            .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)
     }
 
     pub(crate) fn acknowledge_pending_invite_membership(
@@ -113,7 +113,7 @@ impl SqliteAccountIdentityAuthorityRepository {
         let transaction = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
-            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
+            .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)?;
         let (now, _) = trusted_now_in_transaction(&transaction)?;
         let changed = transaction
             .execute(
@@ -136,13 +136,13 @@ impl SqliteAccountIdentityAuthorityRepository {
                     now,
                 ],
             )
-            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
+            .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)?;
         if changed != 1 {
             return Err(InviteRecoveryRepositoryError::HandoffConflict);
         }
         transaction
             .commit()
-            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)
+            .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)
     }
 }
 
@@ -179,7 +179,7 @@ fn load_pending_membership(
             },
         )
         .optional()
-        .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?
+        .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)?
         .map(|row| {
             let target_role = target_role_from_label(&row.5)
                 .ok_or(InviteRecoveryRepositoryError::InvalidInvite)?;
@@ -224,7 +224,7 @@ fn claim_membership(
                 now,
             ],
         )
-        .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
+        .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)?;
     (changed == 1)
         .then_some(attempt_id)
         .ok_or(InviteRecoveryRepositoryError::HandoffConflict)

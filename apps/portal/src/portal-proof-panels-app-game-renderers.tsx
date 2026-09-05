@@ -36,12 +36,8 @@ const APP_GAME_PROOF_PANEL_RENDERERS: Record<AppGameProofPanelId, AppGameProofPa
   'app-game-notification-parent-surface': ({ appGameNotificationParentSurfacePanel }) => (
     <AppGameNotificationParentSurfaceRoutePanel panel={appGameNotificationParentSurfacePanel} />
   ),
-  'app-game-policy-readiness': ({ actions, commandEnabled, appGamePolicyReadinessPanel }) => (
-    <AppGamePolicyReadinessRoutePanel
-      actions={actions}
-      commandEnabled={commandEnabled}
-      panel={appGamePolicyReadinessPanel}
-    />
+  'app-game-policy-readiness': ({ appGamePolicyReadinessPanel }) => (
+    <AppGamePolicyReadinessRoutePanel panel={appGamePolicyReadinessPanel} />
   ),
   'app-game-platform-proof-status': ({ actions, commandEnabled, appGamePlatformProofStatusPanel }) => (
     <AppGamePlatformProofStatusRoutePanel

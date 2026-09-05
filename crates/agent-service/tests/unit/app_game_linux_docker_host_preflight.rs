@@ -37,15 +37,15 @@ fn assert_fully_probe_unavailable(preflight: &AppGameLinuxDockerHostPreflight) {
         preflight.state,
         APP_GAME_LINUX_DOCKER_PREFLIGHT_PROBE_UNAVAILABLE
     );
-    assert_eq!(preflight.cli_visible, false);
-    assert_eq!(preflight.daemon_visible, false);
-    assert_eq!(preflight.context_inventory_visible, false);
+    assert!(!preflight.cli_visible);
+    assert!(!preflight.daemon_visible);
+    assert!(!preflight.context_inventory_visible);
     assert_eq!(preflight.context_count, 0);
-    assert_eq!(preflight.image_inventory_visible, false);
+    assert!(!preflight.image_inventory_visible);
     assert_eq!(preflight.image_count, 0);
-    assert_eq!(preflight.container_inventory_visible, false);
+    assert!(!preflight.container_inventory_visible);
     assert_eq!(preflight.container_count, 0);
-    assert_eq!(preflight.identifiers_redacted, true);
+    assert!(preflight.identifiers_redacted);
     assert_eq!(preflight.proof_refs, Vec::<String>::new());
     assert_eq!(
         preflight.open_gaps,

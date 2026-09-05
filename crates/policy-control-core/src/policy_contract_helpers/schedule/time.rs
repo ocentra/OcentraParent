@@ -1,5 +1,7 @@
 #![forbid(unsafe_code)]
 
+mod calendar;
+
 use super::PolicyContractValidationResult;
 
 pub(super) fn assert_local_time(
@@ -49,33 +51,11 @@ pub(super) fn assert_utc_timestamp(
     let month = parse_time_component(&value[5..7]).unwrap_or(0);
     let day = parse_time_component(&value[8..10]).unwrap_or(0);
     let seconds = parse_time_component(&value[17..19]).unwrap_or(60);
-    if !valid_calendar_date(year, month, day) || seconds > 59 {
+    if !calendar::valid_calendar_date(year, month, day) || seconds > 59 {
         return Err("policy contract timestamps must be ISO-8601 UTC values".into());
     }
 
     assert_local_time(&value[11..16], "policy timestamp inner local time")
-}
-
-fn valid_calendar_date(year: i32, month: u8, day: u8) -> bool {
-    let Some(max_day) = days_in_month(year, month) else {
-        return false;
-    };
-    (1..=max_day).contains(&day)
-}
-
-fn days_in_month(year: i32, month: u8) -> Option<u8> {
-    let days = match month {
-        1 | 3 | 5 | 7 | 8 | 10 | 12 => 31,
-        4 | 6 | 9 | 11 => 30,
-        2 if is_leap_year(year) => 29,
-        2 => 28,
-        _ => return None,
-    };
-    Some(days)
-}
-
-fn is_leap_year(year: i32) -> bool {
-    year >= 0 && year % 4 == 0 && (year % 100 != 0 || year % 400 == 0)
 }
 
 fn parse_time_component(value: &str) -> Option<u8> {

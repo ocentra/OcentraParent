@@ -3,7 +3,9 @@ use ocentra_storage_custody_core::storage_custody::{
     StorageCustodyActionPlannedEvent, StorageCustodyEffect, StorageCustodyEffectKind,
 };
 
-use super::storage_custody_effect_store::{StorageCustodyEffectRecord, StorageCustodyEffectStatus};
+use super::storage_custody_effect_store::{
+    StorageCustodyEffectRecord, StorageCustodyEffectRecordPreparation, StorageCustodyEffectStatus,
+};
 use super::storage_custody_runtime_existing::existing_record;
 use super::{ChildStorageCustodyAuthorityHandle, ChildStorageCustodyRuntime};
 use crate::{
@@ -33,33 +35,32 @@ pub(crate) fn existing_pending(
 pub(crate) fn prepare_record(
     authority: &ChildStorageCustodyAuthorityHandle,
     operation_ref: String,
-    effect_kind: StorageCustodyEffectKind,
-    effect_ref: String,
     effect: &StorageCustodyEffect,
     input: ocentra_storage_custody_core::storage_custody::StorageCustodyInput,
     action: StorageCustodyActionPlannedEvent,
     envelope: StoredEventEnvelope,
 ) -> StorageCustodyEffectRecord {
+    let effect_kind = effect.kind();
     let relative_path = match effect {
         StorageCustodyEffect::DeleteLocal { relative_path } => {
             Some(relative_path.display().to_string())
         }
         _ => None,
     };
-    StorageCustodyEffectRecord::prepared(
+    StorageCustodyEffectRecord::prepared(StorageCustodyEffectRecordPreparation {
         operation_ref,
         effect_kind,
-        effect_ref,
+        effect_ref: effect.reference(),
         relative_path,
-        authority.household_id().to_owned(),
-        authority.child_profile_id().to_owned(),
-        authority.target_device_id().to_owned(),
-        authority.authority_generation(),
-        authority.session_generation(),
-        input,
+        household_id: authority.household_id().to_owned(),
+        child_profile_id: authority.child_profile_id().to_owned(),
+        target_device_id: authority.target_device_id().to_owned(),
+        authority_generation: authority.authority_generation(),
+        session_generation: authority.session_generation(),
+        custody_input: input,
         action,
         envelope,
-    )
+    })
 }
 
 pub(crate) async fn publish_action(

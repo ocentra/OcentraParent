@@ -18,9 +18,13 @@ use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
     LanBrowserAddDeviceReadModel, LanDiscoveryEventHistoryState,
 };
 use ocentra_parent_agent_protocol::network_flow::ActivityNetworkFlowReadModel;
+use ocentra_parent_agent_protocol::social_alert_report_parent_surface_read_model::SocialAlertReportParentSurfaceReadModelSnapshot;
+use ocentra_parent_agent_protocol::social_alert_report_read_model::SocialAlertReportReadModelSnapshot;
+use ocentra_parent_agent_protocol::social_parent_notification_delivery_read_model::SocialParentNotificationDeliveryReadinessSnapshot;
 use ocentra_parent_agent_protocol::transport::{
     AgentCommandName, AgentEventEnvelope, AgentEventName,
 };
+use ocentra_parent_agent_protocol::{SocialAuditExplanationSnapshot, SocialDashboardUxSnapshot};
 use ocentra_schema::parent_ui_bridge::{
     ParentActivityTrackingReadModelResultSnapshot, ParentNetworkRuntimeEventChainStreamSnapshot,
     ParentPolicyPreviewReadModelSnapshot, ParentRouteEventSnapshot,
@@ -114,6 +118,26 @@ pub(crate) struct BrowserActivityReadModelAgentServiceSnapshot {
 pub(crate) struct BrowserInterventionReadModelAgentServiceSnapshot {
     pub(crate) event: ParentRouteEventSnapshot,
     pub(crate) read_model: BrowserInterventionReadModel,
+}
+
+pub(crate) struct SocialDashboardAgentServiceSnapshot {
+    pub(crate) read_model: SocialDashboardUxSnapshot,
+}
+
+pub(crate) struct SocialAuditExplanationAgentServiceSnapshot {
+    pub(crate) read_model: SocialAuditExplanationSnapshot,
+}
+
+pub(crate) struct SocialAlertReportAgentServiceSnapshot {
+    pub(crate) read_model: SocialAlertReportReadModelSnapshot,
+}
+
+pub(crate) struct SocialAlertReportParentSurfaceAgentServiceSnapshot {
+    pub(crate) read_model: SocialAlertReportParentSurfaceReadModelSnapshot,
+}
+
+pub(crate) struct SocialParentNotificationDeliveryAgentServiceSnapshot {
+    pub(crate) read_model: SocialParentNotificationDeliveryReadinessSnapshot,
 }
 
 pub(crate) struct AppGameNotificationReadinessAgentServiceSnapshot {

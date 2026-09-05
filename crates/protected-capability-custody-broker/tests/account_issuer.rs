@@ -13,7 +13,10 @@ fn account_issuer_protocol_failures_remain_nested_and_typed() {
     let error = BrokerError::from(
         ocentra_protected_capability_custody_protocol::types::ProtocolError::EmptyFrame,
     );
-    assert!(error.source().is_some());
+    assert_eq!(
+        error.source().map(ToString::to_string),
+        Some(constants::ERROR_EMPTY_FRAME.to_string())
+    );
 }
 
 #[cfg(not(windows))]

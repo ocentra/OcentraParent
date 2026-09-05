@@ -58,7 +58,7 @@ pub struct TpmPolicySignature([u8; FIXED_RSA_BYTES]);
 impl TpmPolicySignature {
     pub fn from_rsa_pss_sha256(bytes: &[u8]) -> Result<Self> {
         let signature = <[u8; FIXED_RSA_BYTES]>::try_from(bytes)
-            .map_err(|_| Error::InvalidInput(InputFault::TpmCommandShapeInvalid))?;
+            .map_err(|_error| Error::InvalidInput(InputFault::TpmCommandShapeInvalid))?;
         Ok(Self(signature))
     }
 

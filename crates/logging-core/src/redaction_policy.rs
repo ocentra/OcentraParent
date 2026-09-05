@@ -1,5 +1,3 @@
-use std::fmt::Write;
-
 /// Canonical sensitive-field policy shared by the Rust logger and its
 /// generated TypeScript edge consumer.
 pub const SENSITIVE_LOG_FIELD_NEEDLES: &[&str] = &[
@@ -41,7 +39,9 @@ pub fn generated_typescript() -> String {
         String::from("/* generated from crates/logging-core/src/redaction_policy.rs */\n\n");
     output.push_str("export const GeneratedSensitiveLogFieldNeedles = [\n");
     for needle in SENSITIVE_LOG_FIELD_NEEDLES {
-        writeln!(&mut output, "  '{needle}',").expect("writing to a String cannot fail");
+        output.push_str("  '");
+        output.push_str(needle);
+        output.push_str("',\n");
     }
     output.push_str("] as const;\n");
     output

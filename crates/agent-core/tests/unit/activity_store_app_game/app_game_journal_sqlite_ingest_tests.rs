@@ -347,7 +347,7 @@ fn sqlite_batch_ingest_rolls_back_when_a_later_row_fails() {
              WHEN NEW.event_id = 'wp13-rejected-event'
              BEGIN SELECT RAISE(ABORT, 'wp13 rollback'); END;",
         )
-        .expect("create rollback trigger");
+        .expect_value("create rollback trigger");
     let first = app_game_runtime_journal_event(
         constants::peer::LOCAL_DEV_AGENT,
         std::env::consts::OS,
@@ -384,7 +384,7 @@ fn app_game_replay_rejects_missing_unknown_and_invalid_rows() {
         LogFieldValue::String(APP_GAME_JOURNAL_ROW_KIND_RUNTIME.to_string()),
     );
     assert_replayed_row_rejected(
-        raw_app_game_event("wp13-missing-row-json", missing_json),
+        &raw_app_game_event("wp13-missing-row-json", missing_json),
         "missing-row-json",
     );
 
@@ -398,7 +398,7 @@ fn app_game_replay_rejects_missing_unknown_and_invalid_rows() {
         LogFieldValue::String("{malformed".to_string()),
     );
     assert_replayed_row_rejected(
-        raw_app_game_event("wp13-malformed-row-json", malformed_json),
+        &raw_app_game_event("wp13-malformed-row-json", malformed_json),
         "invalid-runtime-row",
     );
 
@@ -412,7 +412,7 @@ fn app_game_replay_rejects_missing_unknown_and_invalid_rows() {
         LogFieldValue::String("{}".to_string()),
     );
     assert_replayed_row_rejected(
-        raw_app_game_event("wp13-unknown-row-kind", unknown_kind),
+        &raw_app_game_event("wp13-unknown-row-kind", unknown_kind),
         "unknown-row-kind",
     );
 
@@ -421,8 +421,8 @@ fn app_game_replay_rejects_missing_unknown_and_invalid_rows() {
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
     );
     invalid_runtime.foreground_state = APP_GAME_FOREGROUND_FOREGROUND.to_string();
-    let invalid_runtime_json =
-        serde_json::to_string(&invalid_runtime).expect("serialize invalid runtime row fixture");
+    let invalid_runtime_json = serde_json::to_string(&invalid_runtime)
+        .expect_value("serialize invalid runtime row fixture");
     let mut invalid_runtime_fields = LogFields::new();
     invalid_runtime_fields.insert(
         APP_GAME_JOURNAL_FIELD_ROW_KIND.to_string(),
@@ -433,7 +433,7 @@ fn app_game_replay_rejects_missing_unknown_and_invalid_rows() {
         LogFieldValue::String(invalid_runtime_json),
     );
     assert_replayed_row_rejected(
-        raw_app_game_event("wp13-invalid-runtime-row", invalid_runtime_fields),
+        &raw_app_game_event("wp13-invalid-runtime-row", invalid_runtime_fields),
         "invalid-runtime-row",
     );
 }
@@ -469,11 +469,11 @@ fn append_and_replay(
     (store, lines)
 }
 
-fn assert_replayed_row_rejected(event: ActivityEvent, reason: &str) {
+fn assert_replayed_row_rejected(event: &ActivityEvent, reason: &str) {
     let store =
         ActivityStore::open_in_memory().expect_value(constants::error::ACTIVITY_STORE_OPENS);
     store
-        .ingest_events(std::slice::from_ref(&event))
+        .ingest_events(std::slice::from_ref(event))
         .expect_value(constants::error::ACTIVITY_STORE_INGESTS);
     let result = app_game_journal_sqlite_read_model(
         store.connection_for_test(),
@@ -481,12 +481,10 @@ fn assert_replayed_row_rejected(event: ActivityEvent, reason: &str) {
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
     );
 
-    match result {
-        Err(ActivityStoreError::InvalidAppGameJournalRow { reason: actual }) => {
-            assert_eq!(actual, reason);
-        }
-        _ => panic!("expected invalid app-game row"),
-    }
+    assert!(matches!(
+        result,
+        Err(ActivityStoreError::InvalidAppGameJournalRow { reason: actual }) if actual == reason
+    ));
 }
 
 fn raw_app_game_event(event_id: &str, fields: LogFields) -> ActivityEvent {

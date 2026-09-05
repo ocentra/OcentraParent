@@ -21,7 +21,7 @@ impl super::super::SqliteAccountIdentityAuthorityRepository {
         let transaction = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+            .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
         let now_epoch_millis = clock::trusted_now_in_transaction(&transaction)?;
         let record = super::storage::read_record(
             &transaction,
@@ -52,7 +52,7 @@ impl super::super::SqliteAccountIdentityAuthorityRepository {
         audit::cleanup(&transaction, &record.binding.account_id, now_epoch_millis)?;
         transaction
             .commit()
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)
+            .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)
     }
 }
 

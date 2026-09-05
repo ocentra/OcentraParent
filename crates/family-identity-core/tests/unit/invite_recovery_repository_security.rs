@@ -241,12 +241,13 @@ fn recovery_device_trust_mapping_keeps_terminal_states_monotonic() {
 }
 
 #[test]
-fn lifecycle_decisions_serialize_stable_wire_labels_without_bearer_values() {
+fn lifecycle_decisions_serialize_stable_wire_labels_without_bearer_values(
+) -> Result<(), serde_json::Error> {
     let decision = evaluate_recovery_operation(RecoveryOperation {
         delete_export_handoff_required: true,
         ..recovery(RecoveryKind::ForgotLogin)
     });
-    let encoded = serde_json::to_value(decision).expect("serialize recovery decision");
+    let encoded = serde_json::to_value(decision)?;
 
     assert_eq!(encoded["decision_state"], "authorized");
     assert_eq!(
@@ -255,4 +256,5 @@ fn lifecycle_decisions_serialize_stable_wire_labels_without_bearer_values() {
     );
     assert!(encoded.get("token").is_none());
     assert!(encoded.get("recovery_token").is_none());
+    Ok(())
 }

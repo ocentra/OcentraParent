@@ -27,6 +27,18 @@ use self::service_identity::trusted_device_matches_network_identity;
 use self::service_identity::AllowedSnmpResponseObserver;
 use crate::network_inventory_hardware::LocalNetworkIdentity;
 
+pub struct LanNetworkDiscoveryRequest<'a> {
+    pub identity_hint_devices: &'a [LanPairingDeviceRef],
+    pub previous_devices: &'a [LanNetworkInventoryDevice],
+    pub refresh_mode: LanDiscoveryRefreshMode,
+    pub active_refresh_suppression_devices: &'a [LanPairingDeviceRef],
+    pub probe_suppression_devices: &'a [LanPairingDeviceRef],
+    pub selected_interface_scope: Option<&'a str>,
+    pub allowed_snmp_response_observer: AllowedSnmpResponseObserver<'a>,
+    pub cancellation: Option<&'a AtomicBool>,
+    pub deadline: Option<Instant>,
+}
+
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct LanPreviousNetworkInventory {
     by_mac: HashMap<String, LanNetworkInventoryDevice>,
@@ -266,27 +278,9 @@ pub fn discover_lan_network_devices_with_hints_refresh_mode_and_scan_and_probe_s
 }
 
 pub fn discover_lan_network_devices_with_hints_refresh_mode_and_scan_and_probe_suppression_and_allowed_snmp_observer_with_cancellation(
-    identity_hint_devices: &[LanPairingDeviceRef],
-    previous_devices: &[LanNetworkInventoryDevice],
-    refresh_mode: LanDiscoveryRefreshMode,
-    active_refresh_suppression_devices: &[LanPairingDeviceRef],
-    probe_suppression_devices: &[LanPairingDeviceRef],
-    selected_interface_scope: Option<&str>,
-    allowed_snmp_response_observer: AllowedSnmpResponseObserver<'_>,
-    cancellation: Option<&AtomicBool>,
-    deadline: Option<Instant>,
+    request: &LanNetworkDiscoveryRequest<'_>,
 ) -> Vec<LanNetworkInventoryDevice> {
-    api::cancellation::discover_lan_network_devices_with_cancellation(
-        identity_hint_devices,
-        previous_devices,
-        refresh_mode,
-        active_refresh_suppression_devices,
-        probe_suppression_devices,
-        selected_interface_scope,
-        allowed_snmp_response_observer,
-        cancellation,
-        deadline,
-    )
+    api::cancellation::discover_lan_network_devices_with_cancellation(request)
 }
 
 pub fn plan_lan_discovery_scan_with_active_refresh_suppression(

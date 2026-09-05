@@ -52,19 +52,20 @@ pub(super) fn observe_key(
     let tpm2b_name = get_property(key, NCRYPT_PCP_TPM2BNAME_PROPERTY, NCRYPT_SILENT_FLAG)?;
     let security = crate::security::copy_descriptor(security_descriptor.clone())?;
 
-    if !strict_properties(
-        &key_name,
-        &expected_key_name,
+    let properties = StrictProperties {
+        key_name: &key_name,
+        expected_key_name: &expected_key_name,
         implementation_type,
         export_policy,
         key_usage,
         pcp_key_usage_policy,
-        &platform_type,
-        &security,
-        &ek_public,
-        &signing_public_key,
-        &tpm2b_name,
-    ) {
+        platform_type: &platform_type,
+        security: &security,
+        ek_public: &ek_public,
+        signing_public_key: &signing_public_key,
+        tpm2b_name: &tpm2b_name,
+    };
+    if !properties.is_valid() {
         return Err(Error::CryptoPropertyViolation);
     }
     Ok(PcpKeyObservation {
@@ -97,31 +98,35 @@ pub(super) fn ensure_security_descriptor_support(provider: NCRYPT_PROV_HANDLE) -
     Ok(())
 }
 
-fn strict_properties(
-    key_name: &WindowsText,
-    expected_key_name: &WindowsText,
+struct StrictProperties<'a> {
+    key_name: &'a WindowsText,
+    expected_key_name: &'a WindowsText,
     implementation_type: u32,
     export_policy: u32,
     key_usage: u32,
     pcp_key_usage_policy: u32,
-    platform_type: &WindowsText,
-    security: &SecurityDescriptorObservation,
-    ek_public: &[u8],
-    signing_public_key: &[u8],
-    tpm2b_name: &[u8],
-) -> bool {
-    key_name == expected_key_name
-        && implementation_type & NCRYPT_IMPL_HARDWARE_FLAG != 0
-        && implementation_type & NCRYPT_IMPL_SOFTWARE_FLAG == 0
-        && implementation_type & NCRYPT_IMPL_REMOVABLE_FLAG == 0
-        && export_policy == 0
-        && key_usage == NCRYPT_ALLOW_SIGNING_FLAG
-        && pcp_key_usage_policy == NCRYPT_PCP_SIGNATURE_KEY
-        && !platform_type.as_str().is_empty()
-        && cng::valid_system_key_security(security)
-        && cng::valid_rsa_public_blob(ek_public)
-        && cng::valid_rsa_3072_public_blob(signing_public_key)
-        && valid_tpm2b(tpm2b_name)
+    platform_type: &'a WindowsText,
+    security: &'a SecurityDescriptorObservation,
+    ek_public: &'a [u8],
+    signing_public_key: &'a [u8],
+    tpm2b_name: &'a [u8],
+}
+
+impl StrictProperties<'_> {
+    fn is_valid(&self) -> bool {
+        self.key_name == self.expected_key_name
+            && self.implementation_type & NCRYPT_IMPL_HARDWARE_FLAG != 0
+            && self.implementation_type & NCRYPT_IMPL_SOFTWARE_FLAG == 0
+            && self.implementation_type & NCRYPT_IMPL_REMOVABLE_FLAG == 0
+            && self.export_policy == 0
+            && self.key_usage == NCRYPT_ALLOW_SIGNING_FLAG
+            && self.pcp_key_usage_policy == NCRYPT_PCP_SIGNATURE_KEY
+            && !self.platform_type.as_str().is_empty()
+            && cng::valid_system_key_security(self.security)
+            && cng::valid_rsa_public_blob(self.ek_public)
+            && cng::valid_rsa_3072_public_blob(self.signing_public_key)
+            && valid_tpm2b(self.tpm2b_name)
+    }
 }
 
 fn fixed_key_name_text() -> Result<WindowsText> {
@@ -168,7 +173,7 @@ fn get_u32_property(key: NCRYPT_KEY_HANDLE, property: PCWSTR) -> Result<u32> {
 }
 
 fn decode_name(bytes: &[u8]) -> Result<WindowsText> {
-    if bytes.len() < 2 || bytes.len() % 2 != 0 {
+    if bytes.len() < 2 || !bytes.len().is_multiple_of(2) {
         return Err(Error::CryptoPropertyViolation);
     }
     let units = bytes
@@ -179,8 +184,8 @@ fn decode_name(bytes: &[u8]) -> Result<WindowsText> {
         return Err(Error::CryptoPropertyViolation);
     }
     let value = String::from_utf16(&units[..units.len() - 1])
-        .map_err(|_| Error::CryptoPropertyViolation)?;
-    WindowsText::try_from_str(&value).map_err(|_| Error::CryptoPropertyViolation)
+        .map_err(|_error| Error::CryptoPropertyViolation)?;
+    WindowsText::try_from_str(&value).map_err(|_error| Error::CryptoPropertyViolation)
 }
 
 fn valid_tpm2b(value: &[u8]) -> bool {

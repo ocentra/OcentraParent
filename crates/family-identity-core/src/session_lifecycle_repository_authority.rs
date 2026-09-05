@@ -138,16 +138,16 @@ fn load_current(
             },
         )
         .optional()
-        .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?
+        .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?
         .ok_or(SessionLifecycleRepositoryError::AuthorityMissing)?;
     let (mapping_status, authority_generation, session_id, session_generation, authority_json) =
         row;
     let handoff: AccountIdentityCurrentMemberDeviceAuthorityHandoff =
         serde_json::from_str(&authority_json)
-            .map_err(|_| SessionLifecycleRepositoryError::InvalidAuthorityBinding)?;
+            .map_err(|_error| SessionLifecycleRepositoryError::InvalidAuthorityBinding)?;
     handoff
         .validate_shape()
-        .map_err(|_| SessionLifecycleRepositoryError::InvalidAuthorityBinding)?;
+        .map_err(|_error| SessionLifecycleRepositoryError::InvalidAuthorityBinding)?;
     let authority_generation = positive_generation(authority_generation)?;
     let session_generation = positive_generation(session_generation)?;
     let member = &handoff.member;
@@ -165,7 +165,7 @@ fn load_current(
         return Err(SessionLifecycleRepositoryError::InvalidAuthorityBinding);
     }
     let expires_at_epoch_millis = DateTime::parse_from_rfc3339(&member.session_expires_at)
-        .map_err(|_| SessionLifecycleRepositoryError::InvalidAuthorityBinding)?
+        .map_err(|_error| SessionLifecycleRepositoryError::InvalidAuthorityBinding)?
         .timestamp_millis();
     if expires_at_epoch_millis <= now_epoch_millis {
         return Err(SessionLifecycleRepositoryError::AuthorityExpired);

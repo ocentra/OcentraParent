@@ -74,7 +74,9 @@ describe('enforcement schema surface', () => {
       })
     ).toThrow('Expected unavailable and degraded enforcement capabilities to include typed degraded reason');
   });
+});
 
+describe('enforcement result schema surface', () => {
   it('rejects unavailable results that omit the typed unavailable status', () => {
     expect(() =>
       EnforcementResultSchema.parse({

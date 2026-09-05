@@ -22,10 +22,6 @@ use super::data_custody_parent_runtime_clock::{
 use super::data_custody_runtime_eventing_identity::execution_idempotency_ref;
 use super::data_custody_runtime_eventing_identity_backup::backup_job_event_idempotency_ref;
 
-#[cfg(test)]
-#[path = "data_custody_runtime_eventing_tests.rs"]
-mod data_custody_runtime_eventing_tests;
-
 const DATA_CUSTODY_EVENT_TYPE: &str = "parent-runtime.data-custody.transition";
 const DATA_CUSTODY_SCHEMA_VERSION: u16 = 3;
 const DATA_CUSTODY_EVENT_CUSTODY: &str = "parent-runtime";
@@ -183,7 +179,8 @@ impl DataCustodyRuntimeEventJournal {
     }
 
     pub async fn recover(&self) -> Result<(), EventingError> {
-        DataCustodyRuntimeClock::begin_recovery(&self.clock).map_err(clock_error)?;
+        DataCustodyRuntimeClock::begin_recovery(&self.clock)
+            .map_err(|error| clock_error(&error))?;
         self.journal.recover().await?;
         let report = self.replay().await?;
         if report.skipped_count != 0 {
@@ -195,9 +192,10 @@ impl DataCustodyRuntimeEventJournal {
         for record in report.records {
             let event = Self::decode(&record.envelope)?;
             DataCustodyRuntimeClock::commit_timestamp(&self.clock, &event.recorded_at)
-                .map_err(clock_error)?;
+                .map_err(|error| clock_error(&error))?;
         }
-        DataCustodyRuntimeClock::mark_recovered(&self.clock).map_err(clock_error)?;
+        DataCustodyRuntimeClock::mark_recovered(&self.clock)
+            .map_err(|error| clock_error(&error))?;
         Ok(())
     }
 
@@ -210,7 +208,8 @@ impl DataCustodyRuntimeEventJournal {
         event: DataCustodyRuntimeEvent,
         phase: JournalDispatchPhase,
     ) -> Result<JournalAppend, EventingError> {
-        DataCustodyRuntimeClock::ensure_recovered(&self.clock).map_err(clock_error)?;
+        DataCustodyRuntimeClock::ensure_recovered(&self.clock)
+            .map_err(|error| clock_error(&error))?;
         super::data_custody_runtime_eventing_validation::validate_event_identity(&event)?;
         let correlation_id = CorrelationId::parse(format!("data-custody:{}", event.operation_ref))?;
         let event_id = EventId::parse(format!("data-custody-event-{}", event.idempotency_ref))?;
@@ -229,7 +228,7 @@ impl DataCustodyRuntimeEventJournal {
         let stored = envelope.store()?;
         let append = self.journal.append_phase_idempotent(&stored, phase).await?;
         DataCustodyRuntimeClock::commit_timestamp(&self.clock, &recorded_at)
-            .map_err(clock_error)?;
+            .map_err(|error| clock_error(&error))?;
         Ok(append)
     }
 

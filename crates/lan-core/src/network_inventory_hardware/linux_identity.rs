@@ -6,13 +6,10 @@ use super::interface_map::{
     linux_local_network_interface_candidate, merge_interface_candidate,
     windows_local_network_interface_candidate,
 };
-use super::network_identity_support::{
-    push_unique_string_if, supported_dns_server_text, supported_local_ipv4_text,
-};
-use super::{LocalNetworkInterfaceMap, LocalNetworkIdentity};
-use crate::network_inventory_command::record_text;
+use super::{LocalNetworkIdentity, LocalNetworkInterfaceMap};
 
-mod address;
+#[path = "linux_identity_routes.rs"]
+mod linux_identity_routes;
 
 pub fn preferred_windows_local_network_identity(
     records: &[serde_json::Value],
@@ -90,10 +87,6 @@ pub fn linux_local_network_interface_map(
     LocalNetworkInterfaceMap::new(interfaces, recommended_interface_id)
 }
 
-pub(super) fn linux_ipv4_address(record: &serde_json::Value) -> Option<(String, u8)> {
-    address::linux_ipv4_address(record)
-}
-
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(super) struct LinuxDefaultRoute {
     pub(super) device: String,
@@ -103,20 +96,7 @@ pub(super) struct LinuxDefaultRoute {
 fn linux_default_route(
     route_records: &[serde_json::Value],
 ) -> Result<Option<LinuxDefaultRoute>, ()> {
-    let mut routes = route_records.iter().filter_map(|record| {
-        if record_text(record, constants::lan_pairing::JSON_KEY_DST).as_deref() != Some("default") {
-            return None;
-        }
-        let device = record_text(record, constants::lan_pairing::JSON_KEY_DEV)?;
-        let gateway = record_text(record, constants::lan_pairing::JSON_KEY_GATEWAY)
-            .filter(|value| supported_local_ipv4_text(value));
-        Some(LinuxDefaultRoute { device, gateway })
-    });
-    let route = routes.next();
-    if route.is_some() && routes.next().is_some() {
-        return Err(());
-    }
-    Ok(route)
+    linux_identity_routes::linux_default_route(route_records)
 }
 
 pub(super) fn linux_dns_servers_from_resolv_conf() -> Vec<String> {
@@ -126,22 +106,7 @@ pub(super) fn linux_dns_servers_from_resolv_conf() -> Vec<String> {
 }
 
 pub fn linux_dns_servers_from_resolv_conf_text(text: &str) -> Vec<String> {
-    let mut dns_servers = Vec::new();
-    for line in text.lines() {
-        let line = line.split('#').next().unwrap_or_default().trim();
-        let mut parts = line.split_whitespace();
-        if parts.next() != Some("nameserver") {
-            continue;
-        }
-        if let Some(server) = parts.next() {
-            push_unique_string_if(&mut dns_servers, server, supported_dns_server_text(server));
-        }
-    }
-    dns_servers
-}
-
-pub(super) fn linux_ipv6_prefixes(record: &serde_json::Value) -> Vec<String> {
-    address::linux_ipv6_prefixes(record)
+    linux_identity_routes::linux_dns_servers_from_resolv_conf_text(text)
 }
 
 pub(super) fn cidr_summary(ip_address: &str, prefix_length: Option<u8>) -> Option<String> {

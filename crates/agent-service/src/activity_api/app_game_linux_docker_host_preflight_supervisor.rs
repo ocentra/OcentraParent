@@ -23,6 +23,9 @@ pub(super) const DOCKER_PROBE_POLL_INTERVAL: Duration = Duration::from_millis(10
 const CHILD_IDENTITY_MISSING: &str = "docker probe child has no process identity";
 const CHILD_IDENTITY_INVALID: &str = "docker probe child has an invalid process identity";
 const CHILD_OWNERSHIP_TRANSFERRED: &str = "docker probe child ownership was transferred";
+const PROCESS_GROUP_CLEANUP_FAILED: &str = "docker probe process-group cleanup failed";
+const CLEANUP_STATUS_UNAVAILABLE: &str = "docker probe cleanup status unavailable";
+const PROCESS_CLEANUP_FAILED: &str = "docker probe process cleanup failed";
 #[cfg(unix)]
 const LEADER_EXIT_OBSERVATION_UNAVAILABLE: &str =
     proof::DOCKER_PROBE_LEADER_EXIT_OBSERVATION_UNAVAILABLE;
@@ -47,7 +50,7 @@ pub(super) struct DockerProcessSupervisor {
     leader_pidfd: Option<rustix::fd::OwnedFd>,
 }
 
-pub(super) type CleanupProgress = Result<Option<ExitStatus>, ()>;
+pub(super) type CleanupProgress = io::Result<Option<ExitStatus>>;
 
 impl DockerProcessSupervisor {
     pub(super) fn from_spawned_child(
@@ -58,12 +61,12 @@ impl DockerProcessSupervisor {
         let Some(id) = child.id() else {
             let _ = child.start_kill();
             let _ = child.try_wait();
-            return Err(io::Error::new(io::ErrorKind::Other, CHILD_IDENTITY_MISSING));
+            return Err(io::Error::other(CHILD_IDENTITY_MISSING));
         };
         let Some(group) = DockerProcessGroup::from_pid(id) else {
             let _ = child.start_kill();
             let _ = child.try_wait();
-            return Err(io::Error::new(io::ErrorKind::Other, CHILD_IDENTITY_INVALID));
+            return Err(io::Error::other(CHILD_IDENTITY_INVALID));
         };
         #[cfg(target_os = "linux")]
         let leader_pidfd = Pid::from_raw(i32::try_from(id).unwrap_or_default())
@@ -93,7 +96,7 @@ impl DockerProcessSupervisor {
         let child = self
             .child
             .as_mut()
-            .ok_or_else(|| io::Error::new(io::ErrorKind::Other, CHILD_OWNERSHIP_TRANSFERRED))?;
+            .ok_or_else(|| io::Error::other(CHILD_OWNERSHIP_TRANSFERRED))?;
         let status = child.try_wait()?;
         if let Some(status) = status {
             self.status = Some(status);
@@ -112,10 +115,7 @@ impl DockerProcessSupervisor {
         #[cfg(target_os = "linux")]
         {
             let Some(pidfd) = self.leader_pidfd.as_ref() else {
-                return Err(io::Error::new(
-                    io::ErrorKind::Other,
-                    LEADER_EXIT_OBSERVATION_UNAVAILABLE,
-                ));
+                return Err(io::Error::other(LEADER_EXIT_OBSERVATION_UNAVAILABLE));
             };
             let mut poll_fd = PollFd::new(pidfd, PollFlags::IN | PollFlags::ERR | PollFlags::HUP);
             let ready = poll(
@@ -132,25 +132,22 @@ impl DockerProcessSupervisor {
         }
         #[cfg(windows)]
         {
-            return self.try_wait().map(|status| status.is_some());
+            self.try_wait().map(|status| status.is_some())
         }
         #[cfg(all(unix, not(target_os = "linux")))]
         {
-            Err(io::Error::new(
-                io::ErrorKind::Other,
-                LEADER_EXIT_OBSERVATION_UNAVAILABLE,
-            ))
+            Err(io::Error::other(LEADER_EXIT_OBSERVATION_UNAVAILABLE))
         }
     }
 
     pub(super) fn cleanup_after_leader_exit(&mut self) -> CleanupProgress {
         if !self.group_signal_sent && !self.group.kill() {
-            return Err(());
+            return Err(io::Error::other(PROCESS_GROUP_CLEANUP_FAILED));
         }
         if !self.group_signal_sent {
             self.group_signal_sent = true;
         }
-        self.try_wait().map_err(|_| ())
+        self.try_wait()
     }
 
     pub(super) fn mark_cleanup_complete(&mut self) {
@@ -164,15 +161,15 @@ impl DockerProcessSupervisor {
                 .then_some(self.status)
                 .flatten()
                 .map(Some)
-                .ok_or(());
+                .ok_or_else(|| io::Error::other(CLEANUP_STATUS_UNAVAILABLE));
         }
         // Kill the exact unreaped leader first. Its retained child handle keeps
         // the PID/PGID from being reused while the group signal is sent.
         if !self.request_direct_kill() || (!self.group_signal_sent && !self.group.kill()) {
-            return Err(());
+            return Err(io::Error::other(PROCESS_CLEANUP_FAILED));
         }
         self.group_signal_sent = true;
-        self.try_wait().map_err(|_| ())
+        self.try_wait()
     }
 
     pub(super) fn cleanup_deadline(&self) -> Instant {

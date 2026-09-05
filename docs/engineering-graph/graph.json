@@ -140,7 +140,7 @@
       "metadata": {
         "planSlug": "data-custody-storage-plan",
         "indexPath": "docs/plans/data-custody-storage-plan/WORKPACK_INDEX.md",
-        "workpackCount": 12,
+        "workpackCount": 11,
         "dependencyConfidence": "unreviewed"
       }
     },
@@ -759,93 +759,17 @@
             "docs/plans/account-identity-family-plan/workpacks/04-invites-recovery-lifecycle.md"
           ],
           "reason": "Wave-0 dependency review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        },
-        "completionEvidenceOverride": {
-          "reason": "The 2026-08-29 source/test audit confirms the previously reviewed WP04 implementation plus all six expected repository/handoff test roots and private production receipt-input tests. Atomic invite/recovery custody, current-authority validation, monotonic clock/rate/replay controls, strict SQLite validation, private owner receipts, concurrency/restart/security behavior, and typed handoff are present. No non-test identity/membership/support/provider/Data adapter caller is composed; focused execution, dependency closure, proof, precommit, CI, and DONE remain open.",
-          "evidence": [
-            "docs/plans/account-identity-family-plan/PLAN_STATE.md",
-            "docs/plans/account-identity-family-plan/workpacks/04-invites-recovery-lifecycle.md",
-            "docs/PLAN_CODE_STATUS_MATRIX.md",
-            "docs/engineering-graph/code-map.json"
-          ],
-          "requirements": ["implementation", "tests"]
         }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {
-          "implementation": true,
-          "tests": true
-        },
+        "reviewed": {},
         "references": {
           "implementation": [
-            "crates/family-identity-core/src/family_identity.rs",
-            "crates/family-identity-core/src/family_identity_setup_records.rs",
-            "crates/family-identity-core/src/setup_lifecycle.rs",
-            "crates/family-identity-core/src/setup_invite_lifecycle.rs",
-            "crates/family-identity-core/src/recovery_lifecycle.rs",
-            "crates/family-identity-core/src/account_identity_authority_repository.rs",
-            "crates/family-identity-core/src/account_identity_authority_repository_read.rs",
-            "crates/family-identity-core/src/account_identity_authority_repository_schema.rs",
-            "crates/family-identity-core/src/account_identity_authority_repository_schema_rows.rs",
-            "crates/family-identity-core/src/invite_recovery_repository.rs",
-            "crates/family-identity-core/src/invite_recovery_repository_authority.rs",
-            "crates/family-identity-core/src/invite_recovery_repository_invite_ops.rs",
-            "crates/family-identity-core/src/invite_recovery_repository_membership_ops.rs",
-            "crates/family-identity-core/src/invite_recovery_repository_membership_types.rs",
-            "crates/family-identity-core/src/invite_recovery_repository_owner_receipt_types.rs",
-            "crates/family-identity-core/src/invite_recovery_repository_recovery_begin_ops.rs",
-            "crates/family-identity-core/src/invite_recovery_repository_recovery_completion_ops.rs",
-            "crates/family-identity-core/src/invite_recovery_repository_recovery_handoff_ops.rs",
-            "crates/family-identity-core/src/invite_recovery_repository_recovery_ops.rs",
-            "crates/family-identity-core/src/invite_recovery_repository_schema.rs",
-            "crates/family-identity-core/src/invite_recovery_repository_schema_columns.rs",
-            "crates/family-identity-core/src/invite_recovery_repository_schema_handoff_rows.rs",
-            "crates/family-identity-core/src/invite_recovery_repository_schema_indexes.rs",
-            "crates/family-identity-core/src/invite_recovery_repository_schema_invite_rows.rs",
-            "crates/family-identity-core/src/invite_recovery_repository_schema_membership_rows.rs",
-            "crates/family-identity-core/src/invite_recovery_repository_schema_objects.rs",
-            "crates/family-identity-core/src/invite_recovery_repository_schema_rate_rows.rs",
-            "crates/family-identity-core/src/invite_recovery_repository_schema_recovery_rows.rs",
-            "crates/family-identity-core/src/invite_recovery_repository_schema_recovery_state.rs",
-            "crates/family-identity-core/src/invite_recovery_repository_schema_recovery_support.rs",
-            "crates/family-identity-core/src/invite_recovery_repository_security_effect_codes.rs",
-            "crates/family-identity-core/src/invite_recovery_repository_security_effects.rs",
-            "crates/family-identity-core/src/invite_recovery_repository_security_entropy.rs",
-            "crates/family-identity-core/src/invite_recovery_repository_security_rate_invite.rs",
-            "crates/family-identity-core/src/invite_recovery_repository_security_rate_recovery.rs",
-            "crates/family-identity-core/src/invite_recovery_repository_support_invite_identity.rs",
-            "crates/family-identity-core/src/invite_recovery_repository_support_invite_policy.rs",
-            "crates/family-identity-core/src/invite_recovery_repository_support_invite_purpose.rs",
-            "crates/family-identity-core/src/invite_recovery_repository_support_invite_target_role.rs",
-            "crates/family-identity-core/src/invite_recovery_repository_support_recovery_channel.rs",
-            "crates/family-identity-core/src/invite_recovery_repository_support_recovery_handoff.rs",
-            "crates/family-identity-core/src/invite_recovery_repository_support_recovery_kind_from_label.rs",
-            "crates/family-identity-core/src/invite_recovery_repository_support_recovery_kind_label.rs",
-            "crates/family-identity-core/src/invite_recovery_repository_support_recovery_labels.rs",
-            "crates/family-identity-core/src/invite_recovery_repository_support_recovery_policy.rs",
-            "crates/family-identity-core/src/invite_recovery_repository_support_recovery_scope.rs",
-            "crates/family-identity-core/src/invite_recovery_repository_support_recovery_scope_from_label.rs",
-            "crates/family-identity-core/src/invite_recovery_repository_support_recovery_scope_label.rs",
-            "crates/family-identity-core/src/invite_recovery_repository_types.rs",
-            "crates/family-identity-core/src/invite_recovery_repository_types_identity.rs",
-            "crates/family-identity-core/src/recovery_lifecycle_handoff.rs",
-            "crates/family-identity-core/src/recovery_owner_ack_ops.rs",
-            "crates/family-identity-core/src/setup_lifecycle_validation.rs",
-            "crates/family-identity-core/src/session_lifecycle.rs",
-            "crates/provisioning-core/src/provisioning_install.rs",
-            "crates/provisioning-core/src/provisioning_install/family_account.rs",
-            "crates/provisioning-core/src/provisioning_install/family_context.rs",
-            "crates/provisioning-core/src/provisioning_install/family_pairing.rs",
-            "crates/provisioning-core/src/provisioning_install/family_recovery.rs"
+            "docs/plans/account-identity-family-plan/workpacks/04-invites-recovery-lifecycle.md"
           ],
           "tests": [
-            "crates/family-identity-core/tests/unit/invite_recovery_repository.rs",
-            "crates/family-identity-core/tests/unit/invite_recovery_repository_schema.rs",
-            "crates/family-identity-core/tests/unit/invite_recovery_repository_security.rs",
-            "crates/family-identity-core/tests/unit/recovery_owner_ack_ops.rs",
-            "crates/family-identity-core/tests/integration/invite_recovery_repository.rs",
-            "crates/family-identity-core/tests/contract/recovery_data_custody_handoff.rs"
+            "docs/plans/account-identity-family-plan/TEST_PROOF_EXPECTATIONS.md"
           ],
           "proof": ["docs/proof/account-identity-family-plan"],
           "checklist": [
@@ -4115,29 +4039,39 @@
       "path": "docs/plans/app-game-plan/workpacks/59-notification-scheduler-bridge.md",
       "parent": "PLAN-app-game-plan",
       "dependsOn": [],
-      "state": "active",
-      "lifecycleState": "active",
+      "state": "done",
+      "lifecycleState": "done",
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "active",
+        "statusText": "done",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
+        "proofOverride": {
+          "reason": "The checked-in WP59 manifest records the retained proof-bundle hashes, exact focused and full contract results, strict Clippy and architecture results, deterministic scheduler and private proof-store behavior, negative cases, and explicit production scheduler, provider, receipt, UI, child-delivery, adapter, and platform non-claims.",
+          "evidence": [
+            "docs/proof/app-game-plan/WP59_NOTIFICATION_SCHEDULER_BRIDGE_PROOF.md"
+          ],
+          "satisfiesExpected": true
+        },
         "completionEvidenceOverride": {
-          "reason": "Reviewed linked scheduling, private persistence/reopen, replay/idempotency/conflict/tamper behavior, manual/unavailable gating, and explicit non-claims. No production scheduler runtime exists; execution/proof remain open.",
+          "reason": "Reviewed linked scheduling, private persistence/reopen, replay/idempotency/conflict/tamper behavior, manual/unavailable gating, exact focused and full contract tests, strict Clippy, architecture, generated artifacts, retained proof hashes, and explicit non-claims. No production scheduler, retry or quiet-hours worker, provider delivery, receipt, UI, child delivery, adapter dispatch, or platform runtime is claimed.",
           "evidence": [
             "docs/plans/app-game-plan/workpacks/59-notification-scheduler-bridge.md",
-            "docs/engineering-graph/code-map.json"
+            "docs/engineering-graph/code-map.json",
+            "docs/proof/app-game-plan/WP59_NOTIFICATION_SCHEDULER_BRIDGE_PROOF.md"
           ],
-          "requirements": ["implementation", "tests"]
+          "requirements": ["checklist", "implementation", "proof", "tests"]
         }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
         "reviewed": {
           "implementation": true,
-          "tests": true
+          "tests": true,
+          "proof": true,
+          "checklist": true
         },
         "references": {
           "implementation": [
@@ -4151,7 +4085,9 @@
             "crates/app-game-core/tests/contract/app_game_notification_scheduler_bridge.rs",
             "crates/app-game-core/tests/contract/app_game_child_ux_outbox.rs"
           ],
-          "proof": [],
+          "proof": [
+            "docs/proof/app-game-plan/WP59_NOTIFICATION_SCHEDULER_BRIDGE_PROOF.md"
+          ],
           "checklist": ["docs/plans/app-game-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -4218,29 +4154,39 @@
       "path": "docs/plans/app-game-plan/workpacks/61-notification-provider-preflight.md",
       "parent": "PLAN-app-game-plan",
       "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "state": "done",
+      "lifecycleState": "done",
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "validation/proof",
+        "statusText": "done",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
+        "proofOverride": {
+          "reason": "The checked-in WP61 manifest records the retained proof-bundle hashes, exact focused and full contract results, strict Clippy and architecture results, persisted scheduler custody checks, deterministic provider requirement references, negative cases, and explicit provider execution, credential, delivery, receipt, UI, child-delivery, adapter, and platform non-claims.",
+          "evidence": [
+            "docs/proof/app-game-plan/WP61_NOTIFICATION_PROVIDER_PREFLIGHT_PROOF.md"
+          ],
+          "satisfiesExpected": true
+        },
         "completionEvidenceOverride": {
-          "reason": "Reviewed persisted scheduler custody validation, deterministic provider/credential/smoke refs, manual/unavailable mapping, shipped service consumption, false-claim guards, and real bridge tests. Provider credentials/runtime/delivery and proof remain open.",
+          "reason": "Reviewed persisted scheduler custody validation, deterministic provider/credential/smoke refs, manual/unavailable mapping, shipped service consumption, false-claim guards, focused and full contract tests, strict Clippy, architecture, generated artifacts, and retained proof hashes. Provider credentials, runtime, delivery, receipts, UI, child delivery, adapter dispatch, and platform execution remain explicit non-claims.",
           "evidence": [
             "docs/plans/app-game-plan/workpacks/61-notification-provider-preflight.md",
-            "docs/engineering-graph/code-map.json"
+            "docs/engineering-graph/code-map.json",
+            "docs/proof/app-game-plan/WP61_NOTIFICATION_PROVIDER_PREFLIGHT_PROOF.md"
           ],
-          "requirements": ["implementation", "tests"]
+          "requirements": ["checklist", "implementation", "proof", "tests"]
         }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
         "reviewed": {
           "implementation": true,
-          "tests": true
+          "tests": true,
+          "proof": true,
+          "checklist": true
         },
         "references": {
           "implementation": [
@@ -4251,7 +4197,9 @@
           "tests": [
             "crates/app-game-core/tests/contract/app_game_notification_provider_preflight_bridge.rs"
           ],
-          "proof": [],
+          "proof": [
+            "docs/proof/app-game-plan/WP61_NOTIFICATION_PROVIDER_PREFLIGHT_PROOF.md"
+          ],
           "checklist": ["docs/plans/app-game-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -4269,29 +4217,39 @@
       "path": "docs/plans/app-game-plan/workpacks/62-notification-preference-preflight.md",
       "parent": "PLAN-app-game-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "done",
+      "lifecycleState": "done",
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "source and real test source reviewed",
+        "statusText": "done",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true,
+        "needsReview": false,
+        "proofOverride": {
+          "reason": "The checked-in WP62 manifest records the retained proof-bundle hashes, exact focused and full contract results, strict Clippy and architecture results, persisted scheduler verification, deterministic preference, frequency, and quiet-hours requirement references, negative cases, and explicit preference mutation, UI, timer, provider, receipt, child-delivery, adapter, and platform non-claims.",
+          "evidence": [
+            "docs/proof/app-game-plan/WP62_NOTIFICATION_PREFERENCE_PREFLIGHT_PROOF.md"
+          ],
+          "satisfiesExpected": true
+        },
         "completionEvidenceOverride": {
-          "reason": "Reviewed persisted scheduler verification, preference/manual/unavailable mapping, deterministic requirement refs, tamper/unsafe rejection, shipped service consumption, and explicit non-claims. No preference owner/runtime/delivery exists; execution/proof remain open.",
+          "reason": "Reviewed persisted scheduler verification, preference/manual/unavailable mapping, deterministic requirement refs, tamper/unsafe rejection, shipped service consumption, focused and full contract tests, strict Clippy, architecture, generated artifacts, retained proof hashes, and explicit non-claims. No preference mutation owner, UI, quiet-hours or retry runtime, provider delivery or receipts, child delivery, adapter dispatch, or platform execution is claimed.",
           "evidence": [
             "docs/plans/app-game-plan/workpacks/62-notification-preference-preflight.md",
-            "docs/engineering-graph/code-map.json"
+            "docs/engineering-graph/code-map.json",
+            "docs/proof/app-game-plan/WP62_NOTIFICATION_PREFERENCE_PREFLIGHT_PROOF.md"
           ],
-          "requirements": ["implementation", "tests"]
+          "requirements": ["checklist", "implementation", "proof", "tests"]
         }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
         "reviewed": {
           "implementation": true,
-          "tests": true
+          "tests": true,
+          "proof": true,
+          "checklist": true
         },
         "references": {
           "implementation": [
@@ -4302,7 +4260,9 @@
           "tests": [
             "crates/app-game-core/tests/contract/app_game_notification_scheduler_bridge.rs"
           ],
-          "proof": [],
+          "proof": [
+            "docs/proof/app-game-plan/WP62_NOTIFICATION_PREFERENCE_PREFLIGHT_PROOF.md"
+          ],
           "checklist": ["docs/plans/app-game-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -4323,7 +4283,7 @@
         "WP-app-game-plan-59-notification-scheduler-bridge",
         "WP-app-game-plan-61-notification-provider-preflight"
       ],
-      "state": "blocked",
+      "state": "planned",
       "lifecycleState": "planned",
       "metadata": {
         "planSlug": "app-game-plan",
@@ -4375,7 +4335,7 @@
         "WP-app-game-plan-59-notification-scheduler-bridge",
         "WP-app-game-plan-62-notification-preference-preflight"
       ],
-      "state": "blocked",
+      "state": "planned",
       "lifecycleState": "planned",
       "metadata": {
         "planSlug": "app-game-plan",
@@ -6547,12 +6507,12 @@
       "path": "docs/plans/app-game-plan/workpacks/197-app-game-linux-docker-host-preflight.md",
       "parent": "PLAN-app-game-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "done",
+      "lifecycleState": "done",
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "source-and-test-source integrated / execution open",
+        "statusText": "done / bounded host preflight and parent-safe proof",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
@@ -6607,19 +6567,30 @@
           ],
           "reason": "WP197 Rust source is integrated through 5bfb2f6f3 from source packet 23c08da016, and canonical 6eb1785c3 contains all six expected real agent-service test roots. The old packages/parent-domain mapping and unintegrated f36c64ea packet are superseded by identical canonical final blobs. No test execution, proof, live owner-bound Docker capability, runtime readiness, or DONE is claimed."
         },
+        "proofOverride": {
+          "reason": "The checked-in WP197 manifest records the exact retained bundle hashes, bounded Linux Docker host preflight, deterministic protocol and Agent Service behavior, protected path and cleanup negatives, explicit count-only visibility and enforcement or delivery non-claims, and exact successful focused commands.",
+          "evidence": [
+            "docs/proof/app-game-plan/WP197_LINUX_DOCKER_HOST_PREFLIGHT_PROOF.md"
+          ],
+          "satisfiesExpected": true
+        },
         "completionEvidenceOverride": {
-          "reason": "Independent source review accepted the bounded Linux Docker CLI, daemon, context and object inventory preflight, protected path checks, cleanup supervision, cache, and parent-safe read-model routing. Canonical 6eb1785c3 contains all six exact deterministic real test roots, but none has been executed in this code-first phase. The packet retains redaction and makes no dispatch, enforcement, provider, child, private-diagnostics, proof, CI, READY, or DONE claim; this is implementation-only routing evidence.",
+          "reason": "Reviewed the bounded Linux Docker CLI, daemon, context and object-inventory preflight, protected path checks, cleanup supervision, cache, parent-safe read-model routing, all six deterministic behavioral test roots, checked-in durable manifest for the retained proof bundle, and checklist closure. The proof passed graph validation, focused protocol and organized Agent Service preflight tests, and focused architecture checks. Redaction and count-only visibility remain intact; dispatch, enforcement, provider, child delivery, private diagnostics, and broader platform authority remain explicit non-claims.",
           "evidence": [
             "docs/plans/app-game-plan/workpacks/197-app-game-linux-docker-host-preflight.md",
-            "docs/engineering-graph/code-map.json"
+            "docs/engineering-graph/code-map.json",
+            "docs/proof/app-game-plan/WP197_LINUX_DOCKER_HOST_PREFLIGHT_PROOF.md"
           ],
-          "requirements": ["implementation"]
+          "requirements": ["checklist", "implementation", "proof", "tests"]
         }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
         "reviewed": {
-          "implementation": true
+          "implementation": true,
+          "tests": true,
+          "proof": true,
+          "checklist": true
         },
         "references": {
           "implementation": [
@@ -6652,8 +6623,17 @@
             "crates/agent-service/src/websocket/socket_session.rs",
             "crates/agent-service/src/websocket/transport_admission.rs"
           ],
-          "tests": ["docs/plans/app-game-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "tests": [
+            "crates/agent-service/tests/unit/app_game_linux_docker_host_preflight.rs",
+            "crates/agent-service/tests/unit/app_game_linux_docker_host_preflight_parser_tests.rs",
+            "crates/agent-service/tests/unit/app_game_linux_docker_host_preflight_path_security_tests.rs",
+            "crates/agent-service/tests/unit/app_game_linux_docker_host_preflight_cleanup_tests.rs",
+            "crates/agent-service/tests/unit/app_game_platform_probe_cache_tests.rs",
+            "crates/agent-service/tests/unit/app_game_platform_proof_status_route_rejection_tests.rs"
+          ],
+          "proof": [
+            "docs/proof/app-game-plan/WP197_LINUX_DOCKER_HOST_PREFLIGHT_PROOF.md"
+          ],
           "checklist": ["docs/plans/app-game-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -10819,12 +10799,12 @@
       "path": "docs/plans/app-game-plan/workpacks/203-app-game-windows-local-policy-evidence-proof.md",
       "parent": "PLAN-app-game-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "done",
+      "lifecycleState": "done",
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "reference/no boxes",
+        "statusText": "done / bounded observer and protocol proof",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
@@ -10832,6 +10812,8 @@
           "source": "docs/engineering-graph/code-map.json",
           "roots": [],
           "testRoots": [
+            "crates/app-game-windows-local-policy-ffi/tests/unit/local_policy_output.rs",
+            "crates/app-game-windows-local-policy-ffi/tests/integration/windows_local_policy.rs",
             "crates/agent-protocol/tests/contract/app_game_platform_proof_status_tests.rs",
             "crates/agent-service/tests/unit/app_game_platform_proof_status_payload_tests.rs",
             "crates/agent-service/tests/unit/app_game_adapter_host_capabilities.rs",
@@ -10843,20 +10825,55 @@
           "evidence": [
             "docs/plans/app-game-plan/CODE_AUDIT.md",
             "docs/plans/app-game-plan/workpacks/203-app-game-windows-local-policy-evidence-proof.md",
-            "docs/engineering-graph/code-map.json"
+            "docs/engineering-graph/code-map.json",
+            "output/app-game-plan-proof/203-app-game-windows-local-policy-evidence-proof/16-validation-commands.log"
           ],
-          "reason": "Current Rust status models can represent Windows policy evidence, but no shipped AppLocker, AppIDSvc, or Device Guard adapter/caller samples it. The retired TypeScript/proof-runner path is absent. This review records the missing owner route and claims no implementation, execution, proof, READY, or DONE."
+          "reason": "The dedicated Rust Windows FFI owner now samples AppIDSvc, AppLocker, and Device Guard/App Control through a no-argument observer, and the strict protocol contract preserves bounded redacted evidence plus explicit non-claims. Retained Windows observer and protocol proof closes the bounded WP203 sampling contract. Agent Service composition, runtime readiness, enforcement, rollback, audit custody, provider delivery, and child delivery remain open."
+        },
+        "proofOverride": {
+          "reason": "The checked-in WP203 manifest records the exact retained bundle hashes, real no-argument Windows observation, strict parser and protocol negatives, explicit service/enforcement non-claims, and exact successful wrapped commands.",
+          "evidence": [
+            "docs/proof/app-game-plan/WP203_WINDOWS_LOCAL_POLICY_EVIDENCE_PROOF.md"
+          ],
+          "satisfiesExpected": true
+        },
+        "completionEvidenceOverride": {
+          "reason": "Reviewed the dedicated Windows observer, strict bounded parser, protocol evidence/non-claim contract, expected service/status and portal topology, real behavioral test roots, and checked-in durable manifest for the retained proof bundle. The proof executes the Windows observer and strict contract negatives; service composition and all enforcement/delivery authority remain explicitly outside this bounded closure.",
+          "evidence": [
+            "docs/plans/app-game-plan/workpacks/203-app-game-windows-local-policy-evidence-proof.md",
+            "docs/engineering-graph/code-map.json",
+            "docs/proof/app-game-plan/WP203_WINDOWS_LOCAL_POLICY_EVIDENCE_PROOF.md"
+          ],
+          "requirements": ["checklist", "implementation", "proof", "tests"]
         }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true,
+          "tests": true,
+          "proof": true,
+          "checklist": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/app-game-plan/workpacks/203-app-game-windows-local-policy-evidence-proof.md"
+            "crates/app-game-windows-local-policy-ffi/src/lib.rs",
+            "crates/app-game-windows-local-policy-ffi/src/output.rs",
+            "crates/app-game-windows-local-policy-ffi/src/windows.rs",
+            "crates/agent-protocol/src/app_game_platform_proof_status.rs",
+            "crates/agent-protocol/src/app_game_platform_proof_status/windows_local_policy.rs"
           ],
-          "tests": ["docs/plans/app-game-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "tests": [
+            "crates/app-game-windows-local-policy-ffi/tests/unit/local_policy_output.rs",
+            "crates/app-game-windows-local-policy-ffi/tests/integration/windows_local_policy.rs",
+            "crates/agent-protocol/tests/contract/app_game_platform_proof_status_tests.rs",
+            "crates/agent-service/tests/unit/app_game_platform_proof_status_payload_tests.rs",
+            "crates/agent-service/tests/unit/app_game_adapter_host_capabilities.rs",
+            "apps/portal/tests/unit/app-game-platform-proof-status-route-panel.test.ts"
+          ],
+          "proof": [
+            "docs/proof/app-game-plan/WP203_WINDOWS_LOCAL_POLICY_EVIDENCE_PROOF.md"
+          ],
           "checklist": ["docs/plans/app-game-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -10865,6 +10882,8 @@
             "output/app-game-plan-proof/203-app-game-windows-local-policy-evidence-proof"
           ],
           "tests": [
+            "crates/app-game-windows-local-policy-ffi/tests/unit/local_policy_output.rs",
+            "crates/app-game-windows-local-policy-ffi/tests/integration/windows_local_policy.rs",
             "crates/agent-protocol/tests/contract/app_game_platform_proof_status_tests.rs",
             "crates/agent-service/tests/unit/app_game_platform_proof_status_payload_tests.rs",
             "crates/agent-service/tests/unit/app_game_adapter_host_capabilities.rs",
@@ -18840,12 +18859,12 @@
       "path": "docs/plans/child-agent-runtime-distribution-plan/workpacks/01-child-agent-scope-and-route-boundary.md",
       "parent": "PLAN-child-agent-runtime-distribution-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "child-agent-runtime-distribution-plan",
         "indexPath": "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
-        "statusText": "route-only; not product completion",
+        "statusText": "validation — route-only proof complete; implementation contract open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
@@ -18856,19 +18875,42 @@
             "docs/plans/child-agent-runtime-distribution-plan/workpacks/01-child-agent-scope-and-route-boundary.md"
           ],
           "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+        },
+        "proofOverride": {
+          "reason": "The checked-in WP01 manifest records the exact retained bundle hashes, route-only scope, behavioral negative cases, explicit no-claim boundary, and successful graph/test commands.",
+          "evidence": [
+            "docs/proof/child-agent-runtime-distribution-plan/WP01_CHILD_AGENT_SCOPE_AND_ROUTE_BOUNDARY_PROOF.md"
+          ],
+          "satisfiesExpected": true
+        },
+        "completionEvidenceOverride": {
+          "reason": "Reviewed the real generated-graph/code-map behavioral test, checked-in durable manifest for the exact retained four-file proof bundle, and WP01 checklist row. The mandatory implementation requirement remains intentionally unreviewed: this workpack is no-code-required, and graph policy correctly rejects planning documents or test/proof scripts as production implementation evidence.",
+          "evidence": [
+            "docs/plans/child-agent-runtime-distribution-plan/workpacks/01-child-agent-scope-and-route-boundary.md",
+            "tests/repo-tooling/child-agent-runtime-distribution-route.test.mjs",
+            "docs/proof/child-agent-runtime-distribution-plan/WP01_CHILD_AGENT_SCOPE_AND_ROUTE_BOUNDARY_PROOF.md",
+            "docs/plans/child-agent-runtime-distribution-plan/CHECKLIST_INDEX.md"
+          ],
+          "requirements": ["checklist", "proof", "tests"]
         }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "tests": true,
+          "proof": true,
+          "checklist": true
+        },
         "references": {
           "implementation": [
             "docs/plans/child-agent-runtime-distribution-plan/workpacks/01-child-agent-scope-and-route-boundary.md"
           ],
           "tests": [
-            "docs/plans/child-agent-runtime-distribution-plan/TEST_PROOF_EXPECTATIONS.md"
+            "tests/repo-tooling/child-agent-runtime-distribution-route.test.mjs"
           ],
-          "proof": [],
+          "proof": [
+            "docs/proof/child-agent-runtime-distribution-plan/WP01_CHILD_AGENT_SCOPE_AND_ROUTE_BOUNDARY_PROOF.md"
+          ],
           "checklist": [
             "docs/plans/child-agent-runtime-distribution-plan/CHECKLIST_INDEX.md"
           ],
@@ -19136,12 +19178,12 @@
       "path": "docs/plans/child-agent-runtime-distribution-plan/workpacks/06-child-ios-agent-capability-package.md",
       "parent": "PLAN-child-agent-runtime-distribution-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "done",
+      "lifecycleState": "done",
       "metadata": {
         "planSlug": "child-agent-runtime-distribution-plan",
         "indexPath": "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
-        "statusText": "source identity corrected / tests and release authority open",
+        "statusText": "done",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
@@ -19160,19 +19202,30 @@
           ],
           "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
         },
+        "proofOverride": {
+          "reason": "The checked-in WP06 manifest records the exact retained bundle hashes, child-owned iOS identity, strict capability and negative boundaries, an explicit Windows host-blocked XCTest result, Apple and physical-device non-claims, and exact focused commands.",
+          "evidence": [
+            "docs/proof/child-agent-runtime-distribution-plan/WP06_CHILD_IOS_AGENT_CAPABILITY_PACKAGE_PROOF.md"
+          ],
+          "satisfiesExpected": true
+        },
         "completionEvidenceOverride": {
-          "reason": "Independent source review accepted the child-owned iOS capability contract and canonical OcentraChildAgent project, product, bundle, scheme, status, and simulator-only unsigned release boundary. Canonical b6d0ba578 contains the exact hostile parent-identity rejection test source, but it has not been executed. Signing, device/store authority, workflow proof, CI, READY, and DONE remain open; this is implementation-only routing evidence.",
+          "reason": "Reviewed the child-owned iOS capability contract and canonical OcentraChildAgent identity, real host-aware XCTest source, proof-runner behavior, checked-in durable manifest for the exact retained proof bundle, and checklist closure. The Windows result records XCTest as platform-unavailable/manual-required; Apple signing/provisioning, physical-device, store, supervision, background, recovery, transport, and aggregate release authority remain explicit non-claims.",
           "evidence": [
             "docs/plans/child-agent-runtime-distribution-plan/workpacks/06-child-ios-agent-capability-package.md",
-            "docs/engineering-graph/code-map.json"
+            "docs/engineering-graph/code-map.json",
+            "docs/proof/child-agent-runtime-distribution-plan/WP06_CHILD_IOS_AGENT_CAPABILITY_PACKAGE_PROOF.md"
           ],
-          "requirements": ["implementation"]
+          "requirements": ["checklist", "implementation", "proof", "tests"]
         }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
         "reviewed": {
-          "implementation": true
+          "implementation": true,
+          "tests": true,
+          "proof": true,
+          "checklist": true
         },
         "references": {
           "implementation": [
@@ -19191,9 +19244,12 @@
             "platforms/ios/OcentraChildAgent/AgentStatusViewController.swift"
           ],
           "tests": [
-            "docs/plans/child-agent-runtime-distribution-plan/TEST_PROOF_EXPECTATIONS.md"
+            "platforms/ios/tests/child_capability_identity.test.mjs",
+            "tests/repo-tooling/child-ios-entitlement-capability-proof-runner.test.mjs"
           ],
-          "proof": [],
+          "proof": [
+            "docs/proof/child-agent-runtime-distribution-plan/WP06_CHILD_IOS_AGENT_CAPABILITY_PACKAGE_PROOF.md"
+          ],
           "checklist": [
             "docs/plans/child-agent-runtime-distribution-plan/CHECKLIST_INDEX.md"
           ],
@@ -21140,49 +21196,6 @@
           "tests": [
             "crates/parent-runtime-core/tests/integration/data_custody_runtime_composition.rs"
           ]
-        }
-      }
-    },
-    {
-      "id": "WP-data-custody-storage-plan-data-and-ai-ui-plan",
-      "kind": "workpack",
-      "title": "Migrated Data And AI UI Plan",
-      "path": "docs/plans/data-custody-storage-plan/workpacks/data and AI Ui plan.md",
-      "parent": "PLAN-data-custody-storage-plan",
-      "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
-      "metadata": {
-        "planSlug": "data-custody-storage-plan",
-        "indexPath": "docs/plans/data-custody-storage-plan/WORKPACK_INDEX.md",
-        "statusText": "source",
-        "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/data-custody-storage-plan/WORKPACK_INDEX.md",
-            "docs/plans/data-custody-storage-plan/workpacks/data and AI Ui plan.md"
-          ],
-          "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
-      },
-      "completion": {
-        "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
-        "references": {
-          "implementation": [
-            "docs/plans/data-custody-storage-plan/workpacks/data and AI Ui plan.md"
-          ],
-          "tests": [
-            "docs/plans/data-custody-storage-plan/TEST_PROOF_EXPECTATIONS.md"
-          ],
-          "proof": ["docs/proof/data-custody-storage-plan"],
-          "checklist": [
-            "docs/plans/data-custody-storage-plan/CHECKLIST_INDEX.md"
-          ],
-          "adr": []
         }
       }
     },
@@ -23428,7 +23441,7 @@
           "tests": [
             "docs/plans/logging-domain-parity/TEST_PROOF_EXPECTATIONS.md"
           ],
-          "proof": [],
+          "proof": ["docs/proof/logging-domain-parity"],
           "checklist": ["docs/plans/logging-domain-parity/CHECKLIST_INDEX.md"],
           "adr": []
         }
@@ -23441,23 +23454,18 @@
       "path": "docs/plans/logging-domain-parity/workpacks/02-typescript-logging-package-parity.md",
       "parent": "PLAN-logging-domain-parity",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "logging-domain-parity",
         "indexPath": "docs/plans/logging-domain-parity/WORKPACK_INDEX.md",
-        "statusText": "source-hardened / expected tests open",
+        "statusText": "Validation — implementation, tests, and durable proof reviewed; central checklist closeout pending.",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
         "plannedSourceExpectation": {
           "source": "docs/engineering-graph/code-map.json",
-          "roots": [
-            "crates/logging-core/src/local_artifact_mutation.rs",
-            "crates/logging-local-artifact-windows-ffi/src/lib.rs",
-            "crates/logging-local-artifact-provider/src/main.rs",
-            "packages/logging-domain/src/local-artifact-mutation-provider.ts"
-          ],
+          "roots": [],
           "testRoots": [
             "packages/logging-domain/tests/unit/local-artifact-mutation-provider.test.ts",
             "packages/logging-domain/tests/integration/local-artifact-mutation-provider.test.ts",
@@ -23485,44 +23493,67 @@
             "docs/plans/logging-domain-parity/NEXT_ACTIONS.md",
             "docs/plans/logging-domain-parity/WORKPACK_INDEX.md",
             "docs/plans/logging-domain-parity/workpacks/02-typescript-logging-package-parity.md",
+            "docs/proof/logging-domain-parity/WP02_TYPESCRIPT_LOGGING_PACKAGE_PARITY_PROOF.md",
             "docs/engineering-graph/code-map.json"
           ],
-          "reason": "Current source and test audit identifies the absent package-owned Windows local-artifact mutation provider as a real WP02 implementation seam. No production Node-native binding exists: the shippable route is the safe crates/logging-core/src/local_artifact_mutation.rs owner plus a new package-specific Windows FFI crate and long-lived Rust provider process, consumed by the TypeScript adapter. The existing local-artifact path, ownership, identity, append, lock, transaction, retention, bridge, and NDJSON roots remain consumers. This review authorizes only the unsatisfied implementation route for the mapped native/provider and dedicated Rust/TypeScript test roots; canonical containment, symlink/reparse safety, ownership/currentness, atomic create/write/lock/recovery, provider-issued authority, build/staging, tests, proof, normal READY, and DONE remain open."
+          "reason": "Reviewed WP02 source and tests now contain the package-owned Windows local-artifact mutation provider, safe logging-core owner, package-specific Windows FFI crate, long-lived Rust provider process, TypeScript adapter/consumers, and dedicated Rust/TypeScript coverage. The bounded retained proof is durable-manifested; normal completion remains gated by the central checklist closeout and does not claim production telemetry, installer/release custody, or product-wide logging readiness."
+        },
+        "stateOverride": {
+          "reason": "Reviewed WP02 implementation, dedicated real tests, and the exact five-artifact retained proof bundle are current and durably manifested. The central checklist rows remain unchecked and are actively owned by separate Logging proof-restoration tasks, so normal completion and downstream unlocks remain gated without weakening the bounded no-production-telemetry claim.",
+          "evidence": [
+            "docs/plans/logging-domain-parity/workpacks/02-typescript-logging-package-parity.md",
+            "docs/proof/logging-domain-parity/WP02_TYPESCRIPT_LOGGING_PACKAGE_PARITY_PROOF.md",
+            "docs/engineering-graph/code-map.json"
+          ]
+        },
+        "proofOverride": {
+          "reason": "The checked-in WP02 manifest records the exact five-artifact retained bundle, SHA-256 digests, successful focused commands, and bounded no-claim language for the ignored generated output root.",
+          "evidence": [
+            "docs/proof/logging-domain-parity/WP02_TYPESCRIPT_LOGGING_PACKAGE_PARITY_PROOF.md"
+          ],
+          "satisfiesExpected": true
         },
         "completionEvidenceOverride": {
-          "reason": "Accepted source head 735df89de records the generated TypeScript edge of the Rust-owned exact 18-key sensitive-key policy. The sanitizer consumes the generated artifact; that existing source evidence is separate from the absent Windows local-artifact native/provider route. Its build integration, native/provider source, dedicated Rust/TypeScript tests, focused validation, proof, checklist closeout, and DONE remain deferred.",
+          "reason": "Reviewed bounded WP02 implementation, dedicated real tests, retained five-artifact proof bundle, and durable proof manifest. The central checklist is intentionally not recorded as reviewed until its actively claimed rows are synchronized; normal DONE and downstream completion therefore remain gated.",
           "evidence": [
-            "docs/plans/logging-domain-parity/PLAN_STATE.md",
             "docs/plans/logging-domain-parity/workpacks/02-typescript-logging-package-parity.md",
-            "docs/PLAN_CODE_STATUS_MATRIX.md"
+            "docs/proof/logging-domain-parity/WP02_TYPESCRIPT_LOGGING_PACKAGE_PARITY_PROOF.md",
+            "docs/engineering-graph/code-map.json"
           ],
-          "requirements": ["implementation"]
+          "requirements": ["implementation", "proof", "tests"]
         }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
         "reviewed": {
-          "implementation": true
+          "implementation": true,
+          "tests": true,
+          "proof": true
         },
         "references": {
-          "implementation": [
-            "packages/logging-domain/src/core/log-redaction.ts",
-            "packages/logging-domain/src/generated-log-redaction-policy.ts"
-          ],
-          "tests": [
-            "docs/plans/logging-domain-parity/TEST_PROOF_EXPECTATIONS.md"
-          ],
-          "proof": [],
-          "checklist": ["docs/plans/logging-domain-parity/CHECKLIST_INDEX.md"],
-          "adr": []
-        },
-        "expected": {
           "implementation": [
             "crates/logging-core/src/local_artifact_mutation.rs",
             "crates/logging-local-artifact-windows-ffi/src/lib.rs",
             "crates/logging-local-artifact-provider/src/main.rs",
-            "packages/logging-domain/src/local-artifact-mutation-provider.ts"
+            "packages/logging-domain/src/local-artifact-mutation-provider.ts",
+            "packages/logging-domain/src/core/log-redaction.ts",
+            "packages/logging-domain/src/generated-log-redaction-policy.ts"
           ],
+          "tests": [
+            "packages/logging-domain/tests/unit/local-artifact-mutation-provider.test.ts",
+            "packages/logging-domain/tests/integration/local-artifact-mutation-provider.test.ts",
+            "crates/logging-core/tests/integration/local_artifact_mutation.rs",
+            "crates/logging-local-artifact-windows-ffi/tests/integration/local_artifact_windows.rs",
+            "crates/logging-local-artifact-provider/tests/integration/local_artifact_provider.rs",
+            "tests/repo-tooling/logging-domain-wp02-parity-proof.test.mjs"
+          ],
+          "proof": [
+            "docs/proof/logging-domain-parity/WP02_TYPESCRIPT_LOGGING_PACKAGE_PARITY_PROOF.md"
+          ],
+          "checklist": ["docs/plans/logging-domain-parity/CHECKLIST_INDEX.md"],
+          "adr": []
+        },
+        "expected": {
           "tests": [
             "packages/logging-domain/tests/unit/local-artifact-mutation-provider.test.ts",
             "packages/logging-domain/tests/integration/local-artifact-mutation-provider.test.ts",
@@ -23599,7 +23630,7 @@
           "tests": [
             "docs/plans/logging-domain-parity/TEST_PROOF_EXPECTATIONS.md"
           ],
-          "proof": [],
+          "proof": ["docs/proof/logging-domain-parity"],
           "checklist": ["docs/plans/logging-domain-parity/CHECKLIST_INDEX.md"],
           "adr": []
         }
@@ -23644,7 +23675,7 @@
           "tests": [
             "docs/plans/logging-domain-parity/TEST_PROOF_EXPECTATIONS.md"
           ],
-          "proof": [],
+          "proof": ["docs/proof/logging-domain-parity"],
           "checklist": ["docs/plans/logging-domain-parity/CHECKLIST_INDEX.md"],
           "adr": []
         }
@@ -23701,7 +23732,7 @@
           "tests": [
             "docs/plans/logging-domain-parity/TEST_PROOF_EXPECTATIONS.md"
           ],
-          "proof": [],
+          "proof": ["docs/proof/logging-domain-parity"],
           "checklist": ["docs/plans/logging-domain-parity/CHECKLIST_INDEX.md"],
           "adr": []
         }
@@ -23744,7 +23775,7 @@
           "tests": [
             "docs/plans/logging-domain-parity/TEST_PROOF_EXPECTATIONS.md"
           ],
-          "proof": [],
+          "proof": ["docs/proof/logging-domain-parity"],
           "checklist": ["docs/plans/logging-domain-parity/CHECKLIST_INDEX.md"],
           "adr": []
         }
@@ -23787,7 +23818,7 @@
           "tests": [
             "docs/plans/logging-domain-parity/TEST_PROOF_EXPECTATIONS.md"
           ],
-          "proof": [],
+          "proof": ["docs/proof/logging-domain-parity"],
           "checklist": ["docs/plans/logging-domain-parity/CHECKLIST_INDEX.md"],
           "adr": []
         }
@@ -23851,7 +23882,7 @@
           "tests": [
             "docs/plans/logging-domain-parity/TEST_PROOF_EXPECTATIONS.md"
           ],
-          "proof": [],
+          "proof": ["docs/proof/logging-domain-parity"],
           "checklist": ["docs/plans/logging-domain-parity/CHECKLIST_INDEX.md"],
           "adr": []
         }
@@ -23908,7 +23939,7 @@
           "tests": [
             "docs/plans/logging-domain-parity/TEST_PROOF_EXPECTATIONS.md"
           ],
-          "proof": [],
+          "proof": ["docs/proof/logging-domain-parity"],
           "checklist": ["docs/plans/logging-domain-parity/CHECKLIST_INDEX.md"],
           "adr": []
         }
@@ -23962,7 +23993,7 @@
           "tests": [
             "docs/plans/logging-domain-parity/TEST_PROOF_EXPECTATIONS.md"
           ],
-          "proof": [],
+          "proof": ["docs/proof/logging-domain-parity"],
           "checklist": ["docs/plans/logging-domain-parity/CHECKLIST_INDEX.md"],
           "adr": []
         }
@@ -25124,7 +25155,8 @@
           "testRoots": [
             "crates/entitlement-core/tests/unit/entitlement_snapshot_derivation.rs",
             "crates/schema/tests/contract/billing_entitlement_proof.rs",
-            "crates/schema/tests/contract/billing_entitlement_values.rs"
+            "crates/schema/tests/contract/billing_entitlement_values.rs",
+            "packages/schema-domain/tests/contract/billing-entitlement.test.ts"
           ]
         },
         "completionEvidenceOverride": {
@@ -25167,7 +25199,8 @@
           "tests": [
             "crates/entitlement-core/tests/unit/entitlement_snapshot_derivation.rs",
             "crates/schema/tests/contract/billing_entitlement_proof.rs",
-            "crates/schema/tests/contract/billing_entitlement_values.rs"
+            "crates/schema/tests/contract/billing_entitlement_values.rs",
+            "packages/schema-domain/tests/contract/billing-entitlement.test.ts"
           ]
         }
       }
@@ -25335,10 +25368,6 @@
             "docs/plans/device-trust-bootstrap-plan/workpacks/05-entitlement-device-license.md",
             "docs/engineering-graph/code-map.json",
             "crates/entitlement-core/src/entitlement_snapshot_derivation.rs",
-            "crates/entitlement-core/src/entitlement_snapshot_issuer.rs",
-            "crates/entitlement-core/src/entitlement_snapshot_authority.rs",
-            "crates/entitlement-core/src/entitlement_snapshot_authority_ports.rs",
-            "crates/entitlement-core/src/entitlement_snapshot_authority_verifier.rs",
             "crates/child-runtime/src/runtime_gate.rs",
             "crates/entitlement-core/tests/contract/signed_snapshot_delivery.rs"
           ],
@@ -25968,7 +25997,7 @@
             "crates/family-identity-core/src/account_identity_authority.rs",
             "crates/family-identity-core/src/session_lifecycle.rs",
             "crates/family-identity-core/src/device_trust_current_binding.rs",
-            "crates/family-identity-core/src/parent_step_up_authority.rs",
+            "crates/family-identity-core/src/parent_step_up_ceremony.rs",
             "docs/plans/data-custody-storage-plan/workpacks/01-custody-source-of-truth.md",
             "docs/plans/data-custody-storage-plan/workpacks/11-runtime-composition-and-custody-mount.md",
             "docs/plans/portal-ux-household-surfaces-plan/workpacks/05-policy-authoring-control-center.md",
@@ -27192,29 +27221,80 @@
       "path": "docs/plans/portal-ux-household-surfaces-plan/workpacks/16-no-fake-data-contract-adapter.md",
       "parent": "PLAN-portal-ux-household-surfaces-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "done",
+      "lifecycleState": "done",
       "metadata": {
         "planSlug": "portal-ux-household-surfaces-plan",
         "indexPath": "docs/plans/portal-ux-household-surfaces-plan/WORKPACK_INDEX.md",
-        "statusText": "open",
+        "statusText": "done / bounded no-fake-data projection proof",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [],
+          "evidence": [
+            "docs/plans/portal-ux-household-surfaces-plan/AGENTS.md",
+            "docs/plans/portal-ux-household-surfaces-plan/workpacks/16-no-fake-data-contract-adapter.md",
+            "docs/plans/remote-access-plan/AGENTS.md",
+            "docs/plans/parent-desktop-runtime-package-plan/AGENTS.md"
+          ],
+          "reason": "Independent rendered-route review found bounded Portal-owned truthfulness defects. Remote Access was labeled as DATA and its nested Remote Screen policy exposed fixture-shaped modes despite having no service read model. Platforms and Install Updates were also routed through the LAN device command preview even though the desktop host already owns typed package, update, rollback, signing, store, and artifact-proof status. This review authorizes navigation/source-label correction, explicit unavailable remote state, and a typed read-only desktop distribution projection carried by the existing parent route snapshot. It adds no remote-session runtime, child capability, LAN command, updater, rollback executor, package installer, signing, store, custody, authority, or product-readiness claim."
+        },
+        "proofOverride": {
+          "reason": "The checked-in WP16 manifest records the retained proof-bundle hashes, typed host projection, fixture separation, invalid and missing states, read-only execution boundary, compact rendered layout, Remote Access honesty, exact successful focused commands, the broad sibling-route E2E failures, and explicit execution and plan-wide non-claims.",
+          "evidence": [
+            "docs/proof/portal-ux-household-surfaces-plan/WP16_NO_FAKE_DATA_CONTRACT_ADAPTER_PROOF.md"
+          ],
+          "satisfiesExpected": true
+        },
+        "completionEvidenceOverride": {
+          "reason": "Reviewed the typed Rust parent-host distribution projection, generated bridge, Portal runtime rendering, fixture separation, invalid and missing payload states, read-only execution boundary, compact layout, Remote Access honesty, complete Portal and Portal-domain unit suites, focused Rust contracts, focused real E2E, and retained durable proof manifest. Installer, updater, rollback, signing, store, transport, authenticated remote-session execution, sibling-route E2E failures, plan-wide readiness, PR readiness, CI, and release remain explicit non-claims.",
+          "evidence": [
+            "docs/plans/portal-ux-household-surfaces-plan/workpacks/16-no-fake-data-contract-adapter.md",
+            "docs/engineering-graph/code-map.json",
+            "docs/proof/portal-ux-household-surfaces-plan/WP16_NO_FAKE_DATA_CONTRACT_ADAPTER_PROOF.md"
+          ],
+          "requirements": ["checklist", "implementation", "proof", "tests"]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true,
+          "tests": true,
+          "proof": true,
+          "checklist": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/portal-ux-household-surfaces-plan/workpacks/16-no-fake-data-contract-adapter.md"
+            "packages/portal-domain/src/portal-contract-adapter.ts",
+            "crates/schema/src/parent_ui_bridge.rs",
+            "crates/parent-runtime-core/src/parent_ui_bridge/parent_desktop_distribution.rs",
+            "crates/parent-runtime-core/src/parent_ui_bridge/route_snapshot.rs",
+            "apps/portal/generated/parent-ui-bridge.ts",
+            "apps/portal/src/host-bridge.ts",
+            "apps/portal/src/ParentDesktopDistributionRoutePanel.tsx",
+            "apps/portal/src/ParentPortalRoute.tsx",
+            "apps/portal/src/route-live-activity-state.ts"
           ],
           "tests": [
-            "docs/plans/portal-ux-household-surfaces-plan/TEST_PROOF_EXPECTATIONS.md"
+            "packages/portal-domain/tests/unit/contracts.test.ts",
+            "apps/portal/tests/unit/host-bridge.test.ts",
+            "apps/portal/tests/unit/parent-ui-bridge.test.ts",
+            "apps/portal/tests/unit/parent-desktop-distribution-route-panel.test.ts",
+            "apps/portal/tests/live-activity/live-activity-state.test.ts",
+            "apps/portal/tests/e2e/portal-ui.spec.ts",
+            "apps/portal/tests/e2e/remote-access-honesty.spec.ts",
+            "crates/schema/tests/contract/parent_ui_bridge/contract_shapes.rs",
+            "crates/schema/tests/contract/parent_ui_bridge/fixtures.rs",
+            "crates/schema/tests/contract/parent_ui_bridge/generated.rs",
+            "crates/parent-runtime-core/tests/integration/parent_ui_bridge/snapshot_and_dispatch_tests.rs"
           ],
-          "proof": [],
+          "proof": [
+            "docs/proof/portal-ux-household-surfaces-plan/WP16_NO_FAKE_DATA_CONTRACT_ADAPTER_PROOF.md"
+          ],
           "checklist": [
-            "docs/plans/portal-ux-household-surfaces-plan/CHECKLIST_INDEX.md"
+            "docs/plans/portal-ux-household-surfaces-plan/workpacks/16-no-fake-data-contract-adapter.md"
           ],
           "adr": []
         },
@@ -31359,7 +31439,7 @@
             "docs/plans/tracking-plan/workpacks/25-policy-compiler-for-tracking-rules.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": ["docs/proof/tracking-plan"],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         }
@@ -31390,7 +31470,7 @@
             "docs/plans/tracking-plan/workpacks/27-escalation-engine.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": ["docs/proof/tracking-plan"],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         }
@@ -31421,7 +31501,7 @@
             "docs/plans/tracking-plan/workpacks/28-temporary-live-tracking-mode.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": ["docs/proof/tracking-plan"],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         }
@@ -31452,7 +31532,7 @@
             "docs/plans/tracking-plan/workpacks/29-missing-device-mode.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": ["docs/proof/tracking-plan"],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         }
@@ -31483,7 +31563,7 @@
             "docs/plans/tracking-plan/workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": ["docs/proof/tracking-plan"],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         }
@@ -31514,7 +31594,7 @@
             "docs/plans/tracking-plan/workpacks/01-source-index-and-repo-reconciliation.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": ["docs/proof/tracking-plan"],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         }
@@ -31545,7 +31625,7 @@
             "docs/plans/tracking-plan/workpacks/02-current-tracking-snapshot-and-gap-map.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": ["docs/proof/tracking-plan"],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         }
@@ -31576,7 +31656,7 @@
             "docs/plans/tracking-plan/workpacks/03-contract-boundary-and-effect-schemas.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": ["docs/proof/tracking-plan"],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         }
@@ -31607,7 +31687,7 @@
             "docs/plans/tracking-plan/workpacks/04-location-evidence-model.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": ["docs/proof/tracking-plan"],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         }
@@ -31638,7 +31718,7 @@
             "docs/plans/tracking-plan/workpacks/05-device-status-model.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": ["docs/proof/tracking-plan"],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         }
@@ -31669,7 +31749,7 @@
             "docs/plans/tracking-plan/workpacks/06-permission-and-capability-status-model.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": ["docs/proof/tracking-plan"],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         }
@@ -31700,7 +31780,7 @@
             "docs/plans/tracking-plan/workpacks/07-retention-and-custody-model.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": ["docs/proof/tracking-plan"],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         }
@@ -31745,7 +31825,7 @@
             "docs/plans/tracking-plan/workpacks/08-android-foreground-location-adapter.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": ["docs/proof/tracking-plan"],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         }
@@ -31792,7 +31872,7 @@
             "docs/plans/tracking-plan/workpacks/09-android-background-location-and-geofence-adapter.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": ["docs/proof/tracking-plan"],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         }
@@ -31837,7 +31917,7 @@
             "docs/plans/tracking-plan/workpacks/10-android-battery-connectivity-and-status-adapter.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": ["docs/proof/tracking-plan"],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         }
@@ -31896,7 +31976,7 @@
             "docs/plans/tracking-plan/workpacks/11-ios-core-location-foreground-adapter.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": ["docs/proof/tracking-plan"],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -31960,7 +32040,7 @@
             "docs/plans/tracking-plan/workpacks/12-ios-background-region-significant-change-adapter.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": ["docs/proof/tracking-plan"],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -31996,7 +32076,7 @@
             "docs/plans/tracking-plan/workpacks/13-desktop-location-and-presence-hint-model.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": ["docs/proof/tracking-plan"],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         }
@@ -32027,7 +32107,7 @@
             "docs/plans/tracking-plan/workpacks/14-geofence-rule-model.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": ["docs/proof/tracking-plan"],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         }
@@ -32058,7 +32138,7 @@
             "docs/plans/tracking-plan/workpacks/15-geofence-transition-engine.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": ["docs/proof/tracking-plan"],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         }
@@ -32089,7 +32169,7 @@
             "docs/plans/tracking-plan/workpacks/16-expected-place-schedule-engine.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": ["docs/proof/tracking-plan"],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         }
@@ -32120,7 +32200,7 @@
             "docs/plans/tracking-plan/workpacks/17-parent-acknowledgement-and-exception-model.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": ["docs/proof/tracking-plan"],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         }
@@ -32151,7 +32231,7 @@
             "docs/plans/tracking-plan/workpacks/18-child-check-in-flow.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": ["docs/proof/tracking-plan"],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         }
@@ -32182,7 +32262,7 @@
             "docs/plans/tracking-plan/workpacks/19-nearby-place-provider-abstraction.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": ["docs/proof/tracking-plan"],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         }
@@ -32213,7 +32293,7 @@
             "docs/plans/tracking-plan/workpacks/20-google-places-and-poi-provider-adapter.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": ["docs/proof/tracking-plan"],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         }
@@ -32244,7 +32324,7 @@
             "docs/plans/tracking-plan/workpacks/21-place-category-taxonomy-and-ambiguity-model.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": ["docs/proof/tracking-plan"],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         }
@@ -32275,7 +32355,7 @@
             "docs/plans/tracking-plan/workpacks/22-local-parent-defined-place-database.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": ["docs/proof/tracking-plan"],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         }
@@ -32306,7 +32386,7 @@
             "docs/plans/tracking-plan/workpacks/23-ai-location-safety-analysis-contracts.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": ["docs/proof/tracking-plan"],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         }
@@ -32337,7 +32417,7 @@
             "docs/plans/tracking-plan/workpacks/24-ai-provider-routing.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": ["docs/proof/tracking-plan"],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         }
@@ -32368,7 +32448,7 @@
             "docs/plans/tracking-plan/workpacks/26-alert-severity-and-notification-model.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": ["docs/proof/tracking-plan"],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         }
@@ -32381,26 +32461,79 @@
       "path": "docs/plans/tracking-plan/workpacks/30-parent-and-child-ui-ux-surfaces.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "done",
+      "lifecycleState": "done",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-        "statusText": "open",
+        "statusText": "done",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [],
+          "evidence": [
+            "docs/plans/tracking-plan/AGENTS.md",
+            "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+            "docs/plans/tracking-plan/workpacks/30-parent-and-child-ui-ux-surfaces.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "reason": "Independent live-route review found that the typed Rust tracking snapshot is already produced, but the Policy Tracking product route does not mount it, the vendor surface falsely reports that the read model is unwired, and fixed ProofPanels fixture rows are currently appended to every tracking snapshot. This review authorizes only the bounded product-consumer repair: keep fixed fixtures confined to ProofPanels, mount the existing typed live snapshot on PolicyTracking, remove the false placeholder, and add real hosted route coverage. It adds no capture, identity or authority, child/device delivery, provider delivery, policy, notification, remote sync, mutation, or product-readiness claim."
+        },
+        "proofOverride": {
+          "reason": "The checked-in WP30 manifest records the retained hosted proof hashes, typed Rust snapshot and Portal consumer chain, product versus proof route separation, missing and malformed fail-closed behavior, desktop and mobile visual inspection, exact successful focused commands, and explicit runtime, authority, delivery, replay, device, and plan-wide non-claims.",
+          "evidence": [
+            "docs/proof/tracking-plan/WP30_PARENT_CHILD_UI_UX_SURFACES_PROOF.md"
+          ],
+          "satisfiesExpected": true
+        },
+        "completionEvidenceOverride": {
+          "reason": "Reviewed the Rust-owned tracking snapshot, product-route and proof-route separation, Portal-domain and Portal consumers, fail-closed malformed and unavailable states, focused Rust and TypeScript behavior tests, real hosted desktop and mobile UI proof, and retained durable manifest. This completion is limited to product-consumer truthfulness and does not claim live location, authenticated child delivery, retention mutation, policy or notification authority, durable ingress or replay, physical-device behavior, or plan-wide product readiness.",
+          "evidence": [
+            "docs/plans/tracking-plan/workpacks/30-parent-and-child-ui-ux-surfaces.md",
+            "docs/engineering-graph/code-map.json",
+            "docs/proof/tracking-plan/WP30_PARENT_CHILD_UI_UX_SURFACES_PROOF.md"
+          ],
+          "requirements": ["checklist", "implementation", "proof", "tests"]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true,
+          "tests": true,
+          "proof": true,
+          "checklist": true
+        },
         "references": {
           "implementation": [
+            "crates/parent-runtime-core/src/parent_ui_bridge/live_activity/tracking_panel.rs",
+            "crates/parent-runtime-core/src/parent_ui_bridge/live_activity/tracking_panel/product_cards.rs",
+            "crates/parent-runtime-core/src/parent_ui_bridge/live_activity/tracking_panel/product_cards/boundaries.rs",
+            "crates/parent-runtime-core/src/parent_ui_bridge/live_activity/tracking_panel/product_cards/coverage.rs",
+            "crates/parent-runtime-core/src/parent_ui_bridge/live_activity/tracking_panel/product_cards/current.rs",
+            "crates/parent-runtime-core/src/parent_ui_bridge/live_activity/tracking_panel/row_details.rs",
+            "crates/parent-runtime-core/src/parent_ui_bridge/live_activity/snapshot/tracking.rs",
+            "packages/portal-domain/src/tracking-status-panel.ts",
+            "packages/portal-domain/src/tracking-status-panel-helpers.ts",
+            "apps/portal/src/ParentPortalRoute.tsx",
+            "apps/portal/src/TrackingStatusRoutePanel.tsx",
+            "apps/portal/src/tracking-status-route-panel-body.tsx",
+            "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface.tsx"
+          ],
+          "tests": [
+            "packages/portal-domain/tests/unit/tracking-status-panel.test.ts",
+            "apps/portal/tests/unit/tracking-status-panel.test.ts",
+            "apps/portal/tests/e2e/tracking-hosted-ui-proof.spec.ts",
+            "crates/parent-runtime-core/tests/integration/parent_ui_bridge/runtime_and_activity_tests/routes.rs",
+            "crates/parent-runtime-core/tests/integration/parent_ui_bridge/runtime_and_activity_tests/actions.rs"
+          ],
+          "proof": [
+            "docs/proof/tracking-plan/WP30_PARENT_CHILD_UI_UX_SURFACES_PROOF.md"
+          ],
+          "checklist": [
             "docs/plans/tracking-plan/workpacks/30-parent-and-child-ui-ux-surfaces.md"
           ],
-          "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
-          "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         }
       }
@@ -32430,7 +32563,7 @@
             "docs/plans/tracking-plan/workpacks/31-platform-extension-checklists-and-proof-routing.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": ["docs/proof/tracking-plan"],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         }
@@ -32461,7 +32594,7 @@
             "docs/plans/tracking-plan/workpacks/32-journal-sqlite-and-read-model-proof.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": ["docs/proof/tracking-plan"],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         }
@@ -32492,7 +32625,7 @@
             "docs/plans/tracking-plan/workpacks/34-tracking-event-contracts-and-protocol-constants.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": ["docs/proof/tracking-plan"],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         }
@@ -32523,7 +32656,7 @@
             "docs/plans/tracking-plan/workpacks/35-parent-tracking-config-command-event-flow.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": ["docs/proof/tracking-plan"],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         }
@@ -32554,7 +32687,7 @@
             "docs/plans/tracking-plan/workpacks/36-tracking-detection-cascade-event-flow.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": ["docs/proof/tracking-plan"],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         }
@@ -32608,7 +32741,7 @@
             "docs/plans/tracking-plan/workpacks/37-tracking-event-journal-replay-and-projection.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": ["docs/proof/tracking-plan"],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         }
@@ -32658,7 +32791,7 @@
             "docs/plans/tracking-plan/workpacks/38-tracking-notification-and-escalation-event-flow.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": ["docs/proof/tracking-plan"],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         }
@@ -32702,7 +32835,7 @@
             "docs/plans/tracking-plan/workpacks/39-tracking-portal-event-read-model-proof.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": ["docs/proof/tracking-plan"],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         }
@@ -32756,7 +32889,7 @@
             "docs/plans/tracking-plan/workpacks/40-trusted-tracking-runtime-ingress-and-journal-composition.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": ["docs/proof/tracking-plan"],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         }
@@ -32787,7 +32920,7 @@
             "docs/plans/tracking-plan/workpacks/device-location-tracking-capability-guide.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": ["docs/proof/tracking-plan"],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         }
@@ -32818,7 +32951,7 @@
             "docs/plans/tracking-plan/workpacks/device-location-tracking-schema-proposal.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": ["docs/proof/tracking-plan"],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         }
@@ -32849,7 +32982,7 @@
             "docs/plans/tracking-plan/workpacks/tracking-control-settings-inventory.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": ["docs/proof/tracking-plan"],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
         }
@@ -36426,12 +36559,6 @@
     {
       "from": "PLAN-data-custody-storage-plan",
       "to": "WP-data-custody-storage-plan-11-runtime-composition-and-custody-mount",
-      "kind": "contains",
-      "confidence": "structural"
-    },
-    {
-      "from": "PLAN-data-custody-storage-plan",
-      "to": "WP-data-custody-storage-plan-data-and-ai-ui-plan",
       "kind": "contains",
       "confidence": "structural"
     },
@@ -45332,7 +45459,7 @@
   ],
   "migration": {
     "importedPlans": 24,
-    "importedWorkpacks": 692,
+    "importedWorkpacks": 691,
     "unindexedWorkpackArtifacts": [
       {
         "planId": "PLAN-account-identity-family-plan",
@@ -45513,7 +45640,7 @@
         "planId": "PLAN-data-custody-storage-plan",
         "reason": "Workpack dependencies were not promoted from prose; add a reviewed override or explicit dependency metadata.",
         "path": "docs/plans/data-custody-storage-plan/WORKPACK_INDEX.md",
-        "workpackCount": 12
+        "workpackCount": 11
       },
       {
         "planId": "PLAN-device-trust-bootstrap-plan",

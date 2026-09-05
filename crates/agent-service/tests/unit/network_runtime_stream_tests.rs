@@ -3,6 +3,10 @@ use std::path::PathBuf as TestPathBuf;
 use std::primitive::str as TestStr;
 use std::string::String as TestString;
 
+use crate::network_runtime_test_support::{
+    lock_activity_report_env_for_test, network_runtime_event_chain_stream_payload_for_test,
+    seed_network_runtime_for_test, stream_network_runtime_event_chain_for_read_model_for_test,
+};
 use crate::test_text::TestText;
 use ocentra_parent_agent_core::{
     activity_store::ActivityStore, network_capture::NetworkObservation,
@@ -26,10 +30,6 @@ use ocentra_parent_agent_protocol::network_flow::{
 };
 use ocentra_parent_agent_protocol::policy_constants;
 use ocentra_parent_agent_protocol::{ACTIVITY_SCHEMA_VERSION, NETWORK_FLOW_SCHEMA_VERSION};
-use ocentra_parent_agent_service::test_support::{
-    lock_activity_report_env_for_test, network_runtime_event_chain_stream_payload_for_test,
-    seed_network_runtime_for_test, stream_network_runtime_event_chain_for_read_model_for_test,
-};
 use serde_json::Value;
 
 #[tokio::test]
@@ -37,8 +37,8 @@ async fn service_network_runtime_streams_protocol_event_chain_entries(
 ) -> Result<(), Box<dyn std::error::Error>> {
     let _guard = lock_activity_report_env_for_test().await;
     let model = read_model(vec![full_metadata_row()]);
-    seed_network_runtime_for_test(&model).await;
-    let report = stream_network_runtime_event_chain_for_read_model_for_test(&model).await;
+    seed_network_runtime_for_test(&model).await?;
+    let report = stream_network_runtime_event_chain_for_read_model_for_test(&model).await?;
     let payload = network_runtime_event_chain_stream_payload_for_test(&report);
     let entries = stream_entries(&payload);
 
@@ -96,8 +96,8 @@ async fn service_network_runtime_stream_skips_enforcement_for_manual_required_ro
 ) -> Result<(), Box<dyn std::error::Error>> {
     let _guard = lock_activity_report_env_for_test().await;
     let model = read_model(vec![partial_metadata_row()]);
-    seed_network_runtime_for_test(&model).await;
-    let report = stream_network_runtime_event_chain_for_read_model_for_test(&model).await;
+    seed_network_runtime_for_test(&model).await?;
+    let report = stream_network_runtime_event_chain_for_read_model_for_test(&model).await?;
     let entries = stream_entries(&network_runtime_event_chain_stream_payload_for_test(
         &report,
     ));
@@ -130,7 +130,7 @@ async fn network_runtime_stream_reports_tombstone_without_streaming_deleted_row(
     let _guard = lock_activity_report_env_for_test().await;
     let store_path = temp_path(&TestText::from_display(
         constants::activity_store::TEST_NETWORK_STORE_SUFFIX,
-    ));
+    ))?;
     cleanup_path(&store_path);
     std::env::set_var(constants::env_var::ACTIVITY_DB_PATH, &store_path);
 
@@ -151,9 +151,9 @@ async fn network_runtime_stream_reports_tombstone_without_streaming_deleted_row(
         )
         .map_err(|error| std::io::Error::other(format!("{error:?}")))?;
     drop(store);
-    seed_network_runtime_for_test(&store_read_model).await;
+    seed_network_runtime_for_test(&store_read_model).await?;
     let report =
-        stream_network_runtime_event_chain_for_read_model_for_test(&store_read_model).await;
+        stream_network_runtime_event_chain_for_read_model_for_test(&store_read_model).await?;
     let payload = network_runtime_event_chain_stream_payload_for_test(&report);
     let entries = stream_entries(&payload);
 
@@ -212,20 +212,6 @@ fn full_metadata_row() -> ActivityNetworkFlowObservation {
 
 fn partial_metadata_row() -> ActivityNetworkFlowObservation {
     row_with_event_id("network-flow-event-partial-1", None, None, None, Some(0))
-}
-
-fn row(
-    destination_domain: Option<TestString>,
-    process_name: Option<TestString>,
-    process_id: Option<u64>,
-) -> ActivityNetworkFlowObservation {
-    row_with_event_id(
-        constants::activity_store::TEST_NETWORK_EVENT_ID,
-        destination_domain,
-        process_name,
-        process_id,
-        Some(1),
-    )
 }
 
 fn row_with_event_id(
@@ -345,7 +331,7 @@ fn stream_entries(payload: &LogFields) -> Vec<Value> {
     }
 }
 
-fn temp_path(suffix: &TestText) -> TestPathBuf {
+fn temp_path(suffix: &TestText) -> Result<TestPathBuf, std::io::Error> {
     let mut name = TestString::from(constants::activity_store::TEST_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);
@@ -357,10 +343,10 @@ fn temp_path(suffix: &TestText) -> TestPathBuf {
         .join("target")
         .join("test-artifacts")
         .join("network-runtime-stream");
-    create_dir_all(&artifact_dir).expect("network runtime stream artifact directory must exist");
+    create_dir_all(&artifact_dir)?;
     let mut path = artifact_dir.join(name);
     path.set_extension(constants::activity_store::FILE_EXTENSION);
-    path
+    Ok(path)
 }
 
 fn cleanup_path(path: &TestPathBuf) {

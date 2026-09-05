@@ -16,15 +16,15 @@ pub(crate) fn validate(connection: &Connection) -> Result<u64, AccountIdentityIs
                     public_key, key_state, authority_generation, revoked_generation, service_label
              FROM account_identity_issuer_key_registry",
         )
-        .map_err(|_| AccountIdentityIssuerError::Unavailable)?;
+        .map_err(|_error| AccountIdentityIssuerError::Unavailable)?;
     let mut rows = statement
         .query([])
-        .map_err(|_| AccountIdentityIssuerError::Unavailable)?;
+        .map_err(|_error| AccountIdentityIssuerError::Unavailable)?;
     let mut active_count = 0_u64;
     let mut seen_key_ids = HashSet::new();
     while let Some(row) = rows
         .next()
-        .map_err(|_| AccountIdentityIssuerError::Unavailable)?
+        .map_err(|_error| AccountIdentityIssuerError::Unavailable)?
     {
         if validate_row(row, &mut seen_key_ids)? {
             active_count = active_count
@@ -55,34 +55,34 @@ fn validate_row(
     let durable = DurableKeyRow {
         account_id: row
             .get(0)
-            .map_err(|_| AccountIdentityIssuerError::InvalidKeyRecord)?,
+            .map_err(|_error| AccountIdentityIssuerError::InvalidKeyRecord)?,
         household_id: row
             .get(1)
-            .map_err(|_| AccountIdentityIssuerError::InvalidKeyRecord)?,
+            .map_err(|_error| AccountIdentityIssuerError::InvalidKeyRecord)?,
         binding_id: row
             .get(2)
-            .map_err(|_| AccountIdentityIssuerError::InvalidKeyRecord)?,
+            .map_err(|_error| AccountIdentityIssuerError::InvalidKeyRecord)?,
         key_id: row
             .get(3)
-            .map_err(|_| AccountIdentityIssuerError::InvalidKeyRecord)?,
+            .map_err(|_error| AccountIdentityIssuerError::InvalidKeyRecord)?,
         key_version: row
             .get(4)
-            .map_err(|_| AccountIdentityIssuerError::InvalidKeyRecord)?,
+            .map_err(|_error| AccountIdentityIssuerError::InvalidKeyRecord)?,
         public_key: row
             .get(5)
-            .map_err(|_| AccountIdentityIssuerError::InvalidKeyRecord)?,
+            .map_err(|_error| AccountIdentityIssuerError::InvalidKeyRecord)?,
         key_state: row
             .get(6)
-            .map_err(|_| AccountIdentityIssuerError::InvalidKeyRecord)?,
+            .map_err(|_error| AccountIdentityIssuerError::InvalidKeyRecord)?,
         authority_generation: row
             .get(7)
-            .map_err(|_| AccountIdentityIssuerError::InvalidKeyRecord)?,
+            .map_err(|_error| AccountIdentityIssuerError::InvalidKeyRecord)?,
         revoked_generation: row
             .get(8)
-            .map_err(|_| AccountIdentityIssuerError::InvalidKeyRecord)?,
+            .map_err(|_error| AccountIdentityIssuerError::InvalidKeyRecord)?,
         service_label: row
             .get(9)
-            .map_err(|_| AccountIdentityIssuerError::InvalidKeyRecord)?,
+            .map_err(|_error| AccountIdentityIssuerError::InvalidKeyRecord)?,
     };
     validate_record(&durable, seen_key_ids)
 }
@@ -106,9 +106,9 @@ fn validate_record(
         .public_key
         .clone()
         .try_into()
-        .map_err(|_| AccountIdentityIssuerError::InvalidKeyRecord)?;
+        .map_err(|_error| AccountIdentityIssuerError::InvalidKeyRecord)?;
     let verifying_key = VerifyingKey::from_bytes(&public_key)
-        .map_err(|_| AccountIdentityIssuerError::InvalidKeyRecord)?;
+        .map_err(|_error| AccountIdentityIssuerError::InvalidKeyRecord)?;
     if crate::account_identity_authority_producer::expected_key_id(&verifying_key) != durable.key_id
         || !seen_key_ids.insert(durable.key_id.clone())
     {
@@ -117,7 +117,7 @@ fn validate_record(
     let service = AccountIdentityIssuerService::from_label(&durable.service_label)
         .ok_or(AccountIdentityIssuerError::InvalidKeyRecord)?;
     let generation = u64::try_from(durable.authority_generation)
-        .map_err(|_| AccountIdentityIssuerError::InvalidKeyRecord)?;
+        .map_err(|_error| AccountIdentityIssuerError::InvalidKeyRecord)?;
     if AccountIdentityIssuerServiceBinding::expected_binding_id(
         service,
         &durable.account_id,

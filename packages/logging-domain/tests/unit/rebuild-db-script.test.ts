@@ -38,7 +38,7 @@ function runScript(
   return { stdout: result.stdout, stderr: result.stderr, status: result.status };
 }
 
-it('rebuild-db-from-ndjson rebuilds from the scoped NDJSON store', () => {
+it.skipIf(process.platform !== 'win32')('rebuild-db-from-ndjson rebuilds from the scoped NDJSON store', () => {
   const tempDir = makeTempDir();
   try {
     const scopeDir = path.join(tempDir, 'test-logs', 'parent-test', 'single', 'unit');

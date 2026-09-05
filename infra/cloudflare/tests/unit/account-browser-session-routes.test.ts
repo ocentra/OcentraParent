@@ -6,10 +6,7 @@ import {
   refreshBrowserSession,
   revokeBrowserSessions,
 } from '../../src/auth/browser-session-routes.js';
-import {
-  createAuthVerifier,
-  type VerifiedIdentity,
-} from '../../src/auth/verifier.js';
+import { createAuthVerifier, type VerifiedIdentity } from '../../src/auth/verifier.js';
 import { createFirebaseProviderVerificationPort } from '../../src/providers/firebase-auth.js';
 import { createTestHarness, readJson } from '../../src/testing.js';
 import type { Env } from '../../src/env.js';

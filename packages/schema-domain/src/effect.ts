@@ -21,7 +21,8 @@ type EncodedOf<S extends AnySchema> = EffectSchema.Schema.Encoded<S>;
 type ContextOf<S extends AnySchema> = EffectSchema.Schema.Context<S>;
 
 export type SafeParseResult<T> =
-  { readonly success: true; readonly data: T } | { readonly success: false; readonly error: SchemaDecodeError };
+  | { readonly success: true; readonly data: T }
+  | { readonly success: false; readonly error: SchemaDecodeError };
 
 export type Infer<S extends AnySchema> = TypeOf<S>;
 

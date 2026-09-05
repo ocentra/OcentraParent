@@ -34,9 +34,9 @@ function samplePanel(): ParentBrowserPanelSnapshot {
 }
 
 describe('browser parent explanation route panel', () => {
-  it('mounts only on the proof-panels route', () => {
-    expect(shouldRenderBrowserParentExplanationRoute(ParentRoute.ProofPanels)).toBe(true);
-    expect(shouldRenderBrowserParentExplanationRoute(ParentRoute.AppGameSessions)).toBe(false);
+  it('mounts only on the Browser product route', () => {
+    expect(shouldRenderBrowserParentExplanationRoute(ParentRoute.Browser)).toBe(true);
+    expect(shouldRenderBrowserParentExplanationRoute(ParentRoute.ProofPanels)).toBe(false);
   });
 
   it('renders the Rust-owned browser explanation snapshot', () => {

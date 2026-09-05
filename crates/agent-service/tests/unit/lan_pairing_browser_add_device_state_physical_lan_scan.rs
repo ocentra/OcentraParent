@@ -27,11 +27,11 @@ use super::{
 use crate::app::lan_pairing::LanPairingRuntime;
 use crate::app::lan_pairing_browser_add_device_state::scan_history::LanScanHistorySnapshot;
 use crate::lan_pairing_browser_add_device_state::scan_history::load_scan_history_snapshot;
-use crate::lan_pairing_test_commands::paired_runtime;
 use crate::lan_runtime_test_support::{
     cleanup_persistent_runtime, persistent_runtime_with_devices, write_scan_history_snapshot,
 };
-use crate::test_invariants::{require_ok, require_some};
+use crate::test_require_ok::require_ok;
+use crate::test_require_some::require_some;
 
 #[test]
 fn status_and_scan_commands_keep_physical_lan_inventory_enabled() {
@@ -169,7 +169,10 @@ fn localhost_status_and_runtime_stream_preserve_recent_cached_snapshot_context()
     cleanup_persistent_runtime(&registry_path);
 
     assert_eq!(status.devices.len(), 1);
-    assert_eq!(status.devices[0].ip_address, constants::lan_pairing::TEST_LAN_IP);
+    assert_eq!(
+        status.devices[0].ip_address,
+        constants::lan_pairing::TEST_LAN_IP
+    );
     assert_eq!(stream, status);
     assert_eq!(stream.previous_scan_snapshot, Some(snapshot.clone()));
     assert_eq!(stream.current_scan_snapshot, Some(snapshot));
@@ -369,7 +372,7 @@ fn stored_known_child_agent_truth_feeds_identity_and_scan_context_without_scan_h
 
 #[tokio::test]
 async fn scan_truth_context_reuses_registry_and_history_truth_without_agentless_devices() {
-    let runtime = paired_runtime().await;
+    let runtime = LanPairingRuntime::empty();
     {
         let mut registry = require_ok(
             runtime.registry.lock(),
@@ -393,9 +396,10 @@ async fn scan_truth_context_reuses_registry_and_history_truth_without_agentless_
 
     let context = scan_truth_context(&runtime, Some(&snapshot), now);
 
-    assert_eq!(context.paired_registry_truth_count, 1);
+    assert_eq!(context.paired_registry_truth_count, 0);
     assert_eq!(context.recent_previous_agent_truth_count, 1);
-    assert_eq!(context.identity_hint_devices.len(), 3);
+    assert_eq!(context.durable_household_truth_count, 2);
+    assert_eq!(context.identity_hint_devices.len(), 2);
     assert!(context
         .identity_hint_devices
         .iter()

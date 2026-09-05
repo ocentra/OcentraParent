@@ -4,6 +4,8 @@ use ocentra_storage_custody_core::export_import_backup_recovery::
         advance_backup_job, BackupJobStateError, BackupJobTransition,
     };
 
+use super::support::StorageCustodyTestValueExt;
+
 #[test]
 fn backup_job_transition_round_trips_durable_refs_without_minting_provider_success() {
     let scheduled = sample_backup_job();
@@ -17,7 +19,7 @@ fn backup_job_transition_round_trips_durable_refs_without_minting_provider_succe
             manual_required_note: None,
         },
     )
-    .expect("scheduled job can be claimed");
+    .assume_ok();
     let running = advance_backup_job(
         &claimed,
         BackupJobTransition {
@@ -28,11 +30,11 @@ fn backup_job_transition_round_trips_durable_refs_without_minting_provider_succe
             manual_required_note: None,
         },
     )
-    .expect("claimed job can enter running state");
+    .assume_ok();
 
-    let encoded = serde_json::to_vec(&running).expect("backup job serializes");
+    let encoded = serde_json::to_vec(&running).assume_ok();
     let decoded: contracts::ExportImportBackupJobRecord =
-        serde_json::from_slice(&encoded).expect("backup job deserializes");
+        serde_json::from_slice(&encoded).assume_ok();
 
     assert_eq!(decoded, running);
     assert_eq!(decoded.attempt, 1);
@@ -74,7 +76,7 @@ fn backup_job_transition_rejects_invalid_timestamp_and_provider_reference_shapes
             manual_required_note: None,
         },
     )
-    .expect("scheduled job can be claimed");
+    .assume_ok();
     assert_eq!(
         advance_backup_job(
             &claimed,
@@ -91,32 +93,30 @@ fn backup_job_transition_rejects_invalid_timestamp_and_provider_reference_shapes
 }
 
 fn sample_backup_job() -> contracts::ExportImportBackupJobRecord {
-    let parsed = |value: &str| contracts::ExportImportJobRef::parse(value).expect("job reference");
+    let parsed = |value: &str| contracts::ExportImportJobRef::parse(value).assume_ok();
     contracts::ExportImportBackupJobRecord {
         job_ref: parsed("backup-job-wp05-runtime-round-trip"),
         schedule_ref: contracts::ExportImportScheduleRef::parse(
             "backup-schedule-wp05-runtime-round-trip",
         )
-        .expect("schedule reference"),
+        .assume_ok(),
         bundle_id: contracts::ExportImportBundleId::parse("backup-bundle-wp05-runtime-round-trip")
-            .expect("bundle reference"),
+            .assume_ok(),
         household_id: contracts::ExportImportHouseholdId::parse(
             "backup-household-wp05-runtime-round-trip",
         )
-        .expect("household reference"),
+        .assume_ok(),
         cadence: contracts::ExportImportBackupCadence::Manual,
         lifecycle: contracts::ExportImportBackupJobLifecycle::Scheduled,
         attempt: 0,
         idempotency_ref: contracts::ExportImportIdempotencyRef::parse(
             "backup-job-wp05-runtime-round-trip:initial",
         )
-        .expect("idempotency reference"),
+        .assume_ok(),
         execution_ref: None,
         provider_operation_ref: None,
-        created_at: contracts::ExportImportTimestamp::parse("2026-08-28T19:00:00.000Z")
-            .expect("created timestamp"),
-        updated_at: contracts::ExportImportTimestamp::parse("2026-08-28T19:00:00.000Z")
-            .expect("updated timestamp"),
+        created_at: contracts::ExportImportTimestamp::parse("2026-08-28T19:00:00.000Z").assume_ok(),
+        updated_at: contracts::ExportImportTimestamp::parse("2026-08-28T19:00:00.000Z").assume_ok(),
         manual_required_note: None,
     }
 }

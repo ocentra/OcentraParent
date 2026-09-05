@@ -2,8 +2,8 @@ use rusqlite::params;
 
 use crate::device_trust_lifecycle::{
     to_sql_generation, DeviceTrustLifecycleError, DeviceTrustLifecycleEventKind,
-    DeviceTrustLifecycleRepository, DeviceTrustLifecycleState, LifecycleEventInput,
-    SealingCustodyAuthorization,
+    DeviceTrustLifecycleRepository, DeviceTrustLifecycleRow, DeviceTrustLifecycleState,
+    LifecycleEventInput, SealingCustodyAuthorization,
 };
 
 const PENDING: &str = "pending";
@@ -83,9 +83,15 @@ impl From<SealingCustodyAuthorization> for ActivationContext {
 impl ActivationContext {
     fn validate_row(
         &self,
-        row: (String, u64, String, u64, u64),
+        row: DeviceTrustLifecycleRow,
     ) -> Result<ActivationTransition, DeviceTrustLifecycleError> {
-        let (state, lifecycle, installation, binding, authority) = row;
+        let DeviceTrustLifecycleRow {
+            state,
+            lifecycle_generation: lifecycle,
+            installation_id: installation,
+            installation_binding_generation: binding,
+            authority_generation: authority,
+        } = row;
         if state != PENDING {
             return Err(DeviceTrustLifecycleError::InvalidState);
         }

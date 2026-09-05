@@ -29,7 +29,7 @@ pub fn foreground_window_event_from_system(
     foreground_window_observation_event_with_process_identity(
         observation,
         observed_at,
-        process_identity,
+        process_identity.as_deref(),
     )
 }
 
@@ -43,7 +43,7 @@ pub fn foreground_window_observation_event(
 fn foreground_window_observation_event_with_process_identity(
     observation: ForegroundWindowObservation,
     observed_at: &str,
-    process_identity: Option<String>,
+    process_identity: Option<&str>,
 ) -> ActivityEvent {
     let ForegroundWindowObservation {
         status,
@@ -66,32 +66,32 @@ fn foreground_window_observation_event_with_process_identity(
     insert_optional_text(
         &mut fields,
         constants::field::PROCESS_IDENTITY,
-        &process_identity,
+        process_identity,
     );
     insert_optional_text(
         &mut fields,
         constants::field::APP_NAME,
-        &observation.app_name,
+        observation.app_name.as_deref(),
     );
     insert_optional_text(
         &mut fields,
         constants::field::PROCESS_PATH,
-        &observation.process_path,
+        observation.process_path.as_deref(),
     );
     insert_optional_text(
         &mut fields,
         constants::field::WINDOW_ID,
-        &observation.window_id,
+        observation.window_id.as_deref(),
     );
     insert_optional_text(
         &mut fields,
         constants::field::WINDOW_TITLE,
-        &observation.title,
+        observation.title.as_deref(),
     );
 
     ActivityEvent {
         schema_version: ACTIVITY_SCHEMA_VERSION,
-        event_id: window_event_id(&observation, process_identity.as_deref(), observed_at),
+        event_id: window_event_id(&observation, process_identity, observed_at),
         observed_at: observed_at.to_string(),
         source: ActivitySource {
             device_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
@@ -144,9 +144,9 @@ fn insert_optional_number(fields: &mut LogFields, key: &str, value: Option<u32>)
     }
 }
 
-fn insert_optional_text(fields: &mut LogFields, key: &str, value: &Option<String>) {
+fn insert_optional_text(fields: &mut LogFields, key: &str, value: Option<&str>) {
     if let Some(value) = value {
-        fields.insert(key.to_string(), LogFieldValue::String(value.clone()));
+        fields.insert(key.to_string(), LogFieldValue::String(value.to_owned()));
     }
 }
 

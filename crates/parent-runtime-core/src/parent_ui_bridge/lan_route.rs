@@ -28,6 +28,7 @@ use self::route_flags::{
 };
 pub(super) type LanRouteQuery = route_state::LanRouteQuery;
 
+#[derive(Clone, Copy)]
 pub(super) enum LanReadModelUnavailableReason {
     AgentServiceOperationFailed,
 }
@@ -42,7 +43,7 @@ pub(super) enum LanReadModelState<'a> {
 }
 
 impl LanRouteQuery {
-    pub(crate) fn read_model_state(&self) -> LanReadModelState<'_> {
+    pub(super) fn read_model_state(&self) -> LanReadModelState<'_> {
         match self {
             Self::NotRequired => LanReadModelState::NotRequested,
             Self::Available(snapshot) => LanReadModelState::Available(&snapshot.read_model),

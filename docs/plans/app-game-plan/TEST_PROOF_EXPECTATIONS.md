@@ -80,6 +80,24 @@ platform E2E: real platform/OS/permission state -> adapter output -> cleanup/rol
 
 A workpack can be complete for one tier while other tiers remain open. Record the non-claim instead of broad DONE.
 
+## WP197 Linux Docker host preflight
+
+Run the executable proof runner after the WP197 source and real test roots are
+closed:
+
+```text
+npm run proof:app-game-wp197 -- --cargo-target-dir=<isolated-target>
+```
+
+The runner must retain exactly the scope summary, negative-case proof,
+no-claim boundary, compact validation log, and raw command logs under
+`output/app-game-plan-proof/197-app-game-linux-docker-host-preflight/`. A green
+result proves the protocol shape, bounded/redacted count projection,
+unavailable and malformed fail-closed states, cache behavior, path-security
+negatives, cleanup-owner degradation, and route rejection. It does not prove
+Docker policy execution, enforcement, provider delivery, child delivery, or
+private Docker identifier custody.
+
 ## Structured harness logging expectations
 
 Every app/game implementation/proof slice must preserve both product-safe logging and local harness logging.

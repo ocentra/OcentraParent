@@ -25,9 +25,9 @@ mod transition;
 mod windows;
 mod writer;
 
-#[cfg(test)]
+#[path = "../../tests/unit/broker_admission_platform_tpm_nv_counter.rs"]
 mod tpm_nv_counter_test;
-#[cfg(test)]
+#[path = "../../tests/unit/broker_admission_platform_windows_adapter.rs"]
 mod windows_adapter_test;
 
 #[cfg(windows)]

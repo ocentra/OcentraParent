@@ -1,4 +1,4 @@
-use ocentra_eventing::envelope::{DomainEvent, EventEnvelope, EventMetadata};
+use ocentra_eventing::envelope::{EventEnvelope, EventMetadata};
 use ocentra_storage_custody_core::storage_custody::{
     storage_custody_action_planned_event, storage_custody_decision_recorded_event,
     StorageCustodyActionPlannedEvent, StorageCustodyAggregateId, StorageCustodyDecisionId,
@@ -74,8 +74,6 @@ impl ChildStorageCustodyRuntime {
             .prepare(prepare_record(
                 &self.authority,
                 operation_ref.clone(),
-                effect_kind,
-                request.effect.reference(),
                 &request.effect,
                 input,
                 action.clone(),

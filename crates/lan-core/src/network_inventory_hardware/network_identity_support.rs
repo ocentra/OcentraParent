@@ -1,6 +1,5 @@
 mod address;
 mod prefix;
-mod record_values;
 
 use serde::{Deserialize, Serialize};
 
@@ -40,20 +39,6 @@ pub(super) fn sanitized_dns_servers(values: Vec<String>) -> Vec<String> {
     dns_servers
 }
 
-pub(super) fn record_text_values(record: &serde_json::Value, field_name: &str) -> Vec<String> {
-    record_values::record_text_values(record, field_name)
-}
-
-pub(super) fn normalized_ipv6_prefixes(values: Vec<String>) -> Vec<String> {
-    let mut prefixes = Vec::new();
-    for value in values {
-        if let Some(prefix) = normalized_ipv6_prefix(&value) {
-            push_unique_string(&mut prefixes, prefix);
-        }
-    }
-    prefixes
-}
-
 pub(super) fn normalized_ipv6_prefix(value: &str) -> Option<String> {
     prefix::normalized_ipv6_prefix(value)
 }
@@ -71,10 +56,6 @@ pub(super) fn push_unique_string_if(values: &mut Vec<String>, value: &str, inclu
     if include {
         push_unique_string(values, value.to_string());
     }
-}
-
-pub(super) fn ignored_interface_name(interface_name: &str) -> bool {
-    ignored_interface_reason(interface_name).is_some()
 }
 
 pub fn ignored_interface_reason(interface_name: &str) -> Option<LocalNetworkInterfaceIgnoreReason> {
@@ -100,10 +81,6 @@ pub fn stable_interface_id(
             let normalized = interface_name.trim().to_ascii_lowercase();
             (!normalized.is_empty()).then(|| format!("name:{normalized}"))
         })
-}
-
-pub(super) fn default_gateway_preference(default_gateway: Option<&str>) -> u8 {
-    u8::from(default_gateway.is_none())
 }
 
 fn interface_ignore_reason(normalized: &str) -> Option<LocalNetworkInterfaceIgnoreReason> {

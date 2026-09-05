@@ -25,7 +25,8 @@ impl NetworkRuntimeSpine {
             path.as_path().to_path_buf(),
         ));
         journal.recover().await?;
-        let shared_journal: ocentra_eventing::journal::SharedEventJournal = journal.clone();
+        let journal_for_bus = Arc::clone(&journal);
+        let shared_journal: ocentra_eventing::journal::SharedEventJournal = journal_for_bus;
         let bus = EventBus::with_journal(
             JournalPolicy::before_dispatch(JournalSelector::All),
             shared_journal,

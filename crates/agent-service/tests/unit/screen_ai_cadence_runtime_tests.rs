@@ -17,16 +17,25 @@ use ocentra_parent_screen_capture_adapter::{
     CapturedScreenImage, ScreenCaptureMetadata, ScreenCaptureScope,
 };
 
-use super::{
-    screen_ai_cadence_runtime::{ScreenAiCadenceRuntimeConfig, ScreenAiCadenceTickClock},
-    screen_ai_cadence_runtime_event::{
-        record_captured_screen_image_to_paths, ScreenAiServiceCapturePaths,
-        ScreenAiServiceCaptureRecord,
-    },
+use super::screen_ai_cadence_runtime_event::{
+    record_captured_screen_image_to_paths, ScreenAiServiceCaptureClock,
+    ScreenAiServiceCapturePaths, ScreenAiServiceCaptureRecord,
 };
-use crate::test_invariants::{require_json_decode, require_ok, require_some};
+use crate::test_require_json_decode::require_json_decode;
+use crate::test_require_ok::require_ok;
+use crate::test_require_some::require_some;
 
 static TEST_SEQUENCE: AtomicU64 = AtomicU64::new(0);
+
+#[test]
+fn screen_event_runtime_error_reports_the_fail_closed_reason() {
+    assert_eq!(
+        crate::activity_capture::ActivityCaptureError::ScreenAiEventRuntime
+            .reason()
+            .to_string(),
+        constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBER_REJECTS
+    );
+}
 
 #[test]
 fn screen_cadence_capture_writes_encrypted_queue_and_read_model_event() {
@@ -37,28 +46,20 @@ fn screen_cadence_capture_writes_encrypted_queue_and_read_model_event() {
             constants::error::ACTIVITY_STORE_INGESTS,
         );
     }
-    let config = ScreenAiCadenceRuntimeConfig {
-        screen_analysis_enabled: true,
-        cadence_capture_enabled: true,
-        cadence_seconds: 1,
-        max_captures: Some(1),
-        max_ticks: Some(1),
-        max_pending_queue_records: 3,
-        temporary_image_ttl_seconds:
-            ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_TEMPORARY_IMAGE_TTL_SECONDS_DEFAULT,
-        queue_dir: root.join(constants::activity_store::TEST_SCREEN_QUEUE_SUFFIX),
-        journal_path: root.join(constants::activity_store::TEST_CAPTURE_JOURNAL_SUFFIX),
-        journal_key_path: root.join(constants::activity_store::TEST_CAPTURE_KEY_SUFFIX),
-        store_path: root.join(constants::activity_store::TEST_CAPTURE_STORE_SUFFIX),
-    };
+    let queue_dir = root.join(constants::activity_store::TEST_SCREEN_QUEUE_SUFFIX);
+    let journal_path = root.join(constants::activity_store::TEST_CAPTURE_JOURNAL_SUFFIX);
+    let journal_key_path = root.join(constants::activity_store::TEST_CAPTURE_KEY_SUFFIX);
+    let store_path = root.join(constants::activity_store::TEST_CAPTURE_STORE_SUFFIX);
+    let temporary_image_ttl_seconds =
+        ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_TEMPORARY_IMAGE_TTL_SECONDS_DEFAULT;
     let image = captured_test_image();
 
     let queue_job_id = record_captured_screen_image_to_paths(ScreenAiServiceCaptureRecord {
         paths: ScreenAiServiceCapturePaths {
-            queue_dir: &config.queue_dir,
-            journal_path: &config.journal_path,
-            journal_key_path: &config.journal_key_path,
-            store_path: &config.store_path,
+            queue_dir: &queue_dir,
+            journal_path: &journal_path,
+            journal_key_path: &journal_key_path,
+            store_path: &store_path,
         },
         image: &image,
         clock: cadence_clock(2, constants::activity_store::TEST_SECOND_OBSERVED_AT),
@@ -72,13 +73,11 @@ fn screen_cadence_capture_writes_encrypted_queue_and_read_model_event() {
         summary: SCREEN_SERVICE_SUMMARY_CAPTURED,
         model_id: SCREEN_SERVICE_MODEL_ID,
         template_version: SCREEN_SERVICE_TEMPLATE_VERSION,
-        temporary_image_ttl_seconds: config.temporary_image_ttl_seconds,
+        temporary_image_ttl_seconds,
     });
     let queue_job_id = require_ok(queue_job_id, constants::error::ACTIVITY_STORE_INGESTS);
 
-    let queue_file = config
-        .queue_dir
-        .join(constants::activity_store::SCREEN_EVIDENCE_QUEUE_FILE_NAME);
+    let queue_file = queue_dir.join(constants::activity_store::SCREEN_EVIDENCE_QUEUE_FILE_NAME);
     let queue_record = require_ok(
         fs::read_to_string(queue_file),
         constants::error::ACTIVITY_STORE_OPENS,
@@ -112,7 +111,7 @@ fn screen_cadence_capture_writes_encrypted_queue_and_read_model_event() {
     );
 
     let store = require_ok(
-        ActivityStore::open(&config.store_path),
+        ActivityStore::open(&store_path),
         constants::error::ACTIVITY_STORE_OPENS,
     );
     let summary = require_ok(
@@ -139,12 +138,27 @@ fn screen_cadence_capture_writes_encrypted_queue_and_read_model_event() {
     );
 }
 
+#[test]
+fn screen_capture_clock_reports_a_current_rfc3339_timestamp() {
+    let clock = ScreenAiServiceCaptureClock::from_system_time();
+    let parsed = require_ok(
+        chrono::DateTime::parse_from_rfc3339(clock.timestamp.as_str()),
+        constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES,
+    );
+
+    assert_ne!(clock.epoch_seconds, 0);
+    assert_eq!(
+        parsed.to_rfc3339_opts(chrono::SecondsFormat::Millis, true),
+        clock.timestamp
+    );
+}
+
 fn cadence_clock(
     epoch_seconds: u64,
     timestamp: impl std::fmt::Display,
-) -> ScreenAiCadenceTickClock {
+) -> ScreenAiServiceCaptureClock {
     let timestamp = timestamp.to_string();
-    ScreenAiCadenceTickClock {
+    ScreenAiServiceCaptureClock {
         epoch_seconds,
         timestamp,
     }

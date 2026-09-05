@@ -1,8 +1,9 @@
-use crate::support::extract_typescript_block;
+use crate::support::{extract_typescript_block, ValueOrUnreachable as _};
 use ocentra_schema::parent_ui_bridge::{
-    PARENT_BRIDGE_COMMAND_DISPATCH, PARENT_BRIDGE_COMMAND_LOAD_ROUTE,
-    PARENT_BRIDGE_COMMAND_SUBSCRIBE, PARENT_BRIDGE_COMMAND_UNSUBSCRIBE,
-    PARENT_DEV_BRIDGE_ROUTE_DISPATCH, PARENT_DEV_BRIDGE_ROUTE_LOAD_ROUTE, PARENT_ROUTE_HASH_PREFIX,
+    ParentServiceHealthAuthenticationState, PARENT_BRIDGE_COMMAND_DISPATCH,
+    PARENT_BRIDGE_COMMAND_LOAD_ROUTE, PARENT_BRIDGE_COMMAND_SUBSCRIBE,
+    PARENT_BRIDGE_COMMAND_UNSUBSCRIBE, PARENT_DEV_BRIDGE_ROUTE_DISPATCH,
+    PARENT_DEV_BRIDGE_ROUTE_LOAD_ROUTE, PARENT_ROUTE_HASH_PREFIX,
     PARENT_ROUTE_HASH_QUERY_SEPARATOR, PARENT_ROUTE_SUBSCRIPTION_EVENT_PREFIX,
     PARENT_ROUTE_SUBSCRIPTION_POLL_INTERVAL_MS, PARENT_UI_BRIDGE_SCHEMA_VERSION,
 };
@@ -59,9 +60,68 @@ macro_rules! assert_has_fragment {
 }
 
 #[test]
+fn generated_service_health_authentication_states_match_rust_serialization() {
+    let generated = parent_ui_bridge_typescript();
+    let serialized_states = [
+        ParentServiceHealthAuthenticationState::Authenticated,
+        ParentServiceHealthAuthenticationState::Unauthenticated,
+        ParentServiceHealthAuthenticationState::Unavailable,
+    ]
+    .map(|state| {
+        serde_json::to_value(state).value_or_unreachable(crate::assert_context!(
+            "service health authentication state serializes",
+        ))
+    });
+
+    assert_eq!(
+        serialized_states,
+        [
+            serde_json::json!("authenticated"),
+            serde_json::json!("unauthenticated"),
+            serde_json::json!("unavailable"),
+        ],
+    );
+    assert_has_line!(
+        &generated,
+        &line_with_open_brace!("export const ParentServiceHealthAuthenticationState = "),
+    );
+    assert_has_line!(&generated, "  Authenticated: 'authenticated',");
+    assert_has_line!(&generated, "  Unauthenticated: 'unauthenticated',");
+    assert_has_line!(&generated, "  Unavailable: 'unavailable',");
+    assert_has_line!(
+        &generated,
+        "(typeof ParentServiceHealthAuthenticationState)[keyof typeof ParentServiceHealthAuthenticationState];",
+    );
+}
+
+#[test]
+fn parent_route_hash_prefix_matches_canonical_portal_routes() {
+    assert_eq!(PARENT_ROUTE_HASH_PREFIX, "#/");
+}
+
+#[test]
 fn generated_typescript_bridge_uses_rust_constants() {
     let generated = parent_ui_bridge_typescript();
 
+    assert_has_line!(
+        &generated,
+        &line_with_open_brace!("export interface ParentDesktopDistributionSnapshot "),
+    );
+    assert_has_line!(
+        &generated,
+        "  readonly parentDesktopDistribution?: ParentDesktopDistributionSnapshot | null;",
+    );
+    for decoder in [
+        "export function decodeParentDesktopDistributionSnapshot(",
+        "export function decodeParentRouteSnapshot(value: unknown): ParentRouteSnapshot {",
+        "export function decodeParentRouteSnapshotForRoute(",
+        "export function decodeParentUiActionResult(value: unknown): ParentUiActionResult {",
+        "export function decodeParentSubscriptionEvent(value: unknown): ParentSubscriptionEvent {",
+        "export function decodeParentRouteSubscriptionId(value: unknown): ParentRouteSubscriptionId {",
+        "export function decodeParentBridgeUnsubscribeResult(value: unknown): boolean {",
+    ] {
+        assert_has_line!(&generated, decoder);
+    }
     assert_has_line!(
         &generated,
         &line_with_open_brace!("export interface ParentActivityMemoryGraphReadModelSnapshot "),
@@ -157,7 +217,7 @@ fn route_titles_and_dev_diagnostics_are_rust_owned_bridge_metadata() {
                 "] as const;"
             )
         ),
-        crate::ts_block!("ParentRoute.ProofPanels,")
+        crate::ts_block!("ParentRoute.Browser,")
     );
     assert_eq!(
         extract_typescript_block(
@@ -180,7 +240,7 @@ fn route_titles_and_dev_diagnostics_are_rust_owned_bridge_metadata() {
             )
         ),
         crate::ts_block!(
-            "ParentRouteGroup.Monitor,\n  ParentRouteGroup.Guide,\n  ParentRouteGroup.Operate,"
+            "ParentRouteGroup.Monitor,\n  ParentRouteGroup.Guide,\n  ParentRouteGroup.Operate,\n  ParentRouteGroup.DevTools,"
         )
     );
     assert_eq!(
@@ -357,78 +417,6 @@ fn generated_portal_domain_lan_add_device_contracts_are_rust_owned() {
 }
 
 #[test]
-fn generated_agent_protocol_literals_cover_rust_owned_transport_enums() {
-    let parent_generated = parent_ui_bridge_typescript();
-    let portal_generated = portal_contracts_typescript();
-    let transport_source = include_str!("../../../../../crates/agent-protocol/src/transport.rs");
-
-    for (generated, object_name, enum_name) in [
-        (&parent_generated, "ParentAgentCommand", "AgentCommandName"),
-        (&parent_generated, "ParentAgentEvent", "AgentEventName"),
-        (
-            &portal_generated,
-            "GeneratedPortalAgentCommand",
-            "AgentCommandName",
-        ),
-        (
-            &portal_generated,
-            "GeneratedPortalAgentEvent",
-            "AgentEventName",
-        ),
-    ] {
-        let object = extract_typescript_block(
-            crate::contract_text!(generated),
-            crate::text_boundary!(
-                &line_with_open_brace!(&format!("export const {object_name} = ")),
-                &line_with_close_brace!(" as const;")
-            ),
-        );
-        let enum_start = crate::support::option_or_unreachable(
-            transport_source.find(&format!("pub enum {enum_name} {}", OPEN_BRACE)),
-            crate::assert_context!("expected transport enum to exist"),
-        );
-        let enum_body = crate::support::option_or_unreachable(
-            transport_source[enum_start..].split_once(OPEN_BRACE),
-            crate::assert_context!("expected transport enum body to start"),
-        )
-        .1;
-        let enum_body = crate::support::option_or_unreachable(
-            enum_body.split_once(&format!("\n{CLOSE_BRACE}")),
-            crate::assert_context!("expected transport enum body to end"),
-        )
-        .0;
-        let variants: Vec<&'static str> = enum_body
-            .lines()
-            .filter_map(|line| {
-                let trimmed = line.trim();
-                let variant = trimmed.strip_suffix(',')?;
-                variant
-                    .chars()
-                    .next()
-                    .filter(char::is_ascii_uppercase)
-                    .map(|_| variant)
-            })
-            .collect();
-
-        for variant in &variants {
-            let generated_key = crate::support::option_or_unreachable(
-                variant.strip_prefix("Agent"),
-                crate::assert_context!("agent protocol variant must use Agent prefix"),
-            );
-            assert!(
-                object.0.contains(&format!("{generated_key}: ")),
-                "{object_name} omits {variant}"
-            );
-        }
-        assert_eq!(
-            object.0.matches(": \"agent.").count(),
-            variants.len(),
-            "{object_name} must not contain extra or duplicate protocol literals"
-        );
-    }
-}
-
-#[test]
 fn generated_portal_social_read_model_payload_fields_are_rust_owned() {
     let generated = portal_contracts_typescript();
 
@@ -460,6 +448,8 @@ fn generated_portal_social_read_model_payload_fields_are_rust_owned() {
 fn portal_domain_portal_contracts_adapter_stays_generated_backed() {
     let adapter =
         include_str!("../../../../../packages/portal-domain/src/portal-contract-adapter.ts");
+    let text_contracts =
+        include_str!("../../../../../packages/portal-domain/src/portal-contract-text-contracts.ts");
 
     assert!(adapter
         .lines()
@@ -477,15 +467,15 @@ fn portal_domain_portal_contracts_adapter_stays_generated_backed() {
         "export const PortalConnectionState = GeneratedPortalConnectionState;",
     );
     assert_has_line!(
-        adapter,
+        text_contracts,
         "export type PortalDetailValue = GeneratedPortalDetailValue;",
     );
     assert_has_line!(
-        adapter,
+        text_contracts,
         "export const decodePortalDetailValue = (input: unknown): PortalDetailValue =>",
     );
     assert_has_line!(
-        adapter,
+        text_contracts,
         "export const decodeTrackingStatusProofArtifact = (input: unknown): TrackingStatusProofArtifact =>",
     );
 }

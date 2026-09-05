@@ -222,7 +222,7 @@ fn validate_index(
         .map_err(storage_error)?;
     if index_sql
         .as_deref()
-        .map_or(true, |sql| normalize_sql(sql) != normalize_sql(create_sql))
+        .is_none_or(|sql| normalize_sql(sql) != normalize_sql(create_sql))
     {
         return Err(LanHouseholdMeshIngressCustodyError::SchemaRejected);
     }

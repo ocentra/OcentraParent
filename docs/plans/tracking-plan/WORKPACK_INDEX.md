@@ -57,7 +57,7 @@ gap and 19 retain concrete production-code or expected-test gaps.
 | open    | [WP23 AI Location Safety Analysis Contracts](workpacks/23-ai-location-safety-analysis-contracts.md)                       |  3,297 | 6/11 checked; 5 open  |
 | open    | [WP24 AI Provider Routing](workpacks/24-ai-provider-routing.md)                                                           |  3,276 | 6/11 checked; 5 open  |
 | open    | [WP26 Alert Severity And Notification Model](workpacks/26-alert-severity-and-notification-model.md)                       | 10,266 | 18/23 checked; 5 open |
-| open    | [WP30 Parent And Child UI/UX Surfaces](workpacks/30-parent-and-child-ui-ux-surfaces.md)                                   | 24,016 | 72/74 checked; 2 open |
+| done    | [WP30 Parent And Child UI/UX Surfaces](workpacks/30-parent-and-child-ui-ux-surfaces.md)                                   | 24,016 | bounded product-route truthfulness 6/6; broader product-ready backlog retained |
 | open    | [WP31 Platform Extension Checklists And Proof Routing](workpacks/31-platform-extension-checklists-and-proof-routing.md)   |  7,398 | 19/24 checked; 5 open |
 | open    | [WP32 Journal SQLite And Read-Model Proof](workpacks/32-journal-sqlite-and-read-model-proof.md)                           | 21,929 | 73/76 checked; 3 open |
 | open    | [WP34 Tracking Event Contracts And Protocol Constants](workpacks/34-tracking-event-contracts-and-protocol-constants.md)   |  4,248 | 0/0 checked; on-disk audit open    |

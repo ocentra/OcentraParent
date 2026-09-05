@@ -12,18 +12,18 @@
 
 # Child Agent Runtime Distribution Test Proof Expectations
 
-Current phase: expected test source is routed but not written or executed. Add all test source for a coherent workpack after its production source exists; then run focused validation once for that workpack.
+Current phase: WP01 route-boundary and WP06 child iOS capability retained proofs have been executed at their canonical four-file proof roots. The WP06 Windows result records the real XCTest as platform-unavailable/manual-required rather than promoting it to a pass. Other workpacks remain routed gaps; add their coherent test source only after the owning production source exists.
 
 ## Expected test-source gaps
 
 | Workpack | Required test-source outcomes |
 | --- | --- |
-| WP01 | Route/index/graph consistency rejects parent-client ownership and unsupported completion. |
+| WP01 | Implemented at `tests/repo-tooling/child-agent-runtime-distribution-route.test.mjs`: generated graph/code-map behavior rejects parent-client ownership, product roots, runtime/package promotion, and wrong completion evidence. `scripts/test/child-agent-scope-and-route-boundary-proof.mjs` executed the focused test and graph validation and wrote the canonical four-file proof root. |
 | WP02 | Current-trust startup, missing/stale trust fail-closed, authenticated ingress, external health, and child-labelled elevated Windows install/start/stop/restart/uninstall/respawn. |
 | WP03 | Child identity, launchd install/start/health/restart/disable/uninstall, signing/notarization inputs and rejection states, and cleanup on a real macOS host. |
 | WP04 | Child identity, `.deb` metadata, service health, crash/restart, deliberate stop, disable/remove/purge, cleanup, distro baseline, and signing/feed rejection states on Linux. |
 | WP05 | JNI startup without trust remains manual-required; current trust reaches ready; foreground restart/stop, authenticated ingress, health, native load/ABI failure, removal, and device-owner/managed-profile manual-required behavior. |
-| WP06 | Actual child project/product/bundle/scheme/artifact identity plus simulator/device capability-limit, no-daemon, provisioning, signing, supervision, and recovery non-claims. |
+| WP06 | Implemented by the real Node/XCTest child identity harness and runner tests: actual child project/product/bundle/scheme/artifact identity plus simulator/host outcome, capability-limit, no-daemon, provisioning, signing, supervision, background, recovery, and parent-parity non-claims. Enforcer run `ocentra-parent.child-ios-entitlement-capability-proof-20260902102636-1c1154d5` wrote the canonical retained bundle. Physical-device and Apple authority evidence remains manual-required and unexecuted. |
 | WP07 | Platform manager kill/reboot/restart/deliberate-stop/disable/teardown behavior, bounded backoff/loop guard, and health-aware state transitions. |
 | WP08 | Current Account authority acceptance, wrong actor/target/action/replay/generation rejection, restart durability, platform cleanup callback idempotency, residual custody, and cleanup receipts. |
 | WP09 | Manifest/signature/hash rejection, installer result/reboot/restart behavior, WP10 handoff consumption, scheduler/retry state, and platform-specific signing/store/device-owner truth. |
@@ -46,6 +46,16 @@ Linux: child .deb/systemd lifecycle harness on the declared distro baseline
 iOS: child project identity/build/simulator capability harness; physical-device rows remain device-proof-required
 aggregate: executable WP11 negative-fixture gate across all reviewed child workpack outputs
 ```
+
+Focused source checks for the two present slices:
+
+```text
+node --test tests/repo-tooling/child-agent-runtime-distribution-route.test.mjs
+node --test tests/repo-tooling/child-ios-entitlement-capability-proof-runner.test.mjs
+node --test platforms/ios/tests/child_capability_identity.test.mjs
+```
+
+The third command is a real XCTest invocation on macOS/Xcode and an explicit host-blocked skip elsewhere. WP01 retained proof is regenerated only by `node scripts/test/child-agent-scope-and-route-boundary-proof.mjs`; WP06 retained proof is regenerated through `npm run test:child-ios-entitlement-capability-proof`.
 
 Required architecture scope when Rust/Java/Swift/JavaScript/TypeScript source is touched remains the nearest owning crate/app/script paths. Expand to repo-wide validation only after the complete source and test waves.
 

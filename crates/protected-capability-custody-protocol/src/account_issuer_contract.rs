@@ -27,7 +27,8 @@ impl AccountIssuerField {
         if bytes.len() > ACCOUNT_ISSUER_MAX_FIELD_BYTES {
             return Err(ProtocolError::FieldTooLarge);
         }
-        let value = String::from_utf8(bytes).map_err(|_| ProtocolError::InvalidDiscriminant(0))?;
+        let value =
+            String::from_utf8(bytes).map_err(|_error| ProtocolError::InvalidDiscriminant(0))?;
         if value.trim().is_empty()
             || value
                 .chars()
@@ -46,13 +47,13 @@ impl AccountIssuerField {
         &self,
     ) -> Result<AccountIdentityAuthorityProducerV2CorrelationId, ProtocolError> {
         AccountIdentityAuthorityProducerV2CorrelationId::parse(self.0.clone())
-            .map_err(|_| ProtocolError::InvalidDiscriminant(0))
+            .map_err(|_error| ProtocolError::InvalidDiscriminant(0))
     }
 
     pub fn parse_idempotency_key(
         &self,
     ) -> Result<AccountIdentityAuthorityProducerV2IdempotencyKey, ProtocolError> {
         AccountIdentityAuthorityProducerV2IdempotencyKey::parse(self.0.clone())
-            .map_err(|_| ProtocolError::InvalidDiscriminant(0))
+            .map_err(|_error| ProtocolError::InvalidDiscriminant(0))
     }
 }

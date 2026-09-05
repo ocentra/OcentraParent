@@ -7,6 +7,7 @@
 
 use std::sync::Mutex;
 
+use ocentra_protected_capability_custody_core::broker_admission::account_issuer_request::ProtectedAccountIssuerRequestAdmission;
 use ocentra_protected_capability_custody_protocol::account_issuer::AccountIssuerReceipt;
 use ocentra_protected_capability_custody_protocol::account_issuer_session::AuthenticatedAccountIssuerRequest;
 
@@ -18,14 +19,14 @@ pub(crate) struct BrokerAccountIssuerRpc {
 }
 
 enum BrokerAccountIssuerState {
-    Ready(BrokerAccountIssuer),
+    Ready(Box<BrokerAccountIssuer>),
     DeploymentRequired,
 }
 
 impl BrokerAccountIssuerRpc {
     pub(crate) fn open() -> Self {
         let state = match BrokerAccountIssuer::mount() {
-            Ok(issuer) => BrokerAccountIssuerState::Ready(issuer),
+            Ok(issuer) => BrokerAccountIssuerState::Ready(Box::new(issuer)),
             Err(BrokerError::DeploymentRequired) | Err(BrokerError::UnsupportedPlatform) => {
                 BrokerAccountIssuerState::DeploymentRequired
             }
@@ -38,14 +39,15 @@ impl BrokerAccountIssuerRpc {
 
     pub(crate) fn execute(
         &self,
+        admission: ProtectedAccountIssuerRequestAdmission,
         request: &AuthenticatedAccountIssuerRequest,
     ) -> Result<AccountIssuerReceipt, BrokerError> {
         let mut state = self
             .state
             .lock()
-            .map_err(|_| BrokerError::DeploymentRequired)?;
+            .map_err(|_error| BrokerError::DeploymentRequired)?;
         match &mut *state {
-            BrokerAccountIssuerState::Ready(issuer) => issuer.execute(request),
+            BrokerAccountIssuerState::Ready(issuer) => issuer.execute(admission, request),
             BrokerAccountIssuerState::DeploymentRequired => Err(BrokerError::DeploymentRequired),
         }
     }

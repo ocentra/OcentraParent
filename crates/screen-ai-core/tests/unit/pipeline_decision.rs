@@ -32,6 +32,10 @@ impl std::error::Error for TestError {}
 
 type TestResult = Result<(), TestError>;
 
+fn assert_flag_eq(actual: bool, expected: bool) {
+    assert_eq!(actual, expected);
+}
+
 #[test]
 fn screen_ai_request_requires_evidence_refs_and_policy_need() {
     let decision = evaluate_screen_ai_pipeline(ScreenAiPipelineInput {
@@ -189,18 +193,14 @@ fn screen_ai_pipeline_request_records_typed_decision_event() -> TestResult {
 const TEST_DIGEST: &str = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
 
 struct ContractObservationOwner {
-    observation: std::sync::Mutex<Option<ManagedBrowserStructuredExtractionObservation>>,
+    observation: ManagedBrowserStructuredExtractionObservation,
 }
 
 /// Contract-only adapter for an untrusted observation boundary. It does not
 /// represent a live browser provider or authorize a route.
 impl ManagedBrowserStructuredExtractionOwner for ContractObservationOwner {
-    fn observation(&self) -> ManagedBrowserStructuredExtractionObservation {
+    fn observation(self: Box<Self>) -> ManagedBrowserStructuredExtractionObservation {
         self.observation
-            .lock()
-            .expect("contract observation owner mutex should not be poisoned")
-            .take()
-            .expect("contract observation owner should be queried once")
     }
 }
 
@@ -297,9 +297,7 @@ fn managed_browser_extraction(
     ScreenManagedBrowserStructuredExtractionHandoffError,
 > {
     ScreenManagedBrowserStructuredExtraction::from_untrusted_observation(Box::new(
-        ContractObservationOwner {
-            observation: std::sync::Mutex::new(Some(observation)),
-        },
+        ContractObservationOwner { observation },
     ))
 }
 
@@ -330,18 +328,18 @@ fn native_sources_route_to_scoped_capture_after_evidence_check() {
 
     for (source_kind, scope, expected_route) in cases {
         let request = route_request(source_kind, true, vec![scope.clone()]);
-        assert_eq!(
+        assert_flag_eq(
             screen_intelligence_route_request_is_consistent(&request),
-            true
+            true,
         );
 
         let decision = plan_screen_intelligence_route(&request, "route-native-test");
 
         assert_eq!(decision.route_kind, expected_route);
         assert_eq!(decision.capture_scope, Some(scope));
-        assert_eq!(decision.screenshot_skipped, false);
-        assert_eq!(decision.checked_existing_evidence_first, true);
-        assert_eq!(decision.managed_browser_structured_extraction_first, false);
+        assert_flag_eq(decision.screenshot_skipped, false);
+        assert_flag_eq(decision.checked_existing_evidence_first, true);
+        assert_flag_eq(decision.managed_browser_structured_extraction_first, false);
         assert_eq!(
             decision.structured_extraction_fallback_state,
             ScreenStructuredExtractionFallbackState::NotAttempted
@@ -357,11 +355,11 @@ fn native_sources_route_to_scoped_capture_after_evidence_check() {
             decision.policy_sensitivity,
             ScreenIntelligencePolicySensitivity::Ordinary
         );
-        assert_eq!(decision.remote_ai_allowed, false);
-        assert_eq!(decision.raw_screenshot_retained, false);
-        assert_eq!(
+        assert_flag_eq(decision.remote_ai_allowed, false);
+        assert_flag_eq(decision.raw_screenshot_retained, false);
+        assert_flag_eq(
             screen_intelligence_route_decision_is_consistent(&decision),
-            true
+            true,
         );
     }
 }
@@ -380,15 +378,15 @@ fn evidence_only_sources_require_manual_review_without_capture() {
             ScreenIntelligenceRouteKind::ManualRequired
         );
         assert_eq!(decision.capture_scope, None);
-        assert_eq!(decision.screenshot_skipped, true);
+        assert_flag_eq(decision.screenshot_skipped, true);
         assert_eq!(
             decision.manual_required_reason.as_deref(),
             Some("existing evidence requires an owner-backed answer before screen capture")
         );
         assert_eq!(decision.unavailable_reason, None);
-        assert_eq!(
+        assert_flag_eq(
             screen_intelligence_route_decision_is_consistent(&decision),
-            true
+            true,
         );
     }
 }
@@ -403,9 +401,9 @@ fn managed_browser_without_owner_receipt_never_falls_back_to_screenshot() {
         ScreenIntelligenceRouteKind::Unavailable
     );
     assert_eq!(decision.capture_scope, None);
-    assert_eq!(decision.screenshot_skipped, true);
+    assert_flag_eq(decision.screenshot_skipped, true);
     assert_eq!(decision.structured_extraction_id, None);
-    assert_eq!(decision.managed_browser_structured_extraction_first, false);
+    assert_flag_eq(decision.managed_browser_structured_extraction_first, false);
     assert_eq!(
         decision.structured_extraction_fallback_state,
         ScreenStructuredExtractionFallbackState::AuthorityUnavailable
@@ -419,25 +417,26 @@ fn managed_browser_without_owner_receipt_never_falls_back_to_screenshot() {
         ScreenEvidenceCustodyState::Unavailable
     );
     assert_eq!(decision.evidence_refs, Vec::<ActivityEvidenceRef>::new());
-    assert_eq!(
+    assert_flag_eq(
         screen_intelligence_route_decision_is_consistent(&decision),
-        true
+        true,
     );
 }
 
 #[test]
-fn untrusted_managed_browser_observation_is_validated_but_not_promoted_to_authority() {
+fn untrusted_managed_browser_observation_is_validated_but_not_promoted_to_authority() -> TestResult
+{
     let extraction = managed_browser_extraction(managed_browser_observation())
-        .expect("the bounded redacted observation should satisfy the handoff shape");
-    assert_eq!(
+        .map_err(|error| TestError(format!("managed browser handoff: {error:?}")))?;
+    assert_flag_eq(
         screen_managed_browser_structured_extraction_is_consistent(&extraction),
-        true
+        true,
     );
 
     let request = managed_browser_request(Some(extraction));
-    assert_eq!(
+    assert_flag_eq(
         screen_intelligence_route_request_is_consistent(&request),
-        true
+        true,
     );
     let decision = plan_screen_intelligence_route(&request, "route-browser-unvalidated-owner-test");
 
@@ -446,21 +445,23 @@ fn untrusted_managed_browser_observation_is_validated_but_not_promoted_to_author
         ScreenIntelligenceRouteKind::Unavailable
     );
     assert_eq!(decision.capture_scope, None);
-    assert_eq!(decision.screenshot_skipped, true);
+    assert_flag_eq(decision.screenshot_skipped, true);
     assert_eq!(decision.structured_extraction_id, None);
     assert_eq!(
         decision.structured_extraction_fallback_state,
         ScreenStructuredExtractionFallbackState::AuthorityUnavailable
     );
     assert_eq!(decision.evidence_refs, Vec::<ActivityEvidenceRef>::new());
-    assert_eq!(
+    assert_flag_eq(
         screen_intelligence_route_decision_is_consistent(&decision),
-        true
+        true,
     );
+
+    Ok(())
 }
 
 #[test]
-fn unavailable_managed_browser_observation_is_normalized_to_a_fail_closed_boundary() {
+fn unavailable_managed_browser_observation_is_normalized_to_a_fail_closed_boundary() -> TestResult {
     let mut observation = managed_browser_observation();
     observation.extraction_id = String::from("caller-controlled-extraction");
     observation.managed_browser_session_ref = String::from("caller-controlled-session");
@@ -473,16 +474,16 @@ fn unavailable_managed_browser_observation_is_normalized_to_a_fail_closed_bounda
     observation.unavailable = true;
 
     let extraction = managed_browser_extraction(observation)
-        .expect("unavailable owner output should normalize to fixed redacted identities");
-    assert_eq!(
+        .map_err(|error| TestError(format!("managed browser handoff: {error:?}")))?;
+    assert_flag_eq(
         screen_managed_browser_structured_extraction_is_consistent(&extraction),
-        false
+        false,
     );
 
     let request = managed_browser_request(Some(extraction));
-    assert_eq!(
+    assert_flag_eq(
         screen_intelligence_route_request_is_consistent(&request),
-        false
+        false,
     );
     let decision = plan_screen_intelligence_route(&request, "route-browser-unavailable-test");
     assert_eq!(
@@ -490,7 +491,7 @@ fn unavailable_managed_browser_observation_is_normalized_to_a_fail_closed_bounda
         ScreenIntelligenceRouteKind::Unavailable
     );
     assert_eq!(decision.capture_scope, None);
-    assert_eq!(decision.screenshot_skipped, true);
+    assert_flag_eq(decision.screenshot_skipped, true);
     assert_eq!(
         decision.structured_extraction_fallback_state,
         ScreenStructuredExtractionFallbackState::AuthorityUnavailable
@@ -500,6 +501,8 @@ fn unavailable_managed_browser_observation_is_normalized_to_a_fail_closed_bounda
         decision.unavailable_reason.as_deref(),
         Some("screen intelligence route request is inconsistent or unsupported")
     );
+
+    Ok(())
 }
 
 #[test]
@@ -530,7 +533,7 @@ fn sensitive_or_disabled_capture_never_queues_a_screenshot() {
         ScreenIntelligenceRouteKind::Unavailable
     );
     assert_eq!(protected_decision.capture_scope, None);
-    assert_eq!(protected_decision.screenshot_skipped, true);
+    assert_flag_eq(protected_decision.screenshot_skipped, true);
     assert_eq!(
         protected_decision.unavailable_reason.as_deref(),
         Some("protected surface is not eligible for screen capture or model analysis")
@@ -550,7 +553,7 @@ fn sensitive_or_disabled_capture_never_queues_a_screenshot() {
         ScreenIntelligenceRouteKind::Unavailable
     );
     assert_eq!(credential_decision.capture_scope, None);
-    assert_eq!(credential_decision.screenshot_skipped, true);
+    assert_flag_eq(credential_decision.screenshot_skipped, true);
     assert_eq!(
         credential_decision.unavailable_reason.as_deref(),
         Some("credential prompt risk is not eligible for screen capture or model analysis")
@@ -569,7 +572,7 @@ fn sensitive_or_disabled_capture_never_queues_a_screenshot() {
         ScreenIntelligenceRouteKind::ManualRequired
     );
     assert_eq!(disabled_decision.capture_scope, None);
-    assert_eq!(disabled_decision.screenshot_skipped, true);
+    assert_flag_eq(disabled_decision.screenshot_skipped, true);
     assert_eq!(
         disabled_decision.manual_required_reason.as_deref(),
         Some("parent setting requires manual review before screen capture")
@@ -590,7 +593,7 @@ fn unsupported_scope_requires_manual_review() {
         ScreenIntelligenceRouteKind::ManualRequired
     );
     assert_eq!(decision.capture_scope, None);
-    assert_eq!(decision.screenshot_skipped, true);
+    assert_flag_eq(decision.screenshot_skipped, true);
     assert_eq!(
         decision.manual_required_reason.as_deref(),
         Some("no allowed active-window or selected-window capture scope is available")
@@ -614,9 +617,9 @@ fn inconsistent_requests_fail_closed_without_returning_existing_private_refs() {
         uri: Some(String::from("private-uri")),
     }];
 
-    assert_eq!(
+    assert_flag_eq(
         screen_intelligence_route_request_is_consistent(&request),
-        false
+        false,
     );
     let decision = plan_screen_intelligence_route(&request, "route-inconsistent-test");
 
@@ -625,14 +628,14 @@ fn inconsistent_requests_fail_closed_without_returning_existing_private_refs() {
         ScreenIntelligenceRouteKind::Unavailable
     );
     assert_eq!(decision.capture_scope, None);
-    assert_eq!(decision.screenshot_skipped, true);
+    assert_flag_eq(decision.screenshot_skipped, true);
     assert_eq!(decision.evidence_refs, Vec::<ActivityEvidenceRef>::new());
     assert_eq!(
         decision.unavailable_reason.as_deref(),
         Some("screen intelligence route request is inconsistent or unsupported")
     );
-    assert_eq!(
+    assert_flag_eq(
         screen_intelligence_route_decision_is_consistent(&decision),
-        true
+        true,
     );
 }

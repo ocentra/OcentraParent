@@ -37,10 +37,7 @@ fn windows_interface_map_preserves_normalized_interface_metadata_and_addresses()
     assert_eq!(interface.name, "Wi-Fi");
     assert_eq!(interface.description.as_deref(), Some("Intel Wireless"));
     assert_eq!(interface.index, Some(12));
-    assert_eq!(
-        interface.mac_address.as_deref(),
-        Some("54-27-1e-97-c3-31")
-    );
+    assert_eq!(interface.mac_address.as_deref(), Some("54-27-1e-97-c3-31"));
     assert_eq!(
         interface.ip_addresses,
         vec![
@@ -63,10 +60,7 @@ fn windows_interface_map_preserves_normalized_interface_metadata_and_addresses()
         Some("192.168.2.255")
     );
     assert_eq!(interface.ipv4_cidr.as_deref(), Some("192.168.2.42/24"));
-    assert_eq!(
-        interface.ipv6_prefixes,
-        vec!["2001:db8::42/64".to_string()]
-    );
+    assert_eq!(interface.ipv6_prefixes, vec!["2001:db8::42/64".to_string()]);
     assert!(interface.is_up);
     assert!(interface.is_connected);
     assert!(!interface.is_loopback);
@@ -132,7 +126,10 @@ fn linux_interface_map_merges_records_without_losing_addresses_or_state() {
     assert!(interface.is_up);
     assert!(interface.is_connected);
     assert!(interface.has_default_route);
-    assert_eq!(map.recommended_interface_id.as_deref(), Some(interface.id.as_str()));
+    assert_eq!(
+        map.recommended_interface_id.as_deref(),
+        Some(interface.id.as_str())
+    );
 }
 
 #[test]
@@ -186,47 +183,54 @@ fn interface_map_marks_down_disconnected_loopback_and_non_physical_classes() {
         }),
     ]);
 
-    let find = |name: &str| map.interfaces.iter().find(|interface| interface.name == name);
-    let down = find("Ethernet Down").expect("down interface should be retained");
-    assert_eq!(down.ignored_reason, Some(LocalNetworkInterfaceIgnoreReason::Down));
-    assert_eq!(down.classification, LocalNetworkInterfaceClassification::Physical);
-    let disconnected = find("Wi-Fi Disconnected").expect("disconnected interface should be retained");
+    let find = |name: &str| {
+        map.interfaces
+            .iter()
+            .find(|interface| interface.name == name)
+    };
     assert_eq!(
-        disconnected.ignored_reason,
-        Some(LocalNetworkInterfaceIgnoreReason::Disconnected)
-    );
-    let loopback = find("Loopback").expect("loopback interface should be retained");
-    assert_eq!(
-        loopback.ignored_reason,
-        Some(LocalNetworkInterfaceIgnoreReason::Loopback)
+        find("Ethernet Down").map(|interface| interface.ignored_reason),
+        Some(Some(LocalNetworkInterfaceIgnoreReason::Down))
     );
     assert_eq!(
-        loopback.classification,
-        LocalNetworkInterfaceClassification::Loopback
-    );
-    let link_local = find("Ethernet Link Local").expect("link-local interface should be retained");
-    assert!(link_local.is_link_local_only);
-    assert_eq!(
-        link_local.ignored_reason,
-        Some(LocalNetworkInterfaceIgnoreReason::LinkLocalOnly)
+        find("Ethernet Down").map(|interface| interface.classification),
+        Some(LocalNetworkInterfaceClassification::Physical)
     );
     assert_eq!(
-        link_local.classification,
-        LocalNetworkInterfaceClassification::LinkLocalOnly
+        find("Wi-Fi Disconnected").map(|interface| interface.ignored_reason),
+        Some(Some(LocalNetworkInterfaceIgnoreReason::Disconnected))
     );
     assert_eq!(
-        find("docker0").expect("container interface should be retained").classification,
-        LocalNetworkInterfaceClassification::Container
+        find("Loopback").map(|interface| interface.ignored_reason),
+        Some(Some(LocalNetworkInterfaceIgnoreReason::Loopback))
     );
     assert_eq!(
-        find("tailscale0").expect("VPN interface should be retained").classification,
-        LocalNetworkInterfaceClassification::VpnOrTunnel
+        find("Loopback").map(|interface| interface.classification),
+        Some(LocalNetworkInterfaceClassification::Loopback)
     );
     assert_eq!(
-        find("vEthernet (Default Switch)")
-            .expect("virtual interface should be retained")
-            .classification,
-        LocalNetworkInterfaceClassification::Virtual
+        find("Ethernet Link Local").map(|interface| interface.is_link_local_only),
+        Some(true)
+    );
+    assert_eq!(
+        find("Ethernet Link Local").map(|interface| interface.ignored_reason),
+        Some(Some(LocalNetworkInterfaceIgnoreReason::LinkLocalOnly))
+    );
+    assert_eq!(
+        find("Ethernet Link Local").map(|interface| interface.classification),
+        Some(LocalNetworkInterfaceClassification::LinkLocalOnly)
+    );
+    assert_eq!(
+        find("docker0").map(|interface| interface.classification),
+        Some(LocalNetworkInterfaceClassification::Container)
+    );
+    assert_eq!(
+        find("tailscale0").map(|interface| interface.classification),
+        Some(LocalNetworkInterfaceClassification::VpnOrTunnel)
+    );
+    assert_eq!(
+        find("vEthernet (Default Switch)").map(|interface| interface.classification),
+        Some(LocalNetworkInterfaceClassification::Virtual)
     );
     assert_eq!(map.recommended_interface_id, None);
 }
@@ -252,15 +256,19 @@ fn manual_interface_selection_can_override_default_without_invalid_fallback() {
         }),
     ]);
 
-    let manual = map
-        .select_interface(Some("vEthernet (WSL)"))
-        .expect("explicit manual selection should resolve by name");
-    assert_eq!(manual.classification, LocalNetworkInterfaceClassification::Wsl);
+    let manual = map.select_interface(Some("vEthernet (WSL)"));
     assert_eq!(
-        manual.ignored_reason,
-        Some(LocalNetworkInterfaceIgnoreReason::Wsl)
+        manual.map(|interface| interface.classification),
+        Some(LocalNetworkInterfaceClassification::Wsl)
     );
-    assert_eq!(manual.ip_addresses, vec!["172.26.32.1".to_string()]);
+    assert_eq!(
+        manual.map(|interface| interface.ignored_reason),
+        Some(Some(LocalNetworkInterfaceIgnoreReason::Wsl))
+    );
+    assert_eq!(
+        manual.map(|interface| interface.ip_addresses.clone()),
+        Some(vec!["172.26.32.1".to_string()])
+    );
     assert_eq!(
         map.selected_identity(Some("vEthernet (WSL)"))
             .and_then(|identity| identity.ip_address),
@@ -268,7 +276,8 @@ fn manual_interface_selection_can_override_default_without_invalid_fallback() {
     );
     assert_eq!(map.select_interface(Some("missing-interface")), None);
     assert_eq!(
-        map.select_interface(None).map(|interface| interface.name.as_str()),
+        map.select_interface(None)
+            .map(|interface| interface.name.as_str()),
         Some("Ethernet")
     );
 }
@@ -401,10 +410,7 @@ fn interface_merge_upgrades_index_identity_to_mac_identity() {
     assert_eq!(map.interfaces[0].id, "mac:54-27-1e-97-c3-31");
     assert_eq!(
         map.interfaces[0].ip_addresses,
-        vec![
-            "192.168.2.42".to_string(),
-            "192.168.2.43".to_string()
-        ]
+        vec!["192.168.2.42".to_string(), "192.168.2.43".to_string()]
     );
     assert_eq!(
         map.recommended_interface_id.as_deref(),

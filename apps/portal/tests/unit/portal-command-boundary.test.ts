@@ -1,6 +1,13 @@
 import { createServer, type Server } from 'node:http';
 import { afterEach, describe, expect, it } from 'vitest';
-import { ParentAgentCommand, ParentRoute, ParentUiActionKind } from '../../generated/parent-ui-bridge';
+import {
+  ParentAgentCommand,
+  ParentBridgeConnectionState,
+  ParentHostBridgeRuntime,
+  ParentRoute,
+  ParentUiActionKind,
+  type ParentUiActionResult,
+} from '../../generated/parent-ui-bridge';
 import { createDevWebHostBridge } from '../../src/host-bridge';
 import { DirectEnforcementCommandBoundaryErrorText } from '../../src/transport';
 
@@ -51,7 +58,16 @@ describe('portal command boundary', () => {
     const server = createServer((_request, response) => {
       requestCount += 1;
       response.writeHead(200, { 'content-type': 'application/json' });
-      response.end(JSON.stringify({ accepted: true }));
+      response.end(
+        JSON.stringify({
+          schemaVersion: ParentHostBridgeRuntime.SchemaVersion,
+          accepted: true,
+          connectionState: ParentBridgeConnectionState.Connected,
+          message: 'enforcement-read-requested',
+          snapshot: null,
+          events: [],
+        } satisfies ParentUiActionResult)
+      );
     });
     servers.push(server);
     const bridgeUrl = await listen(server);

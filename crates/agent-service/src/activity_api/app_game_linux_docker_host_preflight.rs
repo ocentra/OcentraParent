@@ -78,10 +78,11 @@ pub(super) fn unavailable_linux_docker_host_preflight() -> AppGameLinuxDockerHos
 }
 
 pub(super) fn probe_has_fixed_marker(output: DockerProbeOutput) -> bool {
-    if !output.success {
+    let DockerProbeOutput { success, stdout } = output;
+    if !success {
         return false;
     }
-    let Ok(value) = std::str::from_utf8(&output.stdout) else {
+    let Ok(value) = std::str::from_utf8(&stdout) else {
         return false;
     };
     let value = value.strip_suffix('\n').unwrap_or(value);
@@ -96,10 +97,11 @@ pub(super) fn parse_context_count_with_limit(
     output: DockerProbeOutput,
     max_count: u64,
 ) -> Option<u64> {
-    if !output.success {
+    let DockerProbeOutput { success, stdout } = output;
+    if !success {
         return None;
     }
-    let value = std::str::from_utf8(&output.stdout).ok()?;
+    let value = std::str::from_utf8(&stdout).ok()?;
     let value = value.strip_suffix('\n').unwrap_or(value);
     let count = value.split('\n').try_fold(0_u64, |count, line| {
         (line == proof::DOCKER_CONTEXT_COUNT_MARKER && count < max_count).then_some(count + 1)
@@ -108,10 +110,11 @@ pub(super) fn parse_context_count_with_limit(
 }
 
 pub(super) fn parse_inventory_counts(output: DockerProbeOutput) -> Option<(u64, u64)> {
-    if !output.success {
+    let DockerProbeOutput { success, stdout } = output;
+    if !success {
         return None;
     }
-    let value = std::str::from_utf8(&output.stdout).ok()?;
+    let value = std::str::from_utf8(&stdout).ok()?;
     let value = value.strip_suffix('\n').unwrap_or(value);
     let mut values = value.split(' ');
     let image_count = values.next()?.parse::<u64>().ok()?;

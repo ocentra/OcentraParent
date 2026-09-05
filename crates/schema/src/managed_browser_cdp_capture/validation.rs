@@ -87,11 +87,11 @@ fn validate_crop(
         || crop
             .x
             .checked_add(crop.width)
-            .map_or(true, |right| right > viewport_width)
+            .is_none_or(|right| right > viewport_width)
         || crop
             .y
             .checked_add(crop.height)
-            .map_or(true, |bottom| bottom > viewport_height)
+            .is_none_or(|bottom| bottom > viewport_height)
     {
         return Err(ManagedBrowserCdpCaptureRequestError::CropOutOfBounds);
     }

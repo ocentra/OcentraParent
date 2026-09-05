@@ -4,6 +4,7 @@ use ocentra_eventing::{error::EventingError, journal::policy::JournalDispatchPha
 use ocentra_schema::export_import_backup_recovery as contracts;
 use ocentra_storage_custody_core::export_import_backup_recovery::{
     export_import_backup_recovery_bundle_preflight_binding::custody_port::ImportBindingError,
+    export_import_backup_recovery_bundle_preflight_binding::execution_binding::DispatchReservationError,
     export_import_backup_recovery_migration_execution::MigrationExecutionError,
     export_import_backup_recovery_restore_execution_plan::RestoreExecutionPlanError,
 };
@@ -28,14 +29,34 @@ pub enum RestoreRuntimeError {
     Migration(MigrationExecutionError),
     Executor(RestoreExecutorError),
     ExecutorOperation(RestoreExecutorOperationError),
+    Reservation(DispatchReservationError),
     Rollback(RestoreRollbackError),
     ReplayDecode(EventingError),
     ReplaySkipped(usize),
-    Ledger(RestoreLedgerError),
+    Ledger(RestoreLedgerFailure),
     PlanNotDurablyPending,
     RestartReconciliationRequired,
     RuntimeNotRecovered,
 }
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RestoreLedgerFailure {
+    reason: String,
+}
+
+impl RestoreLedgerFailure {
+    pub fn reason(&self) -> &str {
+        &self.reason
+    }
+}
+
+impl std::fmt::Display for RestoreLedgerFailure {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter.write_str(&self.reason)
+    }
+}
+
+impl std::error::Error for RestoreLedgerFailure {}
 
 impl From<EventingError> for RestoreRuntimeError {
     fn from(error: EventingError) -> Self {
@@ -81,13 +102,15 @@ impl From<RestoreRollbackError> for RestoreRuntimeError {
 
 impl From<RestoreLedgerError> for RestoreRuntimeError {
     fn from(error: RestoreLedgerError) -> Self {
-        Self::Ledger(error)
+        Self::Ledger(RestoreLedgerFailure {
+            reason: format!("{error:?}"),
+        })
     }
 }
 
 impl From<RuntimeClockError> for RestoreRuntimeError {
     fn from(error: RuntimeClockError) -> Self {
-        Self::Eventing(clock_error(error))
+        Self::Eventing(clock_error(&error))
     }
 }
 

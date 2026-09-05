@@ -116,8 +116,9 @@ pub(crate) fn cancel(
 fn opaque_handle(authoring_store: &PolicyPreviewAuthoringStore) -> Result<String, String> {
     for _ in 0..4 {
         let mut random = [0_u8; 24];
-        getrandom::fill(&mut random)
-            .map_err(|_| "policy preview authoring handle entropy is unavailable".to_string())?;
+        getrandom::fill(&mut random).map_err(|error| {
+            format!("policy preview authoring handle entropy is unavailable: {error}")
+        })?;
         let handle = format!(
             "ppah-{}",
             random

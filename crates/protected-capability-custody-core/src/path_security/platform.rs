@@ -51,10 +51,10 @@ pub(super) fn open_guarded(
         .share_mode(FILE_SHARE_READ | FILE_SHARE_WRITE)
         .custom_flags(flags)
         .open(path)
-        .map_err(|_| PathSecurityError::Unavailable)?;
+        .map_err(|_file_open_error| PathSecurityError::Unavailable)?;
     let metadata = file
         .metadata()
-        .map_err(|_| PathSecurityError::Unavailable)?;
+        .map_err(|_file_metadata_error| PathSecurityError::Unavailable)?;
     if metadata.file_attributes() & FILE_ATTRIBUTE_REPARSE_POINT != 0 {
         return Err(PathSecurityError::UnsafePath);
     }
@@ -62,10 +62,11 @@ pub(super) fn open_guarded(
     // the retained handle is also compared on every revalidation.  The path
     // lookup therefore cannot silently bind a replacement between validation
     // and identity capture.
-    let identity =
-        file_id::get_high_res_file_id(path).map_err(|_| PathSecurityError::Unavailable)?;
+    let identity = file_id::get_high_res_file_id(path)
+        .map_err(|_file_identity_error| PathSecurityError::Unavailable)?;
     let digest = digest_file_id(identity)?;
-    let handle = Handle::from_file(file).map_err(|_| PathSecurityError::Unavailable)?;
+    let handle =
+        Handle::from_file(file).map_err(|_handle_creation_error| PathSecurityError::Unavailable)?;
     Ok((handle, digest))
 }
 
@@ -85,11 +86,12 @@ pub(super) fn create_guarded(path: &Path) -> Result<(Handle, [u8; 32]), PathSecu
         .share_mode(FILE_SHARE_READ | FILE_SHARE_WRITE)
         .custom_flags(FILE_FLAG_OPEN_REPARSE_POINT)
         .open(path)
-        .map_err(|_| PathSecurityError::Unavailable)?;
-    let identity =
-        file_id::get_high_res_file_id(path).map_err(|_| PathSecurityError::Unavailable)?;
+        .map_err(|_file_create_error| PathSecurityError::Unavailable)?;
+    let identity = file_id::get_high_res_file_id(path)
+        .map_err(|_file_identity_error| PathSecurityError::Unavailable)?;
     let digest = digest_file_id(identity)?;
-    let handle = Handle::from_file(file).map_err(|_| PathSecurityError::Unavailable)?;
+    let handle =
+        Handle::from_file(file).map_err(|_handle_creation_error| PathSecurityError::Unavailable)?;
     Ok((handle, digest))
 }
 

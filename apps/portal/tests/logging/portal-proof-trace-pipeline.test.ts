@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { localArtifactDirectoryDurability } from '../../../../packages/logging-domain/src/local-artifact-path';
+import { localArtifactDirectoryDurability } from '@ocentra-parent/logging-domain/local-artifact-path';
 import { registerPortalProofTracePipelineSuite } from './portal-proof-trace-pipeline.test.helpers';
 
 describe('portal proof trace pipeline', () => {

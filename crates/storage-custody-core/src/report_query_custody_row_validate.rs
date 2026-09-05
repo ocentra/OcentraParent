@@ -5,14 +5,6 @@ use ocentra_family_identity_core::account_identity_authority::VerifiedAccountIde
 
 use super::{ReportQueryCustodyDerivationError, ReportQueryCustodyDerivationInput};
 
-pub(super) fn validate_report_query_custody_input(
-    request: &contracts::ReportQueryCustodyRequest,
-    input: &ReportQueryCustodyDerivationInput,
-    authority: &VerifiedAccountIdentityAuthority,
-) -> Result<(), ReportQueryCustodyDerivationError> {
-    validate_report_query_custody_input_at(request, input, authority, Utc::now())
-}
-
 pub(super) fn validate_report_query_custody_input_at(
     request: &contracts::ReportQueryCustodyRequest,
     input: &ReportQueryCustodyDerivationInput,

@@ -125,7 +125,7 @@ fn load(
             },
         )
         .optional()
-        .map_err(|_| AccountIdentityMutationAuthorityError::RepositoryUnavailable)?
+        .map_err(|_error| AccountIdentityMutationAuthorityError::RepositoryUnavailable)?
         .ok_or(AccountIdentityMutationAuthorityError::TargetNotCurrent)
 }
 

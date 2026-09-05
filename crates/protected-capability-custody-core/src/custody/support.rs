@@ -15,6 +15,12 @@ use crate::platform::{
 };
 use crate::storage::Record;
 
+pub(super) struct TransitionStep {
+    pub(super) state: SealedState,
+    pub(super) sequence: u64,
+    pub(super) minimum_watermark: u64,
+}
+
 pub(super) fn attest_path(
     platform: &dyn PlatformDatabaseGuard,
     path: &SecuredPath,
@@ -65,10 +71,8 @@ pub(super) fn transition<'a>(
     record_id: &'a [u8; 32],
     lookup_digest: &'a [u8; 32],
     binding_digest: &'a [u8; 32],
-    state: SealedState,
-    sequence: u64,
     attestation: PlatformAttestation,
-    minimum_watermark: u64,
+    step: &TransitionStep,
 ) -> TransitionRequest<'a> {
     TransitionRequest {
         record_namespace: crate::RECORD_NAMESPACE,
@@ -79,11 +83,11 @@ pub(super) fn transition<'a>(
         lookup_digest,
         binding_digest,
         canonical_binding: binding.canonical_bytes(),
-        state,
-        sequence,
+        state: step.state,
+        sequence: step.sequence,
         key_epoch: attestation.key_epoch,
         writer_epoch: attestation.writer_epoch,
-        minimum_watermark,
+        minimum_watermark: step.minimum_watermark,
     }
 }
 
@@ -103,15 +107,15 @@ pub(super) fn terminal_state(state: SealedState) -> Result<SealedState, CustodyE
     states::terminal(state)
 }
 
-pub(super) fn map_path_error(error: crate::path_security::PathSecurityError) -> CustodyError {
+pub(super) fn map_path_error(error: &crate::path_security::PathSecurityError) -> CustodyError {
     attestation::map_path_error(error)
 }
 
-pub(super) fn map_platform_error(error: crate::platform::PlatformError) -> CustodyError {
+pub(super) fn map_platform_error(error: &crate::platform::PlatformError) -> CustodyError {
     mapping::map_platform_error(error)
 }
 
-pub(super) fn map_authority_error(error: AuthorityError) -> CustodyError {
+pub(super) fn map_authority_error(error: &AuthorityError) -> CustodyError {
     mapping::map_authority_error(error)
 }
 

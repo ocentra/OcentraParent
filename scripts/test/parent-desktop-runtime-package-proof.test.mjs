@@ -4,19 +4,10 @@ import { join } from 'node:path';
 import { describe, it } from 'node:test';
 
 import { main as runParentDesktopDev } from '../../scripts/dev/dev-parent-desktop.mjs';
-import {
-  ParentDevEnv,
-  ParentDevNetworkMode,
-} from '../../scripts/dev/local-dev-config.mjs';
+import { ParentDevEnv, ParentDevNetworkMode } from '../../scripts/dev/local-dev-config.mjs';
 
 const repoRoot = process.cwd();
-const generatedConfigDirectory = join(
-  repoRoot,
-  'apps',
-  'parent-desktop',
-  'src-tauri',
-  '.generated'
-);
+const generatedConfigDirectory = join(repoRoot, 'apps', 'parent-desktop', 'src-tauri', '.generated');
 
 describe('parent desktop runtime package', () => {
   it('builds a loopback Tauri launch config from the real desktop dev entrypoint', async () => {
@@ -64,9 +55,6 @@ async function runDryRun({ agentPort, portalPort, mode, lanHost }) {
   }
 
   await runParentDesktopDev(argv, environment);
-  const generatedPath = join(
-    generatedConfigDirectory,
-    `tauri.dev.portal-${portalPort}.agent-${agentPort}.conf.json`
-  );
+  const generatedPath = join(generatedConfigDirectory, `tauri.dev.portal-${portalPort}.agent-${agentPort}.conf.json`);
   return JSON.parse(await readFile(generatedPath, 'utf8'));
 }

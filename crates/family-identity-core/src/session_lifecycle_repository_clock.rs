@@ -9,9 +9,9 @@ use super::SessionLifecycleRepositoryError;
 pub(crate) fn trusted_now_epoch_millis() -> Result<i64, SessionLifecycleRepositoryError> {
     let elapsed = SystemTime::now()
         .duration_since(UNIX_EPOCH)
-        .map_err(|_| SessionLifecycleRepositoryError::ClockUnavailable)?;
+        .map_err(|_error| SessionLifecycleRepositoryError::ClockUnavailable)?;
     i64::try_from(elapsed.as_millis())
-        .map_err(|_| SessionLifecycleRepositoryError::ClockUnavailable)
+        .map_err(|_error| SessionLifecycleRepositoryError::ClockUnavailable)
 }
 
 /// Read and advance the Account-owned durable clock inside the operation

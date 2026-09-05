@@ -20,7 +20,7 @@ impl<'a> Cursor<'a> {
         }
         values
             .try_into()
-            .map_err(|_| AccountIdentityMutationAuthorityError::InvalidEnvelope)
+            .map_err(|_error| AccountIdentityMutationAuthorityError::InvalidEnvelope)
     }
 
     pub(super) fn read_u64s<const N: usize>(
@@ -45,12 +45,12 @@ impl<'a> Cursor<'a> {
         }
         values
             .try_into()
-            .map_err(|_| AccountIdentityMutationAuthorityError::InvalidEnvelope)
+            .map_err(|_error| AccountIdentityMutationAuthorityError::InvalidEnvelope)
     }
 
     fn read_string(&mut self) -> Result<String, AccountIdentityMutationAuthorityError> {
         let length = usize::try_from(u32::from_be_bytes(self.read_array::<4>()?))
-            .map_err(|_| AccountIdentityMutationAuthorityError::InvalidEnvelope)?;
+            .map_err(|_error| AccountIdentityMutationAuthorityError::InvalidEnvelope)?;
         if length > MAX_CANONICAL_FIELD_BYTES {
             return Err(AccountIdentityMutationAuthorityError::InvalidEnvelope);
         }
@@ -65,7 +65,7 @@ impl<'a> Cursor<'a> {
         self.offset = end;
         std::str::from_utf8(value)
             .map(str::to_owned)
-            .map_err(|_| AccountIdentityMutationAuthorityError::InvalidEnvelope)
+            .map_err(|_error| AccountIdentityMutationAuthorityError::InvalidEnvelope)
     }
 
     fn read_array<const N: usize>(

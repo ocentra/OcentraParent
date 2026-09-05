@@ -155,7 +155,7 @@ fn live_and_stored_envelopes_reject_malformed_payloads() {
     let mut live_json = serde_json::to_value(&live).expect_value("live envelope serializes");
     live_json["payload"] = json!({"unexpected": true});
     let live_error = serde_json::from_value::<EventEnvelope<EnvelopeBoundaryEvent>>(live_json)
-        .expect_err("malformed live payload must fail closed");
+        .expect_err_value("malformed live payload must fail closed");
     assert!(live_error.to_string().contains("missing field `label`"));
 
     let mut stored_json = serde_json::to_value(live.store().expect_value("stored envelope builds"))
@@ -224,7 +224,7 @@ fn live_and_stored_envelopes_reject_aggregate_and_idempotency_tampering() {
         let mut live_json = serde_json::to_value(&live).expect_value("live envelope serializes");
         live_json[field] = json!(value);
         let error = serde_json::from_value::<EventEnvelope<EnvelopeBoundaryEvent>>(live_json)
-            .expect_err("tampered live metadata must fail closed");
+            .expect_err_value("tampered live metadata must fail closed");
         assert!(error.to_string().contains(expected_field));
     }
 

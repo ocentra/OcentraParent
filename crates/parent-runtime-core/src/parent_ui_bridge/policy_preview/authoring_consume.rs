@@ -11,7 +11,7 @@ pub(super) fn consume(
         .ok_or_else(|| "policy preview authoring handle is missing".to_string())?;
     let mut authoring_store = store()
         .lock()
-        .map_err(|_| "policy preview authoring store is unavailable".to_string())?;
+        .map_err(|error| format!("policy preview authoring store is unavailable: {error}"))?;
     let Some(entry) = authoring_store.entries.get(handle) else {
         return Err("policy preview authoring handle is unknown or already consumed".to_string());
     };

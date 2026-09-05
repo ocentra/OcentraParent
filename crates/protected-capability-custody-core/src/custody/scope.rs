@@ -21,18 +21,21 @@ impl<'a> OperationScope<'a> {
         store: &'a CustodyStore,
         locator: &BindingLocator,
     ) -> Result<Self, CustodyError> {
-        let operation = store.operation.lock().map_err(|_| CustodyError::Conflict)?;
+        let operation = store
+            .operation
+            .lock()
+            .map_err(|_poison_error| CustodyError::Conflict)?;
         let authority = store
             .authority
             .lock_current(locator)
-            .map_err(support::map_authority_error)?;
+            .map_err(|error| support::map_authority_error(&error))?;
         if authority.binding().locator() != locator {
             return Err(CustodyError::WrongBinding);
         }
         store
             .secured_path
             .revalidate()
-            .map_err(support::map_path_error)?;
+            .map_err(|error| support::map_path_error(&error))?;
         Ok(Self {
             authority,
             _operation: operation,

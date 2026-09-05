@@ -187,24 +187,6 @@ fn partial_workpack(
     )
 }
 
-fn unavailable_workpack(
-    workpack_id: LanPlanWorkpackId,
-    workpack_title: &str,
-) -> LanPlanWorkpackStatusRow {
-    workpack(
-        workpack_id,
-        workpack_title,
-        WorkpackDetails {
-            discovery_state: LanPairingProductionDiscoveryState::Unavailable,
-            proof_state: V09ProductionDiscoveryHouseholdProofState::NotImplemented,
-            runtime_owner: V09ProductionDiscoveryHouseholdRuntimeOwner::RustServiceReadModel,
-            source_status: LanDiscoverySourceStatus::NotImplemented,
-            read_model_visible: true,
-            required_artifact_summary: None,
-        },
-    )
-}
-
 fn implemented_workpack(
     workpack_id: LanPlanWorkpackId,
     workpack_title: &str,

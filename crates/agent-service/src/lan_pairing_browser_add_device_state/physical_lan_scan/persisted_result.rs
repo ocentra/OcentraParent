@@ -9,11 +9,11 @@ use super::{
 
 pub(super) fn persisted_scan_result_or_fail(
     runtime: &LanPairingRuntime,
-    devices: Vec<LanNetworkInventoryDevice>,
+    devices: &[LanNetworkInventoryDevice],
     metadata: LanScanHistoryMetadata,
     previous_scan_snapshot: Option<LanScanHistorySnapshot>,
 ) -> LanNetworkDeviceScanResult {
-    if !save_scan_history(runtime, &devices, Some(metadata)) {
+    if !save_scan_history(runtime, devices, Some(metadata)) {
         return failed_persistence_scan_result(previous_scan_snapshot);
     }
     let Some(current_scan_snapshot) = load_scan_history_snapshot(runtime) else {

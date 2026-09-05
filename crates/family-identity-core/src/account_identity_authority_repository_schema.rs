@@ -22,7 +22,7 @@ fn validate_definition(
             [],
             |row| row.get::<_, String>(0),
         )
-        .map_err(|_| AccountIdentityAuthorityRepositoryError::Unavailable)?;
+        .map_err(|_error| AccountIdentityAuthorityRepositoryError::Unavailable)?;
     if !definition.to_ascii_uppercase().contains("STRICT") {
         return Err(AccountIdentityAuthorityRepositoryError::InvalidStoredAuthority);
     }
@@ -44,24 +44,24 @@ fn validate_columns(
     ];
     let mut statement = connection
         .prepare("PRAGMA table_info('account_identity_current_authority')")
-        .map_err(|_| AccountIdentityAuthorityRepositoryError::Unavailable)?;
+        .map_err(|_error| AccountIdentityAuthorityRepositoryError::Unavailable)?;
     let mut rows = statement
         .query([])
-        .map_err(|_| AccountIdentityAuthorityRepositoryError::Unavailable)?;
+        .map_err(|_error| AccountIdentityAuthorityRepositoryError::Unavailable)?;
     let mut actual = Vec::new();
     while let Some(row) = rows
         .next()
-        .map_err(|_| AccountIdentityAuthorityRepositoryError::Unavailable)?
+        .map_err(|_error| AccountIdentityAuthorityRepositoryError::Unavailable)?
     {
         actual.push((
             row.get::<_, String>(1)
-                .map_err(|_| AccountIdentityAuthorityRepositoryError::Unavailable)?,
+                .map_err(|_error| AccountIdentityAuthorityRepositoryError::Unavailable)?,
             row.get::<_, String>(2)
-                .map_err(|_| AccountIdentityAuthorityRepositoryError::Unavailable)?,
+                .map_err(|_error| AccountIdentityAuthorityRepositoryError::Unavailable)?,
             row.get::<_, i64>(3)
-                .map_err(|_| AccountIdentityAuthorityRepositoryError::Unavailable)?,
+                .map_err(|_error| AccountIdentityAuthorityRepositoryError::Unavailable)?,
             row.get::<_, i64>(5)
-                .map_err(|_| AccountIdentityAuthorityRepositoryError::Unavailable)?,
+                .map_err(|_error| AccountIdentityAuthorityRepositoryError::Unavailable)?,
         ));
     }
     if actual.len() != expected.len()
@@ -82,17 +82,17 @@ fn validate_indexes(
 ) -> Result<(), AccountIdentityAuthorityRepositoryError> {
     let mut statement = connection
         .prepare("PRAGMA index_list('account_identity_current_authority')")
-        .map_err(|_| AccountIdentityAuthorityRepositoryError::Unavailable)?;
+        .map_err(|_error| AccountIdentityAuthorityRepositoryError::Unavailable)?;
     let mut rows = statement
         .query([])
-        .map_err(|_| AccountIdentityAuthorityRepositoryError::Unavailable)?;
+        .map_err(|_error| AccountIdentityAuthorityRepositoryError::Unavailable)?;
     while let Some(row) = rows
         .next()
-        .map_err(|_| AccountIdentityAuthorityRepositoryError::Unavailable)?
+        .map_err(|_error| AccountIdentityAuthorityRepositoryError::Unavailable)?
     {
         let name = row
             .get::<_, String>(1)
-            .map_err(|_| AccountIdentityAuthorityRepositoryError::Unavailable)?;
+            .map_err(|_error| AccountIdentityAuthorityRepositoryError::Unavailable)?;
         if !name.starts_with("sqlite_autoindex_") {
             return Err(AccountIdentityAuthorityRepositoryError::InvalidStoredAuthority);
         }

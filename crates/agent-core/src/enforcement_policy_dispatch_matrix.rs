@@ -1,11 +1,12 @@
-use ocentra_parent_agent_protocol::activity::policy::PolicyAction;
-use ocentra_parent_agent_protocol::enforcement::EnforcementCapabilityState;
 use ocentra_parent_agent_protocol::enforcement_policy_dispatch::{
-    EnforcementPolicyDispatchApprovalState, EnforcementPolicyDispatchOutcomeState,
-    EnforcementPolicyDispatchProofLevel, EnforcementPolicyDispatchReadModelEntry,
+    EnforcementPolicyDispatchOutcomeState, EnforcementPolicyDispatchReadModelEntry,
     EnforcementPolicyDispatchRejectionReason,
 };
-use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlParentAction;
+
+#[path = "enforcement_policy_dispatch_matrix_action.rs"]
+mod enforcement_policy_dispatch_matrix_action;
+#[path = "enforcement_policy_dispatch_matrix_outcome.rs"]
+mod enforcement_policy_dispatch_matrix_outcome;
 
 pub(super) fn validate_entry_matrix(
     entry: &EnforcementPolicyDispatchReadModelEntry,
@@ -19,7 +20,10 @@ pub(super) fn validate_entry_matrix(
     if entry.matrix_row.requested_action != entry.intent.requested_parent_action {
         return Err(EnforcementPolicyDispatchRejectionReason::BroadClaimNotProved);
     }
-    if entry.intent.requested_policy_action != policy_action_for(entry.matrix_row.requested_action)
+    if entry.intent.requested_policy_action
+        != enforcement_policy_dispatch_matrix_action::policy_action_for(
+            entry.matrix_row.requested_action,
+        )
     {
         return Err(EnforcementPolicyDispatchRejectionReason::BroadClaimNotProved);
     }
@@ -37,61 +41,5 @@ pub(super) fn validate_entry_matrix(
         return Err(EnforcementPolicyDispatchRejectionReason::BroadClaimNotProved);
     }
 
-    match entry.matrix_row.outcome_state {
-        EnforcementPolicyDispatchOutcomeState::DispatchReady => {
-            if entry.intent.dry_run
-                || !matches!(
-                    entry.approval_state,
-                    EnforcementPolicyDispatchApprovalState::NotRequired
-                        | EnforcementPolicyDispatchApprovalState::Approved
-                        | EnforcementPolicyDispatchApprovalState::OverrideActive
-                )
-            {
-                return Err(EnforcementPolicyDispatchRejectionReason::BroadClaimNotProved);
-            }
-            if entry.matrix_row.capability_state != EnforcementCapabilityState::Supported {
-                return Err(EnforcementPolicyDispatchRejectionReason::AdapterUnavailable);
-            }
-            if entry.matrix_row.proof_level != EnforcementPolicyDispatchProofLevel::Implemented {
-                return Err(EnforcementPolicyDispatchRejectionReason::BroadClaimNotProved);
-            }
-            if entry.matrix_row.rejection_reason != EnforcementPolicyDispatchRejectionReason::None {
-                return Err(entry.matrix_row.rejection_reason);
-            }
-        }
-        EnforcementPolicyDispatchOutcomeState::ManualRequired => {
-            if entry.matrix_row.capability_state != EnforcementCapabilityState::ManualRequired {
-                return Err(EnforcementPolicyDispatchRejectionReason::AdapterManualRequired);
-            }
-            if entry.matrix_row.proof_level != EnforcementPolicyDispatchProofLevel::ManualRequired
-                || entry.matrix_row.rejection_reason
-                    != EnforcementPolicyDispatchRejectionReason::AdapterManualRequired
-            {
-                return Err(EnforcementPolicyDispatchRejectionReason::BroadClaimNotProved);
-            }
-        }
-        EnforcementPolicyDispatchOutcomeState::Rejected => {
-            if entry.matrix_row.rejection_reason == EnforcementPolicyDispatchRejectionReason::None {
-                return Err(EnforcementPolicyDispatchRejectionReason::BroadClaimNotProved);
-            }
-        }
-        EnforcementPolicyDispatchOutcomeState::ReportOnly
-        | EnforcementPolicyDispatchOutcomeState::DryRunOnly
-        | EnforcementPolicyDispatchOutcomeState::Degraded
-        | EnforcementPolicyDispatchOutcomeState::Unavailable => {}
-    }
-
-    Ok(())
-}
-
-fn policy_action_for(action: V08EnforcementProductControlParentAction) -> PolicyAction {
-    match action {
-        V08EnforcementProductControlParentAction::Warn => PolicyAction::Warn,
-        V08EnforcementProductControlParentAction::TimeLimit => PolicyAction::TimeLimit,
-        V08EnforcementProductControlParentAction::BlockScopedProcess => PolicyAction::Block,
-        V08EnforcementProductControlParentAction::AskParent => PolicyAction::AskParent,
-        V08EnforcementProductControlParentAction::Observe
-        | V08EnforcementProductControlParentAction::DryRunPreview
-        | V08EnforcementProductControlParentAction::ReportOnly => PolicyAction::Allow,
-    }
+    enforcement_policy_dispatch_matrix_outcome::validate_outcome(entry)
 }

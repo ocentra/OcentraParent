@@ -7,7 +7,7 @@ use tokio::{process::Command, time::Instant};
 
 use crate::{
     local_ai_chat_generation_args::llama_acceleration_args,
-    local_ai_chat_generation_request::LocalAiChatGenerationRequest,
+    local_ai_chat_generation_request_input::LocalAiChatGenerationRequest,
     local_ai_chat_generation_result::{failed_result, unavailable_result, LocalAiFailedGeneration},
     local_ai_runtime_config::LocalAiRuntimeConfigSnapshot,
     local_ai_runtime_config_values::{
@@ -83,21 +83,6 @@ pub(crate) async fn run_local_ai_chat_generation(
     };
 
     execute_llama_cli(&message_id, request, config, &runtime_binary, &model_file).await
-}
-
-pub(crate) fn unavailable_result_for_command(
-    message_id: impl Into<LocalAiGenerationMessageId>,
-    config: &LocalAiRuntimeConfigSnapshot,
-    reason: LocalAiUnavailableReason,
-) -> LocalAiChatGenerationResult {
-    let message_id = message_id.into();
-    let request = LocalAiChatGenerationRequest {
-        model_id: config.model_id().0,
-        prompt: String::new(),
-        max_output_tokens: config.generation_max_tokens(),
-        timeout_ms: config.generation_timeout_ms(),
-    };
-    unavailable_result(&message_id.0, config, &request, reason)
 }
 
 async fn execute_llama_cli(

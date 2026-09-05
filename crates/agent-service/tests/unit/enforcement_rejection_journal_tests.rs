@@ -233,6 +233,7 @@ fn rejected_command() -> AgentCommandEnvelope {
 
 fn corrected_retry_command() -> AgentCommandEnvelope {
     let mut command = rejected_command();
+    command.target.route = AgentRoute::Localhost;
     command.payload.insert(
         constants::field::POLICY_TARGET_TYPE.to_string(),
         LogFieldValue::String(policy_constants::TARGET_TYPE_PROCESS.to_string()),

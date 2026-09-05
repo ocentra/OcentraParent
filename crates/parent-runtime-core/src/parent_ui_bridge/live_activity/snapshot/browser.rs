@@ -6,7 +6,7 @@ pub(super) fn apply_browser_live_activity_impl(
 ) {
     if !matches!(
         input.route,
-        ParentRouteId::Activity | ParentRouteId::Browser
+        ParentRouteId::Activity | ParentRouteId::Browser | ParentRouteId::CapabilityStatus
     ) {
         return;
     }
@@ -22,13 +22,12 @@ pub(super) fn apply_browser_live_activity_impl(
         snapshot.browser_evidence_event = Some(evidence.event.clone());
         snapshot.browser_evidence_read_model = serde_json::to_value(&evidence.read_model).ok();
     }
-    if !matches!(input.route, ParentRouteId::Browser) {
-        return;
-    }
-
     if let Some(status) = input.browser_managed_status_snapshot {
         snapshot.browser_managed_event = Some(status.event.clone());
         snapshot.browser_managed_status = serde_json::to_value(&status.status).ok();
+    }
+    if !matches!(input.route, ParentRouteId::Browser) {
+        return;
     }
     if let Some(intervention) = input.browser_intervention_read_model_snapshot {
         snapshot.browser_intervention_event = Some(intervention.event.clone());

@@ -1,12 +1,9 @@
 use std::{
-    sync::{Mutex, Weak},
     thread,
     time::{Duration, Instant},
 };
 
-use ocentra_lan_core::network_inventory::passive_discovery::LanPassiveDiscoveryListenerState;
-
-use crate::lan_pairing_runtime_state::provider_heartbeat::LanAiProviderHeartbeatState;
+use crate::lan_pairing::LanPairingRuntime;
 
 use super::super::{
     capability_store::{LanPassiveDiscoveryCapabilityStore, LanPassiveDiscoveryRuntimeCapability},
@@ -25,16 +22,14 @@ mod startup;
 
 impl PassiveDiscoveryListenerRuntime {
     pub(super) fn new(
-        listener_state: Weak<Mutex<LanPassiveDiscoveryListenerState>>,
-        heartbeat: Weak<Mutex<Option<LanAiProviderHeartbeatState>>>,
+        runtime: LanPairingRuntime,
         refresh_sender: LanPassiveDiscoveryRefreshSignalSender,
         capability_store: LanPassiveDiscoveryCapabilityStore,
         pipeline_health: super::super::pipeline_health::LanPassiveDiscoveryPipelineHealth,
     ) -> Self {
         let now = Instant::now();
         Self {
-            listener_state,
-            heartbeat,
+            runtime,
             refresh_sender,
             observed_state: LanPassiveDiscoveryRuntimeObservedState::default(),
             listener_slots: passive_discovery_udp_sources()
@@ -56,13 +51,12 @@ impl PassiveDiscoveryListenerRuntime {
     pub(super) fn run(mut self) {
         self.persist_capability();
         loop {
-            let Some(listener_state) = self.listener_state.upgrade() else {
-                break;
-            };
+            let listener_state =
+                std::sync::Arc::clone(&self.runtime.passive_discovery_listener_state);
             if !is_running(&listener_state) {
                 break;
             }
-            self.run_maintenance_if_due(&listener_state);
+            self.run_maintenance_if_due();
             if !is_running(&listener_state) {
                 break;
             }
@@ -77,18 +71,11 @@ impl PassiveDiscoveryListenerRuntime {
         self.persist_stopped_capability();
     }
 
-    fn run_maintenance_if_due(
-        &mut self,
-        listener_state: &std::sync::Arc<Mutex<LanPassiveDiscoveryListenerState>>,
-    ) {
+    fn run_maintenance_if_due(&mut self) {
         if Instant::now() < self.next_maintenance {
             return;
         }
-        let outcome = collect_runtime_slice(
-            listener_state,
-            self.heartbeat_reachability(),
-            &mut self.observed_state,
-        );
+        let outcome = collect_runtime_slice(&self.runtime, &mut self.observed_state);
         self.next_maintenance = Instant::now() + PASSIVE_DISCOVERY_INTERVAL;
         if !outcome.running {
             for slot in &mut self.listener_slots {
@@ -138,7 +125,7 @@ impl PassiveDiscoveryListenerRuntime {
         }
     }
 
-    fn persist_stopped_capability(&mut self) {
+    fn persist_stopped_capability(&self) {
         let now = Instant::now();
         let pipeline_health = self.pipeline_health.snapshot();
         let capability = LanPassiveDiscoveryRuntimeCapability::stopped(

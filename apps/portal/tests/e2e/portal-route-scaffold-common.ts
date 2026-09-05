@@ -45,7 +45,8 @@ export async function assertPolicyGuideDeepLinks(page: Page): Promise<void> {
   await page.getByRole('button', { name: 'Open Browser setup' }).click({ force: true });
   await expect(page).toHaveURL(/#\/browser-settings$/);
   await page.goto('/#/policy-apps');
-  await expect(surface.locator('[aria-label="Open Apps Rules guide"]')).toBeVisible();
+  await page.getByRole('button', { exact: true, name: 'Open app activity' }).click();
+  await expect(page).toHaveURL(/#\/app-game-sessions$/);
 }
 
 export async function assertSidePanelFoldouts(page: Page): Promise<void> {
@@ -67,11 +68,11 @@ export async function assertSidePanelFoldouts(page: Page): Promise<void> {
   await expect(page.getByRole('button', { name: `Open ${PARENT_PORTAL_NAV_LABELS.Lan}` })).toHaveCount(0);
   await expect(page.getByRole('button', { name: `Open ${PARENT_PORTAL_NAV_LABELS.Capability}` })).toHaveCount(0);
   await expect(page.getByRole('button', { name: `Open ${PARENT_PORTAL_NAV_LABELS.Remote}` })).toBeVisible();
-  await expect(page.getByRole('button', { name: `Open ${PARENT_PORTAL_NAV_LABELS.Platforms}` })).toHaveCount(0);
-  await expect(page.getByRole('button', { name: `Open ${PARENT_PORTAL_NAV_LABELS.Updates}` })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: `Open ${PARENT_PORTAL_NAV_LABELS.Platforms}` })).toBeVisible();
+  await expect(page.getByRole('button', { name: `Open ${PARENT_PORTAL_NAV_LABELS.Updates}` })).toBeVisible();
   await expect(page.getByRole('button', { name: `Expand ${PARENT_PORTAL_NAV_LABELS.Activity}` })).toHaveCount(0);
   await expect(page.getByRole('button', { name: `Open ${PARENT_PORTAL_NAV_LABELS.ReportSet}` })).toHaveCount(0);
-  await expect(page.getByRole('button', { name: `Open ${PARENT_PORTAL_NAV_LABELS.AppsGames}` })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: `Open ${PARENT_PORTAL_NAV_LABELS.AppsGames}` })).toBeVisible();
   await expect(page.getByRole('button', { name: `Open ${PARENT_PORTAL_NAV_LABELS.Builder}` })).toHaveCount(0);
   await clickSidePanelButton(page, `Open ${PARENT_PORTAL_NAV_LABELS.Devices}`);
   await expect(page).toHaveURL(/#\/devices$/);
@@ -141,10 +142,8 @@ export async function assertManageTargetSelectorSemantics(page: Page): Promise<v
 
   await page.goto('/#/platforms-install');
   await expect(targetSelector).toHaveCount(0);
-  await expect(surface.locator('text').filter({ hasText: 'Local Area Network' }).first()).toBeVisible();
-  await expect(surface.locator('text').filter({ hasText: 'Info' }).first()).toBeVisible();
-  await expect(surface.locator('text').filter({ hasText: 'Platforms / Parent desktop' })).toHaveCount(0);
-  await expect(surface.locator('text').filter({ hasText: 'Platforms / Parent profile' })).toHaveCount(0);
+  await expect(page.getByRole('region', { name: 'Platforms and install status' })).toBeVisible();
+  await expect(surface).toBeHidden();
 }
 
 export async function assertAssistantEntryAvailable(page: Page): Promise<void> {
@@ -207,24 +206,28 @@ export async function expectAssistantQuickActionChoice(
   await expect(assistantQuickActionChoiceButton(page, actionTitle, choiceLabel)).toBeVisible();
 }
 
-export async function assertSupportContactRoute(page: Page): Promise<void> {
+export async function assertDiagnosticsRoute(page: Page): Promise<void> {
   await page.goto('/#/diagnostics');
   const surface = page.locator('svg.parent-portal-svg-surface');
   await expect(page.getByRole('heading', { exact: true, name: 'Device diagnostics' })).toBeVisible();
   await expect(page.getByRole('button', { exact: true, name: 'Copy diagnostics' })).toBeVisible();
   await expectSurfaceTextToContain(surface, 'DIAGNOSTICS');
-  await expectSurfaceTextToContain(
-    surface,
-    'Support messages are parent-authored and sent only when the parent chooses.'
-  );
+  await expectSurfaceTextToContain(surface, 'Copy redacted support diagnostics');
+  await expectSurfaceTextToContain(surface, 'Developer tools');
+  await expectSurfaceTextToContain(surface, 'Local inspection');
+  await expectSurfaceTextToContain(surface, 'Service authority stays fail-closed');
   await expectSurfaceTextToContain(surface, 'CURRENT AREA');
-  await expectSurfaceTextToContain(surface, 'SUPPORT');
+  await expectSurfaceTextToContain(surface, 'DIAGNOSTICS');
   await expectSurfaceTextToContain(surface, 'DATA CUSTODY');
   await expectSurfaceTextToContain(surface, 'LOCAL FIRST');
+  await expect(surface).not.toContainText('Support messages are parent-authored');
 }
 
 export async function assertFrameTunerRoute(page: Page): Promise<void> {
   await page.goto('/#/app-layout');
+  await expect(page.locator('.portal-unified-shell')).toHaveCount(1);
+  await expect(page.getByRole('button', { exact: true, name: 'Home' })).toBeVisible();
+  await expect(page.getByRole('button', { exact: true, name: 'Login' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'App layout' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Save JSON' })).toBeVisible();
   await expect(page.locator('.app-sidebar')).toHaveCount(0);
@@ -232,6 +235,8 @@ export async function assertFrameTunerRoute(page: Page): Promise<void> {
   await assertAppLayoutTopTabs(page);
   await assertMainAppLayoutHierarchy(page);
   await assertChatLayoutHierarchy(page);
+  await page.getByRole('button', { exact: true, name: 'Home' }).click();
+  await expect(page).toHaveURL(/#\/overview$/u);
 }
 
 export async function surfaceText(surface: ReturnType<Page['locator']>): Promise<string> {
@@ -295,11 +300,11 @@ export async function expandSidePanelGroup(page: Page, label: string): Promise<v
 export async function assertMainAppLayoutHierarchy(page: Page): Promise<void> {
   await expect(page.locator('.portal-frame-tuner-hierarchy')).toContainText('Main App');
   await expect(page.locator('.portal-frame-tuner-hierarchy')).toContainText('Side panel');
-  await expect(page.locator('.portal-frame-tuner-hierarchy')).toContainText('Sidepanel top');
+  await expect(page.locator('.portal-frame-tuner-hierarchy')).toContainText('Side panel top');
   await expect(page.getByRole('tab', { name: 'Side panel' })).toBeVisible();
   await expect(page.getByRole('tab', { name: 'Main panel' })).toBeVisible();
-  await expect(page.getByRole('tab', { name: 'Sidepanel top' })).toBeVisible();
-  await expect(page.getByRole('tab', { name: 'Sidepanel bottom' })).toBeVisible();
+  await expect(page.getByRole('tab', { name: 'Side panel top' })).toBeVisible();
+  await expect(page.getByRole('tab', { name: 'Side panel bottom' })).toBeVisible();
   await expect(page.getByRole('tab', { name: 'Chrome' })).toBeVisible();
   await expect(page.getByRole('tab', { name: 'Colors' })).toBeVisible();
   await expect(page.getByRole('tab', { name: 'Content' })).toBeVisible();
@@ -321,9 +326,9 @@ export async function assertChatLayoutHierarchy(page: Page): Promise<void> {
   await page.getByRole('tab', { name: 'Chat Interface' }).click();
   await expect(page.locator('.portal-frame-tuner-hierarchy')).toContainText('Chat Interface');
   await expect(page.locator('.portal-frame-tuner-hierarchy')).toContainText('Side panel');
-  await expect(page.locator('.portal-frame-tuner-hierarchy')).toContainText('Sidepanel top');
-  await expect(page.getByRole('tab', { name: 'Sidepanel top' })).toBeVisible();
-  await expect(page.getByRole('tab', { name: 'Sidepanel bottom' })).toBeVisible();
+  await expect(page.locator('.portal-frame-tuner-hierarchy')).toContainText('Side panel top');
+  await expect(page.getByRole('tab', { name: 'Side panel top' })).toBeVisible();
+  await expect(page.getByRole('tab', { name: 'Side panel bottom' })).toBeVisible();
   await page.getByRole('tab', { name: 'Main panel' }).click();
   await expect(page.locator('.portal-frame-tuner-hierarchy')).toContainText('Chat Interface');
   await expect(page.locator('.portal-frame-tuner-hierarchy')).toContainText('Main panel');

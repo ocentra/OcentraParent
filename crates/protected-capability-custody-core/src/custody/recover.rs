@@ -13,7 +13,7 @@ pub(super) fn run(
 ) -> Result<RecoveryOutcome, CustodyError> {
     let scope = OperationScope::acquire(store, locator)?;
     let record = reconcile::current(store, &scope)?;
-    outcome(record, scope.binding())
+    outcome(&record, scope.binding())
 }
 
 pub(super) fn resolve(
@@ -23,7 +23,7 @@ pub(super) fn resolve(
     let scope = OperationScope::acquire(store, locator)?;
     let record = reconcile::current(store, &scope)?;
     match finalize::resolve_record(store, &scope, record) {
-        Ok(record) => outcome(record, scope.binding()),
+        Ok(record) => outcome(&record, scope.binding()),
         Err(CustodyError::CommitAmbiguous) => Ok(RecoveryOutcome::CommitAmbiguous),
         Err(CustodyError::AbortAmbiguous) => Ok(RecoveryOutcome::AbortAmbiguous),
         Err(error) => Err(error),
@@ -31,11 +31,11 @@ pub(super) fn resolve(
 }
 
 fn outcome(
-    record: Record,
+    record: &Record,
     binding: &crate::binding::Binding,
 ) -> Result<RecoveryOutcome, CustodyError> {
     match record.state {
-        SealedState::Prepared => Ok(RecoveryOutcome::Prepared(prepared(&record, binding))),
+        SealedState::Prepared => Ok(RecoveryOutcome::Prepared(prepared(record, binding))),
         SealedState::CommitAmbiguous => Ok(RecoveryOutcome::CommitAmbiguous),
         SealedState::AbortAmbiguous => Ok(RecoveryOutcome::AbortAmbiguous),
         SealedState::Committed => Ok(RecoveryOutcome::Committed(CommittedCapability {

@@ -7,7 +7,7 @@ use crate::family_identity::RecoveryId;
 use super::authority::{ensure_current_authority, timestamp, trusted_now_in_transaction};
 use super::recovery_ops::ensure_recovery_proof_current;
 use super::security_entropy::opaque_id;
-use super::support_recovery_handoff::durable_handoff;
+use super::support_recovery_handoff::{durable_handoff, DurableRecoveryHandoffInput};
 use super::{InviteRecoveryRepositoryError, RecoveryHandoffDeliveryAttempt, HANDOFF_LEASE_MILLIS};
 
 impl SqliteAccountIdentityAuthorityRepository {
@@ -18,42 +18,38 @@ impl SqliteAccountIdentityAuthorityRepository {
         let transaction = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
-            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
+            .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)?;
         let (now, _) = trusted_now_in_transaction(&transaction)?;
         ensure_current_authority(&transaction, authority, now)?;
+        let household_id = authority.household_id().to_string();
         let lease_expires = now
             .checked_add(HANDOFF_LEASE_MILLIS)
             .ok_or(InviteRecoveryRepositoryError::HandoffConflict)?;
         let Some(row) = load_ready_handoff(&transaction, authority, now)? else {
             transaction
                 .commit()
-                .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
+                .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)?;
             return Ok(None);
         };
         let recovery_id = RecoveryId::parse(row.recovery_id.clone())
             .map_err(InviteRecoveryRepositoryError::InvalidValue)?;
-        ensure_recovery_proof_current(
-            &transaction,
-            &recovery_id,
-            authority.household_id().to_string(),
-            now,
-        )?;
+        ensure_recovery_proof_current(&transaction, &recovery_id, household_id.as_str(), now)?;
         let attempt_id = claim_handoff(&transaction, &row, authority, lease_expires, now)?;
-        let handoff = durable_handoff(
-            row.handoff_id,
-            row.correlation_id,
-            row.recovery_id,
-            authority.household_id().to_string(),
-            row.account_id,
-            row.member_id,
-            row.device_id,
-            row.kind,
-            row.requested_at,
-        )?;
+        let handoff = durable_handoff(DurableRecoveryHandoffInput {
+            handoff_id: row.handoff_id,
+            correlation_id: row.correlation_id,
+            recovery_id: row.recovery_id,
+            household_id: authority.household_id().to_string(),
+            account_id: row.account_id,
+            member_id: row.member_id,
+            device_id: row.device_id,
+            kind: row.kind.as_str(),
+            requested_at_epoch_millis: row.requested_at,
+        })?;
         let lease_expires_at = timestamp(lease_expires)?;
         transaction
             .commit()
-            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
+            .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)?;
         Ok(Some(RecoveryHandoffDeliveryAttempt {
             handoff,
             attempt_id,
@@ -69,7 +65,7 @@ impl SqliteAccountIdentityAuthorityRepository {
         let transaction = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
-            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
+            .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)?;
         let (now, _) = trusted_now_in_transaction(&transaction)?;
         ensure_current_authority(&transaction, authority, now)?;
         let changed = transaction
@@ -95,13 +91,13 @@ impl SqliteAccountIdentityAuthorityRepository {
                     now,
                 ],
             )
-            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
+            .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)?;
         if changed != 1 {
             return Err(InviteRecoveryRepositoryError::HandoffConflict);
         }
         transaction
             .commit()
-            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)
+            .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)
     }
 }
 
@@ -146,7 +142,7 @@ fn load_ready_handoff(
             },
         )
         .optional()
-        .map_err(|_| InviteRecoveryRepositoryError::Unavailable)
+        .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)
 }
 
 fn claim_handoff(
@@ -173,7 +169,7 @@ fn claim_handoff(
                 now,
             ],
         )
-        .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
+        .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)?;
     if changed != 1 {
         return Err(InviteRecoveryRepositoryError::HandoffConflict);
     }

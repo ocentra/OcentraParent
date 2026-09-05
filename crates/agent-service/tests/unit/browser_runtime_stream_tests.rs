@@ -60,6 +60,13 @@ const BROWSER_ACTION_INTENT_CHILD_STATUS_REF_FIELDS: [&TestStr; 3] = [
 
 pub(super) type TestResult = Result<(), Box<dyn Error>>;
 
+pub(super) fn serialize_test_json<T>(value: &T) -> TestString
+where
+    T: serde::Serialize + ?Sized,
+{
+    serde_json::to_string(value).unwrap_or_else(|_| std::process::abort())
+}
+
 macro_rules! assert_child_status_payload_empty {
     ($payload:expr) => {{
         assert_eq!(

@@ -1,4 +1,4 @@
-use std::{sync::Arc, time::Duration};
+use std::time::Duration;
 
 use chrono::{DateTime, SecondsFormat, Utc};
 use ocentra_schema::managed_browser_cdp_capture::{
@@ -6,7 +6,7 @@ use ocentra_schema::managed_browser_cdp_capture::{
 };
 use sha2::{Digest, Sha256};
 
-use super::{Freshness, Outcome, Payload};
+use super::{BindingInput, Freshness, Outcome, Payload};
 use crate::browser_bridge_capture::{
     authority::LaunchBinding,
     target::{document_identity_digest, DocumentIdentity, TargetSnapshot},
@@ -19,16 +19,17 @@ use crate::browser_bridge_capture::{
 const STRUCTURED_CUSTODY_STATE: &str = "unavailable";
 const STRUCTURED_EXTRACTION_ID_PREFIX: &str = "browser-extraction-";
 
-pub(super) fn bind_extraction(
-    binding: &LaunchBinding,
-    target_id: &str,
-    snapshot: &TargetSnapshot,
-    capability_revoked: Arc<std::sync::atomic::AtomicBool>,
-    captured_at_epoch_ms: u64,
-    captured_at_monotonic: Duration,
-    document_identity: Option<&DocumentIdentity>,
-    payload: Payload,
-) -> ManagedBrowserCdpStructuredExtraction {
+pub(super) fn bind_extraction(input: BindingInput<'_>) -> ManagedBrowserCdpStructuredExtraction {
+    let BindingInput {
+        binding,
+        target_id,
+        snapshot,
+        capability_revoked,
+        captured_at_epoch_ms,
+        captured_at_monotonic,
+        document_identity,
+        payload,
+    } = input;
     let Payload {
         visible_text_summary,
         visible_text_character_count,
@@ -52,16 +53,16 @@ pub(super) fn bind_extraction(
     } else {
         crate::browser_bridge_capture::target::opaque_evidence_refs(binding, target_id, snapshot)
     };
-    let evidence_digest = extraction_digest(
+    let evidence_digest = extraction_digest(&ExtractionDigestInput {
         binding,
         target_id,
         snapshot,
         captured_at_epoch_ms,
-        &signal_digest,
-        &sensitivity_digest,
+        signal_digest: &signal_digest,
+        sensitivity_digest: &sensitivity_digest,
         document_identity,
         redact_page_identity,
-    );
+    });
     let authority_binding =
         crate::browser_bridge_capture::target::authority_binding(binding, target_id, snapshot);
     let authority_digest = authority_binding.digest();
@@ -119,16 +120,26 @@ fn freshness_for(
     }
 }
 
-fn extraction_digest(
-    binding: &LaunchBinding,
-    target_id: &str,
-    snapshot: &TargetSnapshot,
+struct ExtractionDigestInput<'a> {
+    binding: &'a LaunchBinding,
+    target_id: &'a str,
+    snapshot: &'a TargetSnapshot,
     captured_at_epoch_ms: u64,
-    signal_digest: &str,
-    sensitivity_digest: &str,
-    document_identity: Option<&DocumentIdentity>,
+    signal_digest: &'a str,
+    sensitivity_digest: &'a str,
+    document_identity: Option<&'a DocumentIdentity>,
     redact_page_identity: bool,
-) -> String {
+}
+
+fn extraction_digest(input: &ExtractionDigestInput<'_>) -> String {
+    let binding = input.binding;
+    let target_id = input.target_id;
+    let snapshot = input.snapshot;
+    let captured_at_epoch_ms = input.captured_at_epoch_ms;
+    let signal_digest = input.signal_digest;
+    let sensitivity_digest = input.sensitivity_digest;
+    let document_identity = input.document_identity;
+    let redact_page_identity = input.redact_page_identity;
     let generation = binding.generation.to_string();
     let process_id = binding.process_id.to_string();
     let captured_at = captured_at_epoch_ms.to_string();

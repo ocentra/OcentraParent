@@ -26,14 +26,14 @@ impl super::super::SqliteAccountIdentityAuthorityRepository {
         current_authority: &VerifiedAccountIdentityAuthority,
     ) -> Result<IssuedParentLocalBridgeSession, SessionLifecycleRepositoryError> {
         let capability = ParentLocalBridgeSessionCapability::issue()
-            .map_err(|_| SessionLifecycleRepositoryError::EntropyUnavailable)?;
+            .map_err(|_error| SessionLifecycleRepositoryError::EntropyUnavailable)?;
         let connection_nonce = issue_connection_nonce()
-            .map_err(|_| SessionLifecycleRepositoryError::EntropyUnavailable)?;
+            .map_err(|_error| SessionLifecycleRepositoryError::EntropyUnavailable)?;
         let bridge_ttl_millis = self.session_policy.freshness_ttl_millis;
         let transaction = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+            .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
         let now_epoch_millis = clock::trusted_now_in_transaction(&transaction)?;
         let binding = authority::parent_local_bridge_binding_from_verified(
             &transaction,
@@ -68,7 +68,7 @@ impl super::super::SqliteAccountIdentityAuthorityRepository {
         audit::cleanup(&transaction, &record.binding.account_id, now_epoch_millis)?;
         transaction
             .commit()
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+            .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
         Ok(IssuedParentLocalBridgeSession::new(
             capability,
             AccountIdentityParentLocalBridgeHandshake {
@@ -123,7 +123,7 @@ pub(super) fn insert_record(
                 record.last_transition_at_epoch_millis,
             ],
         )
-        .map_err(|_| SessionLifecycleRepositoryError::CurrentnessConflict)?;
+        .map_err(|_error| SessionLifecycleRepositoryError::CurrentnessConflict)?;
     (changed == 1)
         .then_some(())
         .ok_or(SessionLifecycleRepositoryError::CurrentnessConflict)

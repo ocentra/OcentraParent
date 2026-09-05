@@ -49,12 +49,14 @@ fn timer_protocol_read_model_keeps_protocol_rows_and_counts() {
             "future-service-handler-proof".to_string(),
         ]
     );
-    assert!(read_model.protocol_read_model_non_claims.iter().any(|claim| {
-        claim == "no-agent-protocol-contract-implemented"
-    }));
-    assert!(read_model.protocol_read_model_non_claims.iter().any(|claim| {
-        claim == "no-service-read-api-implemented"
-    }));
+    assert!(read_model
+        .protocol_read_model_non_claims
+        .iter()
+        .any(|claim| { claim == "no-agent-protocol-contract-implemented" }));
+    assert!(read_model
+        .protocol_read_model_non_claims
+        .iter()
+        .any(|claim| { claim == "no-service-read-api-implemented" }));
     assert!(!read_model.agent_protocol_contract_implemented);
     assert!(!read_model.rust_protocol_mirrored);
     assert!(!read_model.service_command_registered);
@@ -453,12 +455,13 @@ fn timer_parent_surface_status_read_model_parent_surface_handoff_only_expands_pa
     );
     assert_eq!(
         parent_surface_handoff.rows[0].parent_surface_status_read_model_ref,
-            "future-service-readiness-response-consumer-parent-surface-status-read-model-proof"
+        "future-service-readiness-response-consumer-parent-surface-status-read-model-proof"
     );
     assert!(!parent_surface_handoff.rows[0].parent_surface_status_implemented);
     assert!(!parent_surface_handoff.rows[0].parent_surface_status_read_model_implemented);
-    assert!(!parent_surface_handoff.rows[0]
-        .parent_surface_status_read_model_parent_surface_implemented);
+    assert!(
+        !parent_surface_handoff.rows[0].parent_surface_status_read_model_parent_surface_implemented
+    );
     assert!(!parent_surface_handoff.rows[0].parent_surface_rendered);
     assert!(!parent_surface_handoff.rows[0].raw_private_source_rows_included);
     assert!(parent_surface_handoff.rows[1]

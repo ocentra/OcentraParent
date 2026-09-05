@@ -19,7 +19,9 @@ use crate::agent_service_client::{
     load_app_game_adapter_dispatch_result_read_model_snapshot,
     load_app_game_timer_parent_surface_read_model_snapshot,
 };
-use crate::parent_ui_bridge::route_requirements::route_requires_app_game_session_read_models;
+use crate::parent_ui_bridge::route_requirements::{
+    route_requires_activity_app_game_read_models, route_requires_app_game_session_read_models,
+};
 use crate::parent_ui_bridge::route_snapshot::dependencies::DependencyFailures;
 use crate::parent_ui_bridge::ParentRouteId;
 
@@ -42,7 +44,7 @@ pub(super) fn load_app_use(
     route: &ParentRouteId,
     failures: &mut DependencyFailures,
 ) -> Option<AppUseReadModelAgentServiceSnapshot> {
-    if route_requires_app_game_session_read_models(route) {
+    if route_requires_activity_app_game_read_models(route) {
         failures.capture(
             "app-use-read-model",
             load_activity_app_use_read_model_snapshot(None),
@@ -56,7 +58,7 @@ pub(super) fn load_games(
     route: &ParentRouteId,
     failures: &mut DependencyFailures,
 ) -> Option<GamesReadModelAgentServiceSnapshot> {
-    if route_requires_app_game_session_read_models(route) {
+    if route_requires_activity_app_game_read_models(route) {
         failures.capture(
             "games-read-model",
             load_activity_games_read_model_snapshot(None),

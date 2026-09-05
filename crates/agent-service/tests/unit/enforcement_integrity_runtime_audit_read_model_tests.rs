@@ -1,20 +1,16 @@
 use std::collections::BTreeMap;
-use std::primitive::str as TestStr;
 
-use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::constants::v08_enforcement_integrity_runtime_audit as proof;
 use ocentra_parent_agent_protocol::constants::v08_integrity_alert_status_bridge as bridge;
 use ocentra_parent_agent_protocol::constants::v08_notification_provider_status_boundary as boundary;
 use ocentra_parent_agent_protocol::enforcement_integrity_runtime_audit::V08EnforcementIntegrityRuntimeAuditEntry;
 use ocentra_parent_agent_protocol::enforcement_integrity_runtime_audit::V08EnforcementIntegrityRuntimeAuditIntegrityState;
-use ocentra_parent_agent_protocol::enforcement_integrity_runtime_audit::V08EnforcementIntegrityRuntimeAuditReadModel;
 use ocentra_parent_agent_protocol::enforcement_integrity_runtime_audit::V08EnforcementIntegrityRuntimeAuditResult;
 use ocentra_parent_agent_protocol::policy_constants;
 
 use super::enforcement_api::enforcement_integrity_runtime_audit_read_model::{
     v08_enforcement_integrity_runtime_audit_read_model, GeneratedAtTextRef,
 };
-use crate::test_invariants::require_some;
 
 #[test]
 fn enforcement_integrity_runtime_audit_read_model_covers_required_states() {
@@ -147,21 +143,6 @@ fn enforcement_integrity_runtime_audit_preserves_no_claim_flags() {
         .entries
         .iter()
         .any(|entry| entry.status_entry_id == boundary::ENTRY_DELIVERED));
-}
-
-fn assert_entry_integrity(
-    entries: &[V08EnforcementIntegrityRuntimeAuditEntry],
-    audit_entry_id: &TestStr,
-    integrity_state: V08EnforcementIntegrityRuntimeAuditIntegrityState,
-) {
-    let entry = require_some(
-        entries
-            .iter()
-            .find(|candidate| candidate.audit_entry_id == audit_entry_id),
-        proof::READ_MODEL_ID,
-    );
-
-    assert_eq!(entry.integrity_state, integrity_state);
 }
 
 fn count_results(

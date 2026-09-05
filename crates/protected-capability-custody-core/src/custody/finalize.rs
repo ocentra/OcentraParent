@@ -15,12 +15,12 @@ pub(super) fn run(
     decision: Decision,
 ) -> Result<FinalizeOutcome, CustodyError> {
     let scope = OperationScope::acquire(store, &capability.locator)?;
-    let mut record = prepared::load(store, &scope, &capability)?;
+    let mut record = prepared::load(store, &scope, capability)?;
     if record.state == SealedState::Prepared {
         record = match terminal::advance(
             store,
             &scope,
-            record,
+            &record,
             ambiguous_state(decision),
             intent_phase(decision),
         ) {
@@ -35,7 +35,7 @@ pub(super) fn run(
         return finalize_outcome(&record);
     }
     let terminal = terminal_state(record.state)?;
-    match terminal::advance(store, &scope, record, terminal, terminal_phase(decision)) {
+    match terminal::advance(store, &scope, &record, terminal, terminal_phase(decision)) {
         Ok(record) => finalize_outcome(&record),
         Err(CustodyError::CommitAmbiguous) => Ok(FinalizeOutcome::CommitAmbiguous),
         Err(CustodyError::AbortAmbiguous) => Ok(FinalizeOutcome::AbortAmbiguous),

@@ -1,4 +1,4 @@
-use std::time::{Duration, Instant};
+use std::time::Instant;
 
 use crate::network_inventory::passive_discovery::{
     LanPassiveDiscoveryUdpListenerIssueKind, LAN_PASSIVE_DISCOVERY_MAX_PACKET_BYTES,

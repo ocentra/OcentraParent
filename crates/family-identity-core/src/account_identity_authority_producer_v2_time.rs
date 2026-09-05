@@ -36,7 +36,7 @@ pub(super) fn validate_lifetime(
 fn parse_time(value: &str) -> Result<DateTime<Utc>, AccountIdentityAuthorityProducerV2Error> {
     let parsed = DateTime::parse_from_rfc3339(value)
         .map(|value| value.with_timezone(&Utc))
-        .map_err(|_| AccountIdentityAuthorityProducerV2Error::InvalidWire)?;
+        .map_err(|_error| AccountIdentityAuthorityProducerV2Error::InvalidWire)?;
     if parsed.to_rfc3339_opts(SecondsFormat::Millis, true) != value {
         return Err(AccountIdentityAuthorityProducerV2Error::InvalidWire);
     }

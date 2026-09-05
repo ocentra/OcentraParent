@@ -11,19 +11,6 @@ use crate::lan_pairing::{extend_log_fields, LanPairingChallengeState};
 use crate::lan_pairing_audit::audit_payload::fallback_evidence_reference_fields;
 use crate::lan_pairing_audit::values::{authentication_state_value, reason_value};
 
-pub(super) fn accepted_pairing_audit_fields(
-    command: &AgentCommandEnvelope,
-    proof: &LanPairingProof,
-) -> LogFields {
-    pairing_audit_fields(
-        command,
-        LogFieldValue::String(constants::value::LAN_CONTROL_ACCEPTED.to_string()),
-        LanPairingAuditEventType::PairingProofAccepted,
-        None,
-        Some(proof),
-    )
-}
-
 pub(super) fn rejected_pairing_audit_fields(
     command: &AgentCommandEnvelope,
     reason: &LanPairingRejectionReason,

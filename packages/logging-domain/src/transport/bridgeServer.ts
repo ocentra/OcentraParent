@@ -41,9 +41,10 @@ function routeBridgeRequest(
   switch (route) {
     case 'health': {
       const operatorState = lifecycle.operatorState();
+      const directoryDurability = localArtifactDirectoryDurability(rootDir);
       return sendBridgeJson(response, 200, {
-        ok: operatorState == null && logIngestion !== 'disabled',
-        directoryDurability: localArtifactDirectoryDurability(),
+        ok: operatorState == null && logIngestion !== 'disabled' && directoryDurability === 'synced',
+        directoryDurability,
         logIngestion,
         operatorState,
       });

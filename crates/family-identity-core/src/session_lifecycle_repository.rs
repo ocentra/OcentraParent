@@ -145,13 +145,13 @@ impl SqliteAccountIdentityAuthorityRepository {
         let policy = self.session_policy.clone();
         let now_epoch_millis = clock::trusted_now_epoch_millis()?;
         let material = SessionCredentialMaterial::issue()
-            .map_err(|_| SessionLifecycleRepositoryError::EntropyUnavailable)?;
+            .map_err(|_error| SessionLifecycleRepositoryError::EntropyUnavailable)?;
         let refresh_family_id = SessionRefreshFamilyId::generate()
-            .map_err(|_| SessionLifecycleRepositoryError::EntropyUnavailable)?;
+            .map_err(|_error| SessionLifecycleRepositoryError::EntropyUnavailable)?;
         let transaction = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+            .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
         let binding =
             authority::binding_from_verified(&transaction, current_authority, now_epoch_millis)?;
         let current_epoch = codec::current_revoke_epoch(&transaction, &binding.account_id)?;
@@ -174,7 +174,7 @@ impl SqliteAccountIdentityAuthorityRepository {
         )?;
         transaction
             .commit()
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+            .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
         Ok(record.into_issued(material))
     }
 
@@ -189,7 +189,7 @@ impl SqliteAccountIdentityAuthorityRepository {
         let transaction = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+            .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
         let Some(record) = codec::read_by_access_digest(&transaction, &digest)? else {
             return Ok(missing_browser_session_decision(action));
         };
@@ -198,7 +198,7 @@ impl SqliteAccountIdentityAuthorityRepository {
         let decision = record.authorize(action, now_epoch_millis, current_epoch, &policy);
         transaction
             .commit()
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+            .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
         Ok(decision)
     }
 
@@ -210,11 +210,11 @@ impl SqliteAccountIdentityAuthorityRepository {
         let trusted_now = clock::trusted_now_epoch_millis()?;
         let digest = SessionRefreshDigest::from_presented(credential);
         let material = SessionCredentialMaterial::issue()
-            .map_err(|_| SessionLifecycleRepositoryError::EntropyUnavailable)?;
+            .map_err(|_error| SessionLifecycleRepositoryError::EntropyUnavailable)?;
         let transaction = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+            .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
         let Some(current) = codec::read_by_refresh_digest(&transaction, &digest)? else {
             return if codec::refresh_was_consumed(&transaction, &digest)? {
                 Err(SessionLifecycleRepositoryError::ReplayRejected)
@@ -245,7 +245,7 @@ impl SqliteAccountIdentityAuthorityRepository {
         )?;
         transaction
             .commit()
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+            .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
         Ok(next.into_issued(material))
     }
 
@@ -271,7 +271,7 @@ impl SqliteAccountIdentityAuthorityRepository {
         let transaction = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+            .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
         let binding =
             authority::binding_from_verified(&transaction, current_authority, trusted_now)?;
         let current_epoch = codec::current_revoke_epoch(&transaction, &binding.account_id)?;
@@ -301,7 +301,7 @@ impl SqliteAccountIdentityAuthorityRepository {
         }
         transaction
             .commit()
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+            .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
         Ok(next_epoch)
     }
 
@@ -315,7 +315,7 @@ impl SqliteAccountIdentityAuthorityRepository {
         let transaction = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+            .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
         let current = codec::read_by_access_digest(&transaction, &digest)?
             .ok_or(SessionLifecycleRepositoryError::Missing)?;
         authority::binding_for_record_current(&transaction, &current, trusted_now)?;
@@ -338,7 +338,7 @@ impl SqliteAccountIdentityAuthorityRepository {
         )?;
         transaction
             .commit()
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)
+            .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)
     }
 }
 

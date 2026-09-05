@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, it } from 'vitest';
+import { PortalDevToolWindow, portalFrameTunerUrl } from '@ocentra-parent/portal-domain/routes';
 
 const BridgeContractFile = 'generated/parent-ui-bridge.ts';
 const ProductSnapshotRefreshFiles = [
@@ -48,7 +49,7 @@ const ProductSnapshotRefreshFiles = [
     ],
   },
   {
-    file: 'src/AppGamePolicyReadinessRoutePanel.tsx',
+    file: 'src/AppGameSessionsRoutePanel.tsx',
     forbidden: [
       'AgentCommand.ActivityAppGamePolicyReadinessReadModelGet',
       'AgentEvent.ActivityAppGamePolicyReadinessReadModelReported',
@@ -116,15 +117,12 @@ const ProductCommandBridgeFiles = [
   },
 ];
 const ProductOverlayPanelsRemovedFromRouteShell = [
-  'AiRuntimeRoutePanel',
   'AppGameAdapterDispatchRoutePanel',
   'AppGameChildRuntimeTransportReceiptRoutePanel',
   'AppGameNotificationParentSurfaceRoutePanel',
   'AppGamePlatformProofStatusRoutePanel',
   'AppGameTimerParentSurfaceRoutePanel',
   'BrowserParentExplanationRoutePanel',
-  'ScreenSettingsRoutePanel',
-  'ScreenSummaryRoutePanel',
   'SocialAlertReportRoutePanel',
   'SocialAuditExplanationRoutePanel',
   'SocialDashboardRoutePanel',
@@ -214,17 +212,17 @@ it('product bridge guard: portal route descriptors and sidebar use Rust-generate
   expect(bridgeContractSource).toContain('export const ParentSidebarRouteGroups');
 });
 
-it('product bridge guard: portal dev tool window uses Rust-generated route helpers', () => {
-  const source = readFileSync(resolve(TestDirectory, '..', 'src/portal-dev-tool-window.ts'), 'utf8');
+it('product bridge guard: portal dev tool window resolves the canonical background tuner route', () => {
+  const origin = 'https://parent.example';
+  const pathname = '/portal/';
 
-  expect(source).toContain("from '../generated/parent-ui-bridge'");
-  expect(source).toContain('ParentRoute.FrameTuner');
-  expect(source).toContain('PortalDevToolWindow.FrameTunerHash');
-  expect(source).toContain('ParentHostBridgeRuntime.TauriInternalWindowKey');
-  expect(source).toContain('@ocentra-parent/portal-domain/routes');
-  expect(source).not.toContain(RetiredSchemaDomainPortalContractsSpecifier);
-  expect(source).toContain('PortalDevToolWindow');
-  expect(source).toContain('portalDevToolUrl');
+  expect(portalFrameTunerUrl(origin, pathname, true)).toBe(
+    `${origin}${pathname}${PortalDevToolWindow.BackgroundFrameTunerHash}`
+  );
+  expect(PortalDevToolWindow.BackgroundFrameTunerHash).toBe(
+    `${PortalDevToolWindow.FrameTunerHash}?${PortalDevToolWindow.BackgroundFrameTunerQuery}`
+  );
+  expect(PortalDevToolWindow.BackgroundFrameTunerLabel).not.toBe(PortalDevToolWindow.FrameTunerLabel);
 });
 
 it('product bridge guard: portal shell uses explicit Rust-owned action kinds for auto route refresh flows', () => {
@@ -289,10 +287,11 @@ it('product bridge guard: product snapshot route panels refresh through the Rust
   }
 });
 
-it('product bridge guard: the product route shell mounts only the assigned app-game readiness overlay', () => {
+it('product bridge guard: the product route shell mounts only its assigned overlays', () => {
   const source = readFileSync(resolve(TestDirectory, '..', 'src/ParentPortalRoute.tsx'), 'utf8');
 
-  expect(source).toContain('AppGamePolicyReadinessRoutePanel');
+  expect(source).toContain('AppGameSessionsRoutePanel');
+  expect(source).toContain('ScreenSummaryRoutePanelMount');
 
   for (const panel of ProductOverlayPanelsRemovedFromRouteShell) {
     expect(source).not.toContain(panel);

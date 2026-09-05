@@ -39,7 +39,7 @@ impl SqliteAccountIdentityAuthorityRepository {
                 },
             )
             .optional()
-            .map_err(|_| AccountIdentityAuthorityRepositoryError::Unavailable)?;
+            .map_err(|_error| AccountIdentityAuthorityRepositoryError::Unavailable)?;
         let Some((
             mapping_status,
             authority_generation,
@@ -58,11 +58,12 @@ impl SqliteAccountIdentityAuthorityRepository {
             return Err(AccountIdentityAuthorityRepositoryError::InvalidGeneration);
         }
         let handoff: AccountIdentityCurrentMemberDeviceAuthorityHandoff =
-            serde_json::from_str(&authority_json)
-                .map_err(|_| AccountIdentityAuthorityRepositoryError::InvalidStoredAuthority)?;
+            serde_json::from_str(&authority_json).map_err(|_error| {
+                AccountIdentityAuthorityRepositoryError::InvalidStoredAuthority
+            })?;
         handoff
             .validate_shape()
-            .map_err(|_| AccountIdentityAuthorityRepositoryError::InvalidStoredAuthority)?;
+            .map_err(|_error| AccountIdentityAuthorityRepositoryError::InvalidStoredAuthority)?;
         if mapping_status != "active"
             || handoff.mapping.status != AccountIdentityMappingStatus::Active
             || &handoff.mapping.provider != provider

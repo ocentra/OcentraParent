@@ -1,11 +1,10 @@
 use crate::bus::EventBus;
-use crate::request::{RequestCompletionSignal, RequestPayload, RequestRegistry};
-use crate::{
-    EventClockSleep, EventMetadata, EventingError, PublishReport, RequestEvent, RequestId,
-    RequestOptions, RequestReport,
-};
+use crate::request::RequestRegistry;
+use crate::{EventMetadata, EventingError, RequestEvent, RequestId, RequestOptions, RequestReport};
 
 use super::EventPublisher;
+
+mod request_await;
 
 impl EventPublisher {
     /// Publishes a request as awaited work in this handler's causal chain.
@@ -27,7 +26,7 @@ impl EventPublisher {
         let mut registration =
             CausalRequestRegistration::new(target_bus.requests.clone(), request_id.clone());
         let mut timeout = target_bus.clock.sleep(options.timeout());
-        let (publish_report, response_payload) = match await_causal_publish(
+        let (publish_report, response_payload) = match request_await::publish(
             self,
             target_bus,
             event,
@@ -46,7 +45,7 @@ impl EventPublisher {
         };
         let payload = match response_payload {
             Some(payload) => payload,
-            None => await_causal_response(&mut receiver, &mut timeout, &mut registration).await?,
+            None => request_await::response(&mut receiver, &mut timeout, &mut registration).await?,
         };
         registration.retain_terminal_state();
         let response = payload.decode::<E::Response>(&request_id)?;
@@ -55,61 +54,6 @@ impl EventPublisher {
             response,
             publish_report,
         })
-    }
-}
-
-async fn await_causal_publish<E>(
-    publisher: &EventPublisher,
-    target_bus: &EventBus,
-    event: E,
-    metadata: EventMetadata,
-    receiver: &mut tokio::sync::oneshot::Receiver<RequestCompletionSignal>,
-    timeout: &mut EventClockSleep<'_>,
-    registration: &mut CausalRequestRegistration,
-) -> Result<(PublishReport, Option<RequestPayload>), EventingError>
-where
-    E: RequestEvent,
-{
-    let publish = publisher.publish_on(target_bus, event, metadata);
-    tokio::pin!(publish);
-    tokio::select! {
-        biased;
-        result = &mut publish => result.map(|report| (report, None)),
-        result = receiver => {
-            let payload = receive_payload(result, registration)?;
-            let publish_report = tokio::select! {
-                biased;
-                result = &mut publish => result?,
-                _ = timeout.as_mut() => return Err(registration.timeout_error()),
-            };
-            Ok((publish_report, Some(payload)))
-        }
-        _ = timeout.as_mut() => Err(registration.timeout_error()),
-    }
-}
-
-async fn await_causal_response(
-    receiver: &mut tokio::sync::oneshot::Receiver<RequestCompletionSignal>,
-    timeout: &mut EventClockSleep<'_>,
-    registration: &mut CausalRequestRegistration,
-) -> Result<RequestPayload, EventingError> {
-    tokio::select! {
-        biased;
-        result = receiver => receive_payload(result, registration),
-        _ = timeout.as_mut() => Err(registration.timeout_error()),
-    }
-}
-
-fn receive_payload(
-    result: Result<RequestCompletionSignal, tokio::sync::oneshot::error::RecvError>,
-    registration: &mut CausalRequestRegistration,
-) -> Result<RequestPayload, EventingError> {
-    match result {
-        Ok(RequestCompletionSignal::Response(payload)) => Ok(payload),
-        Ok(RequestCompletionSignal::TimedOut) => Err(registration.timeout_error()),
-        Ok(RequestCompletionSignal::Cancelled) | Err(_) => {
-            Err(registration.cancelled_error())
-        }
     }
 }
 

@@ -34,7 +34,7 @@ pub(super) fn purge_expired(
              WHERE retain_until_epoch_millis <= ?1",
             params![now],
         )
-        .map_err(|_| AccountIdentityMutationAuthorityError::RepositoryUnavailable)?;
+        .map_err(|_error| AccountIdentityMutationAuthorityError::RepositoryUnavailable)?;
     Ok(())
 }
 
@@ -101,7 +101,7 @@ pub(super) fn reserve(
                 retain_until,
             ],
         )
-        .map_err(|_| AccountIdentityMutationAuthorityError::RepositoryUnavailable)?;
+        .map_err(|_error| AccountIdentityMutationAuthorityError::RepositoryUnavailable)?;
     Ok(())
 }
 
@@ -131,7 +131,7 @@ pub(super) fn complete(
                 now,
             ],
         )
-        .map_err(|_| AccountIdentityMutationAuthorityError::RepositoryUnavailable)?;
+        .map_err(|_error| AccountIdentityMutationAuthorityError::RepositoryUnavailable)?;
     (changed == 1)
         .then_some(())
         .ok_or(AccountIdentityMutationAuthorityError::EffectStateInvalid)
@@ -178,7 +178,7 @@ fn load(
             },
         )
         .optional()
-        .map_err(|_| AccountIdentityMutationAuthorityError::RepositoryUnavailable)
+        .map_err(|_error| AccountIdentityMutationAuthorityError::RepositoryUnavailable)
 }
 
 fn token_expiry(
@@ -186,7 +186,7 @@ fn token_expiry(
 ) -> Result<i64, AccountIdentityMutationAuthorityError> {
     DateTime::parse_from_rfc3339(&envelope.expires_at)
         .map(|value| value.timestamp_millis())
-        .map_err(|_| AccountIdentityMutationAuthorityError::InvalidEnvelope)
+        .map_err(|_error| AccountIdentityMutationAuthorityError::InvalidEnvelope)
 }
 
 impl StoredEffect {

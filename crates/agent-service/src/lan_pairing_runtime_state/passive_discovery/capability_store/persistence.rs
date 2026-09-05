@@ -78,12 +78,14 @@ fn with_path_lock<T>(
     if let Some(parent) = path.0.parent() {
         fs::create_dir_all(parent).ok()?;
     }
-    let process_lock = capability_path_locks()
-        .lock()
-        .ok()?
-        .entry(path.clone())
-        .or_insert_with(|| Arc::new(Mutex::new(())))
-        .clone();
+    let process_lock = {
+        let mut locks = capability_path_locks().lock().ok()?;
+        Arc::clone(
+            locks
+                .entry(path.clone())
+                .or_insert_with(|| Arc::new(Mutex::new(()))),
+        )
+    };
     let _process_guard = acquire_process_lock(&process_lock)?;
     let _cross_process_guard = super::path_lock::acquire(path)?;
     Some(operation())

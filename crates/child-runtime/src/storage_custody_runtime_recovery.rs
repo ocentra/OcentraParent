@@ -9,7 +9,7 @@ use super::{
 use crate::service::ChildAgentServiceError;
 
 impl ChildStorageCustodyRuntime {
-    pub(crate) async fn resume_pending_record(
+    pub(super) async fn resume_pending_record(
         &self,
         record: &StorageCustodyEffectRecord,
     ) -> Result<ChildStorageCustodyOutcome, ChildAgentServiceError> {

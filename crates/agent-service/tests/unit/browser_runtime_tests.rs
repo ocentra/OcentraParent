@@ -22,7 +22,7 @@ fn missing_browser_status_reports_typed_degraded_state() {
 
     assert_eq!(status.managed_state, BrowserManagedState::NotInstalled);
     assert_eq!(
-        crate::test_invariants::log_field(
+        crate::test_log_field::log_field(
             &payload,
             constants::field::MANAGED_STATE,
             constants::error::AGENT_EVENT_SERIALIZES
@@ -30,7 +30,7 @@ fn missing_browser_status_reports_typed_degraded_state() {
         LogFieldValue::String(constants::browser::MANAGED_STATE_NOT_INSTALLED.to_string())
     );
     assert_eq!(
-        crate::test_invariants::log_field(
+        crate::test_log_field::log_field(
             &payload,
             constants::field::REASON,
             constants::error::AGENT_EVENT_SERIALIZES
@@ -38,7 +38,7 @@ fn missing_browser_status_reports_typed_degraded_state() {
         LogFieldValue::String(constants::value::MANAGED_BROWSER_EXECUTABLE_MISSING.to_string())
     );
     assert_eq!(
-        crate::test_invariants::log_field(
+        crate::test_log_field::log_field(
             &payload,
             constants::field::QUERY_VISIBILITY,
             constants::error::AGENT_EVENT_SERIALIZES
@@ -64,7 +64,7 @@ fn unmanaged_browser_status_reports_discoverable_but_unmanaged_process() {
         BrowserCapabilityStatus::UnmanagedBrowser
     );
     assert_eq!(
-        crate::test_invariants::log_field(
+        crate::test_log_field::log_field(
             &payload,
             constants::field::BROWSER_FAMILY,
             constants::error::AGENT_EVENT_SERIALIZES
@@ -72,7 +72,7 @@ fn unmanaged_browser_status_reports_discoverable_but_unmanaged_process() {
         LogFieldValue::String(constants::browser::FAMILY_CHROME.to_string())
     );
     assert_eq!(
-        crate::test_invariants::log_field(
+        crate::test_log_field::log_field(
             &payload,
             constants::field::REASON,
             constants::error::AGENT_EVENT_SERIALIZES
@@ -80,7 +80,7 @@ fn unmanaged_browser_status_reports_discoverable_but_unmanaged_process() {
         LogFieldValue::String(constants::value::MANAGED_BROWSER_UNMANAGED_PROCESS.to_string())
     );
     assert_eq!(
-        crate::test_invariants::log_field(
+        crate::test_log_field::log_field(
             &payload,
             constants::field::UNMANAGED_PROCESS_NAME,
             constants::error::AGENT_EVENT_SERIALIZES
@@ -88,7 +88,7 @@ fn unmanaged_browser_status_reports_discoverable_but_unmanaged_process() {
         LogFieldValue::String(constants::browser::EXECUTABLE_CHROME_WINDOWS.to_string())
     );
     assert_eq!(
-        crate::test_invariants::log_field(
+        crate::test_log_field::log_field(
             &payload,
             constants::field::UNMANAGED_PROCESS_KIND,
             constants::error::AGENT_EVENT_SERIALIZES
@@ -98,7 +98,7 @@ fn unmanaged_browser_status_reports_discoverable_but_unmanaged_process() {
         )
     );
     assert_eq!(
-        crate::test_invariants::log_field(&payload, constants::field::UNMANAGED_DETECTION_REASON, constants::error::AGENT_EVENT_SERIALIZES),
+        crate::test_log_field::log_field(&payload, constants::field::UNMANAGED_DETECTION_REASON, constants::error::AGENT_EVENT_SERIALIZES),
         LogFieldValue::String(
             constants::browser::UNMANAGED_DETECTION_REASON_SUPPORTED_BROWSER_OUTSIDE_MANAGED_SESSION
                 .to_string()

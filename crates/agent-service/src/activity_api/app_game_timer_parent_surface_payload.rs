@@ -1,5 +1,3 @@
-use std::collections::BTreeSet;
-
 use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
 use ocentra_parent_agent_protocol::app_game::{
     AppGameServiceReadModel, APP_GAME_PRODUCT_NATIVE_APP, APP_GAME_PRODUCT_NATIVE_GAME,
@@ -7,10 +5,7 @@ use ocentra_parent_agent_protocol::app_game::{
 };
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::enforcement::EnforcementActiveTimerState;
-use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields, LogLevel};
-use ocentra_parent_agent_protocol::transport::{
-    AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
-};
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 use ocentra_parent_agent_protocol::AppGameTimerParentSurfaceReadModel;
 use ocentra_parent_agent_protocol::AppGameTimerParentSurfaceRow;
 use ocentra_parent_agent_protocol::APP_GAME_TIMER_PARENT_SURFACE_CUSTODY_CHILD_DEVICE_QUERY_STORE;
@@ -24,15 +19,17 @@ use ocentra_parent_agent_protocol::APP_GAME_TIMER_PARENT_SURFACE_STATUS_READY;
 use ocentra_parent_agent_protocol::APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_APP;
 use ocentra_parent_agent_protocol::APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_GAME;
 
-use crate::{
-    activity_surface_store::load_app_game_model,
-    enforcement_timer_state_file::read_active_timer_state,
-    enforcement_timer_state_path::enforcement_timer_state_path, event_builder::build_event,
-    fields::fields_from_pairs,
-};
+use crate::fields::fields_from_pairs;
 
-use super::activity_store_error_event::activity_store_error_event;
 use super::app_game_timer_parent_surface_action_results::apply_timer_parent_surface_control_action_results;
+
+#[path = "app_game_timer_parent_surface_evidence.rs"]
+mod app_game_timer_parent_surface_evidence;
+
+use app_game_timer_parent_surface_evidence::{
+    approval_authority_refs, evidence_claim_refs, platform_authority_row_count,
+    platform_authority_row_refs, policy_evidence_refs, push_evidence,
+};
 
 struct TimerParentSurfaceRowSpec {
     row_id: String,
@@ -54,42 +51,6 @@ const TIMER_PARENT_SURFACE_STATUS_TEXTS: [&str; 3] = [
     APP_GAME_TIMER_PARENT_SURFACE_STATUS_READY,
     APP_GAME_TIMER_PARENT_SURFACE_STATUS_PARTIAL,
 ];
-
-pub async fn build_activity_app_game_timer_parent_surface_report(
-    command: AgentCommandEnvelope,
-) -> AgentEventEnvelope {
-    match load_app_game_model().await {
-        Some(model) => {
-            let timer_state = read_active_timer_state(&enforcement_timer_state_path())
-                .await
-                .ok()
-                .flatten();
-            let read_model = app_game_timer_parent_surface_from_service_model_with_timer_state(
-                &model,
-                timer_state.as_ref(),
-            );
-            match app_game_timer_parent_surface_payload_result(&read_model) {
-                Ok(payload) => build_event(
-                    constants::event_id::ACTIVITY_APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL_REPORTED,
-                    &command.message_id,
-                    command.source,
-                    AgentEventName::AgentActivityAppGameTimerParentSurfaceReadModelReported,
-                    LogLevel::Info,
-                    payload,
-                    None,
-                ),
-                Err(_error) => timer_parent_surface_serialization_error_event(command),
-            }
-        }
-        None => activity_store_error_event(
-            command,
-            crate::activity_api::ActivityEventId(
-                constants::event_id::ACTIVITY_APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL_REPORTED,
-            ),
-            AgentEventName::AgentActivityAppGameTimerParentSurfaceReadModelReported,
-        ),
-    }
-}
 
 pub fn app_game_timer_parent_surface_from_service_model_with_timer_state(
     model: &AppGameServiceReadModel,
@@ -125,17 +86,6 @@ struct TimerParentSurfaceRuntimeClaims {
 
 pub fn app_game_timer_parent_surface_payload(
     read_model: &AppGameTimerParentSurfaceReadModel,
-) -> LogFields {
-    app_game_timer_parent_surface_payload_result(read_model).unwrap_or_else(|_error| {
-        fields_from_pairs(vec![(
-            constants::field::REASON,
-            LogFieldValue::String(TIMER_PARENT_SURFACE_SERIALIZATION_ERROR.to_string()),
-        )])
-    })
-}
-
-fn app_game_timer_parent_surface_payload_result(
-    read_model: &AppGameTimerParentSurfaceReadModel,
 ) -> Result<LogFields, serde_json::Error> {
     let serialized_read_model = serde_json::to_string(read_model)?;
     Ok(fields_from_pairs(vec![
@@ -162,26 +112,6 @@ fn app_game_timer_parent_surface_payload_result(
     ]))
 }
 
-const TIMER_PARENT_SURFACE_SERIALIZATION_ERROR: &str =
-    "app-game timer parent surface read model serialization failed";
-
-fn timer_parent_surface_serialization_error_event(
-    command: AgentCommandEnvelope,
-) -> AgentEventEnvelope {
-    build_event(
-        constants::event_id::ACTIVITY_APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL_REPORTED,
-        &command.message_id,
-        command.source,
-        AgentEventName::AgentActivityAppGameTimerParentSurfaceReadModelReported,
-        LogLevel::Error,
-        fields_from_pairs(vec![(
-            constants::field::REASON,
-            LogFieldValue::String(TIMER_PARENT_SURFACE_SERIALIZATION_ERROR.to_string()),
-        )]),
-        None,
-    )
-}
-
 fn timer_parent_surface_rows(model: &AppGameServiceReadModel) -> Vec<AppGameTimerParentSurfaceRow> {
     let policy_evidence = policy_evidence_refs(model);
     let platform_evidence = platform_authority_row_refs(model);
@@ -191,7 +121,10 @@ fn timer_parent_surface_rows(model: &AppGameServiceReadModel) -> Vec<AppGameTime
         .identity_rows
         .iter()
         .filter_map(|identity| {
-            let target_domain = timer_parent_surface_target_domain(&identity.product_kind)?;
+            let target_domain = timer_parent_surface_target_domain(
+                &TimerParentSurfaceProductKind(identity.product_kind.as_str()),
+            )?
+            .0;
             let mut evidence = identity.evidence.clone();
             push_evidence(
                 &mut evidence,
@@ -233,10 +166,19 @@ fn timer_parent_surface_rows(model: &AppGameServiceReadModel) -> Vec<AppGameTime
         .collect()
 }
 
-fn timer_parent_surface_target_domain(product_kind: &str) -> Option<&'static str> {
-    match product_kind {
-        APP_GAME_PRODUCT_NATIVE_APP => Some(APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_APP),
-        APP_GAME_PRODUCT_NATIVE_GAME => Some(APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_GAME),
+struct TimerParentSurfaceProductKind<'a>(&'a str);
+struct TimerParentSurfaceTargetDomain(&'static str);
+
+fn timer_parent_surface_target_domain(
+    product_kind: &TimerParentSurfaceProductKind<'_>,
+) -> Option<TimerParentSurfaceTargetDomain> {
+    match product_kind.0 {
+        APP_GAME_PRODUCT_NATIVE_APP => Some(TimerParentSurfaceTargetDomain(
+            APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_APP,
+        )),
+        APP_GAME_PRODUCT_NATIVE_GAME => Some(TimerParentSurfaceTargetDomain(
+            APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_GAME,
+        )),
         _ => None,
     }
 }
@@ -384,90 +326,4 @@ fn timer_surface_state_index(model: &AppGameServiceReadModel) -> usize {
     (1 - evidence_missing) * platform_missing
         + (1 - evidence_missing) * (1 - platform_missing) * approval_missing * 2
         + (1 - evidence_missing) * (1 - platform_missing) * (1 - approval_missing) * 3
-}
-
-fn policy_evidence_refs(model: &AppGameServiceReadModel) -> Vec<ActivityEvidenceRef> {
-    let mut evidence = evidence_claim_refs(model);
-    push_evidence(&mut evidence, identity_refs(model));
-    evidence
-}
-
-fn evidence_claim_refs(model: &AppGameServiceReadModel) -> Vec<ActivityEvidenceRef> {
-    model
-        .evidence_claim_rows
-        .iter()
-        .flat_map(|row| {
-            let mut refs = row.evidence.clone();
-            refs.push(ActivityEvidenceRef {
-                evidence_id: row.claim_id.clone(),
-                kind: ActivityEvidenceKind::LocalDbRow,
-                digest: None,
-                uri: None,
-            });
-            refs
-        })
-        .collect()
-}
-
-fn identity_refs(model: &AppGameServiceReadModel) -> Vec<ActivityEvidenceRef> {
-    model
-        .identity_rows
-        .iter()
-        .flat_map(|row| {
-            let mut refs = row.evidence.clone();
-            refs.push(ActivityEvidenceRef {
-                evidence_id: row.identity_id.clone(),
-                kind: ActivityEvidenceKind::LocalDbRow,
-                digest: None,
-                uri: None,
-            });
-            refs
-        })
-        .collect()
-}
-
-fn approval_authority_refs(model: &AppGameServiceReadModel) -> Vec<ActivityEvidenceRef> {
-    model
-        .approval_authority_rows
-        .iter()
-        .map(|row| ActivityEvidenceRef {
-            evidence_id: row.authority_id.clone(),
-            kind: ActivityEvidenceKind::LocalDbRow,
-            digest: None,
-            uri: None,
-        })
-        .collect()
-}
-
-fn platform_authority_row_refs(model: &AppGameServiceReadModel) -> Vec<ActivityEvidenceRef> {
-    model
-        .platform_authority_matrices
-        .iter()
-        .flat_map(|matrix| matrix.rows.iter())
-        .map(|row| ActivityEvidenceRef {
-            evidence_id: row.row_id.clone(),
-            kind: ActivityEvidenceKind::LocalDbRow,
-            digest: None,
-            uri: None,
-        })
-        .collect()
-}
-
-fn platform_authority_row_count(model: &AppGameServiceReadModel) -> u64 {
-    model
-        .platform_authority_matrices
-        .iter()
-        .map(|matrix| matrix.rows.len() as u64)
-        .sum()
-}
-
-fn push_evidence(target: &mut Vec<ActivityEvidenceRef>, rows: Vec<ActivityEvidenceRef>) {
-    let mut seen: BTreeSet<String> = target
-        .iter()
-        .map(|candidate| candidate.evidence_id.clone())
-        .collect();
-    target.extend(
-        rows.into_iter()
-            .filter(|evidence| seen.insert(evidence.evidence_id.clone())),
-    );
 }

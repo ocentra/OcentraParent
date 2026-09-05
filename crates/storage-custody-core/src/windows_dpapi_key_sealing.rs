@@ -13,7 +13,10 @@ use ocentra_family_identity_core::trust_bootstrap::{
     AwaitingPlatformKeySealingRequest, PersistedPlatformKeyUnsealingCredential,
 };
 use serde::{Deserialize, Serialize};
+#[cfg(windows)]
 use sha2::{Digest, Sha256};
+
+mod binding;
 
 const SEALED_KEY_FORMAT_VERSION: u8 = 1;
 #[cfg(windows)]
@@ -65,7 +68,7 @@ impl DpapiKeySealingContext {
         credential: &PersistedPlatformKeyUnsealingCredential,
         device_local_binding: &[u8; 32],
     ) -> Vec<u8> {
-        hex_encode(&authorization_binding(
+        binding::hex_encode(&binding::authorization_binding(
             self,
             credential,
             device_local_binding,
@@ -156,7 +159,7 @@ pub fn seal_for_current_windows_user(
     context.validate()?;
     let device_local_binding = current_windows_device_local_binding()?;
     let authorization_binding =
-        authorization_binding(&context, &unsealing_credential, &device_local_binding);
+        binding::authorization_binding(&context, &unsealing_credential, &device_local_binding);
     let ciphertext = seal_for_current_windows_user_inner(
         trust_material,
         &context,
@@ -191,7 +194,7 @@ pub fn unseal_for_current_windows_user(
     }
     let device_local_binding = current_windows_device_local_binding()?;
     if sealed_key.authorization_binding
-        != authorization_binding(
+        != binding::authorization_binding(
             &sealed_key.context,
             &sealed_key.unsealing_credential,
             &device_local_binding,
@@ -261,45 +264,6 @@ fn unseal_for_current_windows_user_inner(
     Err(DpapiKeySealingError::PlatformUnavailable)
 }
 
-fn authorization_binding(
-    context: &DpapiKeySealingContext,
-    credential: &PersistedPlatformKeyUnsealingCredential,
-    device_local_binding: &[u8; 32],
-) -> [u8; 32] {
-    Sha256::digest(canonical_binding_bytes(
-        context,
-        credential,
-        device_local_binding,
-    ))
-    .into()
-}
-
-fn canonical_binding_bytes(
-    context: &DpapiKeySealingContext,
-    credential: &PersistedPlatformKeyUnsealingCredential,
-    device_local_binding: &[u8; 32],
-) -> Vec<u8> {
-    let fields = [
-        format!("ocentra-device-trust-dpapi-v{SEALED_KEY_FORMAT_VERSION}"),
-        context.family_id.clone(),
-        context.trust_subject.clone(),
-        context.device_ref.clone(),
-        context.device_role.clone(),
-        context.lifecycle_generation.to_string(),
-        context.installation_binding_generation.to_string(),
-        credential.trust_bootstrap_ref().to_owned(),
-        credential.device_trust_ref().as_str().to_owned(),
-        hex_encode(device_local_binding),
-    ];
-    let mut encoded = Vec::new();
-    for field in fields {
-        let field = hex_encode(field.as_bytes());
-        encoded.extend_from_slice(format!("{:016x}:", field.len()).as_bytes());
-        encoded.extend_from_slice(field.as_bytes());
-    }
-    encoded
-}
-
 #[cfg(windows)]
 fn current_windows_device_local_binding() -> Result<[u8; 32], DpapiKeySealingError> {
     use winreg::{enums::HKEY_LOCAL_MACHINE, RegKey};
@@ -321,54 +285,5 @@ fn current_windows_device_local_binding() -> Result<[u8; 32], DpapiKeySealingErr
     Err(DpapiKeySealingError::PlatformUnavailable)
 }
 
-fn hex_encode(bytes: &[u8]) -> String {
-    const HEX: &[u8; 16] = b"0123456789abcdef";
-    let mut encoded = String::with_capacity(bytes.len() * 2);
-    for byte in bytes {
-        encoded.push(char::from(HEX[usize::from(byte >> 4)]));
-        encoded.push(char::from(HEX[usize::from(byte & 0x0f)]));
-    }
-    encoded
-}
-
-#[cfg(test)]
-mod tests {
-    use super::{DpapiKeySealingContext, DpapiKeySealingError};
-
-    fn valid_context() -> DpapiKeySealingContext {
-        DpapiKeySealingContext {
-            family_id: "family-secret".to_owned(),
-            trust_subject: "subject-secret".to_owned(),
-            device_ref: "device-secret".to_owned(),
-            device_role: "parent".to_owned(),
-            lifecycle_generation: 1,
-            installation_binding_generation: 1,
-        }
-    }
-
-    #[test]
-    fn context_rejects_empty_identity_or_zero_generation() {
-        let mut empty_identity = valid_context();
-        empty_identity.family_id.clear();
-        assert_eq!(
-            empty_identity.validate(),
-            Err(DpapiKeySealingError::InvalidBinding)
-        );
-
-        let mut zero_generation = valid_context();
-        zero_generation.lifecycle_generation = 0;
-        assert_eq!(
-            zero_generation.validate(),
-            Err(DpapiKeySealingError::InvalidBinding)
-        );
-    }
-
-    #[test]
-    fn context_debug_redacts_trust_identities() {
-        let debug = format!("{:?}", valid_context());
-        for secret in ["family-secret", "subject-secret", "device-secret"] {
-            assert!(!debug.contains(secret));
-        }
-        assert!(debug.contains("[redacted]"));
-    }
-}
+#[path = "../tests/unit/windows_dpapi_key_sealing_private.rs"]
+mod windows_dpapi_key_sealing_tests;

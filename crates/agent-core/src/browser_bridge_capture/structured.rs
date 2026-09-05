@@ -1,8 +1,7 @@
 use std::{net::SocketAddr, sync::Arc, time::Duration};
 
 use ocentra_schema::managed_browser_cdp_capture::{
-    ManagedBrowserCdpEvidenceRefs, MANAGED_BROWSER_CDP_SENSITIVITY_PROTECTED,
-    MANAGED_BROWSER_CDP_SENSITIVITY_UNAVAILABLE,
+    ManagedBrowserCdpEvidenceRefs, MANAGED_BROWSER_CDP_SENSITIVITY_UNAVAILABLE,
 };
 
 use super::{
@@ -94,21 +93,6 @@ impl Payload {
             outcome: Outcome::Unavailable,
         }
     }
-
-    pub(super) fn protected_content_skipped() -> Self {
-        Self {
-            visible_text_summary: None,
-            visible_text_character_count: 0,
-            dom_overflow_redacted: false,
-            private_content_redacted: true,
-            signal_digest: String::from("protected-content-redacted-v1"),
-            body_digest: String::from("protected-content-redacted-v1"),
-            sensitivity_digest: String::from(MANAGED_BROWSER_CDP_SENSITIVITY_PROTECTED),
-            capture_safe: false,
-            document_url_digest: String::new(),
-            outcome: Outcome::ProtectedContentSkipped,
-        }
-    }
 }
 
 pub(super) struct EvaluatedPayload {
@@ -116,6 +100,7 @@ pub(super) struct EvaluatedPayload {
     pub(super) document_identity: DocumentIdentity,
 }
 
+#[derive(Clone, Copy)]
 pub(super) enum ExtractionError {
     Transport,
     InvalidResponse,
@@ -146,24 +131,17 @@ pub(super) fn capture_error(error: ExtractionError) -> ManagedBrowserCdpCaptureE
     }
 }
 
-pub(super) fn bind_extraction(
-    binding: &LaunchBinding,
-    target_id: &str,
-    snapshot: &TargetSnapshot,
-    capability_revoked: Arc<std::sync::atomic::AtomicBool>,
-    captured_at_epoch_ms: u64,
-    captured_at_monotonic: Duration,
-    document_identity: Option<&DocumentIdentity>,
-    payload: Payload,
-) -> ManagedBrowserCdpStructuredExtraction {
-    binding::bind_extraction(
-        binding,
-        target_id,
-        snapshot,
-        capability_revoked,
-        captured_at_epoch_ms,
-        captured_at_monotonic,
-        document_identity,
-        payload,
-    )
+pub(super) struct BindingInput<'a> {
+    pub(super) binding: &'a LaunchBinding,
+    pub(super) target_id: &'a str,
+    pub(super) snapshot: &'a TargetSnapshot,
+    pub(super) capability_revoked: Arc<std::sync::atomic::AtomicBool>,
+    pub(super) captured_at_epoch_ms: u64,
+    pub(super) captured_at_monotonic: Duration,
+    pub(super) document_identity: Option<&'a DocumentIdentity>,
+    pub(super) payload: Payload,
+}
+
+pub(super) fn bind_extraction(input: BindingInput<'_>) -> ManagedBrowserCdpStructuredExtraction {
+    binding::bind_extraction(input)
 }

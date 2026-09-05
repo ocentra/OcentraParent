@@ -1,21 +1,16 @@
-import fs from 'node:fs';
 import path from 'node:path';
-import { recoverLocalArtifactAppends } from './local-artifact-append';
-import { applyLocalArtifactTransaction, type LocalArtifactMutation } from './local-artifact-transaction';
-import {
-  assertExistingOwnedPath,
-  assertNotFileSystemRoot,
-  ensureLocalArtifactRoot,
-  resolveLocalArtifactPath,
-} from './local-artifact-path';
 import { withLocalArtifactLock } from './local-artifact-lock';
+import { providerList, providerRecover } from './local-artifact-mutation-provider';
+import { assertNotFileSystemRoot, ensureLocalArtifactRoot, resolveLocalArtifactPath } from './local-artifact-path';
+import { applyLocalArtifactTransaction, type LocalArtifactMutation } from './local-artifact-transaction';
 
 const LoggingArtifactRootEntries = new Set(['test-logs', 'app-logs', 'db', 'manifests', '.bridge']);
 
 export function assertLoggingArtifactRootLayout(rootDir: string): void {
-  const invalidEntry = fs
-    .readdirSync(rootDir, { withFileTypes: true })
-    .find((entry) => !LoggingArtifactRootEntries.has(entry.name) || !entry.isDirectory());
+  const resolvedRoot = ensureLocalArtifactRoot(rootDir);
+  const invalidEntry = providerList(resolvedRoot, '').find(
+    (entry) => !LoggingArtifactRootEntries.has(entry.name) || !entry.is_directory
+  );
   if (invalidEntry != null) {
     throw new Error('logging artifact root contains an unowned entry');
   }
@@ -29,13 +24,20 @@ export function clearLoggingArtifactRoot(
   assertNotFileSystemRoot(targetPath);
   ensureLocalArtifactRoot(targetPath);
   withLocalArtifactLock(targetPath, () => {
-    recoverLocalArtifactAppends(targetPath);
-    assertExistingOwnedPath(targetPath, 'directory');
-    assertLoggingArtifactRootLayout(targetPath);
-    const removals = fs
-      .readdirSync(targetPath, { withFileTypes: true })
+    providerRecover(targetPath);
+    const entries = providerList(targetPath, '');
+    const invalidEntry = entries.find((entry) => !LoggingArtifactRootEntries.has(entry.name) || !entry.is_directory);
+    if (invalidEntry != null) {
+      throw new Error('logging artifact root contains an unowned entry');
+    }
+    const removals = entries
       .filter((entry) => entry.name !== '.bridge')
-      .map((entry): LocalArtifactMutation => ({ kind: 'remove', filePath: path.join(targetPath, entry.name) }));
+      .map(
+        (entry): LocalArtifactMutation => ({
+          kind: 'removeTree',
+          filePath: path.join(targetPath, entry.name),
+        })
+      );
     applyLocalArtifactTransaction(targetPath, [...removals, ...additionalMutations]);
   });
 }

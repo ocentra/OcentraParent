@@ -23,22 +23,22 @@ pub(super) fn validate(connection: &Connection) -> Result<(), AccountIdentityIss
                 OR (type IN ('trigger', 'view')
                     AND lower(COALESCE(sql, '')) LIKE '%account_identity_issuer_%')",
         )
-        .map_err(|_| AccountIdentityIssuerError::InvalidDurableSchema)?;
+        .map_err(|_error| AccountIdentityIssuerError::InvalidDurableSchema)?;
     let mut rows = statement
         .query([])
-        .map_err(|_| AccountIdentityIssuerError::InvalidDurableSchema)?;
+        .map_err(|_error| AccountIdentityIssuerError::InvalidDurableSchema)?;
     let mut tables = HashSet::new();
     let mut indexes = HashSet::new();
     while let Some(row) = rows
         .next()
-        .map_err(|_| AccountIdentityIssuerError::InvalidDurableSchema)?
+        .map_err(|_error| AccountIdentityIssuerError::InvalidDurableSchema)?
     {
         let object_type = row
             .get::<_, String>(0)
-            .map_err(|_| AccountIdentityIssuerError::InvalidDurableSchema)?;
+            .map_err(|_error| AccountIdentityIssuerError::InvalidDurableSchema)?;
         let name = row
             .get::<_, String>(1)
-            .map_err(|_| AccountIdentityIssuerError::InvalidDurableSchema)?;
+            .map_err(|_error| AccountIdentityIssuerError::InvalidDurableSchema)?;
         match object_type.as_str() {
             "table" if allowed_tables.contains(&name.as_str()) => {
                 tables.insert(name);

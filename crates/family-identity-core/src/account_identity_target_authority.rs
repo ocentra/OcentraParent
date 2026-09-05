@@ -114,7 +114,7 @@ pub(crate) fn resolve_target_action_at<'a>(
     now: DateTime<Utc>,
 ) -> Result<AccountIdentityTargetActionResolution<'a>, AccountIdentityTargetAuthorityFailure> {
     let session_expires_at = DateTime::parse_from_rfc3339(authority.session_expires_at())
-        .map_err(|_| AccountIdentityTargetAuthorityFailure::SessionExpiryInvalid)?
+        .map_err(|_error| AccountIdentityTargetAuthorityFailure::SessionExpiryInvalid)?
         .with_timezone(&Utc);
     (session_expires_at > now)
         .then_some(())

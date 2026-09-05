@@ -33,7 +33,9 @@ use ocentra_parent_agent_protocol::app_game_timer_parent_surface_read_model::{
 };
 use ocentra_parent_agent_protocol::constants;
 
-use crate::test_invariants::{require_json_decode, require_log_string_field, require_ok};
+use crate::test_require_json_decode::require_json_decode;
+use crate::test_require_log_string_field::require_log_string_field;
+use crate::test_require_ok::require_ok;
 
 use super::app_game_timer_parent_surface_payload::{
     app_game_timer_parent_surface_from_service_model_with_timer_state,
@@ -78,7 +80,10 @@ fn app_game_timer_parent_surface_payload_reports_game_rows_without_runtime_claim
     let model = service_model();
     let read_model =
         app_game_timer_parent_surface_from_service_model_with_timer_state(&model, None);
-    let payload = app_game_timer_parent_surface_payload(&read_model);
+    let payload = require_ok(
+        app_game_timer_parent_surface_payload(&read_model),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    );
     let read_model_json = require_log_string_field(
         payload.get(constants::field::APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL),
         constants::error::AGENT_EVENT_SERIALIZES,
@@ -122,7 +127,10 @@ fn app_game_timer_parent_surface_payload_fails_closed_without_source_rows() {
 
     let read_model =
         app_game_timer_parent_surface_from_service_model_with_timer_state(&model, None);
-    let payload = app_game_timer_parent_surface_payload(&read_model);
+    let payload = require_ok(
+        app_game_timer_parent_surface_payload(&read_model),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    );
     let read_model_json = require_log_string_field(
         payload.get(constants::field::APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL),
         constants::error::AGENT_EVENT_SERIALIZES,

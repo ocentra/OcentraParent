@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use ocentra_parent_agent_protocol::{
     app_game::APP_GAME_SCHEMA_VERSION,
     app_game_platform_proof_status::{
@@ -24,21 +26,36 @@ fn initial_and_cloned_cache_snapshots_are_fully_unavailable() {
     assert_unavailable_snapshot(&cloned_snapshot);
 }
 
+#[test]
+fn completed_refresh_replaces_snapshot_and_rate_limits_the_next_refresh() {
+    let cache = PlatformProbeCache::new();
+    assert!(cache.begin_refresh(Duration::ZERO));
+    assert!(!cache.begin_refresh(Duration::ZERO));
+
+    let mut refreshed = cache.snapshot();
+    refreshed.context_inventory_visible = true;
+    refreshed.context_count = 3;
+    cache.finish_refresh(refreshed.clone());
+
+    assert_eq!(cache.snapshot(), refreshed);
+    assert!(!cache.begin_refresh(Duration::from_secs(300)));
+}
+
 fn assert_unavailable_snapshot(snapshot: &AppGameLinuxDockerHostPreflight) {
     assert_eq!(snapshot.schema_version, APP_GAME_SCHEMA_VERSION);
     assert_eq!(
         snapshot.state,
         APP_GAME_LINUX_DOCKER_PREFLIGHT_PROBE_UNAVAILABLE
     );
-    assert_eq!(snapshot.cli_visible, false);
-    assert_eq!(snapshot.daemon_visible, false);
-    assert_eq!(snapshot.context_inventory_visible, false);
+    assert!(!snapshot.cli_visible);
+    assert!(!snapshot.daemon_visible);
+    assert!(!snapshot.context_inventory_visible);
     assert_eq!(snapshot.context_count, 0);
-    assert_eq!(snapshot.image_inventory_visible, false);
+    assert!(!snapshot.image_inventory_visible);
     assert_eq!(snapshot.image_count, 0);
-    assert_eq!(snapshot.container_inventory_visible, false);
+    assert!(!snapshot.container_inventory_visible);
     assert_eq!(snapshot.container_count, 0);
-    assert_eq!(snapshot.identifiers_redacted, true);
+    assert!(snapshot.identifiers_redacted);
     assert_eq!(snapshot.proof_refs, Vec::<String>::new());
     assert_eq!(
         snapshot.open_gaps,

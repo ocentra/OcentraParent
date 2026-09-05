@@ -356,6 +356,10 @@ fn field_descriptors_network() -> Vec<ProtocolLiteralDescriptor<&'static str>> {
 fn field_descriptors_parent_assistant() -> Vec<ProtocolLiteralDescriptor<&'static str>> {
     vec![
         field_descriptor(
+            "ParentAssistantAnswerText",
+            field::PARENT_ASSISTANT_ANSWER_TEXT,
+        ),
+        field_descriptor(
             "ParentAssistantAnswerState",
             field::PARENT_ASSISTANT_ANSWER_STATE,
         ),

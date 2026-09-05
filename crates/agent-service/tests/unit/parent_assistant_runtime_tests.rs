@@ -1,40 +1,25 @@
-#[macro_use]
-#[path = "../support/unit_root_basic_harness.rs"]
-mod unit_root_basic_harness;
-declare_agent_service_unit_root_basic_harness!();
-
 #[path = "../support/activity_report_env_lock.rs"]
 mod activity_report_env_lock;
-#[path = "../../src/activity_store_path.rs"]
-mod activity_store_path;
 #[path = "../../src/activity_surface_report_file_name.rs"]
 mod activity_surface_report_file_name;
 #[path = "../../src/activity_surface_report_store.rs"]
 mod activity_surface_report_store;
 #[path = "../../src/activity_surface_request.rs"]
 mod activity_surface_request;
-#[path = "../../src/activity_surface_store.rs"]
-mod activity_surface_store;
-#[path = "../../src/event_builder.rs"]
+#[path = "../../src/event_builder/build.rs"]
 mod event_builder;
 #[path = "../../src/fields.rs"]
 mod fields;
-#[path = "../../src/json_contract.rs"]
-mod json_contract;
 #[path = "../../src/local_ai_cache_root.rs"]
 mod local_ai_cache_root;
-#[path = "../../src/local_ai_chat_generation.rs"]
-mod local_ai_chat_generation;
 #[path = "../../src/local_ai_chat_generation_args.rs"]
 mod local_ai_chat_generation_args;
-#[path = "../../src/local_ai_chat_generation_request.rs"]
-mod local_ai_chat_generation_request;
+#[path = "../../src/local_ai_chat_generation_request/input.rs"]
+mod local_ai_chat_generation_request_input;
 #[path = "../../src/local_ai_chat_generation_result.rs"]
 mod local_ai_chat_generation_result;
 #[path = "../../src/local_ai_chat_generation_runner.rs"]
 mod local_ai_chat_generation_runner;
-#[path = "../../src/local_ai_generation_payload.rs"]
-mod local_ai_generation_payload;
 #[path = "../../src/local_ai_model_registry.rs"]
 mod local_ai_model_registry;
 #[path = "../../src/local_ai_provider_scheduler.rs"]
@@ -67,28 +52,40 @@ mod local_ai_runtime_distribution_assets;
 mod local_ai_runtime_install_plan;
 #[path = "../../src/local_ai_runtime_model_selection.rs"]
 mod local_ai_runtime_model_selection;
-#[path = "../../src/local_ai_runtime_payload.rs"]
-mod local_ai_runtime_payload;
-#[path = "../../src/local_ai_runtime_provider_proof_read_model.rs"]
-mod local_ai_runtime_provider_proof_read_model;
 #[path = "../../src/local_ai_runtime_readiness.rs"]
 mod local_ai_runtime_readiness;
-#[path = "../../src/local_ai_runtime_status.rs"]
+#[path = "../../src/local_ai_runtime_status/evaluation.rs"]
 mod local_ai_runtime_status;
 #[path = "../../src/local_ai_runtime_status_unavailable.rs"]
 mod local_ai_runtime_status_unavailable;
+#[path = "../../src/parent_assistant_activity_snapshot.rs"]
+mod parent_assistant_activity_snapshot;
 #[path = "../../src/parent_assistant_api.rs"]
 mod parent_assistant_api;
 #[path = "../../src/parent_assistant_evidence_context.rs"]
 mod parent_assistant_evidence_context;
 #[path = "../../src/parent_assistant_payload.rs"]
 mod parent_assistant_payload;
+#[path = "../../src/parent_assistant_provider_state_value.rs"]
+mod parent_assistant_provider_state_value;
 #[path = "../../src/parent_assistant_report_history.rs"]
 mod parent_assistant_report_history;
-#[path = "../../src/parent_assistant_runtime.rs"]
+#[path = "../../src/parent_assistant_runtime/core.rs"]
 mod parent_assistant_runtime;
-#[path = "../support/test_invariants.rs"]
-mod test_invariants;
+#[path = "../support/test_invariants/log_field.rs"]
+mod test_log_field;
+#[path = "../support/test_invariants/require_json_decode.rs"]
+mod test_require_json_decode;
+#[path = "../support/test_invariants/require_log_string_field.rs"]
+mod test_require_log_string_field;
+#[path = "../support/test_invariants/require_ok.rs"]
+mod test_require_ok;
+#[path = "../support/test_invariants/require_some.rs"]
+mod test_require_some;
+#[path = "../support/test_invariants/serialize_test_json.rs"]
+mod test_serialize_json;
+#[path = "../../src/time/now.rs"]
+mod time;
 
 use std::path::PathBuf as TestPathBuf;
 use std::string::String as TestString;
@@ -145,13 +142,13 @@ use ocentra_parent_agent_protocol::ACTIVITY_SURFACE_SCHEMA_VERSION;
 use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
 use crate::{
-    activity_surface_store::ActivitySurfaceStoreSnapshot,
     fields::fields_from_pairs,
     local_ai_provider_scheduler::LocalAiProviderSchedulerRuntime,
     local_ai_provider_scheduler_state::LocalAiPhysicalDeviceId,
     local_ai_runtime_config::LocalAiRuntimeConfigSnapshot,
     local_ai_runtime_config_values::LocalAiRuntimePath,
     local_ai_runtime_status::local_ai_runtime_status_for_model_from_config,
+    parent_assistant_activity_snapshot::ParentAssistantActivitySnapshot,
     parent_assistant_runtime::{
         generate_parent_assistant_answer_with_scheduler, request_from_command,
     },
@@ -161,9 +158,8 @@ type TestResult = Result<(), Box<dyn Error>>;
 
 #[path = "parent_assistant_runtime_tests/activity_history_context_tests.rs"]
 mod activity_history_context_tests;
-#[path = "parent_assistant_runtime_tests/clippy_linkage_tests.rs"]
-mod clippy_linkage_tests;
-
+#[path = "parent_assistant_api_tests.rs"]
+mod parent_assistant_api_tests;
 #[tokio::test]
 async fn parent_assistant_unconfigured_provider_returns_cited_unavailable_answer() {
     let scheduler = LocalAiProviderSchedulerRuntime::new();
@@ -334,10 +330,8 @@ async fn parent_assistant_request_prepares_policy_preview_without_enforcement_or
 
 #[test]
 fn parent_assistant_request_cites_activity_snapshot_when_prompt_has_no_summary() {
-    let snapshot = ActivitySurfaceStoreSnapshot {
-        device_id: activity_surface_store::ActivitySurfaceDeviceRefText(
-            constants::activity_surface::DEFAULT_DEVICE_ID.to_string(),
-        ),
+    let snapshot = ParentAssistantActivitySnapshot {
+        device_id: constants::activity_surface::DEFAULT_DEVICE_ID.to_string(),
         recent_returned: 1,
         last_event_id: Some(constants::event_id::ACTIVITY_RECENT_SUMMARY_REPORTED.to_string()),
         last_observed_at: Some(constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string()),

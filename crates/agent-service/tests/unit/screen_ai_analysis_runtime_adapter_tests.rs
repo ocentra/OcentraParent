@@ -23,9 +23,34 @@ use ocentra_parent_agent_protocol::screen_evidence::SCREEN_WINRT_OCR_TEMPLATE_VE
 
 #[cfg(windows)]
 use super::adapter_process::is_windows_batch_adapter;
-use super::{adapter::parsed_generation_output_with_policy, config::ScreenOcrRedactionPolicy};
+use super::{
+    adapter::parsed_generation_output_with_policy, adapter_runtime_status,
+    config::ScreenOcrRedactionPolicy,
+};
 
 type TestResult = Result<(), IoError>;
+
+#[test]
+fn adapter_runtime_status_fails_closed_without_a_configured_command() {
+    let status = adapter_runtime_status(None, constants::activity_store::TEST_FIRST_OBSERVED_AT);
+
+    assert_eq!(
+        status.adapter_boundary,
+        ocentra_parent_agent_protocol::local_ai_runtime_boundary::LocalAiAdapterBoundary::LocalAdapterUnavailable
+    );
+    assert_eq!(
+        status.execution_state,
+        ocentra_parent_agent_protocol::local_ai_runtime_boundary::LocalAiExecutionState::Disabled
+    );
+    assert_eq!(
+        status.unavailable_reason.as_deref(),
+        Some(constants::local_ai_runtime::UNAVAILABLE_REASON_RUNTIME_BINARY_UNCONFIGURED)
+    );
+    assert_eq!(
+        status.last_checked_at,
+        constants::activity_store::TEST_FIRST_OBSERVED_AT
+    );
+}
 
 #[test]
 fn parsed_generation_output_preserves_local_ocr_runtime_metadata() -> TestResult {

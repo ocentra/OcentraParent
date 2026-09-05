@@ -2,7 +2,6 @@ import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { ParentRoute, type ParentAppGamePanelSnapshot } from '../../generated/parent-ui-bridge';
-import type { PortalRenderActions } from '../../src/portal-actions';
 import {
   AppGamePolicyReadinessRoutePanel,
   shouldRenderAppGamePolicyReadinessRoute,
@@ -54,8 +53,6 @@ describe('app-game policy readiness portal route panel', () => {
   it('renders the Rust-owned policy readiness panel without TS read-model reconstruction', () => {
     const html = renderToStaticMarkup(
       createElement(AppGamePolicyReadinessRoutePanel, {
-        actions: testActions(),
-        commandEnabled: true,
         panel: PolicyReadinessPanel,
       })
     );
@@ -78,22 +75,18 @@ describe('app-game policy readiness portal route panel', () => {
   it('keeps the Rust-owned empty state explicit when the panel snapshot is absent', () => {
     const html = renderToStaticMarkup(
       createElement(AppGamePolicyReadinessRoutePanel, {
-        actions: testActions(),
-        commandEnabled: false,
         panel: null,
       })
     );
 
     expect(html).toContain('No app/game policy readiness panel has been reported yet.');
     expect(html).toContain('Approval workflow, category routing, and adapter dispatch remain unclaimed.');
-    expect(html).toContain('disabled=""');
+    expect(html).not.toContain('<button');
   });
 
   it('keeps a non-ready service snapshot visibly non-ready without inventing rows', () => {
     const html = renderToStaticMarkup(
       createElement(AppGamePolicyReadinessRoutePanel, {
-        actions: testActions(),
-        commandEnabled: true,
         panel: {
           ...PolicyReadinessPanel,
           loadState: 'warn',
@@ -111,16 +104,3 @@ describe('app-game policy readiness portal route panel', () => {
     expect(html).not.toContain('Policy evidence');
   });
 });
-
-function testActions(): PortalRenderActions {
-  return {
-    reconnect() {},
-    selectCommandResult() {},
-    async sendCommand() {
-      return null;
-    },
-    async refreshRouteSnapshot() {
-      return null;
-    },
-  };
-}

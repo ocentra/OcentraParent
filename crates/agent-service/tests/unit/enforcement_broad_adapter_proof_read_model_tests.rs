@@ -1,13 +1,11 @@
 use std::collections::BTreeMap;
 
-use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::constants::enforcement_broad_adapter_proof as proof;
 use ocentra_parent_agent_protocol::constants::v08_browser_domain_adapter_proof as browser_proof;
 use ocentra_parent_agent_protocol::enforcement::ParentPlatform;
 use ocentra_parent_agent_protocol::enforcement_broad_adapter_proof::V08BroadAdapterRuntimeClaimState;
 use ocentra_parent_agent_protocol::enforcement_broad_adapter_proof::V08BroadAdapterRuntimeEvidenceState;
 use ocentra_parent_agent_protocol::enforcement_broad_adapter_proof::V08BroadAdapterRuntimeProofEntry;
-use ocentra_parent_agent_protocol::enforcement_broad_adapter_proof::V08BroadAdapterRuntimeProofReadModel;
 use ocentra_parent_agent_protocol::enforcement_broad_adapter_proof::V08BroadAdapterRuntimeSurface;
 use ocentra_parent_agent_protocol::policy_constants;
 
@@ -15,7 +13,7 @@ use super::enforcement_api::enforcement_broad_adapter_proof_read_model::{
     v08_broad_adapter_proof_read_model, GeneratedAtTextRef,
 };
 use super::test_text::{count_for_display, TestText};
-use crate::test_invariants::require_some;
+use crate::test_require_some::require_some;
 
 #[test]
 fn broad_adapter_proof_read_model_preserves_honest_runtime_states() {

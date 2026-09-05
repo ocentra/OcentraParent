@@ -10,16 +10,40 @@ use serde_json::Value;
 
 use super::super::StagedPolicyPreviewDraft;
 
-pub(super) fn build(
-    draft: &StagedPolicyPreviewDraft,
-    context: &ocentra_schema::parent_ui_bridge::ParentPolicyPreviewConfirmationContext,
-    preview_id: &ocentra_schema::parent_ui_bridge::ParentPolicyPreviewId,
+pub(super) struct ConfirmationRequestParts<'a> {
     target_kind: PolicyRequestAssistantPreviewConfirmTargetKind,
-    target_reference_id: &str,
+    target_reference_id: &'a str,
     requested_action: PolicyRequestAssistantPreviewConfirmAction,
     actor_role: PolicyRequestAssistantPreviewConfirmActorRole,
     actor_state: PolicyRequestAssistantPreviewConfirmActorState,
     audit_reference_ids: Vec<String>,
+}
+
+impl<'a> ConfirmationRequestParts<'a> {
+    pub(super) fn new(
+        target_kind: PolicyRequestAssistantPreviewConfirmTargetKind,
+        target_reference_id: &'a str,
+        requested_action: PolicyRequestAssistantPreviewConfirmAction,
+        actor_role: PolicyRequestAssistantPreviewConfirmActorRole,
+        actor_state: PolicyRequestAssistantPreviewConfirmActorState,
+        audit_reference_ids: Vec<String>,
+    ) -> Self {
+        Self {
+            target_kind,
+            target_reference_id,
+            requested_action,
+            actor_role,
+            actor_state,
+            audit_reference_ids,
+        }
+    }
+}
+
+pub(super) fn build(
+    draft: &StagedPolicyPreviewDraft,
+    context: &ocentra_schema::parent_ui_bridge::ParentPolicyPreviewConfirmationContext,
+    preview_id: &ocentra_schema::parent_ui_bridge::ParentPolicyPreviewId,
+    parts: ConfirmationRequestParts<'_>,
 ) -> Result<PolicyRequestAssistantPreviewConfirmRequest, String> {
     let now = Utc::now();
     Ok(PolicyRequestAssistantPreviewConfirmRequest {
@@ -35,9 +59,9 @@ pub(super) fn build(
             "policy preview policy version is unavailable; manual review required".to_string()
         })?,
         request_kind: PolicyRequestAssistantPreviewConfirmRequestKind::AskParent,
-        target_kind,
-        target_reference_id: target_reference_id.to_string(),
-        requested_action,
+        target_kind: parts.target_kind,
+        target_reference_id: parts.target_reference_id.to_string(),
+        requested_action: parts.requested_action,
         rule_id: context.rule_id.clone(),
         requested_bonus_minutes: None,
         requested_at: super::actor::required_context(&context.requested_at, "request timestamp")?.to_string(),
@@ -47,10 +71,10 @@ pub(super) fn build(
         assistant_confirmation_state:
             ocentra_parent_agent_protocol::activity::policy_preview::PolicyAssistantConfirmationState::ParentConfirmationRequired,
         request_status: ocentra_parent_agent_protocol::activity::policy_preview::PolicyRequestStatus::PreviewOnly,
-        audit_reference_ids,
+        audit_reference_ids: parts.audit_reference_ids,
         confirmation_actor_id: super::actor::required_context(&context.actor_id, "actor id")?.to_string(),
-        confirmation_actor_role: actor_role,
-        confirmation_actor_state: actor_state,
+        confirmation_actor_role: parts.actor_role,
+        confirmation_actor_state: parts.actor_state,
         confirmation_audit_reference_id: super::actor::required_context(
             &context.confirmation_audit_reference_id,
             "confirmation audit reference",
@@ -61,10 +85,11 @@ pub(super) fn build(
 }
 
 pub(super) fn serialize(
-    request: PolicyRequestAssistantPreviewConfirmRequest,
+    request: &PolicyRequestAssistantPreviewConfirmRequest,
 ) -> Result<Value, String> {
-    let request_text = serde_json::to_string(&request)
-        .map_err(|_| "policy preview confirmation request could not be serialized".to_string())?;
+    let request_text = serde_json::to_string(request).map_err(|error| {
+        format!("policy preview confirmation request could not be serialized: {error}")
+    })?;
     Ok(serde_json::json!({
         ocentra_parent_agent_protocol::constants::field::POLICY_REQUEST_ASSISTANT_PREVIEW_CONFIRM_REQUEST: request_text,
     }))

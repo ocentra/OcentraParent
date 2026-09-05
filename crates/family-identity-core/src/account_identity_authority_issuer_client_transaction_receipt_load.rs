@@ -124,6 +124,6 @@ fn load_claimed_receipt_row(
             },
         )
         .optional()
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::ReceiptUnavailable)?
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::ReceiptUnavailable)?
         .ok_or(AccountIdentityAuthorityIssuerClientError::ReceiptUnavailable)
 }

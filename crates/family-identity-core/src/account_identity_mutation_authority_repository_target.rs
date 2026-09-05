@@ -26,12 +26,12 @@ pub(super) fn resolve_request(
         }
         AccountIdentityMutationTarget::SetupInvite(value) => {
             let invite_id = SetupInviteId::parse(value.clone())
-                .map_err(|_| AccountIdentityMutationAuthorityError::InvalidRequest)?;
+                .map_err(|_error| AccountIdentityMutationAuthorityError::InvalidRequest)?;
             invite::resolve(transaction, authority, &invite_id, now)
         }
         AccountIdentityMutationTarget::Recovery(value) => {
             let recovery_id = RecoveryId::parse(value.clone())
-                .map_err(|_| AccountIdentityMutationAuthorityError::InvalidRequest)?;
+                .map_err(|_error| AccountIdentityMutationAuthorityError::InvalidRequest)?;
             recovery::resolve(transaction, authority, &recovery_id, now)
         }
     }

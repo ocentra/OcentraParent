@@ -96,6 +96,8 @@ const headerThemeToggleConfig = {
   },
 } as const;
 
+const headerThemeToggleVisualStyle = { opacity: 1 } as const;
+
 type PortalUnifiedShellProps = {
   readonly children: ReactNode;
   readonly onAuthOpen: () => void;
@@ -276,24 +278,27 @@ function PortalHeaderThemeToggle({
       className={PortalUnifiedChrome.Classes.OutlineHeaderTheme}
       role="group"
     >
-      <ScopeToggle
-        className={PortalUnifiedChrome.Classes.OutlineHeaderThemeVisual}
-        config={headerThemeToggleConfig}
-        options={[
-          {
-            value: PortalTheme.Light,
-            label: resolvePortalDevText(PortalDevTextToken.ThemeLight),
-            iconHref: lightIcon,
-          },
-          {
-            value: PortalTheme.Dark,
-            label: resolvePortalDevText(PortalDevTextToken.ThemeDark),
-            iconHref: darkIcon,
-          },
-        ]}
-        title={resolvePortalDevText(PortalDevTextToken.DisplayTheme)}
-        value={theme}
-      />
+      <span aria-hidden={PortalDom.Attributes.True} className={PortalUnifiedChrome.Classes.OutlineHeaderThemeVisual}>
+        <ScopeToggle
+          config={headerThemeToggleConfig}
+          disabled
+          options={[
+            {
+              value: PortalTheme.Light,
+              label: resolvePortalDevText(PortalDevTextToken.ThemeLight),
+              iconHref: lightIcon,
+            },
+            {
+              value: PortalTheme.Dark,
+              label: resolvePortalDevText(PortalDevTextToken.ThemeDark),
+              iconHref: darkIcon,
+            },
+          ]}
+          style={headerThemeToggleVisualStyle}
+          title={resolvePortalDevText(PortalDevTextToken.DisplayTheme)}
+          value={theme}
+        />
+      </span>
       <button
         aria-label={resolvePortalDevText(PortalDevTextToken.ThemeLight)}
         aria-pressed={lightActive ? PortalDom.Attributes.True : PortalDom.Attributes.False}

@@ -26,22 +26,22 @@ pub(super) fn validate_owned_objects(
                 OR (type IN ('trigger', 'view')
                     AND lower(COALESCE(sql, '')) LIKE '%account_identity_issuer_v2_%')",
         )
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
     let mut rows = statement
         .query([])
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
     let mut tables = HashSet::new();
     let mut indexes = HashSet::new();
     while let Some(row) = rows
         .next()
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?
     {
         let object_type = row
             .get::<_, String>(0)
-            .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
+            .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
         let name = row
             .get::<_, String>(1)
-            .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
+            .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
         match object_type.as_str() {
             "table" if allowed_tables.contains(&name.as_str()) => {
                 tables.insert(name);

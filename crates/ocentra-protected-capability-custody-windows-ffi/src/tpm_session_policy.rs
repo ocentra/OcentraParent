@@ -24,7 +24,7 @@ impl OwnedTpmSession<'_> {
     }
 
     pub(super) fn authorize_operation(
-        &mut self,
+        &self,
         signer_handle: u32,
         nv_command: &FixedNvCommand,
         profile: &FixedPolicyProfile,

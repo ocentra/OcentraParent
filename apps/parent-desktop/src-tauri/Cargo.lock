@@ -3519,16 +3519,10 @@ dependencies = [
 name = "ocentra-entitlement-core"
 version = "0.1.1"
 dependencies = [
- "atomicwrites",
  "chrono",
- "ed25519-dalek",
- "fs2",
  "ocentra-eventing",
- "ocentra-family-identity-core",
- "ocentra-schema",
  "serde",
  "serde_json",
- "sha2",
 ]
 
 [[package]]
@@ -3704,16 +3698,13 @@ name = "ocentra-policy-control-core"
 version = "0.1.1"
 dependencies = [
  "chrono",
- "ed25519-dalek",
  "ocentra-eventing",
  "ocentra-evidence",
- "ocentra-family-identity-core",
  "ocentra-parent-agent-protocol",
  "ocentra-schema",
  "serde",
  "serde_json",
  "sha2",
- "tokio",
 ]
 
 [[package]]

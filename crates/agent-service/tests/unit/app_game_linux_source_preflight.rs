@@ -9,10 +9,10 @@ use ocentra_parent_screen_capture_adapter::linux_foreground_source::{
     LinuxForegroundSourcePreflight, LinuxSocketReadiness, LinuxToolProbe,
 };
 
-use crate::app_game_adapter_execution_readiness_payload::GeneratedAtText;
 use crate::app_game_adapter_host_capabilities::{CapabilityState, HostCapabilitySignals};
 use crate::app_game_linux_docker_host_preflight::unavailable_linux_docker_host_preflight;
 use crate::app_game_platform_proof_status_payload::app_game_platform_proof_status_read_model_from_preflights;
+use crate::app_game_platform_proof_status_payload::PlatformProofGeneratedAtText;
 
 fn unavailable_host_signals() -> HostCapabilitySignals {
     HostCapabilitySignals {
@@ -53,12 +53,12 @@ fn host_capability_route_keeps_caller_observations_not_detected() {
 }
 
 #[test]
-fn platform_status_route_preserves_linux_fail_closed_gaps_and_claims() {
+fn platform_status_route_preserves_linux_fail_closed_gaps_and_claims() -> Result<(), &'static str> {
     let signals = unavailable_host_signals();
     let preflight = caller_minted_observations();
     let docker = unavailable_linux_docker_host_preflight();
     let model = app_game_platform_proof_status_read_model_from_preflights(
-        GeneratedAtText("2026-08-28T00:00:00Z".to_string()),
+        PlatformProofGeneratedAtText("2026-08-28T00:00:00Z".to_string()),
         &signals,
         &preflight,
         &docker,
@@ -67,7 +67,7 @@ fn platform_status_route_preserves_linux_fail_closed_gaps_and_claims() {
         .rows
         .iter()
         .find(|row| row.platform == APP_GAME_PARENT_PLATFORM_LINUX)
-        .expect("the typed platform status model must include Linux");
+        .ok_or("the typed platform status model must include Linux")?;
 
     assert_eq!(
         linux.host_capability_state,
@@ -83,15 +83,13 @@ fn platform_status_route_preserves_linux_fail_closed_gaps_and_claims() {
     );
     assert_eq!(linux.host_capability_evidence_refs, Vec::<String>::new());
     assert_eq!(linux.host_capability_probe_refs, Vec::<String>::new());
-    assert_eq!(
-        linux
-            .open_gaps
-            .contains(&APP_GAME_PLATFORM_GAP_LINUX_FOREGROUND_CAPTURE.to_string()),
-        true
-    );
-    assert_eq!(linux.adapter_dispatch_claimed, false);
-    assert_eq!(linux.platform_enforcement_claimed, false);
-    assert_eq!(linux.provider_delivery_claimed, false);
-    assert_eq!(linux.child_device_delivery_claimed, false);
-    assert_eq!(linux.private_diagnostics_claimed, false);
+    assert!(linux
+        .open_gaps
+        .contains(&APP_GAME_PLATFORM_GAP_LINUX_FOREGROUND_CAPTURE.to_string()));
+    assert!(!linux.adapter_dispatch_claimed);
+    assert!(!linux.platform_enforcement_claimed);
+    assert!(!linux.provider_delivery_claimed);
+    assert!(!linux.child_device_delivery_claimed);
+    assert!(!linux.private_diagnostics_claimed);
+    Ok(())
 }

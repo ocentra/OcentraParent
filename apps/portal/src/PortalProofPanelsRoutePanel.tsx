@@ -4,7 +4,6 @@ import type {
   ParentAppGameNotificationParentSurfacePanelSnapshot,
   ParentAppGamePanelSnapshot,
   ParentAppGameTimerParentSurfacePanelSnapshot,
-  ParentBrowserPanelSnapshot,
   ParentNetworkEvidenceSummarySnapshot,
   ParentPolicyPreviewPanelSnapshot,
 } from '../generated/parent-ui-bridge';
@@ -18,10 +17,6 @@ import {
 
 export function PortalProofPanelsRoutePanel({
   actions,
-  browserActionIntentStreamStatusPanel,
-  browserParentExplanationPanel,
-  browserSocialProviderReceiptIngestionReadinessStatusPanel,
-  browserSocialProviderReceiptStreamStatusPanel,
   commandEnabled,
   liveActivity,
   networkEvidenceSummary,
@@ -32,11 +27,6 @@ export function PortalProofPanelsRoutePanel({
   appGameChildRuntimeTransportReceiptPanel,
   appGameAdapterDispatchPanel,
   appGameTimerParentSurfacePanel,
-  socialAlertReportPanel,
-  socialAlertReportParentSurfacePanel,
-  socialAuditExplanationPanel,
-  socialDashboardPanel,
-  socialParentNotificationDeliveryPanel,
 }: {
   readonly actions: PortalRenderActions;
   readonly commandEnabled: boolean;
@@ -49,15 +39,6 @@ export function PortalProofPanelsRoutePanel({
   readonly appGameChildRuntimeTransportReceiptPanel: ParentAppGamePanelSnapshot | null;
   readonly appGameAdapterDispatchPanel: ParentAppGameAdapterDispatchPanelSnapshot | null;
   readonly appGameTimerParentSurfacePanel: ParentAppGameTimerParentSurfacePanelSnapshot | null;
-  readonly browserParentExplanationPanel: ParentBrowserPanelSnapshot | null;
-  readonly socialAuditExplanationPanel: ParentBrowserPanelSnapshot | null;
-  readonly socialDashboardPanel: ParentBrowserPanelSnapshot | null;
-  readonly socialAlertReportPanel: ParentBrowserPanelSnapshot | null;
-  readonly socialAlertReportParentSurfacePanel: ParentBrowserPanelSnapshot | null;
-  readonly socialParentNotificationDeliveryPanel: ParentBrowserPanelSnapshot | null;
-  readonly browserActionIntentStreamStatusPanel: ParentBrowserPanelSnapshot | null;
-  readonly browserSocialProviderReceiptStreamStatusPanel: ParentBrowserPanelSnapshot | null;
-  readonly browserSocialProviderReceiptIngestionReadinessStatusPanel: ParentBrowserPanelSnapshot | null;
 }): ReactElement {
   const [activePanel, onSelectPanel] = usePortalProofPanelId();
   return renderPortalProofPanelsRoutePanel({
@@ -73,15 +54,6 @@ export function PortalProofPanelsRoutePanel({
     appGameChildRuntimeTransportReceiptPanel,
     appGameAdapterDispatchPanel,
     appGameTimerParentSurfacePanel,
-    browserParentExplanationPanel,
-    socialAuditExplanationPanel,
-    socialDashboardPanel,
-    socialAlertReportPanel,
-    socialAlertReportParentSurfacePanel,
-    socialParentNotificationDeliveryPanel,
-    browserActionIntentStreamStatusPanel,
-    browserSocialProviderReceiptStreamStatusPanel,
-    browserSocialProviderReceiptIngestionReadinessStatusPanel,
     onSelectPanel,
   } satisfies PortalProofPanelsRoutePanelProps);
 }

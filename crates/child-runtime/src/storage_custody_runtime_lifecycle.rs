@@ -1,9 +1,7 @@
 use std::path::Path;
 
 use super::{
-    storage_custody_effect_store::{
-        StorageCustodyEffectRecord, StorageCustodyEffectStatus, StorageCustodyEffectStore,
-    },
+    storage_custody_effect_store::{StorageCustodyEffectStatus, StorageCustodyEffectStore},
     storage_custody_runtime_validation::validate_effect_record_shape,
     ChildStorageCustodyRuntime,
 };

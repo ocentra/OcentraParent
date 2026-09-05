@@ -78,6 +78,9 @@ fn validate_common_response(
     if !snapshot.status.accepts_parent_response() {
         return invalid_transition("terminal approval state rejects another parent response");
     }
+    if event.occurred_at_epoch_ms < snapshot.updated_at_epoch_ms {
+        return invalid_transition("parent response predates current approval state");
+    }
     if event.occurred_at_epoch_ms >= snapshot.request.expires_at_epoch_ms {
         return invalid_transition("parent response arrived at or after request expiry");
     }

@@ -24,7 +24,8 @@ use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderS
 use ocentra_parent_agent_protocol::screen_evidence::SCREEN_PROVIDER_SERVICE_METADATA;
 
 use crate::{
-    activity_capture::{record_activity_events_to_paths, ActivityCaptureError},
+    activity_capture::ActivityCaptureError,
+    activity_capture_persistence::record_activity_events_to_paths,
     activity_surface_read_models::activity_screen_row_from_result,
     local_ai_provider_scheduler::local_ai_provider_scheduler,
     screen_ai_service_event_subscription::{
@@ -144,7 +145,7 @@ async fn record_claimed_analysis(
                 ObservedAtText(clock.timestamp.clone()),
             )
             .await
-            .map_err(|_| ActivityCaptureError::ScreenAiEventRuntime)
+            .map_err(|_publish_error| ActivityCaptureError::ScreenAiEventRuntime)
             .and_then(|report| {
                 publish_report_succeeded(&report)
                     .then_some(())
@@ -187,7 +188,7 @@ async fn record_claimed_analysis(
             ObservedAtText(clock.timestamp.clone()),
         )
         .await
-        .map_err(|_| ActivityCaptureError::ScreenAiEventRuntime)
+        .map_err(|_publish_error| ActivityCaptureError::ScreenAiEventRuntime)
         .and_then(|report| {
             publish_report_succeeded(&report)
                 .then_some(())

@@ -29,7 +29,7 @@ pub(crate) fn insert_audit(
         return Err(SessionLifecycleRepositoryError::InvalidAuditRecord);
     }
     let event_id = SessionAuditEventId::generate()
-        .map_err(|_| SessionLifecycleRepositoryError::EntropyUnavailable)?;
+        .map_err(|_error| SessionLifecycleRepositoryError::EntropyUnavailable)?;
     let changed = transaction
         .execute(
             "INSERT INTO account_identity_session_audit_outbox (
@@ -49,7 +49,7 @@ pub(crate) fn insert_audit(
                 occurred_at_epoch_millis,
             ],
         )
-        .map_err(map_audit_insert_error)?;
+        .map_err(|error| map_audit_insert_error(&error))?;
     (changed == 1)
         .then_some(())
         .ok_or(SessionLifecycleRepositoryError::AuditConflict)
@@ -91,16 +91,16 @@ impl SqliteAccountIdentityAuthorityRepository {
         let transaction = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+            .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
         requeue_stale_deliveries(&transaction, stale_before_epoch_millis)?;
         let Some(event) = read_next_pending(&transaction)? else {
             transaction
                 .commit()
-                .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+                .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
             return Ok(None);
         };
         let delivery_attempt_id = SessionAuditDeliveryAttemptId::generate()
-            .map_err(|_| SessionLifecycleRepositoryError::EntropyUnavailable)?;
+            .map_err(|_error| SessionLifecycleRepositoryError::EntropyUnavailable)?;
         let claimed_at_epoch_millis = trusted_now_epoch_millis.max(event.occurred_at_epoch_millis);
         let changed = transaction
             .execute(
@@ -117,13 +117,13 @@ impl SqliteAccountIdentityAuthorityRepository {
                     claimed_at_epoch_millis
                 ],
             )
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+            .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
         if changed != 1 {
             return Err(SessionLifecycleRepositoryError::DeliveryConflict);
         }
         transaction
             .commit()
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+            .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
         Ok(Some(PendingSessionAuditDelivery {
             event,
             delivery_attempt_id,
@@ -139,7 +139,7 @@ impl SqliteAccountIdentityAuthorityRepository {
         let transaction = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+            .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
         let changed = transaction
             .execute(
                 "UPDATE account_identity_session_audit_outbox
@@ -156,13 +156,14 @@ impl SqliteAccountIdentityAuthorityRepository {
                     delivered_at_epoch_millis,
                 ],
             )
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+            .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
         if changed != 1 {
             return Err(SessionLifecycleRepositoryError::DeliveryConflict);
         }
+        drop(delivery);
         transaction
             .commit()
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)
+            .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)
     }
 
     pub fn release_session_audit_delivery(
@@ -172,7 +173,7 @@ impl SqliteAccountIdentityAuthorityRepository {
         let transaction = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+            .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
         let changed = transaction
             .execute(
                 "UPDATE account_identity_session_audit_outbox
@@ -187,13 +188,14 @@ impl SqliteAccountIdentityAuthorityRepository {
                     delivery.delivery_attempt_id.as_str()
                 ],
             )
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+            .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
         if changed != 1 {
             return Err(SessionLifecycleRepositoryError::DeliveryConflict);
         }
+        drop(delivery);
         transaction
             .commit()
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)
+            .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)
     }
 }
 
@@ -212,7 +214,7 @@ fn requeue_stale_deliveries(
             [stale_before_epoch_millis],
         )
         .map(|_| ())
-        .map_err(|_| SessionLifecycleRepositoryError::Unavailable)
+        .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)
 }
 
 fn read_next_pending(
@@ -241,7 +243,7 @@ fn read_next_pending(
             },
         )
         .optional()
-        .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+        .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
     row.map(stored_audit_into_event).transpose()
 }
 
@@ -266,7 +268,7 @@ fn stored_audit_into_event(
         event_id: SessionAuditEventId::parse(row.event_id)
             .ok_or(SessionLifecycleRepositoryError::InvalidAuditRecord)?,
         session_id: SessionId::parse(row.session_id)
-            .map_err(|_| SessionLifecycleRepositoryError::InvalidAuditRecord)?,
+            .map_err(|_error| SessionLifecycleRepositoryError::InvalidAuditRecord)?,
         account_id: ParentAccountId::parse(row.account_id)
             .ok_or(SessionLifecycleRepositoryError::InvalidAuditRecord)?,
         provider_subject: AccountIdentityProviderSubject::parse(row.provider_subject)
@@ -280,7 +282,7 @@ fn stored_audit_into_event(
     })
 }
 
-fn map_audit_insert_error(error: rusqlite::Error) -> SessionLifecycleRepositoryError {
+fn map_audit_insert_error(error: &rusqlite::Error) -> SessionLifecycleRepositoryError {
     match error {
         rusqlite::Error::SqliteFailure(failure, _)
             if failure.code == ErrorCode::ConstraintViolation =>

@@ -23,12 +23,12 @@ pub(super) fn initialize(
 ) -> Result<(), AccountIdentityAuthorityIssuerClientError> {
     connection
         .execute_batch("BEGIN IMMEDIATE;")
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
     let result = migrate(connection);
     match result {
         Ok(()) => connection
             .execute_batch("COMMIT;")
-            .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema),
+            .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema),
         Err(error) => {
             let _ = connection.execute_batch("ROLLBACK;");
             Err(error)
@@ -39,7 +39,7 @@ pub(super) fn initialize(
 fn migrate(connection: &Connection) -> Result<(), AccountIdentityAuthorityIssuerClientError> {
     connection
         .execute_batch(SCHEMA_META_SQL)
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
     let version = connection
         .query_row(
             "SELECT schema_version FROM account_identity_issuer_v2_schema
@@ -48,7 +48,7 @@ fn migrate(connection: &Connection) -> Result<(), AccountIdentityAuthorityIssuer
             |row| row.get::<_, i64>(0),
         )
         .optional()
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
     match version {
         Some(SCHEMA_VERSION) => schema_validation::validate_in_transaction(connection),
         Some(RESERVATION_SCHEMA_VERSION) => {
@@ -78,7 +78,7 @@ fn migrate_missing(
     } else {
         connection
             .execute_batch(CANONICAL_SCHEMA_SQL)
-            .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
+            .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
     }
     connection
         .execute(
@@ -87,7 +87,7 @@ fn migrate_missing(
              VALUES (?1, ?2, 'ready')",
             rusqlite::params![SCHEMA_NAME, SCHEMA_VERSION],
         )
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
     schema_validation::validate_in_transaction(connection)
 }
 
@@ -107,10 +107,10 @@ fn replace_metadata(
 ) -> Result<(), AccountIdentityAuthorityIssuerClientError> {
     connection
         .execute_batch("DROP TABLE account_identity_issuer_v2_schema;")
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
     connection
         .execute_batch(SCHEMA_META_SQL)
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)
 }
 
 const SCHEMA_META_SQL: &str = "CREATE TABLE IF NOT EXISTS account_identity_issuer_v2_schema (
@@ -290,7 +290,7 @@ fn has_legacy_table(
             [table],
             |row| row.get(0),
         )
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)
 }
 
 fn has_any_issuer_table(
@@ -310,5 +310,5 @@ fn has_any_issuer_table(
             [],
             |row| row.get(0),
         )
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)
 }

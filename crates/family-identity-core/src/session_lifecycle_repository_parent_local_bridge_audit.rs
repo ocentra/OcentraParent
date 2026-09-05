@@ -74,7 +74,7 @@ fn insert_binding_event(
         .checked_add(BRIDGE_AUDIT_RETENTION_MILLIS)
         .ok_or(SessionLifecycleRepositoryError::InvalidAuditRecord)?;
     let event_id = SessionAuditEventId::generate()
-        .map_err(|_| SessionLifecycleRepositoryError::EntropyUnavailable)?;
+        .map_err(|_error| SessionLifecycleRepositoryError::EntropyUnavailable)?;
     let changed = transaction
         .execute(
             "INSERT INTO account_identity_parent_local_bridge_audit_outbox (
@@ -109,7 +109,7 @@ fn insert_binding_event(
                 retain_until_epoch_millis,
             ],
         )
-        .map_err(map_audit_insert_error)?;
+        .map_err(|error| map_audit_insert_error(&error))?;
     (changed == 1)
         .then_some(())
         .ok_or(SessionLifecycleRepositoryError::AuditConflict)
@@ -155,7 +155,7 @@ pub(super) fn cleanup(
                 MAX_MAINTENANCE_ROWS
             ],
         )
-        .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+        .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
     let delivered_audits_removed = transaction
         .execute(
             "DELETE FROM account_identity_parent_local_bridge_audit_outbox
@@ -173,18 +173,18 @@ pub(super) fn cleanup(
                 MAX_MAINTENANCE_ROWS
             ],
         )
-        .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+        .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
     Ok(CleanupProgress {
         terminal_sessions_removed: u64::try_from(terminal_sessions_removed)
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?,
+            .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?,
         delivered_audits_removed: u64::try_from(delivered_audits_removed)
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?,
+            .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?,
         more_work: terminal_sessions_removed == MAX_MAINTENANCE_ROWS as usize
             || delivered_audits_removed == MAX_MAINTENANCE_ROWS as usize,
     })
 }
 
-fn map_audit_insert_error(error: rusqlite::Error) -> SessionLifecycleRepositoryError {
+fn map_audit_insert_error(error: &rusqlite::Error) -> SessionLifecycleRepositoryError {
     match error {
         rusqlite::Error::SqliteFailure(failure, _)
             if failure.code == ErrorCode::ConstraintViolation =>

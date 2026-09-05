@@ -56,11 +56,7 @@ describe('account browser session request safety', () => {
     const identity = publicIdentity(harness.env);
     const sameOrigin = { origin: 'http://localhost:3000' };
 
-    const loginResponse = await loginBrowserSession(
-      request('/auth/session/login', sameOrigin),
-      harness.env,
-      undefined
-    );
+    const loginResponse = await loginBrowserSession(request('/auth/session/login', sameOrigin), harness.env, undefined);
     assert.equal(loginResponse.status, 403);
     assert.deepEqual(await readJson(loginResponse), {
       error: 'fetch-metadata-validation-failed',

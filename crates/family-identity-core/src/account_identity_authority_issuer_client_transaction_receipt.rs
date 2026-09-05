@@ -17,7 +17,7 @@ use super::super::{
 
 impl<'a> AccountIdentityAuthorityIssuerTransaction<'a> {
     pub(crate) fn record_issued_transport(
-        &mut self,
+        &self,
         currentness: &AccountIdentityIssuerCurrentness,
         reservation: AccountIdentityIssuerReservation,
         transport: &AccountIdentityAuthorityProducerV2Transport,
@@ -66,6 +66,7 @@ impl<'a> AccountIdentityAuthorityIssuerTransaction<'a> {
         insert_outbox(&self.transaction, currentness, &key, transport)?;
         super::recovery::mark_issued(&self.transaction, &reservation, receipt.receipt_id.as_str())?;
         compact_issued_reservation(&self.transaction, &reservation, receipt, transport)?;
+        drop(reservation);
         Ok(
             AccountIdentityIssuerRecordedTransport::from_verified_currentness(
                 currentness,
@@ -140,7 +141,7 @@ fn compact_issued_reservation(
                 transport.wire_bytes(),
             ],
         )
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)?;
     (changed == 1)
         .then_some(())
         .ok_or(AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)
@@ -178,7 +179,7 @@ pub(super) fn validate_issue_receipt(
             AccountIdentityAuthorityProducerV2Error::UnsupportedOperation,
         ));
     }
-    receipt.validate_shape().map_err(|_| {
+    receipt.validate_shape().map_err(|_error| {
         AccountIdentityAuthorityIssuerClientError::Producer(
             AccountIdentityAuthorityProducerV2Error::InvalidWire,
         )
@@ -270,7 +271,7 @@ fn same_receipt_identity(
         && left.payload_digest == right.payload_digest
         && left.issued_at == right.issued_at
         && left.expires_at == right.expires_at
-        && left.wire.len() > 0
+        && !left.wire.is_empty()
 }
 
 fn insert_receipt(
@@ -312,7 +313,7 @@ fn insert_receipt(
             ],
         )
         .map(|_| ())
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::ReceiptUnavailable)
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::ReceiptUnavailable)
 }
 
 fn insert_outbox(
@@ -346,13 +347,13 @@ fn insert_outbox(
             ],
         )
         .map(|_| ())
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::ReceiptUnavailable)
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::ReceiptUnavailable)
 }
 
 pub(super) fn sql_generation(value: u64) -> Result<i64, AccountIdentityAuthorityIssuerClientError> {
-    i64::try_from(value).map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)
+    i64::try_from(value).map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)
 }
 
 pub(super) fn from_sql(value: i64) -> rusqlite::Result<u64> {
-    u64::try_from(value).map_err(|_| rusqlite::Error::IntegralValueOutOfRange(0, value))
+    u64::try_from(value).map_err(|_error| rusqlite::Error::IntegralValueOutOfRange(0, value))
 }

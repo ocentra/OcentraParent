@@ -3,10 +3,14 @@ use std::sync::{Arc, Mutex};
 use chrono::{DateTime, Duration, SecondsFormat, Utc};
 use ocentra_eventing::error::EventingError;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[path = "data_custody_parent_runtime_clock_error.rs"]
+mod error_display;
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum RuntimeClockError {
     NotRecovered,
-    InvalidDurableTimestamp,
+    InvalidDurableTimestamp(String),
+    LockPoisoned(String),
     NonMonotonicTimestamp,
     ForwardSkew,
     Overflow,
@@ -31,9 +35,7 @@ impl DataCustodyRuntimeClock {
     pub(crate) fn next_timestamp(
         clock: &SharedDataCustodyRuntimeClock,
     ) -> Result<String, RuntimeClockError> {
-        let mut clock = clock
-            .lock()
-            .map_err(|_| RuntimeClockError::NonMonotonicTimestamp)?;
+        let mut clock = clock.lock().map_err(|error| lock_error(&error))?;
         if !clock.recovered {
             return Err(RuntimeClockError::NotRecovered);
         }
@@ -73,9 +75,7 @@ impl DataCustodyRuntimeClock {
         timestamp: &str,
     ) -> Result<(), RuntimeClockError> {
         let parsed = parse_timestamp(timestamp)?;
-        let mut clock = clock
-            .lock()
-            .map_err(|_| RuntimeClockError::NonMonotonicTimestamp)?;
+        let mut clock = clock.lock().map_err(|error| lock_error(&error))?;
         let observed = Utc::now();
         if clock
             .last_committed
@@ -102,9 +102,7 @@ impl DataCustodyRuntimeClock {
     pub(crate) fn ensure_recovered(
         clock: &SharedDataCustodyRuntimeClock,
     ) -> Result<(), RuntimeClockError> {
-        let clock = clock
-            .lock()
-            .map_err(|_| RuntimeClockError::NonMonotonicTimestamp)?;
+        let clock = clock.lock().map_err(|error| lock_error(&error))?;
         if clock.recovered {
             Ok(())
         } else {
@@ -115,9 +113,7 @@ impl DataCustodyRuntimeClock {
     pub(crate) fn mark_recovered(
         clock: &SharedDataCustodyRuntimeClock,
     ) -> Result<(), RuntimeClockError> {
-        let mut clock = clock
-            .lock()
-            .map_err(|_| RuntimeClockError::NonMonotonicTimestamp)?;
+        let mut clock = clock.lock().map_err(|error| lock_error(&error))?;
         clock.recovered = true;
         Ok(())
     }
@@ -125,9 +121,7 @@ impl DataCustodyRuntimeClock {
     pub(crate) fn begin_recovery(
         clock: &SharedDataCustodyRuntimeClock,
     ) -> Result<(), RuntimeClockError> {
-        let mut clock = clock
-            .lock()
-            .map_err(|_| RuntimeClockError::NonMonotonicTimestamp)?;
+        let mut clock = clock.lock().map_err(|error| lock_error(&error))?;
         clock.last_committed = None;
         clock.last_issued = None;
         clock.recovered = false;
@@ -138,12 +132,16 @@ impl DataCustodyRuntimeClock {
 fn parse_timestamp(timestamp: &str) -> Result<DateTime<Utc>, RuntimeClockError> {
     DateTime::parse_from_rfc3339(timestamp)
         .map(|value| value.with_timezone(&Utc))
-        .map_err(|_| RuntimeClockError::InvalidDurableTimestamp)
+        .map_err(|error| RuntimeClockError::InvalidDurableTimestamp(error.to_string()))
 }
 
-pub(crate) fn clock_error(error: RuntimeClockError) -> EventingError {
+fn lock_error<T>(error: &std::sync::PoisonError<T>) -> RuntimeClockError {
+    RuntimeClockError::LockPoisoned(error.to_string())
+}
+
+pub(crate) fn clock_error(error: &RuntimeClockError) -> EventingError {
     EventingError::InvalidValue {
         field: "data_custody_runtime_clock",
-        value: format!("{error:?}"),
+        value: error.to_string(),
     }
 }

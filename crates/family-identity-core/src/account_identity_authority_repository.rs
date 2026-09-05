@@ -9,9 +9,6 @@ use rusqlite::{Connection, Transaction, TransactionBehavior};
 use crate::account_identity_authority::{
     AccountIdentityCurrentMemberAuthorityProducer, VerifiedAccountIdentityAuthority,
 };
-use crate::account_identity_authority_producer::AccountIdentityAuthorityProducerCustody;
-use crate::account_identity_authority_producer::AccountIdentityAuthorityProducerTransport;
-use crate::account_identity_authority_producer_error::AccountIdentityAuthorityProducerError;
 use crate::account_identity_mutation_authority::{
     AccountIdentityMutationAuthority, AccountIdentityMutationAuthorityCustody,
     AccountIdentityMutationAuthorityRequest, AccountIdentityMutationOutcome,
@@ -29,6 +26,8 @@ mod account_identity_authority_repository_read;
 mod account_identity_authority_repository_schema;
 #[path = "account_identity_authority_service_error.rs"]
 mod account_identity_authority_service_error;
+#[path = "account_identity_authority_service_invite_recovery.rs"]
+mod account_identity_authority_service_invite_recovery;
 #[path = "account_identity_mutation_authority_repository.rs"]
 mod account_identity_mutation_authority_repository;
 #[path = "invite_recovery_repository.rs"]
@@ -62,7 +61,7 @@ impl SqliteAccountIdentityAuthorityRepository {
         session_policy: SessionLifecyclePolicy,
     ) -> Result<Self, AccountIdentityAuthorityRepositoryError> {
         let connection = Connection::open(path)
-            .map_err(|_| AccountIdentityAuthorityRepositoryError::Unavailable)?;
+            .map_err(|_error| AccountIdentityAuthorityRepositoryError::Unavailable)?;
         Self::from_owned_connection(connection, session_policy)
     }
 
@@ -75,7 +74,7 @@ impl SqliteAccountIdentityAuthorityRepository {
     ) -> Result<Self, AccountIdentityAuthorityRepositoryError> {
         connection
             .busy_timeout(Duration::from_secs(5))
-            .map_err(|_| AccountIdentityAuthorityRepositoryError::Unavailable)?;
+            .map_err(|_error| AccountIdentityAuthorityRepositoryError::Unavailable)?;
         connection
             .execute_batch(
                 "PRAGMA foreign_keys = ON;
@@ -96,21 +95,21 @@ impl SqliteAccountIdentityAuthorityRepository {
                     PRIMARY KEY (provider, provider_subject)
                  ) STRICT;",
             )
-            .map_err(|_| AccountIdentityAuthorityRepositoryError::Unavailable)?;
+            .map_err(|_error| AccountIdentityAuthorityRepositoryError::Unavailable)?;
         account_identity_authority_repository_schema::validate(&connection)?;
         connection
             .execute_batch(session_lifecycle_repository::SESSION_SCHEMA_SQL)
-            .map_err(|_| AccountIdentityAuthorityRepositoryError::Unavailable)?;
+            .map_err(|_error| AccountIdentityAuthorityRepositoryError::Unavailable)?;
         session_lifecycle_repository::parent_local_bridge_schema::initialize(
             &mut connection,
             session_policy.audit_delivery_lease_millis,
         )
-        .map_err(|_| AccountIdentityAuthorityRepositoryError::Unavailable)?;
+        .map_err(|_error| AccountIdentityAuthorityRepositoryError::Unavailable)?;
         connection
             .execute_batch(invite_recovery_repository::INVITE_RECOVERY_SCHEMA_SQL)
-            .map_err(|_| AccountIdentityAuthorityRepositoryError::Unavailable)?;
+            .map_err(|_error| AccountIdentityAuthorityRepositoryError::Unavailable)?;
         invite_recovery_repository::validate_schema(&connection)
-            .map_err(|_| AccountIdentityAuthorityRepositoryError::Unavailable)?;
+            .map_err(|_error| AccountIdentityAuthorityRepositoryError::Unavailable)?;
         Ok(Self {
             connection,
             session_policy,
@@ -126,7 +125,7 @@ impl SqliteAccountIdentityAuthorityRepository {
     ) -> Result<Transaction<'_>, AccountIdentityAuthorityRepositoryError> {
         self.connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
-            .map_err(|_| AccountIdentityAuthorityRepositoryError::Unavailable)
+            .map_err(|_error| AccountIdentityAuthorityRepositoryError::Unavailable)
     }
 
     pub(crate) fn account_issuer_connection(&self) -> &Connection {
@@ -150,7 +149,6 @@ pub(crate) fn trusted_runtime_now_in_transaction(
 pub struct AccountIdentityAuthorityService {
     repository: SqliteAccountIdentityAuthorityRepository,
     mutation_custody: Option<Box<dyn AccountIdentityMutationAuthorityCustody>>,
-    authority_producer_custody: Option<Box<dyn AccountIdentityAuthorityProducerCustody>>,
 }
 
 impl AccountIdentityAuthorityService {
@@ -165,7 +163,6 @@ impl AccountIdentityAuthorityService {
         Ok(Self {
             repository: SqliteAccountIdentityAuthorityRepository::open(path)?,
             mutation_custody: None,
-            authority_producer_custody: None,
         })
     }
 
@@ -179,7 +176,6 @@ impl AccountIdentityAuthorityService {
                 session_policy,
             )?,
             mutation_custody: None,
-            authority_producer_custody: None,
         })
     }
 
@@ -191,34 +187,6 @@ impl AccountIdentityAuthorityService {
         AccountIdentityCurrentMemberAuthorityProducer::new(&self.repository)
             .produce(provider, provider_subject)
             .map_err(AccountIdentityAuthorityServiceError::from)
-    }
-
-    /// Issue a short-lived Account-owned current-authority transport. The
-    /// provider subject is only a lookup key; every signed authority field is
-    /// copied from the opaque, repository-validated capability.
-    pub(crate) fn issue_current_authority_producer(
-        &self,
-        provider: &AccountIdentityProvider,
-        provider_subject: &AccountIdentityProviderSubject,
-    ) -> Result<AccountIdentityAuthorityProducerTransport, AccountIdentityAuthorityProducerError>
-    {
-        let custody = self
-            .authority_producer_custody
-            .as_deref()
-            .ok_or(AccountIdentityAuthorityProducerError::SignerCustodyUnavailable)?;
-        let authority = self
-            .resolve_current(provider, provider_subject)
-            .map_err(AccountIdentityAuthorityProducerError::Authority)?;
-        crate::account_identity_authority_producer::issue(&authority, custody)
-    }
-
-    /// Crate-private installation seam for the future durable signer/key
-    /// registry. No public constructor can inject process or caller custody.
-    pub(crate) fn set_authority_producer_custody(
-        &mut self,
-        custody: Box<dyn AccountIdentityAuthorityProducerCustody>,
-    ) {
-        self.authority_producer_custody = Some(custody);
     }
 
     /// Issue a short-lived mutation transport only after the provider subject
@@ -256,43 +224,6 @@ impl AccountIdentityAuthorityService {
         self.repository
             .consume_and_apply_mutation_authority(wire, custody)
             .map_err(AccountIdentityMutationAuthorityServiceError::Mutation)
-    }
-
-    pub fn approve_recovery(
-        &mut self,
-        authority: &VerifiedAccountIdentityAuthority,
-        recovery_id: &crate::family_identity::RecoveryId,
-    ) -> Result<(), invite_recovery_repository::InviteRecoveryRepositoryError> {
-        self.repository.approve_recovery(authority, recovery_id)
-    }
-
-    pub fn complete_recovery(
-        &mut self,
-        authority: &VerifiedAccountIdentityAuthority,
-        recovery_id: &crate::family_identity::RecoveryId,
-    ) -> Result<
-        invite_recovery_repository::RecoveryCompletion,
-        invite_recovery_repository::InviteRecoveryRepositoryError,
-    > {
-        self.repository.complete_recovery(authority, recovery_id)
-    }
-
-    pub fn claim_recovery_handoff(
-        &mut self,
-        authority: &VerifiedAccountIdentityAuthority,
-    ) -> Result<
-        Option<invite_recovery_repository::RecoveryHandoffDeliveryAttempt>,
-        invite_recovery_repository::InviteRecoveryRepositoryError,
-    > {
-        self.repository.claim_recovery_handoff(authority)
-    }
-
-    pub fn release_recovery_handoff(
-        &mut self,
-        authority: &VerifiedAccountIdentityAuthority,
-        attempt: &invite_recovery_repository::RecoveryHandoffDeliveryAttempt,
-    ) -> Result<(), invite_recovery_repository::InviteRecoveryRepositoryError> {
-        self.repository.release_recovery_handoff(authority, attempt)
     }
 }
 

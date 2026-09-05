@@ -39,7 +39,7 @@ pub(super) fn reconcile_startup(
                 MAX_RECLAIMED_CLAIMS
             ],
         )
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::DeliveryUnavailable)
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::DeliveryUnavailable)
         .and_then(|_| {
             transaction
                 .query_row(
@@ -52,7 +52,7 @@ pub(super) fn reconcile_startup(
                     params![ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE, now_text],
                     |row| row.get(0),
                 )
-                .map_err(|_| AccountIdentityAuthorityIssuerClientError::DeliveryUnavailable)
+                .map_err(|_error| AccountIdentityAuthorityIssuerClientError::DeliveryUnavailable)
         })
 }
 
@@ -80,7 +80,7 @@ pub(super) fn claim_pending(
             |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
         )
         .optional()
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::DeliveryUnavailable)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::DeliveryUnavailable)?;
     let Some((receipt_id, wire, attempts)) = row else {
         return Ok(None);
     };
@@ -109,7 +109,7 @@ pub(super) fn claim_pending(
                 ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE,
             ],
         )
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::DeliveryUnavailable)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::DeliveryUnavailable)?;
     if changed != 1 {
         return Err(AccountIdentityAuthorityIssuerClientError::DeliveryUnavailable);
     }
@@ -169,7 +169,7 @@ pub(super) fn record_failure(
                 now_text,
             ],
         )
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::DeliveryUnavailable)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::DeliveryUnavailable)?;
     if changed != 1 {
         return Err(AccountIdentityAuthorityIssuerClientError::DeliveryUnavailable);
     }
@@ -197,7 +197,7 @@ fn retry_delay(
             params![claim.receipt_id(), claim.claim_id()],
             |row| row.get(0),
         )
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::DeliveryUnavailable)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::DeliveryUnavailable)?;
     let shift = attempts.saturating_sub(1).min(10) as u32;
     Ok(RETRY_BASE_MILLIS
         .saturating_mul(1_i64.checked_shl(shift).unwrap_or(i64::MAX))

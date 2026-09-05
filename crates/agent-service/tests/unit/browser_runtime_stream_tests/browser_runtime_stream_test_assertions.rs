@@ -1,15 +1,10 @@
-use ocentra_parent_agent_protocol::browser::BrowserRuntimePhase;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::LogFieldValue;
 use ocentra_parent_agent_protocol::logging::LogFields;
-use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
-use ocentra_parent_agent_protocol::transport::AgentEventName;
-use serde_json::Value;
 use std::primitive::str as TestStr;
 use std::string::String as TestString;
 
 use crate::browser_runtime_stream_payload::BrowserRuntimeServiceStreamReport;
-use crate::test_invariants::require_some;
 
 const BROWSER_ACTION_INTENT_EXECUTION_FIELDS: [&TestStr; 4] = [
     constants::field::BROWSER_RUNTIME_ACTION_INTENT_DISPATCH_ATTEMPTS,
@@ -74,73 +69,11 @@ pub(super) fn assert_action_intent_handoff_payload_refs(
     );
 }
 
-pub(super) fn assert_store_backed_stream_payload_header(event: &AgentEventEnvelope) {
-    assert_eq!(
-        event.event,
-        AgentEventName::AgentBrowserRuntimeEventChainStreamReported
-    );
-    assert_eq!(
-        event
-            .payload
-            .get(constants::field::BROWSER_RUNTIME_STREAMED_EVENTS),
-        Some(&LogFieldValue::Number(
-            (BrowserRuntimePhase::ordered_chain().len() - 4) as f64
-        ))
-    );
-    assert_eq!(
-        event
-            .payload
-            .get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_CANDIDATES),
-        Some(&LogFieldValue::Number(1.0))
-    );
-}
-
-pub(super) fn assert_store_backed_stream_first_entry(entries: &[Value]) {
-    let last_entry = require_some(entries.last(), constants::error::AGENT_EVENT_SERIALIZES);
-    assert_eq!(
-        last_entry[constants::field::EVENT_TYPE],
-        constants::browser::EVENT_BROWSER_READ_MODEL_PROJECTED
-    );
-    assert_eq!(
-        entries[0][constants::field::PAYLOAD][constants::field::CAPABILITY_STATUS],
-        constants::browser::CAPABILITY_STATUS_TAB_LIST_ONLY
-    );
-    assert_eq!(
-        entries[0][constants::field::PAYLOAD][constants::field::QUERY_VISIBILITY],
-        constants::browser::QUERY_VISIBILITY_LIVE_LOCAL
-    );
-    assert_eq!(
-        entries[0][constants::field::PAYLOAD][constants::field::DEGRADED_REASON],
-        constants::value::BROWSER_BRIDGE_NO_PAGE_TARGETS
-    );
-}
-
-pub(super) fn assert_store_backed_stream_child_status_unavailable_and_no_execution(
-    payload: &LogFields,
-) {
-    assert_eq!(
-        payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_CHILD_ACCEPTED_ROWS),
-        Some(&LogFieldValue::Number(0.0))
-    );
-    assert_eq!(
-        payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_DISPATCH_ATTEMPTS),
-        Some(&LogFieldValue::Number(0.0))
-    );
-    assert_eq!(
-        payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_CHILD_INTERVENTION_EXECUTIONS),
-        Some(&LogFieldValue::Number(0.0))
-    );
-    assert_eq!(
-        payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_ENFORCEMENT_EXECUTIONS),
-        Some(&LogFieldValue::Number(0.0))
-    );
-}
-
 fn serialize_test_json<T>(value: &T) -> TestString
 where
     T: serde::Serialize + ?Sized,
 {
-    crate::test_invariants::serialize_test_json(value)
+    super::serialize_test_json(value)
 }
 
 fn expected_action_intent_ref(prefix: &TestStr, action_intent_id: &TestStr) -> TestString {

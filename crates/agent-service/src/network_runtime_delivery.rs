@@ -17,11 +17,11 @@ use ocentra_parent_agent_protocol::network_flow::{
     ActivityNetworkFlowObservation, ActivityNetworkFlowReadModel,
 };
 
-use crate::activity_capture::capture_events::NetworkCaptureObservation;
-#[path = "network_runtime_delivery/capture_loop.rs"]
-mod capture_loop;
+use crate::activity_capture_network_observation::NetworkCaptureObservation;
 #[path = "network_runtime_delivery/projection.rs"]
 mod projection;
+#[path = "network_runtime_delivery/reconciliation.rs"]
+mod reconciliation;
 #[path = "network_runtime_delivery/row_validation.rs"]
 mod row_validation;
 struct NetworkRuntimeSpineState {
@@ -31,10 +31,7 @@ struct NetworkRuntimeSpineState {
 
 static NETWORK_RUNTIME_SPINE: OnceCell<NetworkRuntimeSpineState> = OnceCell::const_new();
 const ALL_RETAINED_NETWORK_ROWS_LIMIT: u64 = i64::MAX as u64;
-
-pub(crate) fn spawn_recurring_capture_loop() {
-    capture_loop::spawn();
-}
+const ERROR_DETAIL_SEPARATOR: &str = ": ";
 
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub(crate) struct NetworkRuntimeServiceDeliveryReport {
@@ -87,27 +84,20 @@ pub(crate) async fn publish_captured_network_observations(
 pub(crate) async fn reconcile_retained_network_runtime() -> Result<(), EventingError> {
     let read_model = tokio::task::spawn_blocking(|| {
         let path = crate::activity_store_path::activity_db_path();
-        let store = ActivityStore::open(path).map_err(|_| EventingError::InvalidValue {
-            field: constants::network_flow::NETWORK_RUNTIME_ACTIVITY_STORE_FIELD,
-            value: constants::network_flow::NETWORK_RUNTIME_STARTUP_RECONCILIATION_FAILURE
-                .to_string(),
+        let store = ActivityStore::open(path).map_err(|error| {
+            startup_reconciliation_error(&StartupReconciliationField::ACTIVITY_STORE, error)
         })?;
         store
             .network_flow_read_model(
                 ALL_RETAINED_NETWORK_ROWS_LIMIT,
                 &crate::time::timestamp_now::<String>(),
             )
-            .map_err(|_| EventingError::InvalidValue {
-                field: constants::network_flow::NETWORK_RUNTIME_ACTIVITY_STORE_READ_MODEL_FIELD,
-                value: constants::network_flow::NETWORK_RUNTIME_STARTUP_RECONCILIATION_FAILURE
-                    .to_string(),
+            .map_err(|error| {
+                startup_reconciliation_error(&StartupReconciliationField::READ_MODEL, error)
             })
     })
     .await
-    .map_err(|_| EventingError::InvalidValue {
-        field: constants::network_flow::NETWORK_RUNTIME_ACTIVITY_STORE_JOIN_FIELD,
-        value: constants::network_flow::NETWORK_RUNTIME_STARTUP_RECONCILIATION_FAILURE.to_string(),
-    })??;
+    .map_err(|error| startup_reconciliation_error(&StartupReconciliationField::JOIN, error))??;
 
     let observations = read_model
         .rows
@@ -121,7 +111,31 @@ pub(crate) async fn reconcile_retained_network_runtime() -> Result<(), EventingE
             })
         })
         .collect::<Result<Vec<_>, EventingError>>()?;
-    publish_captured_network_observations(&observations).await
+    reconciliation::publish_missing_observations(observations).await
+}
+
+struct StartupReconciliationField(&'static str);
+
+impl StartupReconciliationField {
+    const ACTIVITY_STORE: Self =
+        Self(constants::network_flow::NETWORK_RUNTIME_ACTIVITY_STORE_FIELD);
+    const READ_MODEL: Self =
+        Self(constants::network_flow::NETWORK_RUNTIME_ACTIVITY_STORE_READ_MODEL_FIELD);
+    const JOIN: Self = Self(constants::network_flow::NETWORK_RUNTIME_ACTIVITY_STORE_JOIN_FIELD);
+}
+
+fn startup_reconciliation_error(
+    field: &StartupReconciliationField,
+    error: impl std::fmt::Debug,
+) -> EventingError {
+    let mut value =
+        String::from(constants::network_flow::NETWORK_RUNTIME_STARTUP_RECONCILIATION_FAILURE);
+    value.push_str(ERROR_DETAIL_SEPARATOR);
+    value.push_str(&format!("{error:?}"));
+    EventingError::InvalidValue {
+        field: field.0,
+        value,
+    }
 }
 
 pub(crate) async fn read_network_runtime_delivery_for_read_model(

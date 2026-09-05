@@ -58,6 +58,7 @@ impl TrustedDeviceRegistry {
         }
         let lock_file = OpenOptions::new()
             .create(true)
+            .truncate(false)
             .read(true)
             .write(true)
             .open(registry_lock_path(path))?;

@@ -126,6 +126,6 @@ fn claims_are_canonical(
         return Ok(false);
     }
     Ok(serde_json::to_vec(claims)
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?
         == payload)
 }

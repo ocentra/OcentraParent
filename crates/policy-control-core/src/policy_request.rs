@@ -198,9 +198,9 @@ pub fn expire_child_policy_request(
     lifecycle::expire_child_policy_request(request, expired_at, audit_reference_id)
 }
 
-pub(crate) fn expire_policy_temporary_override(
+pub fn expire_policy_temporary_override(
     override_record: &PolicyTemporaryOverride,
-    expired_at: PolicyRequestTimestamp,
+    expired_at: &PolicyRequestTimestamp,
     audit_reference_id: PolicyAuditReferenceId,
 ) -> Result<PolicyTemporaryOverride, EventingError> {
     lifecycle::expire_policy_temporary_override(override_record, expired_at, audit_reference_id)

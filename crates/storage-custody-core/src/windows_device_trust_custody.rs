@@ -316,7 +316,7 @@ mod tests {
             .binding_fence(&binding)
             .map_err(|error| format!("acquire first binding fence: {error:?}"))?;
         let contender_root = root.clone();
-        let contender_binding = binding.clone();
+        let contender_binding = binding;
         let (sender, receiver) = std::sync::mpsc::channel();
         let contender = std::thread::spawn(move || {
             let result = WindowsDeviceTrustCustody::open(contender_root).and_then(|second| {

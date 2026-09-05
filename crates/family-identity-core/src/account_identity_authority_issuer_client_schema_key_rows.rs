@@ -16,7 +16,7 @@ pub(super) fn validate_key_rows(
             [],
             |row| row.get::<_, i64>(0),
         )
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
     if row_count > MAX_VALIDATED_KEY_ROWS {
         return Err(AccountIdentityAuthorityIssuerClientError::InvalidSchema);
     }
@@ -27,13 +27,13 @@ pub(super) fn validate_key_rows(
                FROM account_identity_issuer_v2_key_registry
               ORDER BY account_id, household_id, service, key_generation",
         )
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
     let mut rows = statement
         .query([])
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
     while let Some(row) = rows
         .next()
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?
     {
         if validate_key_row(row)? {
             return Ok(true);
@@ -50,7 +50,7 @@ fn validate_key_row(row: &Row<'_>) -> Result<bool, AccountIdentityAuthorityIssue
     let key_id = text(row, 4)?;
     let public_key_bytes = row
         .get::<_, Vec<u8>>(5)
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
     let key_generation = integer(row, 6)?;
     let enrollment_generation = integer(row, 7)?;
     let authority_generation = integer(row, 8)?;
@@ -88,12 +88,12 @@ fn validate_key_row(row: &Row<'_>) -> Result<bool, AccountIdentityAuthorityIssue
 
 fn text(row: &Row<'_>, index: usize) -> Result<String, AccountIdentityAuthorityIssuerClientError> {
     row.get(index)
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)
 }
 
 fn integer(row: &Row<'_>, index: usize) -> Result<i64, AccountIdentityAuthorityIssuerClientError> {
     row.get(index)
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)
 }
 
 fn valid_storage_text(value: &str) -> bool {

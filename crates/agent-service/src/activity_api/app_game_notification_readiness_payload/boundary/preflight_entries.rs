@@ -18,6 +18,7 @@ pub(super) fn notification_provider_status_entry_from_preflight(
     let unavailable = row.status == AppGameChildUxProviderPreflightStatus::Unavailable;
     let preflight = row.preflight_row.as_ref();
     let row_id = row.preflight_bridge_record_id.clone();
+    let readiness_ref = row.source_scheduler_bridge_record_id.clone();
     let audit_refs = preflight
         .map(|value| refs_to_strings(&value.audit_refs))
         .unwrap_or_default();
@@ -58,7 +59,7 @@ pub(super) fn notification_provider_status_entry_from_preflight(
         preference_refs: preflight
             .map(|value| refs_to_strings(&value.policy_refs))
             .unwrap_or_default(),
-        readiness_refs: vec![row_id.clone()],
+        readiness_refs: vec![readiness_ref],
         provider_receipt_refs: Vec::new(),
         manual_proof_requirements,
         minimal_payload_boundary: provider_preview_boundary(),
@@ -76,7 +77,7 @@ pub(super) fn notification_preference_status_entry_from_preflight(
 ) -> AppGameNotificationPreferenceStatusEntry {
     let unavailable = row.status == AppGameChildUxPreferencePreflightStatus::Unavailable;
     let preflight = row.preflight_row.as_ref();
-    let readiness_ref = row.preflight_bridge_record_id.clone();
+    let readiness_ref = row.source_scheduler_bridge_record_id.clone();
     let manual_proof_requirements = preflight
         .map(|value| refs_to_strings(&value.manual_proof_requirements))
         .filter(|refs| !refs.is_empty())

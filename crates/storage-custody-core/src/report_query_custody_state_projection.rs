@@ -87,7 +87,7 @@ impl ReportQueryCustodySourceStateProjection {
                 Self::continuation(ReportQueryCustodySignal::PartiallyRedacted, next_cursor_ref),
             ),
             ReportQueryCustodySourceStateEvidence::Deleted { tombstone } => {
-                Self::deleted(owner, tombstone)
+                Self::deleted(owner, *tombstone)
             }
             ReportQueryCustodySourceStateEvidence::Conflict {
                 next_cursor_ref,

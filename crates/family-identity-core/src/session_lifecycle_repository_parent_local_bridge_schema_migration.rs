@@ -16,9 +16,9 @@ pub(super) fn initialize_or_migrate(connection: &mut Connection) -> Result<(), (
     // transaction can lose a row inserted in between those operations.
     let transaction = connection
         .transaction_with_behavior(TransactionBehavior::Immediate)
-        .map_err(|_| ())?;
+        .map_err(|_error| ())?;
     initialize_or_migrate_in_transaction(&transaction)?;
-    transaction.commit().map_err(|_| ())
+    transaction.commit().map_err(|_error| ())
 }
 
 fn initialize_or_migrate_in_transaction(transaction: &Transaction<'_>) -> Result<(), ()> {
@@ -59,7 +59,7 @@ fn initialize_or_migrate_in_transaction(transaction: &Transaction<'_>) -> Result
 fn create_fresh(transaction: &Transaction<'_>) -> Result<(), ()> {
     transaction
         .execute_batch(BRIDGE_SCHEMA_SQL)
-        .map_err(|_| ())?;
+        .map_err(|_error| ())?;
     insert_version(transaction)?;
     Ok(())
 }
@@ -74,10 +74,10 @@ fn migrate_v2(transaction: &Transaction<'_>, require_version: bool) -> Result<()
             "DROP TABLE account_identity_parent_local_bridge_audit_outbox;
              DROP TABLE account_identity_parent_local_bridge_schema;",
         )
-        .map_err(|_| ())?;
+        .map_err(|_error| ())?;
     transaction
         .execute_batch(BRIDGE_SCHEMA_SQL)
-        .map_err(|_| ())?;
+        .map_err(|_error| ())?;
     insert_version(transaction)?;
     validation::validate(transaction)
 }
@@ -101,10 +101,10 @@ fn migrate_v1(transaction: &Transaction<'_>) -> Result<(), ()> {
              DROP TABLE account_identity_parent_local_bridge_audit_outbox;
              DROP TABLE account_identity_parent_local_bridge_session;",
         )
-        .map_err(|_| ())?;
+        .map_err(|_error| ())?;
     transaction
         .execute_batch(BRIDGE_SCHEMA_SQL)
-        .map_err(|_| ())?;
+        .map_err(|_error| ())?;
     transaction
         .execute(
             "INSERT INTO account_identity_parent_local_bridge_session (
@@ -125,10 +125,10 @@ fn migrate_v1(transaction: &Transaction<'_>) -> Result<(), ()> {
                  FROM account_identity_parent_local_bridge_session_copy",
             [],
         )
-        .map_err(|_| ())?;
+        .map_err(|_error| ())?;
     transaction
         .execute_batch("DROP TABLE account_identity_parent_local_bridge_session_copy;")
-        .map_err(|_| ())?;
+        .map_err(|_error| ())?;
     insert_version(transaction)?;
     validation::validate(transaction)
 }
@@ -144,7 +144,7 @@ fn require_empty_legacy_audit(connection: &Connection) -> Result<(), ()> {
             [],
             |row| row.get::<_, i64>(0),
         )
-        .map_err(|_| ())?;
+        .map_err(|_error| ())?;
     (count == 0).then_some(()).ok_or(())
 }
 
@@ -211,7 +211,7 @@ fn insert_version(transaction: &rusqlite::Transaction<'_>) -> Result<(), ()> {
                  (schema_id, schema_version) VALUES (1, ?1)",
             [BRIDGE_SCHEMA_VERSION],
         )
-        .map_err(|_| ())?;
+        .map_err(|_error| ())?;
     (changed == 1).then_some(()).ok_or(())
 }
 
@@ -225,7 +225,7 @@ fn read_schema_version(connection: &Connection) -> Result<Option<i64>, ()> {
             |row| row.get(0),
         )
         .optional()
-        .map_err(|_| ())
+        .map_err(|_error| ())
 }
 
 fn table_exists(connection: &Connection, table: &str) -> Result<bool, ()> {
@@ -237,7 +237,7 @@ fn table_exists(connection: &Connection, table: &str) -> Result<bool, ()> {
         )
         .optional()
         .map(|value| value.is_some())
-        .map_err(|_| ())
+        .map_err(|_error| ())
 }
 
 fn reject_bridge_triggers_and_views(connection: &Connection) -> Result<(), ()> {
@@ -250,6 +250,6 @@ fn reject_bridge_triggers_and_views(connection: &Connection) -> Result<(), ()> {
             [],
             |row| row.get::<_, i64>(0),
         )
-        .map_err(|_| ())?;
+        .map_err(|_error| ())?;
     (count == 0).then_some(()).ok_or(())
 }

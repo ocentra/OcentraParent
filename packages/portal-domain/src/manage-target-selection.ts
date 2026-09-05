@@ -1,3 +1,5 @@
+import { normalizeManageTargetSelectionValue } from './manage-target-selection-normalization';
+
 export type ManageScopeId = 'global' | 'perDevice';
 
 export type ManageTargetSelection = {
@@ -5,10 +7,6 @@ export type ManageTargetSelection = {
   readonly device: string;
   readonly deviceId: string;
   readonly browser: string;
-};
-
-type ManageTargetSelectionRecord = Partial<ManageTargetSelection> & {
-  readonly deviceLabel?: unknown;
 };
 
 type ManageTargetSelectionStorage = {
@@ -28,20 +26,7 @@ export function defaultManageTargetSelection(): ManageTargetSelection {
 }
 
 export function normalizeManageTargetSelection(value: unknown): ManageTargetSelection | null {
-  if (!isManageTargetSelectionRecord(value)) return null;
-  if (value.scope !== 'global' && value.scope !== 'perDevice') return null;
-  const device =
-    typeof value.device === 'string' ? value.device : typeof value.deviceLabel === 'string' ? value.deviceLabel : '';
-  const deviceId = typeof value.deviceId === 'string' ? value.deviceId : '';
-  const browser = typeof value.browser === 'string' ? value.browser : '';
-  return {
-    scope: value.scope,
-    // A family-scoped selection cannot carry a hidden device back into a later
-    // per-device route. Keep persisted context canonical and presentation-only.
-    device: value.scope === 'global' ? '' : normalizeSelectionText(device),
-    deviceId: value.scope === 'global' ? '' : normalizeSelectionText(deviceId),
-    browser: normalizeSelectionText(browser) || 'Chrome',
-  };
+  return normalizeManageTargetSelectionValue(value);
 }
 
 export function readStoredManageTargetSelection(
@@ -110,8 +95,4 @@ function browserSessionStorage(): ManageTargetSelectionStorage | null {
     };
   };
   return windowLike.window?.sessionStorage ?? null;
-}
-
-function isManageTargetSelectionRecord(value: unknown): value is ManageTargetSelectionRecord {
-  return typeof value === 'object' && value !== null;
 }

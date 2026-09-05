@@ -23,7 +23,7 @@ impl PassiveDiscoveryReconciliationRuntime {
             return;
         }
 
-        let reconciled = if let Some(issue) = reconciliation_issue(reconciliation) {
+        let reconciled = if let Some(issue) = reconciliation_issue(&reconciliation) {
             self.pipeline_health
                 .record_failure(issue, PASSIVE_DISCOVERY_RECONCILIATION_MIN_INTERVAL);
             false
@@ -62,7 +62,7 @@ impl PassiveDiscoveryReconciliationRuntime {
 }
 
 fn reconciliation_issue(
-    reconciliation: LanNetworkDeviceScanResult,
+    reconciliation: &LanNetworkDeviceScanResult,
 ) -> Option<LanPassiveDiscoveryPipelineIssue> {
     if reconciliation.current_scan_snapshot.is_some() {
         None

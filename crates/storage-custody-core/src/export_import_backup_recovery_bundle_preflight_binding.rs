@@ -5,8 +5,10 @@ pub mod custody_port;
 #[path = "export_import_backup_recovery_bundle_preflight_binding_execution.rs"]
 pub mod execution_binding;
 
-use self::custody_port::{ImportBindingError, ImportCustodyCapabilityPort};
-use self::execution_binding::RestoreExecutionBinding;
+use self::custody_port::{
+    ImportBindingError, ImportCustodyCapabilityPort, VerifiedImportCustodyParts,
+};
+use self::execution_binding::{RestoreExecutionBinding, RestoreExecutionBindingParts};
 
 #[derive(Debug)]
 pub struct BoundImportPreflight {
@@ -52,31 +54,31 @@ pub fn bind_import_preflight(
     // and PairChildDevice must never be accepted as substitutes for it.
     let verified = custody.verify_import_bundle(bundle, &authority)?;
     verified.validate_for_binding(bundle, authority)?;
-    let (
-        verified_bundle_id,
+    let VerifiedImportCustodyParts {
+        bundle_id: verified_bundle_id,
         key_ref,
         manifest_integrity_ref,
         payload_integrity_refs,
-        _verified_household_id,
+        household_id: _verified_household_id,
         target_device_id,
         migration_ref,
         preflight,
         capability,
-    ) = verified.into_parts();
-    let execution_binding = RestoreExecutionBinding::from_parts(
-        verified_bundle_id.clone(),
+    } = verified.into_parts();
+    let execution_binding = RestoreExecutionBinding::from_parts(RestoreExecutionBindingParts {
+        bundle_id: verified_bundle_id.clone(),
         key_ref,
         manifest_integrity_ref,
         payload_integrity_refs,
-        target_device_id.ok_or(ImportBindingError::MissingLocalContext)?,
-        preflight.accepted_sections.clone(),
-        preflight.rejected_sections.clone(),
-        preflight.tombstones_preserved,
-        preflight.tombstones_preserved && !preflight.local_truth_mutated,
+        target_device_id: target_device_id.ok_or(ImportBindingError::MissingLocalContext)?,
+        accepted_sections: preflight.accepted_sections.clone(),
+        rejected_sections: preflight.rejected_sections.clone(),
+        tombstones_preserved: preflight.tombstones_preserved,
+        no_resurrection: preflight.tombstones_preserved && !preflight.local_truth_mutated,
         migration_ref,
-        preflight.migration_state,
+        migration_state: preflight.migration_state,
         capability,
-    );
+    });
 
     Ok(BoundImportPreflight {
         bundle_id: verified_bundle_id,

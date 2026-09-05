@@ -36,6 +36,18 @@ it('labels preview, staging, and production hosted paths distinctly', () => {
   expect(production.openActionLabel).toBe('Open parent portal production');
 });
 
+it('reports missing hosted runtime ownership without rendering a dead action button', () => {
+  const state = requireState('/preview');
+  const markup = renderToStaticMarkup(createElement(HostedPortalDistribution, { state }));
+
+  expect(state.controlsEnabled).toBe(true);
+  expect(markup).toContain('data-hosted-action-state="runtime-owner-unavailable"');
+  expect(markup).toContain(
+    'Open parent portal preview is unavailable until an authenticated hosted runtime owner is connected.'
+  );
+  expect(markup).not.toContain('<button');
+});
+
 it('rejects unsupported hosted paths instead of falling through to a child or setup route', () => {
   const state = requireState('/child-runtime');
   const markup = renderToStaticMarkup(createElement(HostedPortalDistribution, { state }));
@@ -53,6 +65,7 @@ it('blocks parent-only controls when auth is missing', () => {
   expect(state.authState).toBe('missing');
   expect(state.controlsEnabled).toBe(false);
   expect(markup).toContain('Parent sign-in is required');
+  expect(markup).toContain('data-hosted-action-state="blocked"');
   expect(markup).toContain('Parent release action blocked');
 });
 
@@ -150,17 +163,9 @@ it('keeps the app resolver wrapper behaviorally aligned with the domain resolver
 
   for (const testCase of cases) {
     expect(
-      resolveHostedPortalDistributionStateFromApp(
-        testCase.location,
-        testCase.env,
-        testCase.defaultNowMinutes
-      )
+      resolveHostedPortalDistributionStateFromApp(testCase.location, testCase.env, testCase.defaultNowMinutes)
     ).toEqual(
-      resolveHostedPortalDistributionStateFromDomain(
-        testCase.location,
-        testCase.env,
-        testCase.defaultNowMinutes
-      )
+      resolveHostedPortalDistributionStateFromDomain(testCase.location, testCase.env, testCase.defaultNowMinutes)
     );
   }
 });

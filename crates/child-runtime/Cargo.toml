@@ -80,3 +80,7 @@ path = "tests/unit/tracking_config_update_flow.rs"
 [[test]]
 name = "unit_tracking_runtime_flow"
 path = "tests/unit/tracking_runtime_flow.rs"
+
+[[test]]
+name = "unit_runtime_gate_tombstone_recovery"
+path = "tests/unit/runtime_gate_tombstone_recovery.rs"

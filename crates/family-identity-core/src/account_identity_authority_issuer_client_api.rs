@@ -18,7 +18,7 @@ use super::{
 
 impl AccountIdentityAuthorityIssuerClient {
     fn begin_transaction(
-        &mut self,
+        &self,
     ) -> Result<
         AccountIdentityAuthorityIssuerTransaction<'_>,
         AccountIdentityAuthorityIssuerClientError,
@@ -27,7 +27,7 @@ impl AccountIdentityAuthorityIssuerClient {
             self.repository.account_issuer_connection(),
             TransactionBehavior::Immediate,
         )
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::Unavailable)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::Unavailable)?;
         Ok(AccountIdentityAuthorityIssuerTransaction { transaction })
     }
 }

@@ -2,7 +2,7 @@ use std::{
     collections::HashSet,
     fs::{self, OpenOptions},
     io,
-    path::{Path, PathBuf},
+    path::Path,
 };
 
 use atomicwrites::{AllowOverwrite, AtomicFile};
@@ -110,7 +110,7 @@ pub(super) fn write_records(path: &Path, records: &[StorageCustodyEffectRecord])
     sync_parent_directory(path)
 }
 
-pub(super) fn lock(path: &PathBuf) -> io::Result<std::fs::File> {
+pub(super) fn lock(path: &Path) -> io::Result<std::fs::File> {
     let lock_path = path.with_extension("lock");
     reject_symlink(&lock_path)?;
     OpenOptions::new()

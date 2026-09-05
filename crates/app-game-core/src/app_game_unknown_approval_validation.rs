@@ -70,7 +70,7 @@ pub(crate) fn validate_unknown_candidate(
         candidate.category_candidate_ref.as_ref(),
         "app_game.unknown_candidate.category_candidate_ref",
     )?;
-    validate_optional_refs(
+    require_refs(
         &candidate.child_status_refs,
         "app_game.unknown_candidate.child_status_refs",
     )?;

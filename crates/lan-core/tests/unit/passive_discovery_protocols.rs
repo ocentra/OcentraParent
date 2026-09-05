@@ -2,7 +2,6 @@ use super::*;
 use ocentra_lan_core::lan_mdns_advertiser::{
     encode_advertisement_packet, LanMdnsAdvertisementInstance,
 };
-use ocentra_parent_agent_protocol::lan_pairing::LanMdnsTxtRecord;
 use ocentra_lan_core::network_inventory::passive_discovery::dns_like::{
     passive_llmnr_summary, passive_netbios_summary,
 };
@@ -13,6 +12,7 @@ use ocentra_lan_core::network_inventory::passive_discovery::udp_multicast::{
     drain_udp_socket_packets_with_observed_at, ingest_passive_datagram,
     ingest_passive_datagram_with_observed_at, udp_multicast_support,
 };
+use ocentra_parent_agent_protocol::lan_pairing::LanMdnsTxtRecord;
 
 #[test]
 fn native_ws_discovery_datagram_records_passive_observation_withost_json_envelope() {
@@ -67,8 +67,17 @@ mod timeout_guard_helper;
 fn passive_listener_deadline_is_absolute_and_expiry_is_empty() {
     let start = std::time::Instant::now();
     let deadline = start + std::time::Duration::from_secs(2);
-    assert_eq!(deadline_helper::remaining_read_timeout_at(deadline, start + std::time::Duration::from_millis(900)), Some(std::time::Duration::from_millis(1100)));
-    assert_eq!(deadline_helper::remaining_read_timeout_at(deadline, deadline), None);
+    assert_eq!(
+        deadline_helper::remaining_read_timeout_at(
+            deadline,
+            start + std::time::Duration::from_millis(900)
+        ),
+        Some(std::time::Duration::from_millis(1100))
+    );
+    assert_eq!(
+        deadline_helper::remaining_read_timeout_at(deadline, deadline),
+        None
+    );
 }
 
 #[test]
@@ -84,16 +93,14 @@ fn passive_listener_timeout_guard_restores_explicitly() -> std::io::Result<()> {
 }
 
 #[test]
-fn passive_listener_timeout_guard_restores_on_unwind() -> std::io::Result<()> {
+fn passive_listener_timeout_guard_restores_when_scope_exits() -> std::io::Result<()> {
     let socket = std::net::UdpSocket::bind("127.0.0.1:0")?;
     socket.set_read_timeout(Some(std::time::Duration::from_millis(25)))?;
     let previous = socket.read_timeout()?;
-    let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+    {
         let _guard = timeout_guard_helper::ReadTimeoutRestoreGuard::new(&socket, previous);
-        assert!(socket.set_read_timeout(Some(std::time::Duration::from_millis(1))).is_ok());
-        panic!("exercise timeout restoration on unwind");
-    }));
-    assert!(result.is_err());
+        socket.set_read_timeout(Some(std::time::Duration::from_millis(1)))?;
+    }
     assert_eq!(socket.read_timeout()?, previous);
     Ok(())
 }
@@ -708,10 +715,7 @@ fn udp_socket_packets_feed_the_existing_passive_state_path() {
         snapshot.rows[0].trigger_reason,
         LanPassiveDiscoveryTriggerReason::PassivePacketObserved
     );
-    assert_eq!(
-        snapshot.rows[0].device_id.as_ref().map(AsRef::as_ref),
-        None
-    );
+    assert_eq!(snapshot.rows[0].device_id.as_ref().map(AsRef::as_ref), None);
     assert_eq!(
         snapshot.rows[0].scan_session_id.as_ref().map(AsRef::as_ref),
         None

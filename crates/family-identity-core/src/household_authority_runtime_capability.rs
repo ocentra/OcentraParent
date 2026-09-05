@@ -1,6 +1,6 @@
 use std::fmt;
 
-use chrono::{DateTime, Utc};
+use chrono::Utc;
 
 use super::{
     CurrentChildDeviceTrustBinding, CurrentHouseholdCapability, HouseholdAuthorityAction,
@@ -21,49 +21,6 @@ impl fmt::Debug for CurrentHouseholdCapability {
 }
 
 impl CurrentHouseholdCapability {
-    /// Construct only after the capability owner has resolved its current grant and expiry.
-    pub(crate) fn from_owner_current(
-        authority: &VerifiedAccountIdentityAuthority,
-        device_binding: &CurrentChildDeviceTrustBinding,
-        action: HouseholdAuthorityAction,
-        expires_at: DateTime<Utc>,
-        revocation_epoch: u64,
-    ) -> Result<Self, HouseholdAuthorityRuntimeFailure> {
-        if !super::household_authority_runtime_requirements::requires_capability(action) {
-            return Err(HouseholdAuthorityRuntimeFailure::CapabilityBindingMismatch);
-        }
-        if expires_at <= Utc::now() {
-            return Err(HouseholdAuthorityRuntimeFailure::CapabilityExpired);
-        }
-        if revocation_epoch == 0 {
-            return Err(HouseholdAuthorityRuntimeFailure::CapabilityRevoked);
-        }
-        let value = Self {
-            household_id: authority.household_id().to_string(),
-            account_id: authority.account_id().to_string(),
-            parent_device_id: authority.device_id().as_str().to_owned(),
-            child_profile_id: authority.child_profile_id().to_string(),
-            child_device_id: authority.child_device_id().as_str().to_owned(),
-            installation_id: authority
-                .current_binding()
-                .installation_id
-                .as_str()
-                .to_owned(),
-            pairing_id: authority.current_binding().pairing_id.as_str().to_owned(),
-            route_id: authority
-                .current_binding()
-                .selected_route_id
-                .as_str()
-                .to_owned(),
-            action,
-            authority_generation: authority.authority_generation(),
-            expires_at,
-            revocation_epoch,
-        };
-        value.validate_for(authority, device_binding, action)?;
-        Ok(value)
-    }
-
     pub(super) fn validate_for(
         &self,
         authority: &VerifiedAccountIdentityAuthority,
@@ -85,14 +42,16 @@ impl CurrentHouseholdCapability {
         if !super::household_authority_runtime_binding::matches(
             authority,
             device_binding,
-            &self.household_id,
-            &self.account_id,
-            &self.parent_device_id,
-            &self.child_profile_id,
-            &self.child_device_id,
-            &self.installation_id,
-            &self.pairing_id,
-            &self.route_id,
+            &super::household_authority_runtime_binding::HouseholdAuthorityRuntimeBinding {
+                household_id: &self.household_id,
+                account_id: &self.account_id,
+                parent_device_id: &self.parent_device_id,
+                child_profile_id: &self.child_profile_id,
+                child_device_id: &self.child_device_id,
+                installation_id: &self.installation_id,
+                pairing_id: &self.pairing_id,
+                route_id: &self.route_id,
+            },
         ) {
             return Err(HouseholdAuthorityRuntimeFailure::CapabilityBindingMismatch);
         }

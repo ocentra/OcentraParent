@@ -8,10 +8,9 @@ const MIGRATION_DURABLE_OWNER_REQUIRED_NOTE: &str = "Migration is manual-require
 const MIGRATION_PREVIEW_REQUIRED_NOTE: &str = "Migration is manual-required until import preview proves integrity, household, key, and tombstone safety.";
 
 pub(super) fn migration_execution_readiness(
-    bundle: &contracts::ExportImportRecoveryBundle,
+    migration_ref: Option<contracts::ExportImportMigrationRef>,
     preflight: &contracts::ExportImportImportPreflight,
 ) -> contracts::ExportImportMigrationExecutionReadiness {
-    let migration_ref = bundle.manifest.migration_ref.clone();
     if preflight.migration_state == contracts::ExportImportMigrationState::RequiredUnsupported {
         return manual_required_readiness(
             migration_ref,

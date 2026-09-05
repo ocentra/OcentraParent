@@ -72,6 +72,8 @@ pub(super) fn parse_payload(value: &Value) -> Result<Payload, ExtractionError> {
     }
     let outcome = if protected {
         Outcome::ProtectedContentSkipped
+    } else if capture_safe {
+        Outcome::StructuredEvidenceAvailable
     } else {
         Outcome::ReviewRequired
     };

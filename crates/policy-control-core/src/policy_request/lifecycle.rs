@@ -131,7 +131,7 @@ pub(crate) fn expire_child_policy_request(
 
 pub(crate) fn expire_policy_temporary_override(
     override_record: &PolicyTemporaryOverride,
-    expired_at: PolicyRequestTimestamp,
+    expired_at: &PolicyRequestTimestamp,
     audit_reference_id: PolicyAuditReferenceId,
 ) -> Result<PolicyTemporaryOverride, EventingError> {
     validate_policy_temporary_override(override_record)?;

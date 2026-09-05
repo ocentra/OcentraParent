@@ -1,5 +1,15 @@
-#[path = "../support/test_invariants.rs"]
-mod test_invariants;
+#[path = "../support/test_invariants/log_field.rs"]
+mod test_log_field;
+#[path = "../support/test_invariants/require_json_decode.rs"]
+mod test_require_json_decode;
+#[path = "../support/test_invariants/require_log_string_field.rs"]
+mod test_require_log_string_field;
+#[path = "../support/test_invariants/require_ok.rs"]
+mod test_require_ok;
+#[path = "../support/test_invariants/require_some.rs"]
+mod test_require_some;
+#[path = "../support/test_invariants/serialize_test_json.rs"]
+mod test_serialize_json;
 
 use std::fs::{remove_file, write};
 use std::path::{Path as TestPath, PathBuf as TestPathBuf};
@@ -53,12 +63,9 @@ use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 use ocentra_parent_agent_service::test_support::handle_local_command_text_for_test;
 
 use crate::{
-    activity_report_env_lock::REPORT_ENV_LOCK,
-    test_invariants::{
-        require_json_decode, require_log_string_field, require_ok, require_some,
-        serialize_test_json,
-    },
-    test_text::TestText,
+    activity_report_env_lock::REPORT_ENV_LOCK, test_require_json_decode::require_json_decode,
+    test_require_log_string_field::require_log_string_field, test_require_ok::require_ok,
+    test_require_some::require_some, test_serialize_json::serialize_test_json, test_text::TestText,
 };
 
 const APP_GAME_EVIDENCE_CLAIM_KIND_INVENTORY: &TestStr = "inventory";
@@ -87,7 +94,7 @@ async fn app_game_timer_parent_surface_command_reports_service_backed_rows() {
     let body = serialize_test_json(&command_envelope());
     let event =
         handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await;
-    let read_model = timer_parent_surface_payload(&crate::test_invariants::log_field(
+    let read_model = timer_parent_surface_payload(&crate::test_log_field::log_field(
         &event.payload,
         constants::field::APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL,
         constants::error::AGENT_EVENT_SERIALIZES,
@@ -171,7 +178,7 @@ async fn app_game_timer_parent_surface_reports_state_refs_without_scheduler_clai
     let body = serialize_test_json(&command_envelope());
     let event =
         handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await;
-    let read_model = timer_parent_surface_payload(&crate::test_invariants::log_field(
+    let read_model = timer_parent_surface_payload(&crate::test_log_field::log_field(
         &event.payload,
         constants::field::APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL,
         constants::error::AGENT_EVENT_SERIALIZES,
@@ -241,7 +248,7 @@ async fn app_game_timer_parent_surface_command_fails_closed_without_store() {
 }
 
 #[tokio::test]
-async fn app_game_timer_parent_surface_timer_state_helpers_are_linked() -> Result<(), TestString> {
+async fn app_game_timer_parent_surface_round_trips_active_timer_state() -> Result<(), TestString> {
     let _guard = REPORT_ENV_LOCK.lock().await;
     let timer_state_path = temp_path(constants::enforcement::TIMER_STATE_ID_PREFIX);
     cleanup_path(&timer_state_path);

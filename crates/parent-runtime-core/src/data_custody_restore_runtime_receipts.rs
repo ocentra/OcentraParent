@@ -8,17 +8,43 @@ use ocentra_storage_custody_core::export_import_backup_recovery::{
         validate_restore_execution_observation, RestoreExecutionPlan, RestoreExecutionPlanError,
     },
 };
+
+pub(crate) struct RestoreReceiptDispatch<'a> {
+    pub(crate) state: contracts::ExportImportRestoreApplyState,
+    pub(crate) applied_sections: Vec<contracts::ExportImportSectionDecision>,
+    pub(crate) rejected_sections: Vec<contracts::ExportImportSectionDecision>,
+    pub(crate) compensation: PartialWriteCompensation,
+    pub(crate) provider_operation: Option<&'a contracts::ExportImportProviderOperationRef>,
+    pub(crate) rollback_provider_operation: Option<&'a contracts::ExportImportProviderOperationRef>,
+    pub(crate) recorded_at: contracts::ExportImportTimestamp,
+    pub(crate) note: Option<String>,
+}
+
+pub(crate) struct MigrationReceiptDispatch<'a> {
+    pub(crate) outcome: contracts::ExportImportMigrationOutcome,
+    pub(crate) applied_sections: Vec<contracts::ExportImportSectionDecision>,
+    pub(crate) rejected_sections: Vec<contracts::ExportImportSectionDecision>,
+    pub(crate) compensation: PartialWriteCompensation,
+    pub(crate) provider_operation: Option<&'a contracts::ExportImportProviderOperationRef>,
+    pub(crate) rollback_provider_operation: Option<&'a contracts::ExportImportProviderOperationRef>,
+    pub(crate) recorded_at: contracts::ExportImportTimestamp,
+    pub(crate) note: Option<String>,
+}
+
 pub(crate) fn restore_receipt_from_dispatch(
     plan: &RestoreExecutionPlan,
-    state: contracts::ExportImportRestoreApplyState,
-    applied_sections: Vec<contracts::ExportImportSectionDecision>,
-    rejected_sections: Vec<contracts::ExportImportSectionDecision>,
-    compensation: PartialWriteCompensation,
-    provider_operation: Option<&contracts::ExportImportProviderOperationRef>,
-    rollback_provider_operation: Option<&contracts::ExportImportProviderOperationRef>,
-    recorded_at: contracts::ExportImportTimestamp,
-    note: Option<String>,
+    dispatch: RestoreReceiptDispatch<'_>,
 ) -> Result<contracts::ExportImportRestoreReceipt, RestoreExecutionPlanError> {
+    let RestoreReceiptDispatch {
+        state,
+        applied_sections,
+        rejected_sections,
+        compensation,
+        provider_operation,
+        rollback_provider_operation,
+        recorded_at,
+        note,
+    } = dispatch;
     if !plan.no_resurrection() {
         return Err(RestoreExecutionPlanError::UnsafeSectionDecision);
     }
@@ -79,15 +105,18 @@ pub(crate) fn restore_receipt_from_dispatch(
 
 pub(crate) fn migration_receipt_from_dispatch(
     plan: &RestoreExecutionPlan,
-    outcome: contracts::ExportImportMigrationOutcome,
-    applied_sections: Vec<contracts::ExportImportSectionDecision>,
-    rejected_sections: Vec<contracts::ExportImportSectionDecision>,
-    compensation: PartialWriteCompensation,
-    provider_operation: Option<&contracts::ExportImportProviderOperationRef>,
-    rollback_provider_operation: Option<&contracts::ExportImportProviderOperationRef>,
-    recorded_at: contracts::ExportImportTimestamp,
-    note: Option<String>,
+    dispatch: MigrationReceiptDispatch<'_>,
 ) -> Result<contracts::ExportImportMigrationReceipt, MigrationExecutionError> {
+    let MigrationReceiptDispatch {
+        outcome,
+        applied_sections,
+        rejected_sections,
+        compensation,
+        provider_operation,
+        rollback_provider_operation,
+        recorded_at,
+        note,
+    } = dispatch;
     let migration_ref = plan
         .migration_ref()
         .cloned()

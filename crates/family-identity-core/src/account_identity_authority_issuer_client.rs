@@ -5,12 +5,9 @@
 //! intentionally opaque: callers receive capabilities and records, never a
 //! raw connection or a caller-mintable authority.
 
-use std::path::Path;
-
 use ocentra_schema::account_identity_authority::{
     AccountIdentityProvider, AccountIdentityProviderSubject,
 };
-use ocentra_schema::account_identity_authority_producer_v2::ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SIGNATURE_BYTES;
 use rusqlite::{Connection, Transaction, TransactionBehavior};
 
 use crate::account_identity_authority::{
@@ -20,10 +17,7 @@ use crate::account_identity_authority_producer_v2::{
     AccountIdentityAuthorityProducerV2Error, AccountIdentityAuthorityProducerV2Request,
     AccountIdentityAuthorityProducerV2Transport,
 };
-use crate::account_identity_authority_repository::{
-    AccountIdentityAuthorityRepositoryError, SqliteAccountIdentityAuthorityRepository,
-};
-use crate::session_lifecycle_custody::SessionLifecyclePolicy;
+use crate::account_identity_authority_repository::SqliteAccountIdentityAuthorityRepository;
 
 #[path = "account_identity_authority_issuer_client_owner_admission.rs"]
 pub mod account_identity_authority_issuer_client_owner_admission;
@@ -138,10 +132,6 @@ pub(crate) struct AccountIdentityIssuerPreparedIssue {
 }
 
 impl AccountIdentityIssuerPreparedIssue {
-    pub(crate) fn request(&self) -> &AccountIdentityAuthorityProducerV2Request {
-        &self.request
-    }
-
     pub(crate) fn into_parts(
         self,
     ) -> (
@@ -150,68 +140,14 @@ impl AccountIdentityIssuerPreparedIssue {
     ) {
         (self.request, self.reservation)
     }
-
-    /// Consume the prepared request after the protected Account signer has
-    /// produced its exact signature.  The returned transition still carries
-    /// the family-owned reservation, but exposes no reservation authority.
-    pub(crate) fn finalize_with_signature(
-        self,
-        signature: [u8; ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SIGNATURE_BYTES],
-    ) -> Result<AccountIdentityIssuerSignedIssue, AccountIdentityAuthorityProducerV2Error> {
-        let Self {
-            request,
-            reservation,
-        } = self;
-        let transport = request.finalize(signature)?;
-        Ok(AccountIdentityIssuerSignedIssue {
-            reservation,
-            transport,
-        })
-    }
-}
-
-/// Opaque signed issue transition accepted by the family finalizer.  It is
-/// intentionally non-Clone and has no serialization or raw reservation
-/// accessors; only the family client can consume its private parts.
-#[must_use]
-pub(crate) struct AccountIdentityIssuerSignedIssue {
-    reservation:
-        account_identity_authority_issuer_client_reservation::AccountIdentityIssuerReservation,
-    transport: AccountIdentityAuthorityProducerV2Transport,
-}
-
-impl AccountIdentityIssuerSignedIssue {
-    fn into_parts(
-        self,
-    ) -> (
-        account_identity_authority_issuer_client_reservation::AccountIdentityIssuerReservation,
-        AccountIdentityAuthorityProducerV2Transport,
-    ) {
-        (self.reservation, self.transport)
-    }
 }
 
 pub(crate) enum AccountIdentityIssuerIssuePreparation {
-    Replay(AccountIdentityAuthorityProducerV2Transport),
-    Prepared(AccountIdentityIssuerPreparedIssue),
+    Replay(Box<AccountIdentityAuthorityProducerV2Transport>),
+    Prepared(Box<AccountIdentityIssuerPreparedIssue>),
 }
 
 impl AccountIdentityAuthorityIssuerClient {
-    pub(crate) fn open(
-        path: impl AsRef<Path>,
-    ) -> Result<Self, AccountIdentityAuthorityIssuerClientError> {
-        let path = path.as_ref();
-        validate_path(path)?;
-        let repository = SqliteAccountIdentityAuthorityRepository::open_with_session_policy(
-            path,
-            SessionLifecyclePolicy::production_default(),
-        )
-        .map_err(map_repository_error)?;
-        let client = Self { repository };
-        client.initialize_schema()?;
-        Ok(client)
-    }
-
     /// Mount the fixed Account-owned database selected by the protected
     /// installer/broker boundary. No caller-supplied path is accepted.
     pub fn mount_account_owned() -> Result<Self, AccountIdentityAuthorityIssuerClientError> {
@@ -227,24 +163,23 @@ impl AccountIdentityAuthorityIssuerClient {
     ) -> Result<AccountIdentityAuthorityIssuerStartupState, AccountIdentityAuthorityIssuerClientError>
     {
         self.initialize_schema()?;
-        let mut recovery_backlog = false;
-        loop {
+        let recovery_backlog = loop {
             let transaction = Transaction::new_unchecked(
                 self.repository.account_issuer_connection(),
                 TransactionBehavior::Immediate,
             )
-            .map_err(|_| AccountIdentityAuthorityIssuerClientError::Unavailable)?;
+            .map_err(|_error| AccountIdentityAuthorityIssuerClientError::Unavailable)?;
             let (now, _) = clock::now(&transaction)?;
             let issue_backlog = transaction::reconcile_issue_reservations(&transaction, now)?;
             let outbox_backlog = transaction_outbox::reconcile_startup(&transaction, now)?;
-            recovery_backlog = issue_backlog || outbox_backlog;
+            let recovery_backlog = issue_backlog || outbox_backlog;
             transaction
                 .commit()
-                .map_err(|_| AccountIdentityAuthorityIssuerClientError::Unavailable)?;
+                .map_err(|_error| AccountIdentityAuthorityIssuerClientError::Unavailable)?;
             if !recovery_backlog {
-                break;
+                break recovery_backlog;
             }
-        }
+        };
         let connection = self.repository.account_issuer_connection();
         let active_key_count = count_connection(
             connection,
@@ -268,7 +203,7 @@ impl AccountIdentityAuthorityIssuerClient {
     ) -> Result<AccountIdentityIssuerCurrentness, AccountIdentityAuthorityIssuerClientError> {
         let authority = AccountIdentityCurrentMemberAuthorityProducer::new(&self.repository)
             .produce(provider, provider_subject)
-            .map_err(|_| AccountIdentityAuthorityIssuerClientError::CurrentnessUnavailable)?;
+            .map_err(|_error| AccountIdentityAuthorityIssuerClientError::CurrentnessUnavailable)?;
         let account_id =
             AccountIdentityIssuerAccountId::from_value(authority.account_id().to_string());
         let household_id =
@@ -290,12 +225,12 @@ impl AccountIdentityAuthorityIssuerClient {
             self.repository.account_issuer_connection(),
             TransactionBehavior::Immediate,
         )
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::Unavailable)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::Unavailable)?;
         let (now, _) = clock::now(&transaction)?;
         let claim = transaction_outbox::claim_pending(&transaction, now)?;
         transaction
             .commit()
-            .map_err(|_| AccountIdentityAuthorityIssuerClientError::Unavailable)?;
+            .map_err(|_error| AccountIdentityAuthorityIssuerClientError::Unavailable)?;
         Ok(claim)
     }
 
@@ -308,31 +243,17 @@ impl AccountIdentityAuthorityIssuerClient {
         let transaction = self
             .repository
             .begin_account_issuer_transaction()
-            .map_err(|_| AccountIdentityAuthorityIssuerClientError::Unavailable)?;
+            .map_err(|_error| AccountIdentityAuthorityIssuerClientError::Unavailable)?;
         let (now, _) = clock::now(&transaction)?;
         transaction_outbox::record_failure(&transaction, claim, error_code, error_digest, now)?;
         transaction
             .commit()
-            .map_err(|_| AccountIdentityAuthorityIssuerClientError::Unavailable)
+            .map_err(|_error| AccountIdentityAuthorityIssuerClientError::Unavailable)
     }
 
     fn initialize_schema(&self) -> Result<(), AccountIdentityAuthorityIssuerClientError> {
         schema::initialize(self.repository.account_issuer_connection())
     }
-}
-
-fn validate_path(path: &Path) -> Result<(), AccountIdentityAuthorityIssuerClientError> {
-    let text = path.to_string_lossy().to_ascii_lowercase();
-    if !path.is_absolute()
-        || text == ":memory:"
-        || text.starts_with("file:")
-        || text.contains("mode=memory")
-        || text.contains("cache=shared")
-        || path.is_dir()
-    {
-        return Err(AccountIdentityAuthorityIssuerClientError::InvalidPath);
-    }
-    Ok(())
 }
 
 fn count_connection(
@@ -341,8 +262,8 @@ fn count_connection(
 ) -> Result<u64, AccountIdentityAuthorityIssuerClientError> {
     let value: i64 = connection
         .query_row(query, [], |row| row.get(0))
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::Unavailable)?;
-    u64::try_from(value).map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::Unavailable)?;
+    u64::try_from(value).map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)
 }
 
 fn is_manual_transition(error: &AccountIdentityAuthorityIssuerClientError) -> bool {
@@ -351,19 +272,4 @@ fn is_manual_transition(error: &AccountIdentityAuthorityIssuerClientError) -> bo
         AccountIdentityAuthorityIssuerClientError::ReservationExpired
             | AccountIdentityAuthorityIssuerClientError::ManualRequired
     )
-}
-
-fn map_repository_error(
-    error: AccountIdentityAuthorityRepositoryError,
-) -> AccountIdentityAuthorityIssuerClientError {
-    match error {
-        AccountIdentityAuthorityRepositoryError::Unavailable
-        | AccountIdentityAuthorityRepositoryError::CurrentnessConflict => {
-            AccountIdentityAuthorityIssuerClientError::Unavailable
-        }
-        AccountIdentityAuthorityRepositoryError::InvalidGeneration
-        | AccountIdentityAuthorityRepositoryError::InvalidStoredAuthority => {
-            AccountIdentityAuthorityIssuerClientError::InvalidSchema
-        }
-    }
 }

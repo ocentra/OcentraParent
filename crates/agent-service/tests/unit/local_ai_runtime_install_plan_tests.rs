@@ -15,7 +15,8 @@ use crate::local_ai_runtime_install_plan::{
     default_install_plan_for_target, default_install_plan_from_environment,
     LocalAiRequiredArtifactStatus,
 };
-use crate::test_invariants::{require_ok, require_some};
+use crate::test_require_ok::require_ok;
+use crate::test_require_some::require_some;
 
 #[test]
 fn install_plan_reports_missing_required_runtime_and_default_model() {

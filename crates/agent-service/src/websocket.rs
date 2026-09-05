@@ -53,11 +53,6 @@ mod tracking_retention_settings_write;
 #[path = "websocket/transport_admission.rs"]
 mod transport_admission;
 
-use self::basic_reports::{
-    temp_runtime_store_path, BROWSER_POLICY_TEST_STORE_PREFIX, SCREEN_SETTINGS_TEST_STORE_PREFIX,
-};
-use crate::activity_api::app_game_platform_probe_cache::PlatformProbeCache;
-use crate::activity_api::app_game_platform_proof_status_transport::platform_probe_dispatcher;
 use crate::parent_local_bridge_admission::ParentLocalBridgeAdmission;
 use crate::{
     browser_policy_runtime::BrowserPolicyRuntime, browser_runtime::BrowserManagedRuntime,
@@ -68,9 +63,6 @@ use crate::{
 pub struct WebsocketCommandText(pub String);
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub struct WebsocketBrowserPolicyStorePath(pub std::path::PathBuf);
-
-#[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct WebsocketCommandOrigin(pub(crate) Option<String>);
 
 /// Server-derived peer provenance used at the WebSocket command boundary.
@@ -79,7 +71,6 @@ pub(crate) struct WebsocketCommandOrigin(pub(crate) Option<String>);
 pub(crate) enum WebsocketPeerProvenance {
     Loopback,
     LocalNetwork,
-    Unknown,
 }
 
 pub(crate) type WebsocketPlatformProbeDispatcher = dyn Fn(
@@ -89,104 +80,32 @@ pub(crate) type WebsocketPlatformProbeDispatcher = dyn Fn(
     + Send
     + Sync;
 
-pub(crate) fn handle_command_text_for_test(
-    text: WebsocketCommandText,
-    lan_pairing: LanPairingRuntime,
-    origin: WebsocketCommandOrigin,
-) -> Pin<Box<dyn Future<Output = AgentEventEnvelope> + Send + 'static>> {
-    command_entry::handle_command_text(
-        text,
-        lan_pairing,
-        BrowserPolicyRuntime::for_store_path(
-            temp_runtime_store_path(BROWSER_POLICY_TEST_STORE_PREFIX).0,
-        ),
-        BrowserManagedRuntime::new(),
-        ScreenSettingsRuntime::for_store_path(
-            temp_runtime_store_path(SCREEN_SETTINGS_TEST_STORE_PREFIX).0,
-        ),
-        origin,
-        platform_probe_dispatcher(PlatformProbeCache::new()),
-        WebsocketPeerProvenance::Loopback,
-    )
+#[derive(Clone)]
+pub(crate) struct WebsocketCommandRuntime {
+    pub(crate) lan_pairing: LanPairingRuntime,
+    pub(crate) browser_policy: BrowserPolicyRuntime,
+    pub(crate) browser_runtime: BrowserManagedRuntime,
+    pub(crate) screen_settings: ScreenSettingsRuntime,
+    pub(crate) origin: WebsocketCommandOrigin,
+    pub(crate) probe_dispatcher: Arc<WebsocketPlatformProbeDispatcher>,
+    pub(crate) provenance: WebsocketPeerProvenance,
 }
 
-pub(crate) fn handle_command_text_with_browser_policy_for_test(
-    text: WebsocketCommandText,
-    lan_pairing: LanPairingRuntime,
-    browser_policy: BrowserPolicyRuntime,
-    origin: WebsocketCommandOrigin,
-) -> Pin<Box<dyn Future<Output = AgentEventEnvelope> + Send + 'static>> {
-    command_entry::handle_command_text(
-        text,
-        lan_pairing,
-        browser_policy,
-        BrowserManagedRuntime::new(),
-        ScreenSettingsRuntime::for_store_path(
-            temp_runtime_store_path(SCREEN_SETTINGS_TEST_STORE_PREFIX).0,
-        ),
-        origin,
-        platform_probe_dispatcher(PlatformProbeCache::new()),
-        WebsocketPeerProvenance::Loopback,
-    )
+pub(crate) struct WebsocketSocketRuntime {
+    pub(crate) command: WebsocketCommandRuntime,
+    pub(crate) admission: ParentLocalBridgeAdmission,
 }
 
-pub(crate) fn dispatch_local_command_text(
+fn handle_command_text(
     text: WebsocketCommandText,
+    runtime: WebsocketCommandRuntime,
 ) -> Pin<Box<dyn Future<Output = AgentEventEnvelope> + Send + 'static>> {
-    command_entry::handle_command_text(
-        text,
-        LanPairingRuntime::empty(),
-        BrowserPolicyRuntime::for_store_path(
-            temp_runtime_store_path(BROWSER_POLICY_TEST_STORE_PREFIX).0,
-        ),
-        BrowserManagedRuntime::new(),
-        ScreenSettingsRuntime::for_store_path(
-            temp_runtime_store_path(SCREEN_SETTINGS_TEST_STORE_PREFIX).0,
-        ),
-        WebsocketCommandOrigin(None),
-        platform_probe_dispatcher(PlatformProbeCache::new()),
-        WebsocketPeerProvenance::Loopback,
-    )
-}
-
-pub(crate) fn dispatch_local_command_text_with_browser_policy_store(
-    text: WebsocketCommandText,
-    store_path: WebsocketBrowserPolicyStorePath,
-) -> Pin<Box<dyn Future<Output = AgentEventEnvelope> + Send + 'static>> {
-    command_entry::handle_command_text(
-        text,
-        LanPairingRuntime::empty(),
-        BrowserPolicyRuntime::for_store_path(store_path.0),
-        BrowserManagedRuntime::new(),
-        ScreenSettingsRuntime::for_store_path(
-            temp_runtime_store_path(SCREEN_SETTINGS_TEST_STORE_PREFIX).0,
-        ),
-        WebsocketCommandOrigin(None),
-        platform_probe_dispatcher(PlatformProbeCache::new()),
-        WebsocketPeerProvenance::Loopback,
-    )
+    command_entry::handle_command_text(text, runtime)
 }
 
 pub(crate) fn handle_socket(
     socket: WebSocket,
-    lan_pairing: LanPairingRuntime,
-    browser_policy: BrowserPolicyRuntime,
-    browser_runtime: BrowserManagedRuntime,
-    screen_settings: ScreenSettingsRuntime,
-    origin: WebsocketCommandOrigin,
-    probe_dispatcher: Arc<WebsocketPlatformProbeDispatcher>,
-    provenance: WebsocketPeerProvenance,
-    admission: ParentLocalBridgeAdmission,
+    runtime: WebsocketSocketRuntime,
 ) -> Pin<Box<dyn Future<Output = ()> + Send + 'static>> {
-    socket_session::handle_socket(
-        socket,
-        lan_pairing,
-        browser_policy,
-        browser_runtime,
-        screen_settings,
-        origin,
-        probe_dispatcher,
-        provenance,
-        admission,
-    )
+    socket_session::handle_socket(socket, runtime)
 }

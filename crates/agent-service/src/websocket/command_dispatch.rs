@@ -56,7 +56,7 @@ pub(super) fn build_command_event(
             | AgentCommandName::AgentNetworkLinuxNftablesLabStatusGet
             | AgentCommandName::AgentNetworkWindowsFirewallLabStatusGet
             | AgentCommandName::AgentNetworkWindowsWfpGateStatusGet => {
-                build_browser_network_command_report(command, browser_runtime.clone()).await
+                build_browser_network_command_report(command, browser_runtime).await
             }
             AgentCommandName::AgentLocalAiRuntimeStatusGet
             | AgentCommandName::AgentLocalAiChatGenerate

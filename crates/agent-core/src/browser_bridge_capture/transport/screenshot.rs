@@ -18,15 +18,13 @@ pub(super) fn capture(
     session: &mut CdpSession,
     request: &ManagedBrowserCdpCaptureRequest,
 ) -> Result<Vec<u8>, CdpTransportError> {
-    let value = session.call(
-        MANAGED_BROWSER_CDP_METHOD_CAPTURE_SCREENSHOT,
-        screenshot_params(request),
-    )?;
+    let params = screenshot_params(request);
+    let value = session.call(MANAGED_BROWSER_CDP_METHOD_CAPTURE_SCREENSHOT, &params)?;
     let data = value
         .get(MANAGED_BROWSER_CDP_FIELD_DATA)
         .and_then(Value::as_str)
         .ok_or(CdpTransportError::InvalidResponse)?;
-    if data.len() > ((CDP_MAX_IMAGE_BYTES + 2) / 3) * 4 {
+    if data.len() > CDP_MAX_IMAGE_BYTES.div_ceil(3) * 4 {
         return Err(CdpTransportError::ResponseTooLarge);
     }
     base64::engine::general_purpose::STANDARD

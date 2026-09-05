@@ -1,6 +1,4 @@
-use ocentra_parent_agent_protocol::app_game_platform_proof_status::{
-    APP_GAME_LINUX_DOCKER_PREFLIGHT_PROBE_UNAVAILABLE,
-};
+use ocentra_parent_agent_protocol::app_game_platform_proof_status::APP_GAME_LINUX_DOCKER_PREFLIGHT_PROBE_UNAVAILABLE;
 
 use super::app_game_linux_docker_host_preflight::{
     detect_linux_docker_host_preflight, unavailable_linux_docker_host_preflight,
@@ -12,18 +10,18 @@ fn mark_degraded_is_sticky_and_shared_with_clones() {
     let registry = CleanupWorkerRegistry::new();
     let clone = registry.clone();
 
-    assert_eq!(registry.is_degraded(), false);
-    assert_eq!(clone.is_degraded(), false);
+    assert!(!registry.is_degraded());
+    assert!(!clone.is_degraded());
 
     registry.mark_degraded();
 
-    assert_eq!(registry.is_degraded(), true);
-    assert_eq!(clone.is_degraded(), true);
+    assert!(registry.is_degraded());
+    assert!(clone.is_degraded());
 
     clone.mark_degraded();
 
-    assert_eq!(registry.is_degraded(), true);
-    assert_eq!(clone.is_degraded(), true);
+    assert!(registry.is_degraded());
+    assert!(clone.is_degraded());
 }
 
 #[test]

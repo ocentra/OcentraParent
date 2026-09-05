@@ -3,19 +3,31 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { createStripeSignature, createTestHarness, executeRequest, readJson } from '../../src/testing.js';
 
-interface WebhookResponse {
-  status: string;
-  provider: string;
-  queued: boolean;
-  eventId: string;
-  eventType: string;
-  conflictReason?: string;
-}
+const ACCOUNT_IDENTITY_BINDING_UNAVAILABLE = {
+  error: 'manual-required',
+  authState: 'parent-session-required',
+  blocker: 'account-identity-binding-context-manual-required',
+} as const;
 
-interface ReconciliationResponse {
-  status: string;
-  queued: boolean;
-}
+const WEBHOOK_RATE_LIMIT_OWNER_UNAVAILABLE = {
+  status: 'manual-required',
+  authState: 'provider-webhook-signature-required',
+  blocker: 'billing-rate-limit-transaction-owner-unavailable',
+} as const;
+
+const RECONCILIATION_CONTRACT_UNAVAILABLE = {
+  status: 'manual-required',
+  handlerKey: 'admin-billing-reconciliation',
+  authState: 'internal-queue-only',
+  requestModel: 'AdminBillingReconciliationRequest',
+  responseModel: 'BillingSupportAdminReconciliationSummary',
+  contractState: 'manual-required',
+  contractSide: 'request',
+  contractBlocker: 'reconciliation-request-contract-not-generated',
+  proofIdFamily: 'payment-route.reconciliation',
+  actorRole: 'internal',
+  message: 'Route dispatch is disabled until its request, response, and owner execution contracts are bound.',
+} as const;
 
 function createThrowingQueue(message: string): Queue {
   return {
@@ -28,8 +40,13 @@ function createThrowingQueue(message: string): Queue {
   } as unknown as Queue;
 }
 
-describe('billing write idempotency', () => {
-  it('reuses durable-object outcomes for repeated hosted checkout session writes and keeps one audit row', async () => {
+async function assertJsonResponse(response: Response, status: number, expected: unknown): Promise<void> {
+  assert.equal(response.status, status);
+  assert.deepEqual(await readJson<unknown>(response), expected);
+}
+
+describe('billing write admission and idempotency boundaries', () => {
+  it('keeps repeated checkout writes blocked before caller-supplied parent authority can mutate state', async () => {
     for (let index = 0; index < 12; index += 1) {
       const harness = createTestHarness();
       const requestId = `checkout-idempotent-${index}`;
@@ -68,31 +85,16 @@ describe('billing write idempotency', () => {
         },
       });
 
-      assert.deepEqual(await readJson<unknown>(first.response), await readJson<unknown>(second.response));
-
-      const audit = await executeRequest({
-        path: `/admin/billing/audit?q=${requestId}`,
-        harness,
-        headers: {
-          authorization: 'Bearer parent:admin-agent',
-          'x-ocentra-role': 'admin',
-        },
-      });
-      const auditBody = await readJson<{
-        results: Array<{
-          eventId: string;
-        }>;
-      }>(audit.response);
-      const matchingEvents = auditBody.results.filter(
-        (event) => event.eventId === `billing-checkout-session:${requestId}`
-      );
-      assert.equal(matchingEvents.length, 1);
+      await assertJsonResponse(first.response, 503, ACCOUNT_IDENTITY_BINDING_UNAVAILABLE);
+      await assertJsonResponse(second.response, 503, ACCOUNT_IDENTITY_BINDING_UNAVAILABLE);
+      assert.equal(harness.queueMessages.length, 0);
+      assert.equal(harness.deadLetterMessages.length, 0);
     }
   });
 
-  it('reuses durable-object outcomes for repeated change-plan writes per subject', async () => {
+  it('keeps repeated change-plan writes blocked before caller-supplied parent authority can mutate state', async () => {
     for (let index = 0; index < 12; index += 1) {
-      const token = 'parent:demo-active';
+      const parentAuthorizationValue = 'parent:demo-active';
       const harness = createTestHarness();
       const first = await executeRequest({
         path: '/auth/billing/change-plan',
@@ -100,7 +102,7 @@ describe('billing write idempotency', () => {
         harness,
         headers: {
           origin: 'http://localhost:3000',
-          authorization: `Bearer ${token}`,
+          authorization: `Bearer ${parentAuthorizationValue}`,
           'x-ocentra-csrf': 'interactive-parent-session',
         },
         body: {
@@ -125,12 +127,14 @@ describe('billing write idempotency', () => {
         },
       });
 
-      assert.deepEqual(await readJson<unknown>(first.response), await readJson<unknown>(second.response));
-      assert.equal(harness.queueMessages.length, 1);
+      await assertJsonResponse(first.response, 503, ACCOUNT_IDENTITY_BINDING_UNAVAILABLE);
+      await assertJsonResponse(second.response, 503, ACCOUNT_IDENTITY_BINDING_UNAVAILABLE);
+      assert.equal(harness.queueMessages.length, 0);
+      assert.equal(harness.deadLetterMessages.length, 0);
     }
   });
 
-  it('reuses durable-object outcomes for repeated stripe webhook deliveries', async () => {
+  it('keeps repeated verified Stripe deliveries blocked until a serialized rate-limit owner is bound', async () => {
     const eventTypes = ['invoice.paid', 'checkout.session.completed', 'payment_failed', 'dispute_open'] as const;
 
     for (let index = 0; index < 12; index += 1) {
@@ -142,7 +146,11 @@ describe('billing write idempotency', () => {
         invoiceId: 'parent-demo-active-invoice-current',
         disputeId: `dp_idempotent_${index}`,
       });
-      const signature = await createStripeSignature(payload, harness.env.STRIPE_WEBHOOK_SECRET ?? '');
+      const signature = await createStripeSignature(
+        payload,
+        harness.env.STRIPE_WEBHOOK_SECRET ?? '',
+        Math.floor(Date.now() / 1000)
+      );
 
       const first = await executeRequest({
         path: '/webhooks/stripe',
@@ -165,12 +173,14 @@ describe('billing write idempotency', () => {
         },
       });
 
-      assert.deepEqual(await readJson<unknown>(first.response), await readJson<unknown>(second.response));
-      assert.equal(harness.queueMessages.length, 1);
+      await assertJsonResponse(first.response, 503, WEBHOOK_RATE_LIMIT_OWNER_UNAVAILABLE);
+      await assertJsonResponse(second.response, 503, WEBHOOK_RATE_LIMIT_OWNER_UNAVAILABLE);
+      assert.equal(harness.queueMessages.length, 0);
+      assert.equal(harness.deadLetterMessages.length, 0);
     }
   });
 
-  it('keeps a dead-lettered reconciliation replay stable for the same request id', async () => {
+  it('keeps reconciliation blocked before queueing while its request contract is unavailable', async () => {
     for (let index = 0; index < 12; index += 1) {
       const harness = createTestHarness();
       harness.env.BILLING_RECONCILIATION_QUEUE = createThrowingQueue(`reconciliation-queue-failure-${index}`);
@@ -200,19 +210,14 @@ describe('billing write idempotency', () => {
         },
       });
 
-      assert.deepEqual(
-        await readJson<ReconciliationResponse>(first.response),
-        await readJson<ReconciliationResponse>(second.response)
-      );
+      await assertJsonResponse(first.response, 501, RECONCILIATION_CONTRACT_UNAVAILABLE);
+      await assertJsonResponse(second.response, 501, RECONCILIATION_CONTRACT_UNAVAILABLE);
       assert.equal(harness.queueMessages.length, 0);
-      assert.equal(harness.deadLetterMessages.length, 1);
-
-      const deadLetter = harness.deadLetterMessages[0] as Record<string, unknown>;
-      assert.equal(deadLetter.reason, 'reconciliation-queue-send-failed');
+      assert.equal(harness.deadLetterMessages.length, 0);
     }
   });
 
-  it('keeps out-of-order duplicate webhook deliveries stable for the same event id', async () => {
+  it('does not persist out-of-order deliveries while the serialized rate-limit owner is unavailable', async () => {
     for (let index = 0; index < 12; index += 1) {
       const harness = createTestHarness();
       const originalPayload = JSON.stringify({
@@ -227,8 +232,17 @@ describe('billing write idempotency', () => {
         subject: 'parent:demo-active',
         invoiceId: `invoice-out-of-order-unrelated-${index}`,
       });
-      const originalSignature = await createStripeSignature(originalPayload, harness.env.STRIPE_WEBHOOK_SECRET ?? '');
-      const unrelatedSignature = await createStripeSignature(unrelatedPayload, harness.env.STRIPE_WEBHOOK_SECRET ?? '');
+      const signatureTimestamp = Math.floor(Date.now() / 1000);
+      const originalSignature = await createStripeSignature(
+        originalPayload,
+        harness.env.STRIPE_WEBHOOK_SECRET ?? '',
+        signatureTimestamp
+      );
+      const unrelatedSignature = await createStripeSignature(
+        unrelatedPayload,
+        harness.env.STRIPE_WEBHOOK_SECRET ?? '',
+        signatureTimestamp
+      );
 
       const first = await executeRequest({
         path: '/webhooks/stripe',
@@ -240,7 +254,7 @@ describe('billing write idempotency', () => {
           'stripe-signature': originalSignature,
         },
       });
-      await executeRequest({
+      const unrelated = await executeRequest({
         path: '/webhooks/stripe',
         method: 'POST',
         harness,
@@ -261,15 +275,15 @@ describe('billing write idempotency', () => {
         },
       });
 
-      assert.deepEqual(
-        await readJson<WebhookResponse>(first.response),
-        await readJson<WebhookResponse>(replay.response)
-      );
-      assert.equal(harness.queueMessages.length, 2);
+      await assertJsonResponse(first.response, 503, WEBHOOK_RATE_LIMIT_OWNER_UNAVAILABLE);
+      await assertJsonResponse(unrelated.response, 503, WEBHOOK_RATE_LIMIT_OWNER_UNAVAILABLE);
+      await assertJsonResponse(replay.response, 503, WEBHOOK_RATE_LIMIT_OWNER_UNAVAILABLE);
+      assert.equal(harness.queueMessages.length, 0);
+      assert.equal(harness.deadLetterMessages.length, 0);
     }
   });
 
-  it('fails conflicting webhook payload reuse closed instead of double-accepting it', async () => {
+  it('does not compare conflicting payload reuse before serialized rate-limit admission succeeds', async () => {
     for (let index = 0; index < 12; index += 1) {
       const harness = createTestHarness();
       const firstPayload = JSON.stringify({
@@ -282,10 +296,16 @@ describe('billing write idempotency', () => {
         type: 'invoice.paid',
         subject: 'parent:other-active',
       });
-      const firstSignature = await createStripeSignature(firstPayload, harness.env.STRIPE_WEBHOOK_SECRET ?? '');
+      const signatureTimestamp = Math.floor(Date.now() / 1000);
+      const firstSignature = await createStripeSignature(
+        firstPayload,
+        harness.env.STRIPE_WEBHOOK_SECRET ?? '',
+        signatureTimestamp
+      );
       const conflictingSignature = await createStripeSignature(
         conflictingPayload,
-        harness.env.STRIPE_WEBHOOK_SECRET ?? ''
+        harness.env.STRIPE_WEBHOOK_SECRET ?? '',
+        signatureTimestamp
       );
 
       const first = await executeRequest({
@@ -309,15 +329,10 @@ describe('billing write idempotency', () => {
         },
       });
 
-      const firstBody = await readJson<WebhookResponse>(first.response);
-      const conflictingBody = await readJson<WebhookResponse>(conflicting.response);
-      assert.equal(first.response.status, 202);
-      assert.equal(conflicting.response.status, 409);
-      assert.equal(firstBody.status, 'accepted');
-      assert.equal(conflictingBody.status, 'manual-review');
-      assert.equal(conflictingBody.queued, false);
-      assert.equal(conflictingBody.conflictReason, 'event-id-payload-mismatch');
-      assert.equal(harness.queueMessages.length, 1);
+      await assertJsonResponse(first.response, 503, WEBHOOK_RATE_LIMIT_OWNER_UNAVAILABLE);
+      await assertJsonResponse(conflicting.response, 503, WEBHOOK_RATE_LIMIT_OWNER_UNAVAILABLE);
+      assert.equal(harness.queueMessages.length, 0);
+      assert.equal(harness.deadLetterMessages.length, 0);
     }
   });
 });

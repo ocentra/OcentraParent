@@ -20,12 +20,12 @@ pub(super) fn validate_objects(connection: &Connection) -> Result<(), ()> {
              WHERE name LIKE 'account_identity_%' OR type IN ('trigger', 'view')
              ORDER BY type, name",
         )
-        .map_err(|_| ())?;
-    let mut rows = statement.query([]).map_err(|_| ())?;
-    while let Some(row) = rows.next().map_err(|_| ())? {
-        let object_type = row.get::<_, String>(0).map_err(|_| ())?;
-        let name = row.get::<_, String>(1).map_err(|_| ())?;
-        let sql = row.get::<_, Option<String>>(2).map_err(|_| ())?;
+        .map_err(|_error| ())?;
+    let mut rows = statement.query([]).map_err(|_error| ())?;
+    while let Some(row) = rows.next().map_err(|_error| ())? {
+        let object_type = row.get::<_, String>(0).map_err(|_error| ())?;
+        let name = row.get::<_, String>(1).map_err(|_error| ())?;
+        let sql = row.get::<_, Option<String>>(2).map_err(|_error| ())?;
         if is_owned_trigger_or_view(&object_type, &name, sql.as_deref())
             || (object_type == "table" && !table_is_allowed(&name))
             || (object_type == "index" && !index_is_allowed(&name))

@@ -1,5 +1,6 @@
 //! AccountIssuer owner command orchestration.
 
+use ocentra_protected_capability_custody_core::broker_admission::account_issuer_request::ProtectedAccountIssuerRequestAdmission;
 use ocentra_schema::account_identity_authority::{
     AccountIdentityProvider, AccountIdentityProviderSubject,
 };
@@ -38,6 +39,7 @@ impl IssuedAuthority {
 
 #[derive(Debug)]
 pub enum AccountIssuerRpcError {
+    ProtectedAdmissionRejected,
     Repository(AccountIssuerRepositoryError),
     Signing(AccountIssuerSigningError),
     Delivery(AccountIssuerDeliveryError),
@@ -51,12 +53,6 @@ impl std::fmt::Display for AccountIssuerRpcError {
 
 impl std::error::Error for AccountIssuerRpcError {}
 
-impl DeliveryClaim {
-    pub(crate) fn wire(&self) -> &[u8] {
-        self.inner.wire()
-    }
-}
-
 impl AccountIssuerOwner {
     /// Mount the fixed Account-owned store. The path and signer/key source are
     /// not caller-selected; a missing protected adapter leaves issuance
@@ -67,24 +63,24 @@ impl AccountIssuerOwner {
         Ok(Self { repository })
     }
 
-    pub(crate) fn new(repository: AccountIssuerRepository) -> Self {
-        Self { repository }
-    }
-
     pub(crate) fn repository_mut(&mut self) -> &mut AccountIssuerRepository {
         &mut self.repository
     }
 
-    /// Bind a protected transport request to Account-owned authority.
+    /// Consume the exact Protected transport proof before Account admission.
     ///
-    /// Transport authentication proves the pipe session, not which Account
-    /// the peer may issue for.  The OS enrollment/currentness adapter that can
-    /// produce this opaque authorization is not mounted yet, so this boundary
+    /// The Protected proof binds the retained OS peer/session/enrollment to the
+    /// complete authenticated request. It still does not identify an Account.
+    /// Until Account mounts a one-shot current authority session, this boundary
     /// remains fail-closed and never promotes caller-selected provider fields.
     pub fn authorize_protected_request(
         &self,
-        _request: &AuthenticatedAccountIssuerRequest,
+        admission: ProtectedAccountIssuerRequestAdmission,
+        request: &AuthenticatedAccountIssuerRequest,
     ) -> Result<AccountIssuerRequestAuthorization, AccountIssuerRpcError> {
+        admission
+            .verify_and_consume(request)
+            .map_err(|_error| AccountIssuerRpcError::ProtectedAdmissionRejected)?;
         Err(AccountIssuerRpcError::Signing(signing::fail_closed()))
     }
 
@@ -137,8 +133,15 @@ impl AccountIssuerOwner {
         claim: DeliveryClaim,
         protected_receipt: ProtectedAccountIssuerReceipt,
     ) -> Result<(), AccountIssuerRpcError> {
+        let DeliveryClaim { inner } = claim;
+        let protected_receipt_wire = protected_receipt.into_wire();
         self.repository
-            .acknowledge_receipt(provider, provider_subject, &claim, &protected_receipt)
+            .acknowledge_receipt(
+                provider,
+                provider_subject,
+                &inner,
+                protected_receipt_wire.as_slice(),
+            )
             .map_err(AccountIssuerRpcError::Repository)?;
         Ok(())
     }

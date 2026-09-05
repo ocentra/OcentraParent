@@ -14,11 +14,12 @@ pub(super) fn decision_from_payload(
         .ok_or_else(|| "parent resolution decision is missing".to_string())?;
     let value = match value {
         Value::String(text) => serde_json::from_str(text)
-            .map_err(|_| "parent resolution decision payload is invalid".to_string())?,
+            .map_err(|error| format!("parent resolution decision payload is invalid: {error}"))?,
         value => value.clone(),
     };
-    let input: ParentResolutionDecisionInput = serde_json::from_value(value)
-        .map_err(|_| "parent resolution payload must contain only a valid decision".to_string())?;
+    let input: ParentResolutionDecisionInput = serde_json::from_value(value).map_err(|error| {
+        format!("parent resolution payload must contain only a valid decision: {error}")
+    })?;
     Ok(input.decision)
 }
 
@@ -26,8 +27,8 @@ pub(super) fn actor_role(
     value: &Option<String>,
 ) -> Result<PolicyRequestAssistantPreviewConfirmActorRole, String> {
     let value = required_context(value, "actor role")?;
-    serde_json::from_value(Value::String(value.to_string())).map_err(|_| {
-        "parent resolution actor role is unavailable; manual review required".to_string()
+    serde_json::from_value(Value::String(value.to_string())).map_err(|error| {
+        format!("parent resolution actor role is unavailable; manual review required: {error}")
     })
 }
 
@@ -35,8 +36,8 @@ pub(super) fn actor_state(
     value: &Option<String>,
 ) -> Result<PolicyRequestAssistantPreviewConfirmActorState, String> {
     let value = required_context(value, "actor state")?;
-    serde_json::from_value(Value::String(value.to_string())).map_err(|_| {
-        "parent resolution actor state is unavailable; manual review required".to_string()
+    serde_json::from_value(Value::String(value.to_string())).map_err(|error| {
+        format!("parent resolution actor state is unavailable; manual review required: {error}")
     })
 }
 

@@ -1,58 +1,56 @@
-#[path = "../support/test_invariants.rs"]
-mod test_invariants;
-
-use std::path::{Path as TestPath, PathBuf as TestPathBuf};
-use std::primitive::str as TestStr;
-use std::string::String as TestString;
-
 use ocentra_parent_agent_protocol::browser_policy_sections::BrowserPolicyRuleActionPlan;
 use ocentra_parent_agent_protocol::constants;
-use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
-use ocentra_parent_agent_protocol::policy_constants as policy;
-use ocentra_parent_agent_protocol::transport::{
-    AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope, AgentMessageTarget, AgentPeer,
-    AgentPeerRole, AgentRoute,
-};
 use ocentra_parent_agent_protocol::BrowserPolicyActionExecutionState;
 use ocentra_parent_agent_protocol::BrowserPolicyAiAuthority;
 use ocentra_parent_agent_protocol::BrowserPolicyApprovalState;
+use ocentra_parent_agent_protocol::BrowserPolicyApprovals;
+use ocentra_parent_agent_protocol::BrowserPolicyAudit;
+use ocentra_parent_agent_protocol::BrowserPolicyAuditState;
+use ocentra_parent_agent_protocol::BrowserPolicyBrowserGames;
+use ocentra_parent_agent_protocol::BrowserPolicyBudgets;
 use ocentra_parent_agent_protocol::BrowserPolicyCapabilityState;
 use ocentra_parent_agent_protocol::BrowserPolicyDefaultPosture;
+use ocentra_parent_agent_protocol::BrowserPolicyDiscovery;
+use ocentra_parent_agent_protocol::BrowserPolicyDownloadState;
+use ocentra_parent_agent_protocol::BrowserPolicyDownloads;
 use ocentra_parent_agent_protocol::BrowserPolicyEvidenceProofLevel;
+use ocentra_parent_agent_protocol::BrowserPolicyEvidenceRequirement;
 use ocentra_parent_agent_protocol::BrowserPolicyExecutionMode;
-use ocentra_parent_agent_protocol::BrowserPolicyManagedBrowserIntegrationMechanism;
+use ocentra_parent_agent_protocol::BrowserPolicyManagedBrowser;
+use ocentra_parent_agent_protocol::BrowserPolicyManagedBrowserMode;
+use ocentra_parent_agent_protocol::BrowserPolicyManagementMode;
 use ocentra_parent_agent_protocol::BrowserPolicyProofFallback;
+use ocentra_parent_agent_protocol::BrowserPolicyReportState;
+use ocentra_parent_agent_protocol::BrowserPolicyReports;
+use ocentra_parent_agent_protocol::BrowserPolicyRetention;
+use ocentra_parent_agent_protocol::BrowserPolicyRetentionState;
 use ocentra_parent_agent_protocol::BrowserPolicyRule;
 use ocentra_parent_agent_protocol::BrowserPolicyRuleAction;
+use ocentra_parent_agent_protocol::BrowserPolicyRules;
 use ocentra_parent_agent_protocol::BrowserPolicyTargetProofRequirement;
+use ocentra_parent_agent_protocol::BrowserPolicyUnmanagedBrowser;
 use ocentra_parent_agent_protocol::BrowserPolicyUnmanagedBrowserClassificationTarget;
-use ocentra_parent_agent_protocol::BrowserPolicyUpdateKind;
-use ocentra_parent_agent_protocol::BrowserPolicyUpdateResponse;
-use ocentra_parent_agent_protocol::BrowserPolicyUpdateStatus;
+use ocentra_parent_agent_protocol::BrowserPolicyUnmanagedBrowserMode;
 use ocentra_parent_agent_protocol::BrowserPolicyUrlTargetType;
 use ocentra_parent_agent_protocol::BrowserPolicyValue;
-use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
-use ocentra_parent_agent_service::test_support::{
-    default_browser_policy_for_test, handle_local_command_text_with_browser_policy_store_for_test,
-};
 
-use crate::test_invariants::{require_log_string_field, require_ok, require_some};
+use crate::test_require_ok::require_ok;
+use crate::test_require_some::require_some;
 
-#[tokio::test]
-async fn browser_policy_preview_labels_compiler_target_requirements() {
+#[test]
+fn browser_policy_compiler_labels_target_requirements() {
     for target_case in compiler_target_cases() {
-        let response = preview_response_for_policy(policy_for_target_case(target_case)).await;
-        let rule = first_effective_rule(&response);
+        let policy = compile_policy(&policy_for_target_case(target_case));
+        let rule = first_effective_rule(&policy);
 
-        assert_eq!(response.status, BrowserPolicyUpdateStatus::Accepted);
         assert_eq!(rule.target_type, target_case.target_type);
         assert_eq!(rule.target_proof_requirement, target_case.requirement);
         assert_eq!(rule.capability_state, target_case.capability_state);
     }
 }
 
-#[tokio::test]
-async fn browser_policy_preview_keeps_ai_candidate_only_and_parent_policy_authoritative() {
+#[test]
+fn browser_policy_compiler_keeps_ai_candidate_only_and_parent_policy_authoritative() {
     let mut policy = policy_for_target_case(CompilerTargetCase {
         target_type: BrowserPolicyUrlTargetType::SiteCategory,
         proof: BrowserPolicyEvidenceProofLevel::ClassifierCategory,
@@ -62,8 +60,8 @@ async fn browser_policy_preview_keeps_ai_candidate_only_and_parent_policy_author
     });
     policy.portal_ai.allow_rule_suggestions = true;
 
-    let response = preview_response_for_policy(policy).await;
-    let rule = first_effective_rule(&response);
+    let policy = compile_policy(&policy);
+    let rule = first_effective_rule(&policy);
 
     assert_eq!(rule.ai_authority, BrowserPolicyAiAuthority::AiCandidateOnly);
     assert_eq!(
@@ -72,37 +70,37 @@ async fn browser_policy_preview_keeps_ai_candidate_only_and_parent_policy_author
     );
 }
 
-#[tokio::test]
-async fn browser_policy_preview_dry_run_and_observe_do_not_execute_adapters() {
+#[test]
+fn browser_policy_compiler_dry_run_and_observe_do_not_execute_adapters() {
     let mut dry_run_policy = policy_with_blocking_domain_rule();
     dry_run_policy.execution_mode = BrowserPolicyExecutionMode::DryRun;
-    let dry_run_response = preview_response_for_policy(dry_run_policy).await;
+    let dry_run_policy = compile_policy(&dry_run_policy);
 
     let mut observe_policy = policy_with_blocking_domain_rule();
     observe_policy.execution_mode = BrowserPolicyExecutionMode::Observe;
-    let observe_response = preview_response_for_policy(observe_policy).await;
+    let observe_policy = compile_policy(&observe_policy);
 
     assert_eq!(
-        first_effective_rule(&dry_run_response).action_execution,
+        first_effective_rule(&dry_run_policy).action_execution,
         BrowserPolicyActionExecutionState::DryRunNoExecution
     );
     assert_eq!(
-        first_effective_rule(&observe_response).action_execution,
+        first_effective_rule(&observe_policy).action_execution,
         BrowserPolicyActionExecutionState::ObserveOnly
     );
 }
 
-#[tokio::test]
-async fn browser_policy_preview_requires_adapter_proof_for_blocking_actions() {
-    let manual_response = preview_response_for_policy(policy_with_blocking_domain_rule()).await;
-    let ready_response = preview_response_for_policy(policy_with_ready_action_adapter()).await;
+#[test]
+fn browser_policy_compiler_requires_adapter_proof_for_blocking_actions() {
+    let manual_policy = compile_policy(&policy_with_blocking_domain_rule());
+    let ready_policy = compile_policy(&policy_with_ready_action_adapter());
 
     assert_eq!(
-        first_effective_rule(&manual_response).action_execution,
+        first_effective_rule(&manual_policy).action_execution,
         BrowserPolicyActionExecutionState::ManualRequired
     );
     assert_eq!(
-        first_effective_rule(&ready_response).action_execution,
+        first_effective_rule(&ready_policy).action_execution,
         BrowserPolicyActionExecutionState::AdapterReady
     );
     for action in [
@@ -126,34 +124,34 @@ async fn browser_policy_preview_requires_adapter_proof_for_blocking_actions() {
         ready_unmanaged_policy.platforms.windows.allowed_adapters =
             vec![constants::browser_policy::ACTION_ADAPTER_CAPABILITY_ID.to_string()];
 
-        let manual_response = preview_response_for_policy(unmanaged_policy).await;
-        let ready_response = preview_response_for_policy(ready_unmanaged_policy).await;
+        let manual_policy = compile_policy(&unmanaged_policy);
+        let ready_policy = compile_policy(&ready_unmanaged_policy);
 
         assert_eq!(
-            first_effective_rule(&manual_response).target_proof_requirement,
+            first_effective_rule(&manual_policy).target_proof_requirement,
             BrowserPolicyTargetProofRequirement::ProcessDetection
         );
         assert_eq!(
-            first_effective_rule(&manual_response).capability_state,
+            first_effective_rule(&manual_policy).capability_state,
             BrowserPolicyCapabilityState::Ready
         );
         assert_eq!(
-            first_effective_rule(&manual_response).action_execution,
+            first_effective_rule(&manual_policy).action_execution,
             BrowserPolicyActionExecutionState::ManualRequired
         );
         assert_eq!(
-            first_effective_rule(&ready_response).action_execution,
+            first_effective_rule(&ready_policy).action_execution,
             BrowserPolicyActionExecutionState::AdapterReady
         );
     }
 }
 
-#[tokio::test]
-async fn browser_policy_preview_reports_policy_writer_as_manual_required_capability() {
-    let response = preview_response_for_policy(policy_with_writer_controls()).await;
-    let registry = require_some(
-        response.capability_registry.as_ref(),
-        constants::error::AGENT_EVENT_SERIALIZES,
+#[test]
+fn browser_policy_compiler_reports_policy_writer_as_manual_required_capability() {
+    let registry = crate::browser_policy_compiler::browser_policy_capability_registry(
+        crate::browser_policy_compiler::BrowserPolicyCapabilityRegistryRequest {
+            generated_at: constants::browser_policy::TEST_SENT_AT,
+        },
     );
 
     assert!(registry.capabilities.iter().any(|capability| {
@@ -163,7 +161,7 @@ async fn browser_policy_preview_reports_policy_writer_as_manual_required_capabil
 }
 
 #[test]
-fn browser_policy_compiler_direct_smoke_links_assessment_and_registry_helpers() {
+fn browser_policy_compiler_projects_rules_capabilities_and_assessment() {
     let policy = policy_for_target_case(target_case(
         BrowserPolicyUrlTargetType::Domain,
         BrowserPolicyEvidenceProofLevel::NetworkDomain,
@@ -299,8 +297,7 @@ fn social_target_case(target_type: BrowserPolicyUrlTargetType) -> CompilerTarget
 }
 
 fn policy_for_target_case(target_case: CompilerTargetCase) -> BrowserPolicyValue {
-    let mut policy =
-        default_browser_policy_for_test(crate::test_support::default_browser_policy_id_for_test());
+    let mut policy = default_policy();
     policy.enabled = true;
     policy.execution_mode = BrowserPolicyExecutionMode::Enforce;
     policy.default_posture = BrowserPolicyDefaultPosture::Warn;
@@ -314,10 +311,92 @@ fn policy_for_target_case(target_case: CompilerTargetCase) -> BrowserPolicyValue
     policy.evidence.when_proof_unavailable = BrowserPolicyProofFallback::Ask;
     policy.approvals.state = target_case.approval_state;
     if target_case.target_type == BrowserPolicyUrlTargetType::BrowserProcess {
+        policy.discovery.detect_unmanaged_browsers = true;
         policy.unmanaged_browser.classification_targets =
             vec![BrowserPolicyUnmanagedBrowserClassificationTarget::KnownBrowser];
     }
     policy
+}
+
+fn default_policy() -> BrowserPolicyValue {
+    BrowserPolicyValue {
+        schema_version:
+            ocentra_parent_agent_protocol::policy_constants::CONTRACT_SCHEMA_VERSION_V0_6
+                .to_string(),
+        policy_id: constants::browser_policy::POLICY_ID.to_string(),
+        enabled: false,
+        execution_mode: BrowserPolicyExecutionMode::Observe,
+        default_posture: BrowserPolicyDefaultPosture::Observe,
+        fallback_posture: None,
+        management_mode: BrowserPolicyManagementMode::LocalChildAgent,
+        discovery: BrowserPolicyDiscovery::default(),
+        managed_browser: BrowserPolicyManagedBrowser {
+            mode: BrowserPolicyManagedBrowserMode::AvailableForExactRules,
+            allowed_families: Vec::new(),
+            launch_mode: Default::default(),
+            profile_mode: Default::default(),
+            bridge_requirements: Vec::new(),
+            integration_mechanisms: Vec::new(),
+            policy_writer_controls: Vec::new(),
+            policy_writer_fallback: Default::default(),
+        },
+        unmanaged_browser: BrowserPolicyUnmanagedBrowser {
+            mode: BrowserPolicyUnmanagedBrowserMode::NetworkDomainOnly,
+            grace_seconds: 0,
+            allow_recover_launch_url: false,
+            classification_targets: Vec::new(),
+        },
+        evidence: BrowserPolicyEvidenceRequirement {
+            url_scope: Default::default(),
+            required_proof: BrowserPolicyEvidenceProofLevel::None,
+            proof_fallback: None,
+            when_proof_unavailable: BrowserPolicyProofFallback::Ask,
+            never_collect: Vec::new(),
+        },
+        rules: BrowserPolicyRules {
+            allowed_target_types: Vec::new(),
+            allowed_actions: Vec::new(),
+            items: Vec::new(),
+            entries: Vec::new(),
+            url_allow_list: Vec::new(),
+            url_block_list: Vec::new(),
+        },
+        budgets: BrowserPolicyBudgets {
+            enabled: true,
+            default_daily_minutes: None,
+            counting_mode: Default::default(),
+        },
+        browser_games: BrowserPolicyBrowserGames::default(),
+        downloads: BrowserPolicyDownloads {
+            mode: BrowserPolicyDownloadState::Observe,
+            blocked_types: Vec::new(),
+            state: BrowserPolicyDownloadState::Observe,
+        },
+        approvals: BrowserPolicyApprovals {
+            required_for: Vec::new(),
+            unanswered_default: Default::default(),
+            state: BrowserPolicyApprovalState::NotRequired,
+        },
+        reports: BrowserPolicyReports {
+            visible_fields: Vec::new(),
+            state: BrowserPolicyReportState::Disabled,
+        },
+        audit: BrowserPolicyAudit {
+            required_fields: Vec::new(),
+            state: BrowserPolicyAuditState::LocalOnly,
+            plan: Default::default(),
+        },
+        retention: BrowserPolicyRetention {
+            exact_url: Default::default(),
+            state: BrowserPolicyRetentionState::None,
+        },
+        custody: Default::default(),
+        schedules: Vec::new(),
+        child_facing: Default::default(),
+        portal_ai: Default::default(),
+        platforms: Default::default(),
+        fallbacks: Default::default(),
+    }
 }
 
 fn policy_with_blocking_domain_rule() -> BrowserPolicyValue {
@@ -341,16 +420,6 @@ fn policy_with_ready_action_adapter() -> BrowserPolicyValue {
         Some(constants::browser_policy::CAPABILITY_STATE_READY.to_string());
     policy.platforms.windows.allowed_adapters =
         vec![constants::browser_policy::ACTION_ADAPTER_CAPABILITY_ID.to_string()];
-    policy
-}
-
-fn policy_with_writer_controls() -> BrowserPolicyValue {
-    let mut policy = policy_with_ready_action_adapter();
-    policy.managed_browser.integration_mechanisms =
-        vec![BrowserPolicyManagedBrowserIntegrationMechanism::BrowserPolicy];
-    policy.managed_browser.policy_writer_controls =
-        vec![ocentra_parent_agent_protocol::browser_policy_catalog_values::BrowserPolicyManagedPolicyWriterControl::UrlBlockList];
-    policy.rules.url_block_list = vec![constants::browser_policy::DEFAULT_TARGET_VALUE.to_string()];
     policy
 }
 
@@ -378,107 +447,26 @@ fn rule_for_target(
     }
 }
 
-async fn preview_response_for_policy(policy: BrowserPolicyValue) -> BrowserPolicyUpdateResponse {
-    let event = send_browser_policy_command(
-        &temp_policy_store_path(constants::browser_policy::UPDATE_KIND_PREVIEW),
-        preview_command(&policy),
-    )
-    .await;
-    parse_test_json(require_log_string_field(
-        event.payload.get(constants::field::BROWSER_POLICY_RESPONSE),
+fn compile_policy(
+    policy: &BrowserPolicyValue,
+) -> ocentra_parent_agent_protocol::BrowserPolicyEffectivePolicy {
+    require_ok(
+        crate::browser_policy_compiler::compile_browser_policy(
+            policy,
+            crate::browser_policy_compiler::BrowserPolicyCompileRequest {
+                revision_id: constants::browser_policy::REVISION_ID,
+                compiled_at: constants::browser_policy::TEST_SENT_AT,
+            },
+        ),
         constants::error::AGENT_EVENT_SERIALIZES,
-    ))
+    )
 }
 
 fn first_effective_rule(
-    response: &BrowserPolicyUpdateResponse,
+    policy: &ocentra_parent_agent_protocol::BrowserPolicyEffectivePolicy,
 ) -> &ocentra_parent_agent_protocol::browser_policy_model::BrowserPolicyEffectiveRule {
-    let policy = require_some(
-        response.effective_policy.as_ref(),
-        constants::error::AGENT_EVENT_SERIALIZES,
-    );
     require_some(
         policy.rules.first(),
         constants::error::AGENT_EVENT_SERIALIZES,
     )
-}
-
-async fn send_browser_policy_command(
-    store_path: &std::path::Path,
-    command: AgentCommandEnvelope,
-) -> AgentEventEnvelope {
-    handle_local_command_text_with_browser_policy_store_for_test(
-        &serialize_test_json(&command),
-        store_path,
-    )
-    .await
-}
-
-fn preview_command(policy_value: &BrowserPolicyValue) -> AgentCommandEnvelope {
-    command_with_request(
-        AgentCommandName::AgentBrowserPolicyPreview,
-        serde_json::json!({
-            "schemaVersion": policy::CONTRACT_SCHEMA_VERSION_V0_6,
-            "requestId": constants::browser_policy::REQUEST_ID,
-            "kind": BrowserPolicyUpdateKind::Preview,
-            "policy": policy_value,
-        }),
-    )
-}
-
-fn command_with_request<T>(command: AgentCommandName, request: T) -> AgentCommandEnvelope
-where
-    T: serde::Serialize,
-{
-    let mut payload = LogFields::new();
-    payload.insert(
-        constants::field::BROWSER_POLICY_REQUEST.to_string(),
-        LogFieldValue::String(serialize_test_json(&request)),
-    );
-    AgentCommandEnvelope {
-        schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
-        message_id: constants::browser_policy::COMMAND_MESSAGE_ID.to_string(),
-        sent_at: constants::browser_policy::TEST_SENT_AT.to_string(),
-        source: AgentPeer {
-            peer_id: constants::peer::PORTAL_DEV.to_string(),
-            role: AgentPeerRole::Portal,
-        },
-        target: AgentMessageTarget {
-            device_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
-            platform: constants::enforcement::PLATFORM_WINDOWS.to_string(),
-            route: AgentRoute::Localhost,
-        },
-        command,
-        payload,
-    }
-}
-
-fn serialize_test_json<T>(value: &T) -> TestString
-where
-    T: serde::Serialize + ?Sized,
-{
-    crate::test_invariants::serialize_test_json(value)
-}
-
-fn parse_test_json<T>(text: TestText) -> T
-where
-    T: serde::de::DeserializeOwned,
-{
-    crate::test_invariants::require_json_decode(
-        text.as_ref().as_bytes(),
-        constants::error::AGENT_EVENT_SERIALIZES,
-    )
-}
-
-fn temp_policy_store_path(store_path_suffix: TestText) -> TestPathBuf {
-    let store_path_suffix = store_path_suffix.as_ref();
-    let millis = require_ok(
-        std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH),
-        constants::error::AGENT_EVENT_SERIALIZES,
-    )
-    .as_millis();
-    std::env::temp_dir().join(format!(
-        "ocentra-browser-policy-compiler-{store_path_suffix}-{millis}-{}.json",
-        std::process::id()
-    ))
 }

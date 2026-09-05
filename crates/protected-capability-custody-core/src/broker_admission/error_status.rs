@@ -27,7 +27,7 @@ pub(super) fn authority(_error: crate::authority::AuthorityError) -> BrokerRunti
     BrokerRuntimeError::InvalidRequest
 }
 
-pub(super) fn platform(error: crate::platform::PlatformError) -> BrokerRuntimeError {
+pub(super) fn platform(error: &crate::platform::PlatformError) -> BrokerRuntimeError {
     match error {
         crate::platform::PlatformError::DeploymentRequired => {
             BrokerRuntimeError::DeploymentRequired

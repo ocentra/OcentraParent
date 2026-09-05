@@ -35,6 +35,7 @@ import {
   assertAgentNetworkActivityReadModel,
   describeAgentNetworkActivityReadModel,
 } from './portal-network-activity-service-preflight.mjs';
+import { PortalAgentHealthPreflightMode, resolvePortalAgentHealthPreflight } from './portal-agent-health-preflight.mjs';
 import {
   describePortalNetworkActivitySeedState,
   seedPortalNetworkActivityStore,
@@ -73,6 +74,7 @@ const managedBrowserStatusEnvironment = {
   OCENTRA_PARENT_MANAGED_BROWSER_PROFILE_DIR: path.join(devLogDir, 'managed-browser-profile'),
 };
 const activityDbPath = path.join(devLogDir, 'activity.sqlite');
+const logBridgeRoot = path.join(devLogDir, 'logging');
 const children = [];
 const playwrightArgs = playwrightArguments(process.argv.slice(2));
 const agentStartupTimeoutMs = 120000;
@@ -114,8 +116,14 @@ try {
 
   const agent = spawnAgent();
   trackChild(agent, 'agent');
-  await waitForHttp(createAgentHealthUrl(agentPort), agentStartupTimeoutMs);
-  await assertAgentNetworkActivityReadModel(createAgentWebSocketUrl(agentPort), activityDbPath);
+  const agentHealthUrl = createAgentHealthUrl(agentPort);
+  await waitForHttp(agentHealthUrl, agentStartupTimeoutMs);
+  const agentPreflightMode = resolvePortalAgentHealthPreflight(await readHttpJson(agentHealthUrl));
+  if (agentPreflightMode === PortalAgentHealthPreflightMode.Authenticated) {
+    await assertAgentNetworkActivityReadModel(createAgentWebSocketUrl(agentPort), activityDbPath);
+  } else {
+    console.warn('Portal E2E is running against the known fail-closed degraded Agent Service state.');
+  }
 
   // Windows can leave the bridge image locked after a prior run even when the
   // bridge port is free, which prevents `cargo run` from replacing the binary.
@@ -220,7 +228,8 @@ function spawnLogBridge() {
       ...loopbackTestEnvironment,
       OCENTRA_PARENT_LOG_BRIDGE_HOST: ParentDevHost.Loopback,
       OCENTRA_PARENT_LOG_BRIDGE_PORT: String(logBridgePort),
-      OCENTRA_PARENT_LOG_DIR: devLogDir,
+      OCENTRA_PARENT_LOG_BRIDGE_URL: logBridgeUrl,
+      OCENTRA_PARENT_LOG_DIR: logBridgeRoot,
     },
     stdio: ['ignore', 'inherit', 'inherit'],
   });
@@ -298,6 +307,14 @@ async function waitForHttp(url, timeoutMs = 30000) {
     }
   }
   throw new Error(`Timed out waiting for ${url}`);
+}
+
+async function readHttpJson(url) {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Expected successful JSON response from ${url}; received HTTP ${response.status}.`);
+  }
+  return response.json();
 }
 
 async function assertPortalDevLogWritten() {

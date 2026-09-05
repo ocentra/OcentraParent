@@ -13,15 +13,15 @@ pub(super) fn validate(connection: &Connection) -> Result<(), ()> {
                     state, accepted_at_epoch_millis, revoked_at_epoch_millis, use_count
              FROM account_identity_setup_invite",
         )
-        .map_err(|_| ())?;
-    let mut rows = statement.query([]).map_err(|_| ())?;
-    while let Some(row) = rows.next().map_err(|_| ())? {
-        let state = row.get::<_, String>(17).map_err(|_| ())?;
-        let issued = row.get::<_, i64>(15).map_err(|_| ())?;
-        let expires = row.get::<_, i64>(16).map_err(|_| ())?;
-        let accepted = row.get::<_, Option<i64>>(18).map_err(|_| ())?;
-        let revoked = row.get::<_, Option<i64>>(19).map_err(|_| ())?;
-        let use_count = row.get::<_, i64>(20).map_err(|_| ())?;
+        .map_err(|_error| ())?;
+    let mut rows = statement.query([]).map_err(|_error| ())?;
+    while let Some(row) = rows.next().map_err(|_error| ())? {
+        let state = row.get::<_, String>(17).map_err(|_error| ())?;
+        let issued = row.get::<_, i64>(15).map_err(|_error| ())?;
+        let expires = row.get::<_, i64>(16).map_err(|_error| ())?;
+        let accepted = row.get::<_, Option<i64>>(18).map_err(|_error| ())?;
+        let revoked = row.get::<_, Option<i64>>(19).map_err(|_error| ())?;
+        let use_count = row.get::<_, i64>(20).map_err(|_error| ())?;
         if !identity_is_valid(row)?
             || issued <= 0
             || expires <= issued
@@ -35,30 +35,30 @@ pub(super) fn validate(connection: &Connection) -> Result<(), ()> {
 
 fn identity_is_valid(row: &rusqlite::Row<'_>) -> Result<bool, ()> {
     let strings = [
-        row.get::<_, String>(0).map_err(|_| ())?,
-        row.get::<_, String>(2).map_err(|_| ())?,
-        row.get::<_, String>(3).map_err(|_| ())?,
-        row.get::<_, String>(4).map_err(|_| ())?,
-        row.get::<_, String>(5).map_err(|_| ())?,
-        row.get::<_, String>(12).map_err(|_| ())?,
-        row.get::<_, String>(13).map_err(|_| ())?,
+        row.get::<_, String>(0).map_err(|_error| ())?,
+        row.get::<_, String>(2).map_err(|_error| ())?,
+        row.get::<_, String>(3).map_err(|_error| ())?,
+        row.get::<_, String>(4).map_err(|_error| ())?,
+        row.get::<_, String>(5).map_err(|_error| ())?,
+        row.get::<_, String>(12).map_err(|_error| ())?,
+        row.get::<_, String>(13).map_err(|_error| ())?,
     ];
     if strings.iter().any(|value| value.trim().is_empty()) {
         return Ok(false);
     }
-    let provider = row.get::<_, String>(11).map_err(|_| ())?;
-    let inviter_role = row.get::<_, String>(8).map_err(|_| ())?;
-    let purpose = row.get::<_, String>(9).map_err(|_| ())?;
-    let target = row.get::<_, String>(10).map_err(|_| ())?;
-    let token_digest = row.get::<_, String>(1).map_err(|_| ())?;
-    let email_digest = row.get::<_, String>(14).map_err(|_| ())?;
+    let provider = row.get::<_, String>(11).map_err(|_error| ())?;
+    let inviter_role = row.get::<_, String>(8).map_err(|_error| ())?;
+    let purpose = row.get::<_, String>(9).map_err(|_error| ())?;
+    let target = row.get::<_, String>(10).map_err(|_error| ())?;
+    let token_digest = row.get::<_, String>(1).map_err(|_error| ())?;
+    let email_digest = row.get::<_, String>(14).map_err(|_error| ())?;
     Ok(matches!(provider.as_str(), "authjs" | "firebase")
         && matches!(inviter_role.as_str(), "parent-owner" | "co-parent-guardian")
         && purpose_matches_target(&purpose, &target)
         && hex_digest(&token_digest)
         && hex_digest(&email_digest)
-        && row.get::<_, i64>(6).map_err(|_| ())? > 0
-        && row.get::<_, i64>(7).map_err(|_| ())? > 0)
+        && row.get::<_, i64>(6).map_err(|_error| ())? > 0
+        && row.get::<_, i64>(7).map_err(|_error| ())? > 0)
 }
 
 fn purpose_matches_target(purpose: &str, target_role: &str) -> bool {

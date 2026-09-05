@@ -178,9 +178,8 @@ fn spawn_process_group(
     cleanup_deadline: Instant,
     cleanup_workers: CleanupWorkerRegistry,
 ) -> std::io::Result<DockerProcessSupervisor> {
-    let cleanup_owner = ReservedCleanupOwner::new(cleanup_workers).ok_or_else(|| {
-        std::io::Error::new(std::io::ErrorKind::Other, CLEANUP_SUPERVISOR_UNAVAILABLE)
-    })?;
+    let cleanup_owner = ReservedCleanupOwner::new(cleanup_workers)
+        .ok_or_else(|| std::io::Error::other(CLEANUP_SUPERVISOR_UNAVAILABLE))?;
     #[cfg(unix)]
     {
         // Tokio's flag is only a direct-child fallback; process-group

@@ -1,16 +1,17 @@
 use crate::support::ValueOrUnreachable as _;
 use ocentra_schema::parent_ui_bridge::{
-    PARENT_UI_BRIDGE_SCHEMA_VERSION, ParentAppGameNotificationParentSurfacePanelRowSnapshot,
+    ParentAppGameNotificationParentSurfacePanelRowSnapshot,
     ParentAppGameNotificationParentSurfacePanelSnapshot, ParentAppGamePanelDetailSnapshot,
     ParentAppGamePanelRowSnapshot, ParentAppGamePanelSnapshot, ParentBridgeConnectionState,
-    ParentLanAddressRef, ParentLanBrowserAddDeviceDiscoveryDeviceSnapshot, ParentLanDeviceId,
+    ParentDesktopDistributionSnapshot, ParentLanAddressRef,
+    ParentLanBrowserAddDeviceDiscoveryDeviceSnapshot, ParentLanDeviceId,
     ParentLanPairingDeviceRefSnapshot, ParentLanRouteId,
     ParentLanServiceIdentityProbeEvidenceSnapshot, ParentPortalParentAccessState,
     ParentPortalRowSnapshot, ParentPortalShellStatusCardId, ParentPortalShellStatusCardSnapshot,
     ParentPortalShellStatusSnapshot, ParentPortalTone, ParentRouteDataSource, ParentRouteId,
     ParentRouteLiveActivitySnapshot, ParentRoutePeerId, ParentRouteSnapshot, ParentRouteSummary,
     ParentScreenSummaryPanelDetailSnapshot, ParentScreenSummaryPanelRowSnapshot,
-    ParentScreenSummaryPanelSnapshot,
+    ParentScreenSummaryPanelSnapshot, PARENT_UI_BRIDGE_SCHEMA_VERSION,
 };
 
 pub(super) fn route_snapshot(route: ParentRouteId) -> ParentRouteSnapshot {
@@ -59,6 +60,7 @@ pub(super) fn route_snapshot(route: ParentRouteId) -> ParentRouteSnapshot {
             child_device: "device-alpha".to_string(),
         },
         service_health: None,
+        parent_desktop_distribution: None,
         diagnostic_panels_enabled: false,
         parent_portal_rows: Some(vec![portal_row]),
         parent_portal_shell_status: Some(shell_status),
@@ -66,6 +68,28 @@ pub(super) fn route_snapshot(route: ParentRouteId) -> ParentRouteSnapshot {
         browser_panels: None,
         setup_first_run_panel: None,
         screen_settings_service_response: None,
+    }
+}
+
+pub(super) fn parent_desktop_distribution_snapshot() -> ParentDesktopDistributionSnapshot {
+    ParentDesktopDistributionSnapshot {
+        payload_source: "rust-parent-runtime".to_string(),
+        source_custody_state: "source-custody-manual-required".to_string(),
+        product_claim_state: "read-only-contract-status-no-execution-owner".to_string(),
+        no_claim: "no-installer-updater-rollback-signing-notarization-store-execution".to_string(),
+        package_frontend_state: "built-portal-dist".to_string(),
+        package_service_manager_state: "package-installs-auto-start-service".to_string(),
+        package_health_probe_state: "package-health-probe-required".to_string(),
+        package_preview_state: "unsigned-package-preview".to_string(),
+        update_channel_state: "update-channel-scaffold".to_string(),
+        rollback_state: "rollback-unavailable".to_string(),
+        signing_state: "signing-manual-required".to_string(),
+        notarization_state: "notarization-manual-required".to_string(),
+        store_distribution_state: "store-distribution-manual-required".to_string(),
+        platform_matrix_state: "platform-matrix-split-proof-rows".to_string(),
+        release_branch_state: "production-promotion-required".to_string(),
+        artifact_proof_state: "ci-package-preview-artifact-proof".to_string(),
+        actions_available: false,
     }
 }
 
@@ -152,8 +176,8 @@ fn screen_summary_panel() -> ParentScreenSummaryPanelSnapshot {
     }
 }
 
-fn app_game_notification_parent_surface_panel()
--> ParentAppGameNotificationParentSurfacePanelSnapshot {
+fn app_game_notification_parent_surface_panel(
+) -> ParentAppGameNotificationParentSurfacePanelSnapshot {
     ParentAppGameNotificationParentSurfacePanelSnapshot {
         eyebrow: "Runtime reference".to_string(),
         title: "App/game notification parent surface".to_string(),
@@ -243,8 +267,8 @@ fn app_game_child_runtime_transport_receipt_panel() -> ParentAppGamePanelSnapsho
     }
 }
 
-pub(super) fn browser_add_device_discovery_snapshot()
--> ParentLanBrowserAddDeviceDiscoveryDeviceSnapshot {
+pub(super) fn browser_add_device_discovery_snapshot(
+) -> ParentLanBrowserAddDeviceDiscoveryDeviceSnapshot {
     let child_device = ParentLanPairingDeviceRefSnapshot {
         device_id: ParentLanDeviceId::parse("lan-device-1")
             .value_or_unreachable(crate::assert_context!("device id must be non-empty")),

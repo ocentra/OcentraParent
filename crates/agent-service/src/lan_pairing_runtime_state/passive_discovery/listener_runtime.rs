@@ -1,18 +1,15 @@
-use std::sync::{mpsc, Arc, Mutex, Weak};
+use std::sync::mpsc;
 use std::thread::{self, JoinHandle};
 use std::time::{Duration, Instant};
 
 use ocentra_lan_core::network_inventory::passive_discovery::udp_multicast::LanPassiveDiscoveryUdpListener;
 use ocentra_lan_core::network_inventory::passive_discovery::{
-    LanPassiveDiscoveryListenerState, LanPassiveDiscoverySource, LanPassiveDiscoveryTriggerReason,
+    LanPassiveDiscoverySource, LanPassiveDiscoveryTriggerReason,
     LanPassiveDiscoveryUdpListenerIssue,
 };
 use ocentra_parent_agent_protocol::constants::lan_pairing as lan_pairing_constants;
 
-use crate::{
-    lan_pairing::LanPairingRuntime,
-    lan_pairing_runtime_state::provider_heartbeat::LanAiProviderHeartbeatState,
-};
+use crate::lan_pairing::LanPairingRuntime;
 
 use super::{
     capability_store::{
@@ -37,16 +34,17 @@ enum PassiveDiscoveryListenerStartup {
 
 #[path = "../passive_discovery_listener_bind.rs"]
 mod bind;
+#[path = "listener_runtime/cycle_cursor.rs"]
+mod cycle_cursor;
+#[path = "../../../tests/unit/lan_pairing_runtime_state/passive_discovery_cursor_tests.rs"]
+mod cycle_cursor_tests;
 #[path = "listener_runtime/engine.rs"]
 mod engine;
 #[path = "listener_runtime/receive.rs"]
 mod receive;
-#[path = "listener_runtime/cycle_cursor.rs"]
-mod cycle_cursor;
 
 struct PassiveDiscoveryListenerRuntime {
-    listener_state: Weak<Mutex<LanPassiveDiscoveryListenerState>>,
-    heartbeat: Weak<Mutex<Option<LanAiProviderHeartbeatState>>>,
+    runtime: LanPairingRuntime,
     refresh_sender: LanPassiveDiscoveryRefreshSignalSender,
     observed_state: LanPassiveDiscoveryRuntimeObservedState,
     listener_slots: Vec<PassiveDiscoveryListenerSlot>,
@@ -69,7 +67,7 @@ struct PassiveDiscoveryListenerSlot {
 }
 
 pub(super) fn spawn(
-    runtime: LanPairingRuntime,
+    runtime: &LanPairingRuntime,
     refresh_sender: LanPassiveDiscoveryRefreshSignalSender,
     pipeline_health: LanPassiveDiscoveryPipelineHealth,
 ) -> std::io::Result<JoinHandle<()>> {
@@ -77,16 +75,14 @@ pub(super) fn spawn(
         LanPassiveDiscoveryTriggerReason::AppResumed,
         lan_pairing_constants::PASSIVE_DISCOVERY_RUNTIME_STARTED_SUMMARY,
     );
-    let capability_store = LanPassiveDiscoveryCapabilityStore::for_runtime(&runtime);
-    let listener_state = Arc::downgrade(&runtime.passive_discovery_listener_state);
-    let heartbeat = Arc::downgrade(&runtime.lan_ai_provider_heartbeat);
+    let capability_store = LanPassiveDiscoveryCapabilityStore::for_runtime(runtime);
+    let worker_runtime = runtime.clone();
     let (startup_sender, startup_receiver) = mpsc::sync_channel(1);
     let join = std::thread::Builder::new()
         .name(PASSIVE_DISCOVERY_LISTENER_THREAD_NAME.to_string())
         .spawn(move || {
             let mut listener_runtime = PassiveDiscoveryListenerRuntime::new(
-                listener_state,
-                heartbeat,
+                worker_runtime,
                 refresh_sender,
                 capability_store,
                 pipeline_health,
@@ -111,11 +107,11 @@ pub(super) fn spawn(
         Ok(PassiveDiscoveryListenerStartup::Ready) => Ok(join),
         Ok(PassiveDiscoveryListenerStartup::Unavailable)
         | Err(mpsc::RecvTimeoutError::Disconnected) => {
-            stop_and_join_startup_worker(&runtime, join);
+            stop_and_join_startup_worker(runtime, join);
             Err(std::io::Error::from(std::io::ErrorKind::AddrNotAvailable))
         }
         Err(mpsc::RecvTimeoutError::Timeout) => {
-            stop_and_join_startup_worker(&runtime, join);
+            stop_and_join_startup_worker(runtime, join);
             Err(std::io::Error::from(std::io::ErrorKind::TimedOut))
         }
     }

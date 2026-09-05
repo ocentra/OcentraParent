@@ -21,20 +21,37 @@ pub struct CurrentChildDeviceTrustBinding {
     state: DeviceTrustLifecycleState,
 }
 
+pub(crate) struct CurrentChildDeviceTrustBindingInput {
+    pub(crate) family_id: String,
+    pub(crate) trust_subject: String,
+    pub(crate) parent_device_id: String,
+    pub(crate) child_device_id: String,
+    pub(crate) installation_id: String,
+    pub(crate) signer_key_id: String,
+    pub(crate) signer_key_sha256: String,
+    pub(crate) lifecycle_generation: u64,
+    pub(crate) installation_binding_generation: u64,
+    pub(crate) authority_generation: u64,
+    pub(crate) state: DeviceTrustLifecycleState,
+}
+
 impl CurrentChildDeviceTrustBinding {
     pub(crate) fn from_current_signer_authority(
-        family_id: String,
-        trust_subject: String,
-        parent_device_id: String,
-        child_device_id: String,
-        installation_id: String,
-        signer_key_id: String,
-        signer_key_sha256: String,
-        lifecycle_generation: u64,
-        installation_binding_generation: u64,
-        authority_generation: u64,
-        state: DeviceTrustLifecycleState,
+        input: CurrentChildDeviceTrustBindingInput,
     ) -> Self {
+        let CurrentChildDeviceTrustBindingInput {
+            family_id,
+            trust_subject,
+            parent_device_id,
+            child_device_id,
+            installation_id,
+            signer_key_id,
+            signer_key_sha256,
+            lifecycle_generation,
+            installation_binding_generation,
+            authority_generation,
+            state,
+        } = input;
         Self {
             family_id,
             trust_subject,

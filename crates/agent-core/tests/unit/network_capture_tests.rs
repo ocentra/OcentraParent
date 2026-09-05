@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::activity::{
     ActivityEventKind, ActivityObserver, ActivitySubjectKind,
 };
@@ -150,7 +151,7 @@ fn network_capture_result_preserves_observation_and_constructed_event_identity()
     let (observation, event) = captures
         .into_iter()
         .next()
-        .expect("capture result exists")
+        .expect_value("capture result exists")
         .into_parts();
     assert_eq!(observation, expected_observation);
     assert_eq!(event, expected_event);

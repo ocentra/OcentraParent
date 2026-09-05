@@ -43,7 +43,7 @@ fn validate(
     enrollment: &EnrollmentSnapshot,
 ) -> Result<(), ProvisioningError> {
     let expected_binary_path = constants::expected_service_binary_path()
-        .map_err(|_| ProvisioningError::ExistingStateRejected)?;
+        .map_err(|_error| ProvisioningError::ExistingStateRejected)?;
     if service.service_name().as_str() != constants::FIXED_SERVICE_NAME
         || service.service_type() != SERVICE_WIN32_OWN_PROCESS
         || service.start_type() != SERVICE_AUTO_START

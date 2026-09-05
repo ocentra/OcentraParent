@@ -74,6 +74,8 @@ before any delivery can be claimed.
 - `test-results/app-game-notification-provider-preflight-proof/proof.json`
 - `output/app-game-plan-proof/61-notification-provider-preflight/`
 - `output/app-plan-proof/61-notification-provider-preflight/`
+- Durable retained manifest:
+  [`WP61_NOTIFICATION_PROVIDER_PREFLIGHT_PROOF.md`](../../../proof/app-game-plan/WP61_NOTIFICATION_PROVIDER_PREFLIGHT_PROOF.md)
 
 ## Validation
 
@@ -83,7 +85,7 @@ before any delivery can be claimed.
       source scheduler/outbox/decision/provider/reason refs.
 - [x] Manual-required and unavailable rows remain blocked before provider
       preflight.
-- [ ] Proof pack records no provider delivery, no receipt ingestion, no
+- [x] Proof pack records no provider delivery, no receipt ingestion, no
       credentials, no retry-worker/quiet-hours timer runtime, no parent UI, no
       child delivery, no adapter dispatch, and no durable production outbox
       claim.

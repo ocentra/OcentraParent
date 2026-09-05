@@ -17,7 +17,7 @@ impl ChildAgentIngress {
         ChildAgentIngressError,
     > {
         match self.send(command).await? {
-            ChildAgentCommandResult::Domain(report) => Ok(report),
+            ChildAgentCommandResult::Domain(report) => Ok(*report),
             ChildAgentCommandResult::StorageCustody(_) => Err(ChildAgentIngressError::Service(
                 Box::new(ChildAgentServiceError::Configuration(
                     "child service returned an unexpected custody response".to_owned(),
@@ -71,7 +71,7 @@ impl ChildAgentIngress {
             })?;
         response_receiver
             .await
-            .map_err(|_| ChildAgentIngressError::ServiceClosed)?
+            .map_err(|_error| ChildAgentIngressError::ServiceClosed)?
             .map_err(|error: ChildAgentServiceError| {
                 ChildAgentIngressError::Service(Box::new(error))
             })

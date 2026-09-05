@@ -68,7 +68,7 @@ impl AccountIdentityMutationAuthority {
         signature: [u8; 64],
     ) -> Result<Self, AccountIdentityMutationAuthorityError> {
         let payload_length = u32::try_from(payload.len())
-            .map_err(|_| AccountIdentityMutationAuthorityError::InvalidEnvelope)?;
+            .map_err(|_error| AccountIdentityMutationAuthorityError::InvalidEnvelope)?;
         let wire_capacity = 4_usize
             .checked_add(payload.len())
             .and_then(|value| value.checked_add(signature.len()))
@@ -76,7 +76,7 @@ impl AccountIdentityMutationAuthority {
         let payload_digest = payload_digest(&payload);
         let mut wire = Vec::with_capacity(wire_capacity);
         wire.extend_from_slice(&payload_length.to_be_bytes());
-        wire.extend_from_slice(&payload);
+        wire.extend(payload);
         wire.extend_from_slice(&signature);
         Ok(Self {
             wire,

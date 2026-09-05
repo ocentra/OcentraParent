@@ -18,7 +18,7 @@ use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantEvidenceContext;
 use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
 
-use crate::activity_surface_store::ActivitySurfaceStoreSnapshot;
+use crate::parent_assistant_activity_snapshot::ParentAssistantActivitySnapshot;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub(crate) struct ParentAssistantText(String);
@@ -45,11 +45,11 @@ impl IntoParentAssistantText for &str {
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 struct ParentAssistantPayloadFieldName(&'static str);
 
-struct ParentAssistantActivitySnapshotValue(Option<ActivitySurfaceStoreSnapshot>);
+struct ParentAssistantActivitySnapshotValue(Option<ParentAssistantActivitySnapshot>);
 
 pub(crate) fn evidence_contexts_from_command(
     command: &AgentCommandEnvelope,
-    activity_snapshot: Option<ActivitySurfaceStoreSnapshot>,
+    activity_snapshot: Option<ParentAssistantActivitySnapshot>,
     stored_report_history: Option<ActivityHistoricalReportList>,
     observed_at: impl IntoParentAssistantText,
 ) -> Vec<ParentAssistantEvidenceContext> {

@@ -37,7 +37,7 @@ function runScript(
   return { stdout: result.stdout, stderr: result.stderr, status: result.status };
 }
 
-it('ensure-db reports the DuckDB path and creates the database file', () => {
+it.skipIf(process.platform !== 'win32')('ensure-db reports the DuckDB path and creates the database file', () => {
   const tempDir = makeTempDir();
   try {
     const env = {

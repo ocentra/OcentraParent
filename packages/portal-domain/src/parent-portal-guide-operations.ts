@@ -7,7 +7,7 @@ export const PARENT_PORTAL_OPERATION_GUIDES: readonly ParentPortalGuideTopic[] =
   {
     id: 'alerts-notifications',
     navLabel: 'ALERTS',
-    rank: 13,
+    rank: 14,
     title: 'Alerts And Notifications',
     subtitle: 'Portal, push, email, WhatsApp candidates',
     detail: 'Minimal detail',
@@ -77,7 +77,7 @@ export const PARENT_PORTAL_OPERATION_GUIDES: readonly ParentPortalGuideTopic[] =
   {
     id: 'subscription-plans',
     navLabel: PARENT_PORTAL_NAV_LABELS.Plan,
-    rank: 14,
+    rank: 15,
     title: 'Subscription',
     subtitle: 'Plans, trials, device limits, entitlements',
     detail: 'Billing boundary',
@@ -140,7 +140,7 @@ export const PARENT_PORTAL_OPERATION_GUIDES: readonly ParentPortalGuideTopic[] =
   {
     id: 'platforms-install',
     navLabel: 'SUPPORT',
-    rank: 15,
+    rank: 16,
     title: 'Platforms And Install',
     subtitle: 'Desktop, mobile, web, honest limits',
     detail: 'What ships where',
@@ -221,7 +221,7 @@ export const PARENT_PORTAL_OPERATION_GUIDES: readonly ParentPortalGuideTopic[] =
   {
     id: 'support-contact',
     navLabel: 'SUPPORT',
-    rank: 16,
+    rank: 17,
     title: 'Support Contact',
     subtitle: 'Send parent messages without attachments',
     detail: 'Message-only help',

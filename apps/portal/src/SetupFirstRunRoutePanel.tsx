@@ -1,4 +1,5 @@
 import type { ReactElement } from 'react';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/portal-domain/display-text';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import {
   isParentSetupFirstRunRoute,
@@ -7,24 +8,40 @@ import {
   type ParentSetupFirstRunPanelDetailSnapshot,
   type ParentSetupFirstRunPanelSnapshot,
 } from '../generated/parent-ui-bridge';
+import type { PortalRenderActions } from './portal-actions';
 
 export function shouldRenderSetupFirstRunRoute(route: ParentRouteId): boolean {
   return isParentSetupFirstRunRoute(route);
 }
 
 export function SetupFirstRunRoutePanel({
+  actions,
   panel,
 }: {
+  readonly actions: PortalRenderActions;
   readonly panel: ParentSetupFirstRunPanelSnapshot | null;
 }): ReactElement {
   if (panel === null) {
     return (
-      <section aria-label="Start route unavailable" className={PortalDom.Classes.TrackingStatusOverlay}>
+      <section
+        aria-label="Setup status unavailable"
+        className={[PortalDom.Classes.TrackingStatusOverlay, PortalDom.Classes.SetupFirstRunRoutePanel].join(
+          PortalDom.Classes.ClassNameSeparator
+        )}
+        data-ocentra-setup-state="unavailable"
+      >
         <div className={PortalDom.Classes.TrackingStatusOverlayContent}>
           <header className={PortalDom.Classes.TrackingStatusOverlayHeader}>
-            <p className={PortalDom.Classes.ProductEyebrow}>Setup route</p>
-            <h2>Start route unavailable</h2>
-            <p>Parent Rust snapshot unavailable for the setup-first-run route.</p>
+            <p className={PortalDom.Classes.ProductEyebrow}>Setup status</p>
+            <h2>Setup status unavailable</h2>
+            <p>Connect the local service to load current setup progress. The setup guide remains available above.</p>
+            <button
+              className={PortalDom.Classes.CommandResultTab}
+              onClick={actions.reconnect}
+              type={PortalDom.ButtonType.Button}
+            >
+              {resolvePortalDevText(PortalDevTextToken.RetryStatus)}
+            </button>
           </header>
         </div>
       </section>
@@ -34,7 +51,9 @@ export function SetupFirstRunRoutePanel({
   return (
     <section
       aria-label={panel.title}
-      className={PortalDom.Classes.TrackingStatusOverlay}
+      className={[PortalDom.Classes.TrackingStatusOverlay, PortalDom.Classes.SetupFirstRunRoutePanel].join(
+        PortalDom.Classes.ClassNameSeparator
+      )}
       data-ocentra-setup-proof="first-run-route"
     >
       <div className={PortalDom.Classes.TrackingStatusOverlayContent}>
@@ -56,11 +75,25 @@ export function SetupFirstRunRoutePanel({
             }}
           />
           {panel.cards.map((card, index) => (
-            <SetupFirstRunCard key={`${String(card.title)}:${index}`} card={card} />
+            <SetupFirstRunDetailCard key={`${String(card.title)}:${index}`} card={card} />
           ))}
         </div>
       </div>
     </section>
+  );
+}
+
+function SetupFirstRunDetailCard({ card }: { readonly card: ParentSetupFirstRunPanelCardSnapshot }): ReactElement {
+  return (
+    <details className={PortalDom.Classes.SetupFirstRunDetailCard}>
+      <summary>
+        <span className={PortalDom.Classes.SetupFirstRunDetailTitle}>{card.title}</span>
+        <span className={PortalDom.Classes.SetupFirstRunDetailSummary}>{card.summary}</span>
+      </summary>
+      <div className={PortalDom.Classes.SetupFirstRunDetailContent}>
+        <SetupFirstRunDetails details={card.details} />
+      </div>
+    </details>
   );
 }
 

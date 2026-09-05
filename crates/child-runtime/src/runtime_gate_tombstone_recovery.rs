@@ -50,7 +50,7 @@ pub(crate) async fn replay_pending_child_runtime_tombstones(
         };
         let decoded = envelope
             .decode::<StorageCustodyActionPlannedEvent>()
-            .map_err(std::io::Error::other)?;
+            .map_err(|error| std::io::Error::new(std::io::ErrorKind::InvalidData, error))?;
         let expected_deletion_ref = format!(
             "storage-custody-delete:{}",
             action.source_decision_id.as_str()

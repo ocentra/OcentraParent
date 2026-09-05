@@ -2,8 +2,8 @@ use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 
 use crate::{
-    activity_store_path::network_runtime_journal_path, fields::fields_from_pairs,
-    network::NetworkPolicy,
+    fields::fields_from_pairs, network::NetworkPolicy,
+    network_runtime_journal_path::network_runtime_journal_path,
 };
 
 #[path = "service_runtime/run.rs"]
@@ -34,7 +34,7 @@ pub async fn initialize_network_runtime() -> Result<(), NetworkRuntimeStartupErr
         .map_err(startup_error::network_runtime_startup_error)?;
     crate::network_runtime_delivery::reconcile_retained_network_runtime()
         .await
-        .map_err(|_| NetworkRuntimeStartupError::Reconciliation)
+        .map_err(|_error| NetworkRuntimeStartupError::Reconciliation)
 }
 
 pub fn startup_log_fields(network: &NetworkPolicy) -> LogFields {

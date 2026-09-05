@@ -1,18 +1,31 @@
-use chrono::{SecondsFormat, Utc};
+#[path = "time/epoch.rs"]
+mod epoch;
+#[path = "time/now.rs"]
+mod now;
 
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub(crate) struct TimestampText(String);
+pub type TimestampText = now::TimestampText;
 
 pub trait FromTimestampText {
     fn from_timestamp_text(value: TimestampText) -> Self;
 }
 
-impl<T> FromTimestampText for T
+struct ConvertedTimestamp<T>(T);
+
+impl<T> now::FromTimestampText for ConvertedTimestamp<T>
 where
-    T: From<String>,
+    T: FromTimestampText,
 {
     fn from_timestamp_text(value: TimestampText) -> Self {
-        T::from(value.0)
+        Self(T::from_timestamp_text(value))
+    }
+}
+
+impl<T> FromTimestampText for T
+where
+    T: now::FromTimestampText,
+{
+    fn from_timestamp_text(value: TimestampText) -> Self {
+        now::FromTimestampText::from_timestamp_text(value)
     }
 }
 
@@ -20,7 +33,7 @@ pub fn timestamp_now<T>() -> T
 where
     T: FromTimestampText,
 {
-    T::from_timestamp_text(timestamp_text_now())
+    now::timestamp_now::<ConvertedTimestamp<T>>().0
 }
 
 pub fn timestamp_after_epoch_seconds<T>(epoch_seconds: u64, delta_seconds: u64) -> T
@@ -34,18 +47,7 @@ pub fn timestamp_from_epoch_seconds<T>(epoch_seconds: u64) -> T
 where
     T: FromTimestampText,
 {
-    T::from_timestamp_text(timestamp_text_from_epoch_seconds(epoch_seconds))
-}
-
-fn timestamp_text_now() -> TimestampText {
-    TimestampText(Utc::now().to_rfc3339_opts(SecondsFormat::Millis, true))
-}
-
-fn timestamp_text_from_epoch_seconds(epoch_seconds: u64) -> TimestampText {
-    let epoch_seconds = i64::try_from(epoch_seconds).unwrap_or(i64::MAX);
-    TimestampText(
-        chrono::DateTime::from_timestamp(epoch_seconds, 0)
-            .unwrap_or_else(Utc::now)
-            .to_rfc3339_opts(SecondsFormat::Millis, true),
-    )
+    T::from_timestamp_text(now::TimestampText(epoch::timestamp_from_epoch_seconds(
+        epoch_seconds,
+    )))
 }

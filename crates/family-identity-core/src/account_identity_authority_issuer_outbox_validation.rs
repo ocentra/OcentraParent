@@ -6,6 +6,19 @@ use super::super::service_binding::{
 use super::super::AccountIdentityIssuerError;
 use super::is_sha256_digest;
 
+#[derive(Clone, Copy)]
+struct DeliveryStateShape<'a> {
+    state: &'a str,
+    claim_id: Option<&'a str>,
+    claim_expires_at: Option<i64>,
+    attempt_count: i64,
+    acknowledgement_id: Option<&'a str>,
+    acknowledged_at: Option<i64>,
+    created_at: i64,
+    expires_at: i64,
+    terminal_at: Option<i64>,
+}
+
 pub(super) fn validate(connection: &Connection) -> Result<(), AccountIdentityIssuerError> {
     validate_receipt_bindings(connection)?;
     validate_rows(connection)
@@ -31,7 +44,7 @@ fn validate_receipt_bindings(connection: &Connection) -> Result<(), AccountIdent
             [],
             |row| row.get(0),
         )
-        .map_err(|_| AccountIdentityIssuerError::InvalidKeyRecord)?;
+        .map_err(|_error| AccountIdentityIssuerError::InvalidKeyRecord)?;
     (!invalid)
         .then_some(())
         .ok_or(AccountIdentityIssuerError::InvalidKeyRecord)
@@ -59,13 +72,13 @@ fn validate_rows(connection: &Connection) -> Result<(), AccountIdentityIssuerErr
               AND registry.key_id = outbox.key_id
               AND registry.key_version = outbox.key_version",
         )
-        .map_err(|_| AccountIdentityIssuerError::InvalidKeyRecord)?;
+        .map_err(|_error| AccountIdentityIssuerError::InvalidKeyRecord)?;
     let mut rows = statement
         .query([])
-        .map_err(|_| AccountIdentityIssuerError::InvalidKeyRecord)?;
+        .map_err(|_error| AccountIdentityIssuerError::InvalidKeyRecord)?;
     while let Some(row) = rows
         .next()
-        .map_err(|_| AccountIdentityIssuerError::InvalidKeyRecord)?
+        .map_err(|_error| AccountIdentityIssuerError::InvalidKeyRecord)?
     {
         validate_row(row)?;
     }
@@ -95,26 +108,26 @@ fn validate_row(row: &rusqlite::Row<'_>) -> Result<(), AccountIdentityIssuerErro
     let service = AccountIdentityIssuerService::from_label(&service_label)
         .ok_or(AccountIdentityIssuerError::InvalidKeyRecord)?;
     let generation =
-        u64::try_from(generation).map_err(|_| AccountIdentityIssuerError::InvalidKeyRecord)?;
-    let key_version =
-        u64::try_from(key_version).map_err(|_| AccountIdentityIssuerError::InvalidKeyRecord)?;
+        u64::try_from(generation).map_err(|_error| AccountIdentityIssuerError::InvalidKeyRecord)?;
+    let key_version = u64::try_from(key_version)
+        .map_err(|_error| AccountIdentityIssuerError::InvalidKeyRecord)?;
     let binding_matches = AccountIdentityIssuerServiceBinding::expected_binding_id(
         service,
         &account_id,
         &household_id,
         generation,
     ) == binding_id;
-    let state_matches = validate_state(
-        &state,
-        claim_id.as_deref(),
+    let state_matches = validate_state(DeliveryStateShape {
+        state: &state,
+        claim_id: claim_id.as_deref(),
         claim_expires_at,
         attempt_count,
-        acknowledgement_id.as_deref(),
+        acknowledgement_id: acknowledgement_id.as_deref(),
         acknowledged_at,
         created_at,
         expires_at,
         terminal_at,
-    );
+    });
     if !is_sha256_digest(&receipt_id)
         || !is_sha256_digest(&key_id)
         || created_at < 0
@@ -128,7 +141,7 @@ fn validate_row(row: &rusqlite::Row<'_>) -> Result<(), AccountIdentityIssuerErro
     }
     super::super::transport::validate_stored_wire(
         &wire,
-        super::super::transport::StoredIssuerTransportExpectation {
+        &super::super::transport::StoredIssuerTransportExpectation {
             receipt_id: &receipt_id,
             service_label: &service_label,
             binding_id: &binding_id,
@@ -144,54 +157,52 @@ fn validate_row(row: &rusqlite::Row<'_>) -> Result<(), AccountIdentityIssuerErro
     )
 }
 
-fn validate_state(
-    state: &str,
-    claim_id: Option<&str>,
-    claim_expires_at: Option<i64>,
-    attempt_count: i64,
-    acknowledgement_id: Option<&str>,
-    acknowledged_at: Option<i64>,
-    created_at: i64,
-    expires_at: i64,
-    terminal_at: Option<i64>,
-) -> bool {
-    match state {
+fn validate_state(shape: DeliveryStateShape<'_>) -> bool {
+    match shape.state {
         "pending" => {
-            claim_id.is_none()
-                && claim_expires_at.is_none()
-                && acknowledgement_id.is_none()
-                && acknowledged_at.is_none()
-                && terminal_at.is_none()
+            shape.claim_id.is_none()
+                && shape.claim_expires_at.is_none()
+                && shape.acknowledgement_id.is_none()
+                && shape.acknowledged_at.is_none()
+                && shape.terminal_at.is_none()
         }
         "claimed" => {
-            claim_id.is_some_and(is_sha256_digest)
-                && claim_expires_at.is_some_and(|expires| expires > created_at)
-                && attempt_count > 0
-                && acknowledgement_id.is_none()
-                && acknowledged_at.is_none()
-                && terminal_at.is_none()
+            shape.claim_id.is_some_and(is_sha256_digest)
+                && shape
+                    .claim_expires_at
+                    .is_some_and(|expires| expires > shape.created_at)
+                && shape.attempt_count > 0
+                && shape.acknowledgement_id.is_none()
+                && shape.acknowledged_at.is_none()
+                && shape.terminal_at.is_none()
         }
         "acknowledged" => {
-            claim_id.is_none()
-                && claim_expires_at.is_none()
-                && attempt_count > 0
-                && acknowledgement_id.is_some_and(is_sha256_digest)
-                && acknowledged_at.is_some_and(|acknowledged| acknowledged >= created_at)
-                && terminal_at.is_none()
+            shape.claim_id.is_none()
+                && shape.claim_expires_at.is_none()
+                && shape.attempt_count > 0
+                && shape.acknowledgement_id.is_some_and(is_sha256_digest)
+                && shape
+                    .acknowledged_at
+                    .is_some_and(|acknowledged| acknowledged >= shape.created_at)
+                && shape.terminal_at.is_none()
         }
         "expired" => {
-            claim_id.is_none()
-                && claim_expires_at.is_none()
-                && acknowledgement_id.is_none()
-                && acknowledged_at.is_none()
-                && terminal_at.is_some_and(|terminal| terminal >= expires_at)
+            shape.claim_id.is_none()
+                && shape.claim_expires_at.is_none()
+                && shape.acknowledgement_id.is_none()
+                && shape.acknowledged_at.is_none()
+                && shape
+                    .terminal_at
+                    .is_some_and(|terminal| terminal >= shape.expires_at)
         }
         "superseded" => {
-            claim_id.is_none()
-                && claim_expires_at.is_none()
-                && acknowledgement_id.is_none()
-                && acknowledged_at.is_none()
-                && terminal_at.is_some_and(|terminal| terminal >= created_at)
+            shape.claim_id.is_none()
+                && shape.claim_expires_at.is_none()
+                && shape.acknowledgement_id.is_none()
+                && shape.acknowledged_at.is_none()
+                && shape
+                    .terminal_at
+                    .is_some_and(|terminal| terminal >= shape.created_at)
         }
         _ => false,
     }
@@ -202,5 +213,5 @@ fn row_value<T: rusqlite::types::FromSql>(
     index: usize,
 ) -> Result<T, AccountIdentityIssuerError> {
     row.get(index)
-        .map_err(|_| AccountIdentityIssuerError::InvalidKeyRecord)
+        .map_err(|_error| AccountIdentityIssuerError::InvalidKeyRecord)
 }

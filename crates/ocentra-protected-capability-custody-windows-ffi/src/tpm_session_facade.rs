@@ -20,8 +20,8 @@ impl PreparedTpmCounterRead<'_> {
         prepared_digest(&self.inner)
     }
 
-    pub fn execute(mut self, signature: TpmPolicySignature) -> Result<u64> {
-        match take_inner(&mut self.inner)?.execute(&signature)? {
+    pub fn execute(mut self, signature: &TpmPolicySignature) -> Result<u64> {
+        match take_inner(&mut self.inner)?.execute(signature)? {
             CounterOutcome::Read(value) => Ok(value),
             CounterOutcome::Increment(_) => Err(Error::MalformedTpm),
         }
@@ -37,8 +37,8 @@ impl PreparedTpmCounterIncrement<'_> {
         prepared_digest(&self.inner)
     }
 
-    pub fn execute(mut self, signature: TpmPolicySignature) -> Result<TpmCounterIncrementOutcome> {
-        match take_inner(&mut self.inner)?.execute(&signature)? {
+    pub fn execute(mut self, signature: &TpmPolicySignature) -> Result<TpmCounterIncrementOutcome> {
+        match take_inner(&mut self.inner)?.execute(signature)? {
             CounterOutcome::Increment(outcome) => Ok(outcome),
             CounterOutcome::Read(_) => Err(Error::MalformedTpm),
         }

@@ -3,17 +3,15 @@ use serde_json::Value;
 use super::super::super::network_identity_support::push_unique_string;
 
 pub(super) fn record_value<'a>(record: &'a Value, keys: &[&str]) -> Option<&'a Value> {
-    keys.iter()
-        .find_map(|key| record.get(*key))
-        .or_else(|| {
-            let object = record.as_object()?;
-            keys.iter().find_map(|key| {
-                object
-                    .iter()
-                    .find(|(name, _)| name.eq_ignore_ascii_case(key))
-                    .map(|(_, value)| value)
-            })
+    keys.iter().find_map(|key| record.get(*key)).or_else(|| {
+        let object = record.as_object()?;
+        keys.iter().find_map(|key| {
+            object
+                .iter()
+                .find(|(name, _)| name.eq_ignore_ascii_case(key))
+                .map(|(_, value)| value)
         })
+    })
 }
 
 fn value_text_values(value: &Value) -> Vec<String> {

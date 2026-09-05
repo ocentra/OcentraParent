@@ -1,5 +1,17 @@
 use super::*;
 
+#[path = "timer_claim_values.rs"]
+mod timer_claim_values;
+#[path = "timer_support_fixtures.rs"]
+mod timer_support_fixtures;
+
+#[derive(Clone, Copy)]
+pub(super) enum NestedClaimViolationKind {
+    Artifact,
+    Intent,
+    Preference,
+}
+
 pub(super) fn replace_timer_parent_surface_response(
     responses: &mut Vec<AgentEventEnvelope>,
     response: AgentEventEnvelope,
@@ -25,13 +37,13 @@ pub(super) fn app_game_timer_parent_surface_response_with_valid_row() -> AgentEv
             "evidence": [
                 {
                     "evidenceId": "evidence.timer.1",
-                    "kind": "localDbRow",
+                    "kind": "local-db-row",
                     "digest": null,
                     "uri": null
                 },
                 {
                     "evidenceId": "evidence.timer.2",
-                    "kind": "localDbRow",
+                    "kind": "local-db-row",
                     "digest": null,
                     "uri": null
                 }
@@ -156,13 +168,13 @@ pub(super) fn app_game_timer_parent_surface_response_with_duplicate_evidence_id(
             "evidence": [
                 {
                     "evidenceId": "evidence.timer.duplicate",
-                    "kind": "localDbRow",
+                    "kind": "local-db-row",
                     "digest": null,
                     "uri": null
                 },
                 {
                     "evidenceId": "evidence.timer.duplicate",
-                    "kind": "localDbRow",
+                    "kind": "local-db-row",
                     "digest": null,
                     "uri": null
                 }
@@ -257,140 +269,25 @@ pub(super) fn app_game_timer_parent_surface_response_with_mutation(
     response
 }
 
-pub(super) fn nested_claim_violation(kind: &str, field: &str) -> AgentEventEnvelope {
-    app_game_timer_parent_surface_response_with_mutation(|model| {
-        model["childUxHandoffReadyCount"] = json!(1);
-        model["childUxLocalHandoffArtifactRecordCount"] = json!(1);
-        model["childUxLocalHandoffArtifactReferenceIds"] = json!(["artifact-1"]);
-        let mut value = match kind {
-            "artifact" => json!({
-                "schemaVersion": 1, "artifactReferenceId": "artifact-1", "sourceResultId": "result-1",
-                "targetDomain": "native-app", "childReasonReferenceIds": ["reason-1"],
-                "childStatusReferenceIds": ["status-1"], "childDeliveryClaimed": false,
-                "notificationDeliveryClaimed": false, "adapterDispatchClaimed": false,
-                "platformEnforcementClaimed": false, "rawPrivateSourceRowsIncluded": false
-            }),
-            "intent" => json!({
-                "schemaVersion": 1, "parentSurfaceIntentReferenceId": "intent-1", "sourceResultId": "result-1",
-                "sourceArtifactReferenceId": "artifact-1", "targetDomain": "native-app",
-                "historyVisibility": "history-row-visible", "parentSurfaceStatus": "manual-action-required",
-                "preferenceVisibility": "preference-setup-required", "drillInReferenceIds": [],
-                "manualProofReferenceIds": [], "sensitiveDetailIncluded": false,
-                "parentNotificationUiRendered": false, "parentPreferenceMutationClaimed": false,
-                "providerDeliveryClaimed": false, "childDeliveryClaimed": false,
-                "adapterDispatchClaimed": false, "platformEnforcementClaimed": false,
-                "rawPrivateSourceRowsIncluded": false
-            }),
-            "preference" => json!({
-                "schemaVersion": 1, "parentPreferenceSetupReferenceId": "setup-1",
-                "sourceParentSurfaceIntentReferenceId": "intent-1", "sourceResultId": "result-1",
-                "sourceArtifactReferenceId": "artifact-1", "targetDomain": "native-app",
-                "draftStatus": "draft-ready", "parentPreferenceSetupRequestStatus": "request-ready",
-                "parentPreferenceSetupRequestReferenceIds": [], "drillInReferenceIds": [],
-                "manualProofReferenceIds": [], "parentPreferenceUiRendered": false,
-                "parentFrequencyControlUiRendered": false, "parentPreferenceMutationClaimed": false,
-                "notificationRuleMutationClaimed": false, "providerDeliveryClaimed": false,
-                "childDeliveryClaimed": false, "adapterDispatchClaimed": false,
-                "platformEnforcementClaimed": false, "rawPrivateSourceRowsIncluded": false
-            }),
-            _ => unreachable!("known nested claim violation fixture kind"),
-        };
-        value[field] = json!(true);
-        let field_name = match kind {
-            "artifact" => "childUxLocalHandoffArtifactRecords",
-            "intent" => "childUxParentSurfaceIntentRecords",
-            "preference" => "childUxParentPreferenceSetupRecords",
-            _ => unreachable!("known nested record kind"),
-        };
-        model[field_name] = json!([value]);
-    })
+pub(super) fn nested_claim_violation(
+    kind: NestedClaimViolationKind,
+    field: &str,
+) -> AgentEventEnvelope {
+    timer_support_fixtures::nested_claim_violation(kind, field)
 }
 
 pub(super) fn app_game_timer_parent_surface_response_with_local_artifact() -> AgentEventEnvelope {
-    app_game_timer_parent_surface_response_with_mutation(|model| {
-        model["childUxHandoffReadyCount"] = json!(1);
-        model["childUxLocalHandoffArtifactRecordCount"] = json!(1);
-        model["childUxLocalHandoffArtifactReferenceIds"] = json!(["artifact-1"]);
-        model["childUxLocalHandoffArtifactRecords"] = json!([{
-            "schemaVersion": 1, "artifactReferenceId": "artifact-1", "sourceResultId": "result-1",
-            "targetDomain": "native-app", "childReasonReferenceIds": ["reason-1"],
-            "childStatusReferenceIds": ["status-1"], "childDeliveryClaimed": false,
-            "notificationDeliveryClaimed": false, "adapterDispatchClaimed": false,
-            "platformEnforcementClaimed": false, "rawPrivateSourceRowsIncluded": false
-        }]);
-    })
+    timer_support_fixtures::app_game_timer_parent_surface_response_with_local_artifact()
 }
 
 pub(super) fn local_artifact_mismatch(field: &str) -> AgentEventEnvelope {
-    app_game_timer_parent_surface_response_with_mutation(|model| {
-        model["childUxHandoffReadyCount"] = json!(1);
-        model["childUxLocalHandoffArtifactRecordCount"] = json!(1);
-        model["childUxLocalHandoffArtifactReferenceIds"] = json!(["artifact-1"]);
-        model["childUxLocalHandoffArtifactRecords"] = json!([{
-            "schemaVersion": 1, "artifactReferenceId": "artifact-1", "sourceResultId": "result-1",
-            "targetDomain": "native-app", "childReasonReferenceIds": ["reason-1"],
-            "childStatusReferenceIds": ["status-1"], "childDeliveryClaimed": false,
-            "notificationDeliveryClaimed": false, "adapterDispatchClaimed": false,
-            "platformEnforcementClaimed": false, "rawPrivateSourceRowsIncluded": false
-        }]);
-        if field == "childUxLocalHandoffArtifactReferenceIds" {
-            model[field] = json!(["artifact-other"]);
-        } else {
-            model[field] = json!(0);
-        }
-    })
+    timer_support_fixtures::local_artifact_mismatch(field)
 }
 
 pub(super) fn local_artifact_invalid_record(field: &str) -> AgentEventEnvelope {
-    app_game_timer_parent_surface_response_with_local_artifact_mutation(|model| {
-        let record = &mut model["childUxLocalHandoffArtifactRecords"][0];
-        record[field] = if field == "childReasonReferenceIds" || field == "childStatusReferenceIds"
-        {
-            json!([""])
-        } else {
-            json!("")
-        };
-    })
+    timer_support_fixtures::local_artifact_invalid_record(field)
 }
 
 pub(super) fn local_artifact_duplicate_refs(field: &str) -> AgentEventEnvelope {
-    local_artifact_invalid_record_with_value(field, json!(["duplicate", "duplicate"]))
-}
-
-fn local_artifact_invalid_record_with_value(
-    field: &str,
-    value: serde_json::Value,
-) -> AgentEventEnvelope {
-    app_game_timer_parent_surface_response_with_local_artifact_mutation(|model| {
-        model["childUxLocalHandoffArtifactRecords"][0][field] = value;
-    })
-}
-
-fn app_game_timer_parent_surface_response_with_local_artifact_mutation(
-    mutate: impl FnOnce(&mut serde_json::Value),
-) -> AgentEventEnvelope {
-    let mut response = app_game_timer_parent_surface_response_with_local_artifact();
-    let payload = require_some(
-        response
-            .payload
-            .get(constants::field::APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL),
-        TestContext("artifact response payload exists"),
-    );
-    let text = match payload {
-        LogFieldValue::String(value) => value.clone(),
-        _ => require_some(None, TestContext("artifact response payload is serialized")),
-    };
-    let mut model = require_ok(
-        serde_json::from_str::<serde_json::Value>(&text),
-        "artifact response read model parses",
-    );
-    mutate(&mut model);
-    response.payload.insert(
-        constants::field::APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL.to_string(),
-        LogFieldValue::String(require_ok(
-            serde_json::to_string(&model),
-            "artifact response read model serializes",
-        )),
-    );
-    response
+    timer_support_fixtures::local_artifact_duplicate_refs(field)
 }

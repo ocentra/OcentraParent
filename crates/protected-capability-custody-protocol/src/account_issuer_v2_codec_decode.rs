@@ -2,10 +2,13 @@ use ocentra_schema::account_identity_authority::{
     AccountIdentityProvider, AccountIdentityProviderSubject,
 };
 
-use crate::account_issuer::account_issuer_receipt_lineage::AccountIssuerReceiptLineage;
+use crate::account_issuer::account_issuer_receipt_lineage::{
+    AccountIssuerReceiptLineage, AccountIssuerReceiptLineageInput,
+};
 use crate::account_issuer::{
-    AccountIssuerMessageKind, AccountIssuerReceipt, AccountIssuerRequest,
-    ProtectedAccountIssuerReceiptWire, ACCOUNT_ISSUER_MAX_PROTECTED_RECEIPT_BYTES,
+    AccountIssuerMessageKind, AccountIssuerReceipt, AccountIssuerReceiptInput,
+    AccountIssuerRequest, ProtectedAccountIssuerReceiptWire,
+    ACCOUNT_ISSUER_MAX_PROTECTED_RECEIPT_BYTES,
 };
 use crate::account_issuer_contract::{
     AccountIssuerField, ACCOUNT_ISSUER_MAX_FIELD_BYTES, ACCOUNT_ISSUER_MAX_WIRE_BYTES,
@@ -65,32 +68,32 @@ pub(super) fn receipt(frame: &[u8]) -> Result<AccountIssuerReceipt, ProtocolErro
     let key_id = next_field(frame, &mut cursor)?;
     let provider = take_provider(frame, &mut cursor)?;
     let provider_subject = take_provider_subject(frame, &mut cursor)?;
-    let lineage = AccountIssuerReceiptLineage::new(
+    let lineage = AccountIssuerReceiptLineage::new(AccountIssuerReceiptLineageInput {
         provider,
         provider_subject,
-        next_field(frame, &mut cursor)?,
-        next_field(frame, &mut cursor)?,
-        next_field(frame, &mut cursor)?,
-        next_field(frame, &mut cursor)?,
-        next_field(frame, &mut cursor)?,
-        next_field(frame, &mut cursor)?,
-        take_generation(frame, &mut cursor)?,
-        take_generation(frame, &mut cursor)?,
-        take_generation(frame, &mut cursor)?,
-        take_generation(frame, &mut cursor)?,
-        next_field(frame, &mut cursor)?,
-        next_field(frame, &mut cursor)?,
-    )?;
-    let receipt = AccountIssuerReceipt::new(
+        account_id: next_field(frame, &mut cursor)?,
+        household_id: next_field(frame, &mut cursor)?,
+        member_id: next_field(frame, &mut cursor)?,
+        device_id: next_field(frame, &mut cursor)?,
+        session_id: next_field(frame, &mut cursor)?,
+        service_binding_id: next_field(frame, &mut cursor)?,
+        key_generation: take_generation(frame, &mut cursor)?,
+        enrollment_generation: take_generation(frame, &mut cursor)?,
+        authority_generation: take_generation(frame, &mut cursor)?,
+        session_generation: take_generation(frame, &mut cursor)?,
+        issued_at: next_field(frame, &mut cursor)?,
+        expires_at: next_field(frame, &mut cursor)?,
+    })?;
+    let receipt = AccountIssuerReceipt::new(AccountIssuerReceiptInput {
         kind,
         receipt_id,
         correlation_id,
         idempotency_key,
         key_id,
         lineage,
-        next_field(frame, &mut cursor)?,
-        next_field(frame, &mut cursor)?,
-    )?;
+        result_digest: next_field(frame, &mut cursor)?,
+        signed_transport_digest: next_field(frame, &mut cursor)?,
+    })?;
     finish(frame, cursor)?;
     Ok(receipt)
 }
@@ -98,7 +101,7 @@ pub(super) fn receipt(frame: &[u8]) -> Result<AccountIssuerReceipt, ProtocolErro
 fn take_generation(wire: &[u8], cursor: &mut usize) -> Result<u64, ProtocolError> {
     let bytes: [u8; 8] = take_exact(wire, cursor, 8)?
         .try_into()
-        .map_err(|_| ProtocolError::Truncated)?;
+        .map_err(|_error| ProtocolError::Truncated)?;
     Ok(u64::from_be_bytes(bytes))
 }
 
@@ -150,7 +153,7 @@ fn take_provider_subject(
     cursor: &mut usize,
 ) -> Result<AccountIdentityProviderSubject, ProtocolError> {
     let value = take_text_field(wire, cursor)?;
-    let value = String::from_utf8(value).map_err(|_| ProtocolError::InvalidDiscriminant(0))?;
+    let value = String::from_utf8(value).map_err(|_error| ProtocolError::InvalidDiscriminant(0))?;
     AccountIdentityProviderSubject::parse(value).ok_or(ProtocolError::EmptyField)
 }
 
@@ -167,7 +170,7 @@ fn take_exact<'a>(
 
 fn take_text_field(wire: &[u8], cursor: &mut usize) -> Result<Vec<u8>, ProtocolError> {
     take_length_prefixed(wire, cursor, ACCOUNT_ISSUER_MAX_FIELD_BYTES).and_then(|field| {
-        String::from_utf8(field.clone()).map_err(|_| ProtocolError::InvalidDiscriminant(0))?;
+        String::from_utf8(field.clone()).map_err(|_error| ProtocolError::InvalidDiscriminant(0))?;
         Ok(field)
     })
 }

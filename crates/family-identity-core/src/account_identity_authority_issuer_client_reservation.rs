@@ -20,6 +20,24 @@ pub(crate) struct AccountIdentityIssuerReservation {
     attempt_token: String,
 }
 
+pub(crate) struct AccountIdentityIssuerReservationStorage {
+    pub(crate) reservation_id: String,
+    pub(crate) account_id: String,
+    pub(crate) household_id: String,
+    pub(crate) provider: String,
+    pub(crate) provider_subject: String,
+    pub(crate) service_binding_id: String,
+    pub(crate) key_id: String,
+    pub(crate) key_generation: u64,
+    pub(crate) enrollment_generation: u64,
+    pub(crate) authority_generation: u64,
+    pub(crate) session_generation: u64,
+    pub(crate) correlation_id: String,
+    pub(crate) idempotency_key: String,
+    pub(crate) request_wire: Vec<u8>,
+    pub(crate) attempt_token: String,
+}
+
 impl AccountIdentityIssuerReservation {
     pub(crate) fn reservation_id(&self) -> &str {
         self.reservation_id.as_str()
@@ -81,23 +99,24 @@ impl AccountIdentityIssuerReservation {
         self.attempt_token.as_str()
     }
 
-    pub(crate) fn from_storage(
-        reservation_id: String,
-        account_id: String,
-        household_id: String,
-        provider: String,
-        provider_subject: String,
-        service_binding_id: String,
-        key_id: String,
-        key_generation: u64,
-        enrollment_generation: u64,
-        authority_generation: u64,
-        session_generation: u64,
-        correlation_id: String,
-        idempotency_key: String,
-        request_wire: Vec<u8>,
-        attempt_token: String,
-    ) -> Self {
+    pub(crate) fn from_storage(storage: AccountIdentityIssuerReservationStorage) -> Self {
+        let AccountIdentityIssuerReservationStorage {
+            reservation_id,
+            account_id,
+            household_id,
+            provider,
+            provider_subject,
+            service_binding_id,
+            key_id,
+            key_generation,
+            enrollment_generation,
+            authority_generation,
+            session_generation,
+            correlation_id,
+            idempotency_key,
+            request_wire,
+            attempt_token,
+        } = storage;
         Self {
             reservation_id,
             account_id,

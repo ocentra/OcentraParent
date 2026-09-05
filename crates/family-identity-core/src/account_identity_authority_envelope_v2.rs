@@ -154,7 +154,7 @@ fn append_field(
         return Err(AccountIdentityAuthorityProducerV2Error::InvalidWire);
     }
     let length = u32::try_from(field.len())
-        .map_err(|_| AccountIdentityAuthorityProducerV2Error::InvalidWire)?;
+        .map_err(|_error| AccountIdentityAuthorityProducerV2Error::InvalidWire)?;
     target.extend_from_slice(&length.to_be_bytes());
     target.extend_from_slice(field);
     Ok(())

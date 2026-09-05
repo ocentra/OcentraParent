@@ -37,17 +37,18 @@ impl RecoveryCustodyHandoff {
         &self.requested_at
     }
 
-    pub(crate) fn from_durable(
-        handoff_id: String,
-        correlation_id: String,
-        recovery_id: RecoveryId,
-        household_id: FamilyId,
-        account_id: ParentAccountId,
-        member_id: AccountIdentityMemberId,
-        device_id: AccountIdentityDeviceId,
-        kind: RecoveryKind,
-        requested_at: String,
-    ) -> Self {
+    pub(crate) fn from_durable(input: RecoveryCustodyHandoffInput) -> Self {
+        let RecoveryCustodyHandoffInput {
+            handoff_id,
+            correlation_id,
+            recovery_id,
+            household_id,
+            account_id,
+            member_id,
+            device_id,
+            kind,
+            requested_at,
+        } = input;
         Self {
             handoff_id,
             correlation_id,

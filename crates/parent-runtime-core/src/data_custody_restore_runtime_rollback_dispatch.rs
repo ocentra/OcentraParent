@@ -5,7 +5,9 @@ use super::data_custody_restore_runtime_executor::{
     receipts::{RestoreProviderOperationReceipt, RestoreRollbackBinding},
     ProviderNeutralRestorePort, RestoreExecutorError, RestoreExecutorMount,
 };
-use super::data_custody_restore_runtime_receipts::restore_receipt_from_dispatch;
+use super::data_custody_restore_runtime_receipts::{
+    restore_receipt_from_dispatch, RestoreReceiptDispatch,
+};
 use super::data_custody_restore_runtime_reconciliation_validation::restore_receipt_matches_plan;
 use super::data_custody_restore_runtime_rollback::record_rollback_migration;
 use super::data_custody_runtime_eventing::DataCustodyRuntimeEventKind;
@@ -108,7 +110,7 @@ fn ensure_restore_identity(
     if restore_receipt_matches_plan(plan, receipt) {
         Ok(())
     } else {
-        Err(RestoreRuntimeError::Ledger(
+        Err(RestoreRuntimeError::from(
             super::data_custody_restore_runtime_ledger::RestoreLedgerError::IdentityMismatch,
         ))
     }
@@ -181,7 +183,7 @@ fn dispatch_rollback<'a>(
     let reservation = plan
         .execution_binding()
         .reserve_dispatch(plan.execution_ref(), RestoreExecutionStage::Rollback)
-        .map_err(|_| RestoreRuntimeError::Executor(RestoreExecutorError::Failed))?;
+        .map_err(RestoreRuntimeError::Reservation)?;
     let provider_receipt = provider.rollback_restore(plan, reservation, rollback_binding)?;
     if provider_receipt.execution_ref() != plan.execution_ref() {
         return Err(RestoreRuntimeError::Executor(RestoreExecutorError::Failed));
@@ -209,14 +211,16 @@ async fn persist_rollback_results(
         .cloned();
     let restore = restore_receipt_from_dispatch(
         plan,
-        contracts::ExportImportRestoreApplyState::Partial,
-        applied_sections.clone(),
-        rejected_sections.clone(),
-        PartialWriteCompensation::Applied,
-        original_restore_provider_operation_ref.as_ref(),
-        Some(provider_receipt.provider_operation_ref()),
-        runtime.next_recorded_at()?,
-        Some("Restore rollback completed through the mounted provider port.".to_owned()),
+        RestoreReceiptDispatch {
+            state: contracts::ExportImportRestoreApplyState::Partial,
+            applied_sections: applied_sections.clone(),
+            rejected_sections: rejected_sections.clone(),
+            compensation: PartialWriteCompensation::Applied,
+            provider_operation: original_restore_provider_operation_ref.as_ref(),
+            rollback_provider_operation: Some(provider_receipt.provider_operation_ref()),
+            recorded_at: runtime.next_recorded_at()?,
+            note: Some("Restore rollback completed through the mounted provider port.".to_owned()),
+        },
     )?;
     runtime
         .persist_restore(
@@ -256,8 +260,8 @@ async fn rollback_migration_if_required(
         existing_migration.provider_operation_ref.as_ref().cloned();
     let migration = record_rollback_migration(
         plan,
-        original_provider_operation_ref,
-        rollback_provider_operation_ref,
+        original_provider_operation_ref.as_ref(),
+        &rollback_provider_operation_ref,
         applied_sections,
         rejected_sections,
         recorded_at,

@@ -28,6 +28,11 @@ function createMemoryStorage(initialValue: string | null = null): {
 }
 
 describe('manage-target-selection', () => {
+  registerNormalizationTests();
+  registerStorageTests();
+});
+
+function registerNormalizationTests(): void {
   it('normalizes legacy session payloads without inventing a stable child device id', () => {
     const selection = normalizeManageTargetSelection({
       scope: 'perDevice',
@@ -42,20 +47,6 @@ describe('manage-target-selection', () => {
       browser: 'Chrome',
     });
     expect(selectedChildDeviceIdFromManageTargetSelection(selection)).toBeNull();
-  });
-
-  it('stores and reloads stable selected child device ids for route context reuse', () => {
-    const storage = createMemoryStorage();
-    const selection = withManageTargetSelectionDevice(
-      defaultManageTargetSelection(),
-      'child-android-1',
-      'Study Laptop'
-    );
-
-    writeStoredManageTargetSelection(selection, storage);
-
-    expect(readStoredManageTargetSelection(storage)).toEqual(selection);
-    expect(selectedChildDeviceIdFromManageTargetSelection(selection)).toBe('child-android-1');
   });
 
   it('canonicalizes whitespace and clears stale device data from family scope', () => {
@@ -105,6 +96,22 @@ describe('manage-target-selection', () => {
 
     expect(readStoredManageTargetSelection(createMemoryStorage('{"scope":'))).toBeNull();
   });
+}
+
+function registerStorageTests(): void {
+  it('stores and reloads stable selected child device ids for route context reuse', () => {
+    const storage = createMemoryStorage();
+    const selection = withManageTargetSelectionDevice(
+      defaultManageTargetSelection(),
+      'child-android-1',
+      'Study Laptop'
+    );
+
+    writeStoredManageTargetSelection(selection, storage);
+
+    expect(readStoredManageTargetSelection(storage)).toEqual(selection);
+    expect(selectedChildDeviceIdFromManageTargetSelection(selection)).toBe('child-android-1');
+  });
 
   it('persists the canonical presentation context rather than caller-shaped whitespace', () => {
     const storage = createMemoryStorage();
@@ -126,4 +133,4 @@ describe('manage-target-selection', () => {
       browser: 'Chrome',
     });
   });
-});
+}

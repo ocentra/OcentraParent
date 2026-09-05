@@ -26,7 +26,7 @@ pub(super) fn apply(
                 envelope.member_id,
             ],
         )
-        .map_err(|_| AccountIdentityMutationAuthorityError::RepositoryUnavailable)?;
+        .map_err(|_error| AccountIdentityMutationAuthorityError::RepositoryUnavailable)?;
     (changed == 1)
         .then_some(AccountIdentityMutationResult::SetupInviteRevoked)
         .ok_or(AccountIdentityMutationAuthorityError::TargetNotCurrent)

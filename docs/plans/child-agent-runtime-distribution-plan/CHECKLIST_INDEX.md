@@ -1,12 +1,12 @@
 # Checklist Index
 
-> **Live-code audit:** [Plan state](PLAN_STATE.md) and the [Project Progress Matrix](../../PLAN_CODE_STATUS_MATRIX.md) separate committed source, missing source, expected test source, runtime reachability, and strict completion. This checklist is intentionally unchecked; mapped files and historical proof do not close rows.
+> **Live-code audit:** [Plan state](PLAN_STATE.md) and the [Project Progress Matrix](../../PLAN_CODE_STATUS_MATRIX.md) separate committed source, missing source, expected test source, runtime reachability, and strict completion. Rows close only from current source, focused validation, and retained proof; mapped files and historical proof do not close them.
 
-Status: source routing reconciled; implementation and test rows open.
+Status: WP01 route proof and WP06 capability-only source/test/proof are retained; all broader child runtime, platform authority, release, and aggregate rows remain open.
 
 ## Production-source wave
 
-- [ ] WP01 route/index truth remains aligned with the executable graph.
+- [x] WP01 route/index truth remains aligned with the executable graph; the focused graph behavior test passes and the exact four-file retained proof exists at the canonical WP01 proof root.
 - [ ] WP02 Windows package starts with current trust and exposes authenticated ingress/health through canonical child-owned package identities.
 - [ ] WP03 macOS package identity, signing/notarization ownership, trusted startup, health, and lifecycle source exist.
 - [ ] WP04 Linux package identity, fail-closed lifecycle, trusted startup, health, signing/feed, and cleanup source exist.
@@ -20,9 +20,10 @@ Status: source routing reconciled; implementation and test rows open.
 
 ## Expected test-source wave
 
+- [x] WP01 generated graph/code-map route consistency and negative overclaim test source exists.
 - [ ] WP02-WP04 child-labelled desktop package/startup/health/lifecycle/cleanup tests exist.
 - [ ] WP05 trust-currentness, JNI/foreground lifecycle, ingress, health, removal, and device-authority tests exist.
-- [ ] WP06 child identity and iOS capability-limit tests exist.
+- [x] WP06 child identity and iOS capability-limit Node/XCTest source plus proof-runner behavior tests exist. The retained Windows result records XCTest as platform-unavailable/manual-required; macOS/device/signing/store proof remains open.
 - [ ] WP07 kill/reboot/manager-restart/disable/teardown/loop-guard tests exist per platform.
 - [ ] WP08 authority mismatch/replay/restart and platform cleanup callback/idempotency tests exist.
 - [ ] WP09 updater handoff/install/restart and platform signing/store/device-owner tests exist.
@@ -31,6 +32,8 @@ Status: source routing reconciled; implementation and test rows open.
 
 ## Validation and completion wave
 
+- [x] WP01 focused route test, graph validation, and exact four-file retained proof pass.
+- [x] WP06 Rust contract, proof-runner behavior test, host-aware Node/XCTest, and Enforcer proof pass; the unavailable Windows XCTest is recorded as blocked evidence, not a pass.
 - [ ] Focused formatter, architecture, and static gates pass for each source packet.
 - [ ] Focused crate/package tests pass after the test-source wave.
 - [ ] Suitable desktop hosts and physical/simulator mobile targets produce the required lifecycle evidence.

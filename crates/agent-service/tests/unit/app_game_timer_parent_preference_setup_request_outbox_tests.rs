@@ -1,6 +1,6 @@
 #[tokio::test]
 async fn setup_outbox_repeat_append_is_idempotent() {
-    let path = temp_path(TestText::from_display("idempotent"));
+    let path = temp_path("idempotent");
     cleanup_path(&path);
     let result = accepted_result().await;
     let store_path = AppGameTimerSetupStorePath(path.clone());
@@ -24,7 +24,7 @@ async fn setup_outbox_repeat_append_is_idempotent() {
 
 #[tokio::test]
 async fn setup_outbox_rejects_conflicting_same_record_id() {
-    let path = temp_path(TestText::from_display("conflict"));
+    let path = temp_path("conflict");
     cleanup_path(&path);
     let result = accepted_result().await;
     let mut conflict = result.clone();
@@ -40,7 +40,7 @@ async fn setup_outbox_rejects_conflicting_same_record_id() {
 
 #[tokio::test]
 async fn setup_outbox_rejects_malformed_existing_line() {
-    let path = temp_path(TestText::from_display("malformed"));
+    let path = temp_path("malformed");
     cleanup_path(&path);
     let outbox = path.with_extension(
         constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_DURABLE_OUTBOX_FILE_EXTENSION,
@@ -59,7 +59,7 @@ async fn setup_outbox_rejects_malformed_existing_line() {
 
 #[tokio::test]
 async fn setup_outbox_rejects_valid_json_with_wrong_shape() {
-    let path = temp_path(TestText::from_display("wrong-shape"));
+    let path = temp_path("wrong-shape");
     cleanup_path(&path);
     let outbox = path.with_extension(
         constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_DURABLE_OUTBOX_FILE_EXTENSION,
@@ -75,7 +75,7 @@ async fn setup_outbox_rejects_valid_json_with_wrong_shape() {
 
 #[tokio::test]
 async fn setup_outbox_validates_later_lines_after_matching_record() {
-    let path = temp_path(TestText::from_display("later-corruption"));
+    let path = temp_path("later-corruption");
     cleanup_path(&path);
     let result = accepted_result().await;
     let outbox = path.with_extension(
@@ -102,7 +102,7 @@ async fn setup_outbox_validates_later_lines_after_matching_record() {
 
 #[tokio::test]
 async fn setup_outbox_rejects_missing_terminal_newline() {
-    let path = temp_path(TestText::from_display("partial-line"));
+    let path = temp_path("partial-line");
     cleanup_path(&path);
     let outbox = path.with_extension(
         constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_DURABLE_OUTBOX_FILE_EXTENSION,
@@ -121,7 +121,7 @@ async fn setup_outbox_rejects_missing_terminal_newline() {
 
 #[tokio::test]
 async fn setup_outbox_rejects_empty_new_record_id() {
-    let path = temp_path(TestText::from_display("empty-id"));
+    let path = temp_path("empty-id");
     cleanup_path(&path);
     let mut result = accepted_result().await;
     result.durable_outbox_record_id = TestString::new();
@@ -134,7 +134,7 @@ async fn setup_outbox_rejects_empty_new_record_id() {
 
 #[tokio::test]
 async fn setup_outbox_rejects_whitespace_new_record_id() {
-    let path = temp_path(TestText::from_display("whitespace-id"));
+    let path = temp_path("whitespace-id");
     cleanup_path(&path);
     let mut result = accepted_result().await;
     result.durable_outbox_record_id = format!(" {} ", result.durable_outbox_record_id);
@@ -147,7 +147,7 @@ async fn setup_outbox_rejects_whitespace_new_record_id() {
 
 #[tokio::test]
 async fn setup_outbox_concurrent_distinct_records_are_complete() {
-    let path = temp_path(TestText::from_display("concurrent"));
+    let path = temp_path("concurrent");
     cleanup_path(&path);
     let result = Arc::new(accepted_result().await);
     let path = Arc::new(path);
@@ -200,7 +200,7 @@ async fn setup_outbox_concurrent_distinct_records_are_complete() {
 
 async fn accepted_result() -> AppGameTimerParentPreferenceSetupRequestResult {
     let event = build_timer_preference_report(command_envelope()).await;
-    request_payload(&crate::test_invariants::log_field(
+    request_payload(&crate::test_log_field::log_field(
         &event.payload,
         constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST,
         constants::error::AGENT_EVENT_SERIALIZES,
@@ -216,11 +216,11 @@ use std::thread;
 use ocentra_parent_agent_protocol::app_game_timer_parent_preference_setup_request::AppGameTimerParentPreferenceSetupRequestResult;
 use ocentra_parent_agent_protocol::constants;
 
-use crate::test_invariants::{require_json_decode, require_ok, require_some};
-use crate::test_text::TestText;
-
 use super::super::app_game_timer_parent_preference_setup_request::AppGameTimerSetupStorePath;
 use super::super::app_game_timer_parent_preference_setup_request_outbox::append_setup_outbox_record;
 use super::{
     build_timer_preference_report, cleanup_path, command_envelope, request_payload, temp_path,
 };
+use crate::test_require_json_decode::require_json_decode;
+use crate::test_require_ok::require_ok;
+use crate::test_require_some::require_some;

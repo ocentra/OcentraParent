@@ -472,7 +472,10 @@ async fn publish_and_wait_completes_only_after_handler_work_finishes() {
         _ = &mut publish => true,
         _ = tokio::task::yield_now() => false,
     };
-    assert!(!completed_early, "publish-and-wait completed before handler release");
+    assert!(
+        !completed_early,
+        "publish-and-wait completed before handler release"
+    );
     release.notify_one();
 
     let report = publish

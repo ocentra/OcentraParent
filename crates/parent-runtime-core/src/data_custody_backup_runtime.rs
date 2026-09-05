@@ -55,7 +55,7 @@ pub enum BackupRuntimeError {
     AuthorityUnavailable(AuthorityUnavailable),
     Schedule(BackupScheduleError),
     JobState(BackupJobStateError),
-    ScheduleJob,
+    ScheduleJob(String),
     ReplayDecode(EventingError),
     Provider(ProviderBackupError),
     ReplaySkipped(usize),
@@ -78,6 +78,12 @@ impl From<BackupJobStateError> for BackupRuntimeError {
 impl From<BackupScheduleError> for BackupRuntimeError {
     fn from(error: BackupScheduleError) -> Self {
         Self::Schedule(error)
+    }
+}
+
+impl BackupRuntimeError {
+    pub(crate) fn schedule_job(error: impl std::fmt::Debug) -> Self {
+        Self::ScheduleJob(format!("{error:?}"))
     }
 }
 
@@ -153,6 +159,6 @@ impl From<ProviderBackupError> for BackupRuntimeError {
 
 impl From<RuntimeClockError> for BackupRuntimeError {
     fn from(error: RuntimeClockError) -> Self {
-        Self::Eventing(clock_error(error))
+        Self::Eventing(clock_error(&error))
     }
 }

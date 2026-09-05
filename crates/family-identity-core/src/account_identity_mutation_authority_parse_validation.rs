@@ -36,7 +36,7 @@ fn validate_values(
         || fields[1] != SIGNATURE_ALGORITHM
         || fields[2] != AUDIENCE
         || fields[3] != ENVIRONMENT
-        || !valid_key_id(&fields[4])
+        || !valid_key_id(fields[4])
     {
         return Err(AccountIdentityMutationAuthorityError::InvalidEnvelope);
     }

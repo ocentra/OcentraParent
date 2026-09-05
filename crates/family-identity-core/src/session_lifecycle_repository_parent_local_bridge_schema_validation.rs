@@ -39,17 +39,17 @@ pub(super) fn validate_v2(connection: &Connection, require_version: bool) -> Res
 fn require_pragma_ok(connection: &Connection, sql: &str) -> Result<(), ()> {
     let value = connection
         .query_row(sql, [], |row| row.get::<_, String>(0))
-        .map_err(|_| ())?;
+        .map_err(|_error| ())?;
     (value == "ok").then_some(()).ok_or(())
 }
 
 fn require_no_foreign_key_violations(connection: &Connection) -> Result<(), ()> {
     let mut statement = connection
         .prepare("PRAGMA foreign_key_check")
-        .map_err(|_| ())?;
-    let mut rows = statement.query([]).map_err(|_| ())?;
+        .map_err(|_error| ())?;
+    let mut rows = statement.query([]).map_err(|_error| ())?;
     rows.next()
-        .map_err(|_| ())?
+        .map_err(|_error| ())?
         .is_none()
         .then_some(())
         .ok_or(())
@@ -191,7 +191,7 @@ fn validate_columns(
 ) -> Result<(), ()> {
     let mut statement = connection
         .prepare(&format!("PRAGMA table_info('{table}')"))
-        .map_err(|_| ())?;
+        .map_err(|_error| ())?;
     let rows = statement
         .query_map([], |row| {
             Ok((
@@ -201,9 +201,9 @@ fn validate_columns(
                 row.get::<_, i64>(5)?,
             ))
         })
-        .map_err(|_| ())?
+        .map_err(|_error| ())?
         .collect::<Result<Vec<_>, _>>()
-        .map_err(|_| ())?;
+        .map_err(|_error| ())?;
     let expected = expected
         .iter()
         .map(|value| (value.0.to_owned(), value.1.to_owned(), value.2, value.3))
@@ -218,12 +218,12 @@ pub(super) fn validate_exact_columns(
 ) -> Result<(), ()> {
     let mut statement = connection
         .prepare(&format!("PRAGMA table_info('{table}')"))
-        .map_err(|_| ())?;
+        .map_err(|_error| ())?;
     let rows = statement
         .query_map([], |row| row.get::<_, String>(1))
-        .map_err(|_| ())?
+        .map_err(|_error| ())?
         .collect::<Result<Vec<_>, _>>()
-        .map_err(|_| ())?;
+        .map_err(|_error| ())?;
     (rows == expected).then_some(()).ok_or(())
 }
 
@@ -271,12 +271,12 @@ fn validate_index(
 ) -> Result<(), ()> {
     let mut statement = connection
         .prepare(&format!("PRAGMA index_list('{table}')"))
-        .map_err(|_| ())?;
+        .map_err(|_error| ())?;
     let names = statement
         .query_map([], |row| row.get::<_, String>(1))
-        .map_err(|_| ())?
+        .map_err(|_error| ())?
         .collect::<Result<Vec<_>, _>>()
-        .map_err(|_| ())?;
+        .map_err(|_error| ())?;
     if !names.iter().any(|name| name == expected_name)
         || names.iter().any(|name| {
             !name.starts_with("sqlite_autoindex_")
@@ -287,12 +287,12 @@ fn validate_index(
     }
     let mut columns = connection
         .prepare(&format!("PRAGMA index_info('{expected_name}')"))
-        .map_err(|_| ())?;
+        .map_err(|_error| ())?;
     let actual = columns
         .query_map([], |row| row.get::<_, String>(2))
-        .map_err(|_| ())?
+        .map_err(|_error| ())?
         .collect::<Result<Vec<_>, _>>()
-        .map_err(|_| ())?;
+        .map_err(|_error| ())?;
     (actual == expected_columns).then_some(()).ok_or(())
 }
 
@@ -310,7 +310,7 @@ fn validate_fk_none(connection: &Connection, table: &str) -> Result<(), ()> {
             [],
             |row| row.get::<_, i64>(0),
         )
-        .map_err(|_| ())?;
+        .map_err(|_error| ())?;
     (count == 0).then_some(()).ok_or(())
 }
 
@@ -321,7 +321,7 @@ fn validate_fk(connection: &Connection, table: &str) -> Result<(), ()> {
             [],
             |row| Ok((row.get::<_, i64>(0)?, row.get::<_, String>(1)?, row.get::<_, String>(2)?, row.get::<_, String>(3)?, row.get::<_, String>(4)?, row.get::<_, String>(5)?)),
         )
-        .map_err(|_| ())?;
+        .map_err(|_error| ())?;
     (row == (
         1,
         TABLES[1].to_owned(),
@@ -348,7 +348,7 @@ fn validate_rows(
             [expected_version.unwrap_or(BRIDGE_SCHEMA_VERSION)],
             |row| Ok((row.get::<_, i64>(0)?, row.get::<_, i64>(1)?)),
         )
-        .map_err(|_| ())?;
+        .map_err(|_error| ())?;
     match expected_version {
         Some(_) if version_rows == 1 && matching_version_rows == 1 => {}
         None if version_rows == 0 => {}
@@ -393,6 +393,6 @@ fn validate_rows(
 fn require_zero(connection: &Connection, sql: &str) -> Result<(), ()> {
     let count = connection
         .query_row(sql, [], |row| row.get::<_, i64>(0))
-        .map_err(|_| ())?;
+        .map_err(|_error| ())?;
     (count == 0).then_some(()).ok_or(())
 }

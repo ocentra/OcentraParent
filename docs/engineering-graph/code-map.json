@@ -1938,7 +1938,8 @@
     "WP-child-agent-runtime-distribution-plan-01-child-agent-scope-and-route-boundary": {
       "planSlug": "child-agent-runtime-distribution-plan",
       "codeExpectation": "no-code-required",
-      "roots": []
+      "roots": [],
+      "note": "Route-only ownership has no product code roots. The focused repo-tooling test loads the generated graph and rejects parent-client ownership, package/runtime roots, route-state regression, and noncanonical completion evidence; the canonical four-file retained proof is reviewed."
     },
     "WP-child-agent-runtime-distribution-plan-02-child-windows-service-package": {
       "planSlug": "child-agent-runtime-distribution-plan",
@@ -2254,9 +2255,11 @@
       "roots": [
         "crates/entitlement-core/src/entitlement_snapshot.rs",
         "crates/entitlement-core/src/entitlement_snapshot_derivation.rs",
+        "crates/schema/src/billing_entitlement.template.txt",
         "crates/schema/src/billing_entitlement.snapshot-and-device-limit.template.txt",
         "crates/schema/src/billing_entitlement_values.template.txt",
         "crates/schema/src/billing_entitlement_proof.rs",
+        "crates/schema/src/billing_entitlement_proof_ts.rs",
         "crates/schema/src/billing_entitlement_values_ts.rs",
         "crates/schema/tests/contract/billing_entitlement_proof.rs",
         "crates/schema/tests/contract/billing_entitlement_values.rs",
@@ -2265,7 +2268,8 @@
         "packages/schema-domain/src/generated-billing-entitlement.ts",
         "packages/schema-domain/src/generated-billing-entitlement-values.ts",
         "packages/schema-domain/src/generated-billing-entitlement-proof.ts",
-        "crates/entitlement-core/tests/unit/entitlement_snapshot_derivation.rs"
+        "crates/entitlement-core/tests/unit/entitlement_snapshot_derivation.rs",
+        "packages/schema-domain/tests/contract/billing-entitlement.test.ts"
       ],
       "plannedImplementationRoots": [
         "crates/entitlement-core/src/entitlement_snapshot.rs",
@@ -2276,9 +2280,10 @@
       "expectedTestRoots": [
         "crates/entitlement-core/tests/unit/entitlement_snapshot_derivation.rs",
         "crates/schema/tests/contract/billing_entitlement_proof.rs",
-        "crates/schema/tests/contract/billing_entitlement_values.rs"
+        "crates/schema/tests/contract/billing_entitlement_values.rs",
+        "packages/schema-domain/tests/contract/billing-entitlement.test.ts"
       ],
-      "note": "Live Rust source owns checked base/referral/paid-seat derivation and an unsigned-only projection. No production caller, durable provider billing/referral ledger, Account/Device-Trust authority composition, or issuer bridge reaches it. The focused entitlement-core derivation test root is now present at canonical 701be2b13 alongside the existing schema contract roots, but none has been executed in this code-first phase; generated TypeScript is edge parity only. No proof, CI, READY, or DONE claim follows."
+      "note": "Live Rust source owns checked base/referral/paid-seat derivation, the typed Starter base-seat invariant, and an unsigned-only projection. Rust proof witnesses and generated edge schemas own coherent over-limit denial and safety-preserving grace. No production caller, durable provider billing/referral ledger, Account/Device-Trust authority composition, or issuer bridge reaches the Rust derivation. Focused Rust and generated-edge behavioral test roots are present but remain unexecuted in this code-first phase. No proof, CI, READY, or DONE claim follows."
     },
     "WP-payment-subscription-plan-02-checkout-billing-portal": {
       "planSlug": "payment-subscription-plan",
@@ -2349,10 +2354,6 @@
         "crates/entitlement-core/src/entitlement_access_reasons_policy.rs",
         "crates/entitlement-core/src/entitlement_snapshot.rs",
         "crates/entitlement-core/src/entitlement_snapshot_derivation.rs",
-        "crates/entitlement-core/src/entitlement_snapshot_issuer.rs",
-        "crates/entitlement-core/src/entitlement_snapshot_authority.rs",
-        "crates/entitlement-core/src/entitlement_snapshot_authority_ports.rs",
-        "crates/entitlement-core/src/entitlement_snapshot_authority_verifier.rs",
         "crates/entitlement-core/src/entitlement_snapshot_values.rs",
         "crates/child-runtime/src/runtime_gate.rs",
         "crates/entitlement-core/tests/contract/signed_snapshot_delivery.rs",
@@ -3721,27 +3722,10 @@
         "crates/entitlement-core/src/entitlement_access_reasons.rs",
         "crates/entitlement-core/src/entitlement_access_reasons_policy.rs",
         "crates/entitlement-core/src/entitlement_snapshot.rs",
-        "crates/entitlement-core/src/entitlement_snapshot_authority.rs",
-        "crates/entitlement-core/src/entitlement_snapshot_authority_currentness.rs",
-        "crates/entitlement-core/src/entitlement_snapshot_authority_currentness_ports.rs",
-        "crates/entitlement-core/src/entitlement_snapshot_authority_ports.rs",
-        "crates/entitlement-core/src/entitlement_snapshot_authority_revocation.rs",
-        "crates/entitlement-core/src/entitlement_snapshot_authority_verifier.rs",
-        "crates/entitlement-core/src/entitlement_snapshot_authority_verifier_binding.rs",
-        "crates/entitlement-core/src/entitlement_snapshot_authority_verifier_currentness.rs",
-        "crates/entitlement-core/src/entitlement_snapshot_authority_verifier_request.rs",
-        "crates/entitlement-core/src/entitlement_snapshot_authority_verifier_signature.rs",
-        "crates/entitlement-core/src/entitlement_snapshot_cache.rs",
-        "crates/entitlement-core/src/entitlement_snapshot_cache_path.rs",
-        "crates/entitlement-core/src/entitlement_snapshot_cache_revocation.rs",
-        "crates/entitlement-core/src/entitlement_snapshot_capability_wire_names.rs",
         "crates/entitlement-core/src/entitlement_snapshot_derivation.rs",
-        "crates/entitlement-core/src/entitlement_snapshot_issuer.rs",
         "crates/entitlement-core/src/entitlement_snapshot_shape.rs",
-        "crates/entitlement-core/src/entitlement_snapshot_signing.rs",
         "crates/entitlement-core/src/entitlement_snapshot_text_id.rs",
         "crates/entitlement-core/src/entitlement_snapshot_values.rs",
-        "crates/entitlement-core/src/entitlement_snapshot_wire_names.rs",
         "crates/child-runtime/src/runtime_gate.rs",
         "crates/entitlement-core/tests/contract/signed_snapshot_delivery.rs",
         "crates/entitlement-core/tests/unit/capability_access.rs",
@@ -5123,10 +5107,14 @@
         "packages/portal-domain/src/tracking-child-check-in-proof.ts",
         "packages/portal-domain/src/tracking-missing-device-hosted-ui-proof.ts",
         "packages/portal-domain/tests/unit/tracking-status-panel.test.ts",
+        "apps/portal/src/ParentPortalRoute.tsx",
         "apps/portal/src/TrackingStatusRoutePanel.tsx",
         "apps/portal/src/tracking-status-route-panel-body.tsx",
         "apps/portal/tests/unit/tracking-status-panel.test.ts",
-        "apps/portal/tests/e2e/tracking-hosted-ui-proof.spec.ts"
+        "apps/portal/tests/e2e/tracking-hosted-ui-proof.spec.ts",
+        "crates/parent-runtime-core/tests/integration/parent_ui_bridge/runtime_and_activity_tests/routes.rs",
+        "crates/parent-runtime-core/tests/integration/parent_ui_bridge/runtime_and_activity_tests/actions.rs",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface.tsx"
       ]
     },
     "WP-tracking-plan-31-platform-extension-checklists-and-proof-routing": {
@@ -5638,11 +5626,36 @@
       "planSlug": "portal-ux-household-surfaces-plan",
       "roots": [
         "packages/portal-domain/src/portal-contract-adapter.ts",
+        "packages/portal-domain/src/parent-portal-data.ts",
+        "packages/portal-domain/src/parent-portal-nav.ts",
         "packages/portal-domain/tests/unit/contracts.test.ts",
+        "crates/schema/src/parent_ui_bridge.rs",
+        "crates/schema/src/parent_ui_bridge_typescript.summary.template.txt",
+        "crates/schema/tests/contract/parent_ui_bridge/fixtures.rs",
+        "crates/schema/tests/contract/parent_ui_bridge/contract_shapes.rs",
+        "crates/schema/tests/contract/parent_ui_bridge/generated.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/parent_desktop_distribution.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/route_snapshot.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/lan_route/route_flags.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/lan_route/query_view.rs",
         "apps/portal/src/host-bridge.ts",
         "apps/portal/generated/parent-ui-bridge.ts",
+        "apps/portal/src/ParentDesktopDistributionRoutePanel.tsx",
+        "apps/portal/src/ParentPortalRoute.tsx",
+        "apps/portal/src/route-live-activity-state.ts",
+        "apps/portal/src/route-live-activity-state-decoders.ts",
+        "apps/portal/src/styles/parent-portal-route.css",
+        "apps/portal/src/vendor-parent-portal-surface.d.ts",
         "apps/portal/tests/unit/host-bridge.test.ts",
         "apps/portal/tests/unit/parent-ui-bridge.test.ts",
+        "apps/portal/tests/unit/parent-desktop-distribution-route-panel.test.ts",
+        "apps/portal/tests/live-activity/live-activity-state.test.ts",
+        "apps/portal/tests/e2e/portal-ui.spec.ts",
+        "apps/portal/tests/e2e/remote-access-honesty.spec.ts",
+        "apps/portal/tests/e2e/portal-route-scaffold-assertions.ts",
+        "apps/portal/tests/e2e/portal-route-scaffold-common.ts",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface.tsx",
         "crates/parent-runtime-core/tests/integration/parent_ui_bridge/snapshot_and_dispatch_tests.rs"
       ]
     },
@@ -5971,11 +5984,6 @@
         "packages/schema-domain/src/generated-parent-storage-settings-apply-flow-contracts.ts",
         "packages/schema-domain/src/generated-parent-storage-settings-apply-flow-contract-rules.ts"
       ]
-    },
-    "WP-data-custody-storage-plan-data-and-ai-ui-plan": {
-      "planSlug": "data-custody-storage-plan",
-      "codeExpectation": "no-code-required",
-      "roots": []
     },
     "WP-v0-8-enforcement-control-plan-01-contract-boundary-and-effect-schemas": {
       "planSlug": "v0-8-enforcement-control-plan",
@@ -6842,19 +6850,11 @@
         "packages/logging-domain/src/core/log-redaction.ts",
         "packages/logging-domain/src/generated-log-redaction-policy.ts",
         "packages/logging-domain/src/local-artifact-mutation-provider.ts",
-        "packages/logging-domain/src/local-artifact-append-codec.ts",
         "packages/logging-domain/src/local-artifact-append.ts",
         "packages/logging-domain/src/local-artifact-file.ts",
-        "packages/logging-domain/src/local-artifact-lock-owner.ts",
         "packages/logging-domain/src/local-artifact-lock.ts",
         "packages/logging-domain/src/local-artifact-path.ts",
         "packages/logging-domain/src/local-artifact-root.ts",
-        "packages/logging-domain/src/local-artifact-transaction-cleanup.ts",
-        "packages/logging-domain/src/local-artifact-transaction-codec.ts",
-        "packages/logging-domain/src/local-artifact-transaction-parsing.ts",
-        "packages/logging-domain/src/local-artifact-transaction-prepare.ts",
-        "packages/logging-domain/src/local-artifact-transaction-recovery.ts",
-        "packages/logging-domain/src/local-artifact-transaction-tree.ts",
         "packages/logging-domain/src/local-artifact-transaction.ts",
         "packages/logging-domain/src/local-artifact-tree.ts",
         "packages/logging-domain/src/test-log",
@@ -6901,12 +6901,6 @@
         "crates/logging-local-artifact-provider/tests/integration/local_artifact_provider.rs",
         "packages/logging-domain/tests/integration/mcp-query-interface.test.ts"
       ],
-      "plannedImplementationRoots": [
-        "crates/logging-core/src/local_artifact_mutation.rs",
-        "crates/logging-local-artifact-windows-ffi/src/lib.rs",
-        "crates/logging-local-artifact-provider/src/main.rs",
-        "packages/logging-domain/src/local-artifact-mutation-provider.ts"
-      ],
       "expectedTestRoots": [
         "packages/logging-domain/tests/unit/local-artifact-mutation-provider.test.ts",
         "packages/logging-domain/tests/integration/local-artifact-mutation-provider.test.ts",
@@ -6926,7 +6920,7 @@
         "packages/logging-domain/tests/unit/wipe-ndjson-scope.test.ts",
         "packages/logging-domain/tests/integration/mcp-query-interface.test.ts"
       ],
-      "note": "WP02 owns the absent package-local Windows local-artifact mutation provider and the existing path, ownership, identity, append, lock, transaction, retention, bridge, NDJSON, unit, and integration consumer roots. Because no production Node-native binding exists, the route also maps the new package-specific Windows FFI crate, the safe logging-core local_artifact_mutation.rs owner, and the long-lived Rust provider process, with Cargo workspace/dependency and package build/runtime integration inputs. The provider contract is fail-closed for canonical containment, symlink/reparse safety, directory currentness, atomic mutation and recovery, provider-issued opaque authority, and process/protocol loss; no caller-minted capability or path-only fallback is accepted. Missing native/provider implementation and dedicated Rust/TypeScript provider test roots keep the route implementation-authorized but unsatisfied."
+      "note": "WP02 maps the implemented package-local Windows local-artifact mutation provider, package-specific Windows FFI crate, safe logging-core owner, long-lived Rust provider process, TypeScript parity surfaces, and real dedicated Rust/TypeScript tests. Retired helper-file names were removed from this map after their behavior was consolidated into the current owner modules. The retained generated proof bundle and durable manifest cover bounded local TypeScript package parity only; production telemetry, installer/release custody, and product-wide logging readiness remain outside this workpack."
     },
     "WP-logging-domain-parity-03-parent-logging-architecture-and-routing": {
       "planSlug": "logging-domain-parity",
@@ -9768,7 +9762,9 @@
       "planSlug": "app-game-plan",
       "codeExpectation": "code-and-tests",
       "roots": [
+        "crates/app-game-windows-local-policy-ffi/src",
         "crates/agent-protocol/src/app_game_platform_proof_status.rs",
+        "crates/agent-protocol/src/app_game_platform_proof_status",
         "crates/agent-service/src/activity_api/app_game_platform_proof_status_payload.rs",
         "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities.rs",
         "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_paths.rs",
@@ -9776,12 +9772,14 @@
         "apps/portal/src/AppGamePlatformProofStatusRoutePanel.tsx"
       ],
       "expectedTestRoots": [
+        "crates/app-game-windows-local-policy-ffi/tests/unit/local_policy_output.rs",
+        "crates/app-game-windows-local-policy-ffi/tests/integration/windows_local_policy.rs",
         "crates/agent-protocol/tests/contract/app_game_platform_proof_status_tests.rs",
         "crates/agent-service/tests/unit/app_game_platform_proof_status_payload_tests.rs",
         "crates/agent-service/tests/unit/app_game_adapter_host_capabilities.rs",
         "apps/portal/tests/unit/app-game-platform-proof-status-route-panel.test.ts"
       ],
-      "note": "Current code can represent conservative Windows policy status but no shipped AppLocker/AppIDSvc/Device Guard sampler or caller exists. The live adapter and its real behavior tests remain unmapped owner work."
+      "note": "The dedicated Windows FFI sampler and strict protocol evidence contract provide reduced AppIDSvc, AppLocker, and Device Guard/App Control booleans and bounded counts. The real no-argument Windows observer, strict parser negatives, and protocol non-claim contract passed with retained WP203 proof. Agent Service composition is intentionally still absent, so runtime delivery, readiness, broad blocking, rollback, audit custody, provider delivery, and child delivery remain unclaimed."
     },
     "WP-app-game-plan-204-app-game-linux-active-window-tool-proof": {
       "planSlug": "app-game-plan",

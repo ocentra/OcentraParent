@@ -7,6 +7,7 @@ use std::{
     time::Duration,
 };
 
+use ocentra_eventing::expect_value::{ExpectErrValue, ExpectValue};
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::local_ai_runtime::generation::LocalAiChatGenerationResult;
 use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::{
@@ -27,7 +28,7 @@ use crate::local_ai_provider_scheduler_queue::{
     LocalAiProviderRuntimeLaneAdmission, LocalAiProviderRuntimeLaneQueue, MAX_PENDING_RUNTIME_JOBS,
 };
 use crate::local_ai_provider_scheduler_state::LocalAiPhysicalDeviceId;
-use crate::test_invariants::require_ok;
+use crate::test_require_ok::require_ok;
 
 #[test]
 fn unavailable_runtime_marks_scheduler_unavailable_without_queue() {
@@ -114,7 +115,16 @@ async fn aborting_active_generation_releases_lane_and_status() {
     );
 
     holder.abort();
-    assert!(holder.await.is_err());
+    let holder_join_error = holder
+        .await
+        .expect_err_value("aborted running job must return a join error");
+    assert_eq!(
+        (
+            holder_join_error.is_cancelled(),
+            holder_join_error.is_panic()
+        ),
+        (true, false)
+    );
 
     let recovered_status = scheduler.status_snapshot();
     assert_eq!(
@@ -129,9 +139,7 @@ async fn aborting_active_generation_releases_lane_and_status() {
         .run_generation_job(
             LocalAiProviderSchedulerJobClass::ChildSafety,
             ready_runtime(),
-            || async {
-                completed_result(constants::local_ai_runtime::SCHEDULER_JOB_CHILD_SAFETY)
-            },
+            || async { completed_result(constants::local_ai_runtime::SCHEDULER_JOB_CHILD_SAFETY) },
         )
         .await;
     assert_eq!(result.generation_state, LocalAiGenerationState::Complete);
@@ -180,7 +188,16 @@ async fn aborting_queued_generation_removes_queue_state_and_preserves_lane() {
     })
     .await;
     queued.abort();
-    assert!(queued.await.is_err());
+    let queued_join_error = queued
+        .await
+        .expect_err_value("aborted queued job must return a join error");
+    assert_eq!(
+        (
+            queued_join_error.is_cancelled(),
+            queued_join_error.is_panic()
+        ),
+        (true, false)
+    );
 
     let cancelled_status = scheduler.status_snapshot();
     assert_eq!(
@@ -203,9 +220,7 @@ async fn aborting_queued_generation_removes_queue_state_and_preserves_lane() {
         .run_generation_job(
             LocalAiProviderSchedulerJobClass::ChildSafety,
             ready_runtime(),
-            || async {
-                completed_result(constants::local_ai_runtime::SCHEDULER_JOB_CHILD_SAFETY)
-            },
+            || async { completed_result(constants::local_ai_runtime::SCHEDULER_JOB_CHILD_SAFETY) },
         )
         .await;
     assert_eq!(result.generation_state, LocalAiGenerationState::Complete);
@@ -222,13 +237,13 @@ fn runtime_lane_bounds_pending_jobs_and_removes_cancelled_waiters() {
 
     let mut waiters = Vec::new();
     for _ in 0..MAX_PENDING_RUNTIME_JOBS {
-        match queue.reserve(LocalAiProviderSchedulerJobClass::ParentReport) {
-            LocalAiProviderRuntimeLaneAdmission::Queued(waiter) => waiters.push(waiter),
+        let waiter = match queue.reserve(LocalAiProviderSchedulerJobClass::ParentReport) {
+            LocalAiProviderRuntimeLaneAdmission::Queued(waiter) => Some(waiter),
             LocalAiProviderRuntimeLaneAdmission::Running
-            | LocalAiProviderRuntimeLaneAdmission::Rejected => {
-                panic!("queue should accept exactly its bounded pending capacity")
-            }
+            | LocalAiProviderRuntimeLaneAdmission::Rejected => None,
         }
+        .expect_value("queue should accept exactly its bounded pending capacity");
+        waiters.push(waiter);
     }
     assert!(matches!(
         queue.reserve(LocalAiProviderSchedulerJobClass::ParentReport),

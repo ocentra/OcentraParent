@@ -17,7 +17,7 @@ use ocentra_schema::parent_ui_bridge::{
     ParentActivityTrackingReadModelFailureReason, ParentActivityTrackingReadModelResultSnapshot,
 };
 
-pub(super) fn tracking_read_model_snapshot_from_result(
+pub(crate) fn tracking_read_model_snapshot_from_result(
     result: AgentServiceCommandResult,
 ) -> Result<TrackingReadModelAgentServiceSnapshot, String> {
     let AgentServiceCommandResult {
@@ -83,7 +83,7 @@ fn tracking_read_model_failure(
     }
 }
 
-pub(super) fn activity_screen_read_model_snapshot_from_result(
+pub(crate) fn activity_screen_read_model_snapshot_from_result(
     result: AgentServiceCommandResult,
 ) -> Result<ScreenReadModelAgentServiceSnapshot, String> {
     let AgentServiceCommandResult {
@@ -113,24 +113,24 @@ pub(super) fn activity_screen_read_model_snapshot_from_result(
     Ok(ScreenReadModelAgentServiceSnapshot { read_model })
 }
 
-pub(super) fn activity_app_use_read_model_snapshot_from_result(
+pub(crate) fn activity_app_use_read_model_snapshot_from_result(
     result: AgentServiceCommandResult,
 ) -> Result<AppUseReadModelAgentServiceSnapshot, String> {
     let read_model = activity_surface_snapshot_from_result::<ActivityAppUseReadModel>(
         result,
-        AgentEventName::AgentActivityAppUseReadModelReported,
+        &AgentEventName::AgentActivityAppUseReadModelReported,
         constants::activity_surface::READ_MODEL_APP_USE,
         "app-use",
     )?;
     Ok(AppUseReadModelAgentServiceSnapshot { read_model })
 }
 
-pub(super) fn activity_games_read_model_snapshot_from_result(
+pub(crate) fn activity_games_read_model_snapshot_from_result(
     result: AgentServiceCommandResult,
 ) -> Result<GamesReadModelAgentServiceSnapshot, String> {
     let read_model = activity_surface_snapshot_from_result::<ActivityGamesReadModel>(
         result,
-        AgentEventName::AgentActivityGamesReadModelReported,
+        &AgentEventName::AgentActivityGamesReadModelReported,
         constants::activity_surface::READ_MODEL_GAMES,
         "games",
     )?;
@@ -139,7 +139,7 @@ pub(super) fn activity_games_read_model_snapshot_from_result(
 
 pub(super) fn activity_surface_snapshot_from_result<T>(
     result: AgentServiceCommandResult,
-    expected_event: AgentEventName,
+    expected_event: &AgentEventName,
     expected_kind: &str,
     label: &str,
 ) -> Result<T, String>
@@ -154,10 +154,10 @@ where
     if response_event.event == AgentEventName::AgentCommandRejected {
         return Err(rejection_message(&response_event));
     }
-    if response_event.event != expected_event {
+    if &response_event.event != expected_event {
         return Err(format!(
             "agent-service expected {}, received {}",
-            serialized_enum_label(&expected_event),
+            serialized_enum_label(expected_event),
             serialized_enum_label(&response_event.event)
         ));
     }

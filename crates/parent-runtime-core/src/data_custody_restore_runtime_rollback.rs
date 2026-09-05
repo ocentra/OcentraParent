@@ -14,7 +14,9 @@ use ocentra_storage_custody_core::export_import_backup_recovery::{
     export_import_backup_recovery_migration_execution::MigrationExecutionError,
     export_import_backup_recovery_restore_execution_plan::RestoreExecutionPlan,
 };
-use super::data_custody_restore_runtime_receipts::migration_receipt_from_dispatch;
+use super::data_custody_restore_runtime_receipts::{
+    migration_receipt_from_dispatch, MigrationReceiptDispatch,
+};
 
 #[derive(Debug)]
 pub enum RestoreRollbackError {
@@ -30,7 +32,7 @@ pub(crate) fn execute_migration_operation(
     let reservation = plan
         .execution_binding()
         .reserve_dispatch(plan.execution_ref(), RestoreExecutionStage::Migration)
-        .map_err(|_| RestoreExecutorOperationError::Executor(RestoreExecutorError::Failed))?;
+        .map_err(RestoreExecutorOperationError::Reservation)?;
     let migration = match provider.execute_migration(plan, reservation) {
         Ok(provider_receipt) => {
             if provider_receipt.execution_ref() != plan.execution_ref() {
@@ -40,37 +42,41 @@ pub(crate) fn execute_migration_operation(
             }
             migration_receipt_from_dispatch(
                 plan,
-                contracts::ExportImportMigrationOutcome::Applied,
-                plan.accepted_sections().to_vec(),
-                plan.rejected_sections().to_vec(),
-                PartialWriteCompensation::NotRequired,
-                Some(provider_receipt.provider_operation_ref()),
-                None,
-                recorded_at.clone(),
-                None,
+                MigrationReceiptDispatch {
+                    outcome: contracts::ExportImportMigrationOutcome::Applied,
+                    applied_sections: plan.accepted_sections().to_vec(),
+                    rejected_sections: plan.rejected_sections().to_vec(),
+                    compensation: PartialWriteCompensation::NotRequired,
+                    provider_operation: Some(provider_receipt.provider_operation_ref()),
+                    rollback_provider_operation: None,
+                    recorded_at,
+                    note: None,
+                },
             )
-            .map_err(|error| RestoreExecutorOperationError::Migration(error))?
+            .map_err(RestoreExecutorOperationError::Migration)?
         }
-        Err(_error) => migration_receipt_from_dispatch(
+        Err(error) => migration_receipt_from_dispatch(
             plan,
-            contracts::ExportImportMigrationOutcome::ManualRequired,
-            plan.accepted_sections().to_vec(),
-            plan.rejected_sections().to_vec(),
-            PartialWriteCompensation::NotRequired,
-            None,
-            None,
-            recorded_at,
-            Some("Migration executor is unavailable; apply remains manual-required.".to_owned()),
+            MigrationReceiptDispatch {
+                outcome: contracts::ExportImportMigrationOutcome::ManualRequired,
+                applied_sections: plan.accepted_sections().to_vec(),
+                rejected_sections: plan.rejected_sections().to_vec(),
+                compensation: PartialWriteCompensation::NotRequired,
+                provider_operation: None,
+                rollback_provider_operation: None,
+                recorded_at,
+                note: Some(migration_provider_error_note(&error).to_owned()),
+            },
         )
-        .map_err(|error| RestoreExecutorOperationError::Migration(error))?,
+        .map_err(RestoreExecutorOperationError::Migration)?,
     };
     Ok(migration)
 }
 
 pub(crate) fn record_rollback_migration(
     plan: &RestoreExecutionPlan,
-    original_provider_operation_ref: Option<contracts::ExportImportProviderOperationRef>,
-    rollback_provider_operation_ref: contracts::ExportImportProviderOperationRef,
+    original_provider_operation_ref: Option<&contracts::ExportImportProviderOperationRef>,
+    rollback_provider_operation_ref: &contracts::ExportImportProviderOperationRef,
     applied_sections: Vec<contracts::ExportImportSectionDecision>,
     rejected_sections: Vec<contracts::ExportImportSectionDecision>,
     recorded_at: contracts::ExportImportTimestamp,
@@ -81,14 +87,18 @@ pub(crate) fn record_rollback_migration(
     }
     migration_receipt_from_dispatch(
         plan,
-        contracts::ExportImportMigrationOutcome::RolledBack,
-        applied_sections,
-        rejected_sections,
-        PartialWriteCompensation::Applied,
-        original_provider_operation_ref.as_ref(),
-        Some(&rollback_provider_operation_ref),
-        recorded_at,
-        Some("Migration rollback completed through the mounted provider port.".to_owned()),
+        MigrationReceiptDispatch {
+            outcome: contracts::ExportImportMigrationOutcome::RolledBack,
+            applied_sections,
+            rejected_sections,
+            compensation: PartialWriteCompensation::Applied,
+            provider_operation: original_provider_operation_ref,
+            rollback_provider_operation: Some(rollback_provider_operation_ref),
+            recorded_at,
+            note: Some(
+                "Migration rollback completed through the mounted provider port.".to_owned(),
+            ),
+        },
     )
     .map_err(RestoreRollbackError::Migration)
 }
@@ -102,7 +112,6 @@ impl ParentRestoreRuntime {
         applied_sections: Vec<contracts::ExportImportSectionDecision>,
         rejected_sections: Vec<contracts::ExportImportSectionDecision>,
         rollback_binding: RestoreRollbackBinding<'a>,
-        _note: Option<String>,
     ) -> Result<RestoreRuntimeReceipts, RestoreRuntimeError> {
         self.rollback_after_observation(
             plan,
@@ -113,5 +122,16 @@ impl ParentRestoreRuntime {
             Some(rollback_binding),
         )
         .await
+    }
+}
+
+fn migration_provider_error_note(error: &RestoreExecutorError) -> &'static str {
+    match error {
+        RestoreExecutorError::Unavailable => {
+            "Migration executor is unavailable; apply remains manual-required."
+        }
+        RestoreExecutorError::Failed => {
+            "Migration executor failed without a terminal receipt; apply remains manual-required."
+        }
     }
 }

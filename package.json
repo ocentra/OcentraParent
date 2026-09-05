@@ -186,6 +186,8 @@
     "test": "npm run test:tooling && npm run test:unit && npm run test:contract",
     "validate:logging": "npm run lint:logging-parity && npm run lint:local-evidence && npm run lint:dev-log-routing && npm run lint:logging-exports",
     "test:logging-evidence": "node scripts/enforcer/run-ocentra-enforcer.mjs proof run --proof ocentra-parent.logging-local-evidence-smoke -- node scripts/test/logging-local-evidence-smoke.mjs",
+    "proof:app-game-wp197": "node scripts/test/app-game-linux-docker-host-preflight-proof.mjs",
+    "proof:logging-domain-wp02": "node scripts/test/logging-domain-wp02-parity-proof.mjs",
     "format:rust": "node scripts/ci/check-rust-format.mjs",
     "lint:rust": "cargo clippy --workspace --all-targets -- -D warnings",
     "validate:rust": "node scripts/ci/run-rust-validation.mjs",

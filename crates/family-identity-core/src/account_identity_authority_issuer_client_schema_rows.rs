@@ -51,7 +51,7 @@ fn validate_receipt_rows(
             [ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE],
             |row| row.get(0),
         )
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
     if invalid_shape {
         return Ok(true);
     }
@@ -135,7 +135,7 @@ fn validate_outbox_rows(
             [ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE],
             |row| row.get(0),
         )
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
     if invalid_shape {
         return Ok(true);
     }
@@ -166,7 +166,7 @@ fn validate_integrity(
 ) -> Result<(), AccountIdentityAuthorityIssuerClientError> {
     let integrity = connection
         .query_row("PRAGMA integrity_check", [], |row| row.get::<_, String>(0))
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
     if integrity != "ok" {
         return Err(AccountIdentityAuthorityIssuerClientError::InvalidSchema);
     }
@@ -178,13 +178,13 @@ fn validate_foreign_keys(
 ) -> Result<(), AccountIdentityAuthorityIssuerClientError> {
     let mut statement = connection
         .prepare("PRAGMA foreign_key_check")
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
     let mut rows = statement
         .query([])
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
     if rows
         .next()
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?
         .is_some()
     {
         return Err(AccountIdentityAuthorityIssuerClientError::InvalidSchema);

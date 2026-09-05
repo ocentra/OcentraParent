@@ -20,6 +20,12 @@ const ISSUED_AT: &str = "2026-08-28T19:00:00.000Z";
 const EXPIRES_AT: &str = "2026-08-28T19:05:00.000Z";
 const NOW: &str = "2026-08-28T19:01:00.000Z";
 
+type TestResult<T> = Result<T, String>;
+
+fn with_context<T, E: std::fmt::Debug>(result: Result<T, E>, context: &str) -> TestResult<T> {
+    result.map_err(|error| format!("{context}: {error:?}"))
+}
+
 struct SignedWire {
     wire: Vec<u8>,
     public_key: [u8; 65],
@@ -27,10 +33,8 @@ struct SignedWire {
     receipt_id: String,
 }
 
-fn now() -> DateTime<Utc> {
-    DateTime::parse_from_rfc3339(NOW)
-        .expect("test time")
-        .with_timezone(&Utc)
+fn now() -> TestResult<DateTime<Utc>> {
+    Ok(with_context(DateTime::parse_from_rfc3339(NOW), "test time")?.with_timezone(&Utc))
 }
 
 fn claims() -> AccountIdentityAuthorityProducerV2Claims {
@@ -47,20 +51,23 @@ fn claims() -> AccountIdentityAuthorityProducerV2Claims {
 
 fn signed_wire(
     operation: AccountIdentityAuthorityProducerV2Operation,
-    payload: Vec<u8>,
+    payload: &[u8],
     issued_at: &str,
     expires_at: &str,
-) -> SignedWire {
+) -> TestResult<SignedWire> {
     let rng = SystemRandom::new();
-    let pkcs8 = EcdsaKeyPair::generate_pkcs8(&ECDSA_P256_SHA256_FIXED_SIGNING, &rng)
-        .expect("generate test signing key");
-    let key_pair = EcdsaKeyPair::from_pkcs8(&ECDSA_P256_SHA256_FIXED_SIGNING, pkcs8.as_ref(), &rng)
-        .expect("parse test signing key");
-    let public_key: [u8; 65] = key_pair
-        .public_key()
-        .as_ref()
-        .try_into()
-        .expect("P-256 public key length");
+    let pkcs8 = with_context(
+        EcdsaKeyPair::generate_pkcs8(&ECDSA_P256_SHA256_FIXED_SIGNING, &rng),
+        "generate test signing key",
+    )?;
+    let key_pair = with_context(
+        EcdsaKeyPair::from_pkcs8(&ECDSA_P256_SHA256_FIXED_SIGNING, pkcs8.as_ref(), &rng),
+        "parse test signing key",
+    )?;
+    let public_key: [u8; 65] = with_context(
+        key_pair.public_key().as_ref().try_into(),
+        "P-256 public key length",
+    )?;
     let key_id = expected_key_id(&public_key);
     let receipt_id = "sha256:receipt:contract-test".to_owned();
     let signing_bytes = signing_bytes(
@@ -69,24 +76,20 @@ fn signed_wire(
         &key_id,
         issued_at,
         expires_at,
-        &payload,
+        payload,
     );
-    let signature = key_pair
-        .sign(&rng, &signing_bytes)
-        .expect("sign test transport");
-    let mut signature: [u8; 64] = signature
-        .as_ref()
-        .try_into()
-        .expect("P-256 signature length");
+    let signature = with_context(key_pair.sign(&rng, &signing_bytes), "sign test transport")?;
+    let mut signature: [u8; 64] =
+        with_context(signature.as_ref().try_into(), "P-256 signature length")?;
     normalize_signature_to_low_s(&mut signature);
     let mut wire = signing_bytes;
     wire.extend_from_slice(&signature);
-    SignedWire {
+    Ok(SignedWire {
         wire,
         public_key,
         key_id,
         receipt_id,
-    }
+    })
 }
 
 fn signing_bytes(
@@ -167,17 +170,20 @@ fn normalize_signature_to_low_s(signature: &mut [u8; 64]) {
 }
 
 #[test]
-fn signed_issue_transport_verifies_with_typed_canonical_claims() {
+fn signed_issue_transport_verifies_with_typed_canonical_claims() -> TestResult<()> {
     let claims = claims();
-    let payload = serde_json::to_vec(&claims).expect("canonical claims JSON");
+    let payload = with_context(serde_json::to_vec(&claims), "canonical claims JSON")?;
     let fixture = signed_wire(
         AccountIdentityAuthorityProducerV2Operation::IssueCurrentAuthority,
-        payload,
+        &payload,
         ISSUED_AT,
         EXPIRES_AT,
-    );
+    )?;
 
-    let verified = verify(&fixture.wire, &fixture.public_key, now()).expect("verify issue wire");
+    let verified = with_context(
+        verify(&fixture.wire, &fixture.public_key, now()?),
+        "verify issue wire",
+    )?;
 
     assert_eq!(
         verified.operation(),
@@ -198,11 +204,12 @@ fn signed_issue_transport_verifies_with_typed_canonical_claims() {
     assert_eq!(verified.issued_at(), ISSUED_AT);
     assert_eq!(verified.expires_at(), EXPIRES_AT);
     assert_eq!(verified.claims(), &claims);
+    Ok(())
 }
 
 #[test]
-fn signed_issue_transport_rejects_noncanonical_rfc3339_timestamps() {
-    let payload = serde_json::to_vec(&claims()).expect("canonical claims JSON");
+fn signed_issue_transport_rejects_noncanonical_rfc3339_timestamps() -> TestResult<()> {
+    let payload = with_context(serde_json::to_vec(&claims()), "canonical claims JSON")?;
     for (issued_at, expires_at) in [
         ("2026-08-28T19:00:00Z", EXPIRES_AT),
         ("2026-08-28T19:00:00.000+00:00", EXPIRES_AT),
@@ -210,43 +217,44 @@ fn signed_issue_transport_rejects_noncanonical_rfc3339_timestamps() {
     ] {
         let fixture = signed_wire(
             AccountIdentityAuthorityProducerV2Operation::IssueCurrentAuthority,
-            payload.clone(),
+            &payload,
             issued_at,
             expires_at,
-        );
+        )?;
 
         assert!(matches!(
-            verify(&fixture.wire, &fixture.public_key, now()),
+            verify(&fixture.wire, &fixture.public_key, now()?),
             Err(AccountIdentityAuthorityProducerV2Error::InvalidWire)
         ));
     }
+    Ok(())
 }
 
 #[test]
-fn domain_key_and_signature_changes_fail_closed() {
-    let payload = serde_json::to_vec(&claims()).expect("canonical claims JSON");
+fn domain_key_and_signature_changes_fail_closed() -> TestResult<()> {
+    let payload = with_context(serde_json::to_vec(&claims()), "canonical claims JSON")?;
     let fixture = signed_wire(
         AccountIdentityAuthorityProducerV2Operation::IssueCurrentAuthority,
-        payload.clone(),
+        &payload,
         ISSUED_AT,
         EXPIRES_AT,
-    );
+    )?;
 
     let mut wrong_domain = fixture.wire.clone();
     wrong_domain[0] ^= 1;
     assert!(matches!(
-        verify(&wrong_domain, &fixture.public_key, now()),
+        verify(&wrong_domain, &fixture.public_key, now()?),
         Err(AccountIdentityAuthorityProducerV2Error::InvalidWire)
     ));
 
     let other_key = signed_wire(
         AccountIdentityAuthorityProducerV2Operation::IssueCurrentAuthority,
-        payload,
+        &payload,
         ISSUED_AT,
         EXPIRES_AT,
-    );
+    )?;
     assert!(matches!(
-        verify(&fixture.wire, &other_key.public_key, now()),
+        verify(&fixture.wire, &other_key.public_key, now()?),
         Err(AccountIdentityAuthorityProducerV2Error::InvalidKeyId)
     ));
 
@@ -254,8 +262,9 @@ fn domain_key_and_signature_changes_fail_closed() {
     let last = bad_signature.len() - 1;
     bad_signature[last] ^= 1;
     assert!(matches!(
-        verify(&bad_signature, &fixture.public_key, now()),
+        verify(&bad_signature, &fixture.public_key, now()?),
         Err(AccountIdentityAuthorityProducerV2Error::InvalidSignature
             | AccountIdentityAuthorityProducerV2Error::SignatureInvalid)
     ));
+    Ok(())
 }

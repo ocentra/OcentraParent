@@ -235,7 +235,7 @@ fn encoded_capacity(
             return Err(AccountIdentityMutationAuthorityError::InvalidEnvelope);
         }
         u32::try_from(field.len())
-            .map_err(|_| AccountIdentityMutationAuthorityError::InvalidEnvelope)?;
+            .map_err(|_error| AccountIdentityMutationAuthorityError::InvalidEnvelope)?;
         total = total
             .checked_add(4)
             .and_then(|value| value.checked_add(field.len()))
@@ -251,7 +251,7 @@ fn append_string(
     value: &str,
 ) -> Result<(), AccountIdentityMutationAuthorityError> {
     let length = u32::try_from(value.len())
-        .map_err(|_| AccountIdentityMutationAuthorityError::InvalidEnvelope)?;
+        .map_err(|_error| AccountIdentityMutationAuthorityError::InvalidEnvelope)?;
     bytes.extend_from_slice(&length.to_be_bytes());
     bytes.extend_from_slice(value.as_bytes());
     Ok(())

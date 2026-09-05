@@ -39,7 +39,7 @@ pub(crate) fn parse_wire(
     }
     let payload = wire[4..4 + payload_length].to_vec();
     let signature = <[u8; 64]>::try_from(&wire[4 + payload_length..])
-        .map_err(|_| AccountIdentityMutationAuthorityError::InvalidEnvelope)?;
+        .map_err(|_error| AccountIdentityMutationAuthorityError::InvalidEnvelope)?;
     let envelope = parse_payload(&payload)?;
     if encode(&envelope)? != payload {
         return Err(AccountIdentityMutationAuthorityError::InvalidEnvelope);

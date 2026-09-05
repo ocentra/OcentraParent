@@ -55,6 +55,7 @@ export const ParentSidebarRouteGroups: readonly ParentRouteGroupId[] = [
   ParentRouteGroup.Monitor,
   ParentRouteGroup.Guide,
   ParentRouteGroup.Operate,
+  ParentRouteGroup.DevTools,
 ] as const;
 
 export type ParentRouteMetadataEntry = {

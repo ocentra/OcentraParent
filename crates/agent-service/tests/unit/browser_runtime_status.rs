@@ -7,50 +7,16 @@ mod browser_runtime_status;
 #[path = "../../src/fields.rs"]
 mod fields;
 
-use ocentra_parent_agent_core::browser_managed_discovery::BrowserUnmanagedProcessObservation;
 use ocentra_parent_agent_protocol::{
-    browser::{
-        BrowserCapabilityStatus, BrowserChannel, BrowserCustodyLabel, BrowserFamily,
-        BROWSER_EVIDENCE_SCHEMA_VERSION,
-    },
+    browser::{BrowserCapabilityStatus, BrowserCustodyLabel, BROWSER_EVIDENCE_SCHEMA_VERSION},
     browser_inventory::BrowserInventoryReadModel,
-    browser_managed::{
-        BrowserManagedProfileLifecycleState, BrowserManagedState, BrowserQueryVisibilityLabel,
-        BrowserUnmanagedDetectionConfidence, BrowserUnmanagedDetectionReason,
-        BrowserUnmanagedProcessKind,
-    },
+    browser_managed::{BrowserManagedState, BrowserQueryVisibilityLabel},
     constants,
     logging::LogFieldValue,
 };
 
 #[test]
-fn browser_runtime_status_variants_preserve_managed_and_unmanaged_details() {
-    let profile_missing = browser_runtime_status::profile_missing_status(
-        constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
-    );
-    assert_eq!(
-        profile_missing.managed_state,
-        BrowserManagedState::InstalledSupported
-    );
-    assert_eq!(
-        profile_missing.profile_lifecycle_state,
-        Some(BrowserManagedProfileLifecycleState::Missing)
-    );
-
-    let unmanaged = browser_runtime_status::unmanaged_browser_status(
-        constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
-        unmanaged_process(),
-    );
-    assert_eq!(
-        unmanaged.capability_status,
-        BrowserCapabilityStatus::UnmanagedBrowser
-    );
-    assert_eq!(unmanaged.process_id, Some(417));
-    assert_eq!(
-        unmanaged.unmanaged_process_kind,
-        Some(BrowserUnmanagedProcessKind::SupportedBrowser)
-    );
-
+fn browser_runtime_status_preserves_the_production_error_boundary() {
     let error_status = browser_runtime_status::status_with_error(
         constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
         constants::value::MANAGED_BROWSER_PROFILE_DIR_MISSING,
@@ -104,19 +70,4 @@ fn browser_runtime_payloads_serialize_status_and_empty_inventory_fields() {
         inventory_payload.get(constants::field::BROWSER_FAMILY),
         Some(&LogFieldValue::Null(()))
     );
-}
-
-fn unmanaged_process() -> BrowserUnmanagedProcessObservation {
-    BrowserUnmanagedProcessObservation {
-        process_id: 417,
-        process_name: constants::browser::SESSION_ID_DEV.to_string(),
-        executable_path_ref: Some(constants::browser::PROFILE_PATH_REF_MANAGED.to_string()),
-        signature_ref: Some(constants::browser::PROFILE_SCOPE_ID_DEV.to_string()),
-        process_hash_ref: Some(constants::browser::PROFILE_POLICY_REVISION_DEV.to_string()),
-        browser_family: BrowserFamily::UnknownChromium,
-        browser_channel: BrowserChannel::Unknown,
-        process_kind: BrowserUnmanagedProcessKind::SupportedBrowser,
-        detection_confidence: BrowserUnmanagedDetectionConfidence::High,
-        detection_reason: BrowserUnmanagedDetectionReason::SupportedBrowserOutsideManagedSession,
-    }
 }

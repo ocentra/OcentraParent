@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 import path from 'node:path';
 import { durableReplaceLocalArtifact, readLocalArtifactText } from '../local-artifact-file';
 import { withLocalArtifactLock } from '../local-artifact-lock';
+import { ensureOwnedDirectory } from '../local-artifact-path';
 import { applyLocalArtifactTransaction } from '../local-artifact-transaction';
 import { normalizeWipeFileSelector } from '../test-log/wipeFileSelector';
 import {
@@ -47,10 +48,11 @@ function quarantineInvalidLifecycleState(rootDir: string, raw: string, value: un
   if (operatorState == null) {
     throw new Error('invalid bridge lifecycle quarantine state');
   }
+  const quarantineDirectory = ensureOwnedDirectory(path.join(rootDir, '.bridge', 'lifecycle-quarantine'));
   applyLocalArtifactTransaction(rootDir, [
     {
       kind: 'replace',
-      filePath: path.join(rootDir, '.bridge', 'lifecycle-quarantine', `${operatorState.recordSha256}.json`),
+      filePath: path.join(quarantineDirectory, `${operatorState.recordSha256}.json`),
       payload: raw.endsWith('\n') ? raw : `${raw}\n`,
     },
     {

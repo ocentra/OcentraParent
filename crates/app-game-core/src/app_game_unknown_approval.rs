@@ -21,7 +21,8 @@ use crate::app_game_unknown_approval_types::{
     AppGameUnknownApprovalRequestInput, AppGameUnknownApprovalResponseInput,
     AppGameUnknownApprovalSnapshot, AppGameUnknownApprovalWriteReceipt, AppGameUnknownCandidate,
     AppGameUnknownCandidateInput, AppGameUnknownCandidateKind, AppGameUnknownCandidateSource,
-    AppGameUnknownClassification, AppGameUnknownInventoryCandidateContext,
+    AppGameUnknownClassification, AppGameUnknownInventoryApprovalRequestInput,
+    AppGameUnknownInventoryCandidateContext,
 };
 use crate::app_game_unknown_approval_validation::{
     require_text, validate_optional_refs, validate_unknown_candidate,
@@ -76,7 +77,7 @@ pub fn produce_app_game_unknown_candidate_from_inventory(
         observed_at_epoch_ms: context.observed_at_epoch_ms,
         evidence_refs,
         category_candidate_ref,
-        child_status_refs: Vec::new(),
+        child_status_refs: context.child_status_refs,
     })
     .map(Some)
 }
@@ -151,14 +152,10 @@ pub async fn persist_app_game_unknown_approval_request_from_inventory(
     journal: &NdjsonEventJournal,
     metadata: EventMetadata,
     row: &AppGameInventoryEvidenceRow,
-    candidate_context: AppGameUnknownInventoryCandidateContext,
-    request_id: String,
-    transition_id: String,
-    child_reason_refs: Vec<String>,
-    expires_at_epoch_ms: u64,
+    input: AppGameUnknownInventoryApprovalRequestInput,
 ) -> Result<Option<AppGameUnknownApprovalWriteReceipt>, AppGameUnknownApprovalError> {
     let Some(candidate) =
-        produce_app_game_unknown_candidate_from_inventory(row, candidate_context)?
+        produce_app_game_unknown_candidate_from_inventory(row, input.candidate_context)?
     else {
         return Ok(None);
     };
@@ -167,11 +164,11 @@ pub async fn persist_app_game_unknown_approval_request_from_inventory(
         journal,
         metadata,
         AppGameUnknownApprovalRequestInput {
-            request_id,
-            transition_id,
+            request_id: input.request_id,
+            transition_id: input.transition_id,
             candidate,
-            child_reason_refs,
-            expires_at_epoch_ms,
+            child_reason_refs: input.child_reason_refs,
+            expires_at_epoch_ms: input.expires_at_epoch_ms,
         },
     )
     .await

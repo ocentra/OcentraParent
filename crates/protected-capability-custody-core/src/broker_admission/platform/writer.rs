@@ -58,9 +58,10 @@ pub(super) fn revalidate(canonical_path: &Path, held: &File) -> Result<(), Platf
         return Err(PlatformError::Tampered);
     }
     acl::validate_file(&current)?;
-    let current_handle = Handle::from_file(current).map_err(|_| PlatformError::Unavailable)?;
+    let current_handle =
+        Handle::from_file(current).map_err(|_handle_error| PlatformError::Unavailable)?;
     let held_handle = Handle::from_file(held.try_clone().map_err(map_io_error)?)
-        .map_err(|_| PlatformError::Unavailable)?;
+        .map_err(|_handle_error| PlatformError::Unavailable)?;
     if current_handle != held_handle {
         return Err(PlatformError::Conflict);
     }

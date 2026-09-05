@@ -9,7 +9,7 @@ mod decode;
 mod validation;
 mod values;
 
-#[cfg(test)]
+#[path = "../tests/unit/binding_private.rs"]
 mod binding_test;
 
 const LOCATOR_MAGIC: [u8; 4] = *b"OCPL";

@@ -6,9 +6,12 @@ import { afterEach, describe, expect, it } from 'vitest';
 import type { GeneratedStackTrace as StackTrace } from '../../src/generated-logging-contracts';
 import { RunType, TestLogOrigin, TestLogScope } from '../../src/test-log/types';
 import { Logger } from '../../src/core/logger';
+import { createLocalArtifactBridgeQueueStorage } from '../../src/core/localArtifactBridgeQueueStorage';
 import { getStackTrace } from '../../src/core/stackTrace';
 import { createBridgeServer } from '../../src/transport/bridgeServer';
 import { getTestLogScopeDir, listNdjsonFiles } from '../../src/test-log/ndjsonPaths';
+import { readTestLogEntriesFromFile } from '../../src/test-log/ndjsonWriter';
+import { closeLocalArtifactMutationProvider } from '../../src/local-artifact-mutation-provider';
 
 class LoggerTestFixture {
   private readonly log = Logger.instance;
@@ -49,7 +52,7 @@ async function closeServer(server: ReturnType<typeof createBridgeServer>): Promi
   });
 }
 
-describe('logger source and context registration', () => {
+describe.skipIf(process.platform !== 'win32')('logger source and context registration', () => {
   const tempDirs: string[] = [];
   const servers: Array<ReturnType<typeof createBridgeServer>> = [];
   const originalLogLevel = process.env.OCENTRA_PARENT_LOG_LEVEL;
@@ -65,6 +68,7 @@ describe('logger source and context registration', () => {
     await Promise.all(servers.splice(0, servers.length).map(closeServer));
 
     for (const tempDir of tempDirs.splice(0, tempDirs.length)) {
+      await closeLocalArtifactMutationProvider(tempDir);
       fs.rmSync(tempDir, { force: true, recursive: true });
     }
   });
@@ -87,20 +91,18 @@ describe('logger source and context registration', () => {
       origin: TestLogOrigin.Test,
       environment: 'test',
       skipHealthCheck: true,
+      bridgeQueueStorage: createLocalArtifactBridgeQueueStorage(tempDir),
     });
 
     const fixture = new LoggerTestFixture();
     fixture.emitHelloWorldLogs();
     await Logger.instance.flush();
+    await closeLocalArtifactMutationProvider(tempDir);
 
     const files = listNdjsonFiles(getTestLogScopeDir(TestLogScope.ParentTest, tempDir));
     expect(files).toHaveLength(1);
 
-    const payload = fs.readFileSync(files[0] ?? '', 'utf8').trim();
-    const rows = payload
-      .split(/\r?\n/)
-      .filter((line) => line.trim().length > 0)
-      .map((line) => JSON.parse(line) as { source: string | null; context: string | null; filePath: string | null });
+    const rows = readTestLogEntriesFromFile(files[0] ?? '', tempDir);
 
     expect(rows).toHaveLength(1);
     expect(rows[0]?.source).toBe('LoggerTestFixture');

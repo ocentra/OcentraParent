@@ -3,9 +3,6 @@ use ocentra_parent_agent_protocol::constants::v08_cross_platform_enforcement_cap
 use ocentra_parent_agent_protocol::constants::v08_enforcement_product_control_spine as spine;
 use ocentra_parent_agent_protocol::constants::v08_os_adapter_product_proof as os_proof;
 use ocentra_parent_agent_protocol::enforcement_browser_domain_adapter_proof::V08BrowserDomainAdapterProofReadModel;
-use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformAdapterExecutionState;
-use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformCapabilityStatus;
-use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformEnforcementCapabilityClaimState;
 use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformEnforcementCapabilityProofEntry;
 use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformEnforcementCapabilityProofReadModel;
 use ocentra_parent_agent_protocol::enforcement_os_adapter_product_proof::V08OsAdapterProductProofReadModel;
@@ -27,6 +24,14 @@ use super::{
     proof_links::{expect_browser, expect_cross, expect_os},
     GeneratedAtText, ProofEntryId,
 };
+
+#[path = "surface_entry_capability_state.rs"]
+mod surface_entry_capability_state;
+#[path = "surface_entry_execution_state.rs"]
+mod surface_entry_execution_state;
+
+use surface_entry_capability_state::{product_capability_status, product_claim_state};
+use surface_entry_execution_state::{product_device_policy_state, product_execution_state};
 
 pub(super) fn entries(
     cross_platform: &V08CrossPlatformEnforcementCapabilityProofReadModel,
@@ -157,74 +162,6 @@ fn product_states_from_cross_entry(
         product_execution_state(cross_entry.adapter_execution_state),
         product_device_policy_state(cross_entry.product_claim_state),
     )
-}
-
-fn product_capability_status(
-    status: V08CrossPlatformCapabilityStatus,
-) -> V08EnforcementProductControlCapabilityStatus {
-    match status {
-        V08CrossPlatformCapabilityStatus::Implemented =>
-            V08EnforcementProductControlCapabilityStatus::Implemented,
-        V08CrossPlatformCapabilityStatus::ManualRequired =>
-            V08EnforcementProductControlCapabilityStatus::ManualRequired,
-        V08CrossPlatformCapabilityStatus::Supported
-        | V08CrossPlatformCapabilityStatus::PreviewScaffold
-        | V08CrossPlatformCapabilityStatus::Scaffold
-        | V08CrossPlatformCapabilityStatus::Unavailable
-        | V08CrossPlatformCapabilityStatus::Planned
-        | V08CrossPlatformCapabilityStatus::NotImplemented =>
-            V08EnforcementProductControlCapabilityStatus::NotImplemented,
-    }
-}
-
-fn product_claim_state(
-    state: V08CrossPlatformEnforcementCapabilityClaimState,
-) -> V08EnforcementProductControlClaimState {
-    match state {
-        V08CrossPlatformEnforcementCapabilityClaimState::ImplementedBoundary =>
-            V08EnforcementProductControlClaimState::ImplementedBoundary,
-        V08CrossPlatformEnforcementCapabilityClaimState::ManualRequired =>
-            V08EnforcementProductControlClaimState::ManualRequired,
-        V08CrossPlatformEnforcementCapabilityClaimState::Scaffold
-        | V08CrossPlatformEnforcementCapabilityClaimState::Unavailable =>
-            V08EnforcementProductControlClaimState::Unavailable,
-        V08CrossPlatformEnforcementCapabilityClaimState::Planned
-        | V08CrossPlatformEnforcementCapabilityClaimState::NotClaimed =>
-            V08EnforcementProductControlClaimState::NotClaimed,
-    }
-}
-
-fn product_execution_state(
-    state: V08CrossPlatformAdapterExecutionState,
-) -> V08EnforcementProductControlExecutionState {
-    match state {
-        V08CrossPlatformAdapterExecutionState::ExecutesRealService =>
-            V08EnforcementProductControlExecutionState::ExecutesRealService,
-        V08CrossPlatformAdapterExecutionState::ReturnsManualRequired =>
-            V08EnforcementProductControlExecutionState::ReturnsManualRequired,
-        V08CrossPlatformAdapterExecutionState::ReturnsUnavailable =>
-            V08EnforcementProductControlExecutionState::ReturnsUnavailable,
-        V08CrossPlatformAdapterExecutionState::ScaffoldOnly
-        | V08CrossPlatformAdapterExecutionState::NotInvoked =>
-            V08EnforcementProductControlExecutionState::NotInvoked,
-    }
-}
-
-fn product_device_policy_state(
-    state: V08CrossPlatformEnforcementCapabilityClaimState,
-) -> V08EnforcementProductControlDevicePolicyState {
-    match state {
-        V08CrossPlatformEnforcementCapabilityClaimState::ImplementedBoundary =>
-            V08EnforcementProductControlDevicePolicyState::ControlCapable,
-        V08CrossPlatformEnforcementCapabilityClaimState::ManualRequired =>
-            V08EnforcementProductControlDevicePolicyState::ManualRequired,
-        V08CrossPlatformEnforcementCapabilityClaimState::Scaffold
-        | V08CrossPlatformEnforcementCapabilityClaimState::Unavailable =>
-            V08EnforcementProductControlDevicePolicyState::Unavailable,
-        V08CrossPlatformEnforcementCapabilityClaimState::Planned
-        | V08CrossPlatformEnforcementCapabilityClaimState::NotClaimed =>
-            V08EnforcementProductControlDevicePolicyState::NotClaimed,
-    }
 }
 
 fn managed_browser_entry(

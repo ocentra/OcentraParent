@@ -2,10 +2,10 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { Logger } from '@ocentra-parent/logging-domain/core/logger';
 import { getStackTrace } from '@ocentra-parent/logging-domain/core/stackTrace';
-import { enforceBillingRateLimit } from '../../src/index.js';
+import worker, { enforceBillingRateLimit } from '../../src/index.js';
 import { verifyAuthState } from '../../src/auth/verifier.js';
 import { findRoute } from '../../src/routes.js';
-import { createStripeSignature, createTestHarness } from '../../src/testing.js';
+import { createStripeSignature, createTestHarness, type CloudflareTestHarness } from '../../src/testing.js';
 
 const log = Logger.instance;
 log.register(import.meta.url);
@@ -27,6 +27,55 @@ function proofMilestone(result: 'started' | 'blocked' | 'completed', boundary: s
 
 async function readJsonBody(response: Response): Promise<Record<string, unknown>> {
   return JSON.parse(await response.text()) as Record<string, unknown>;
+}
+
+type QueueObservation = {
+  acknowledgements: number;
+  retries: unknown[];
+};
+
+type ObservedQueueRetryOptions = {
+  readonly delaySeconds?: number;
+};
+
+function createQueueObservation(): QueueObservation {
+  return {
+    acknowledgements: 0,
+    retries: [],
+  };
+}
+
+function observedQueueBatch(
+  body: unknown,
+  attempts: number,
+  observation: QueueObservation
+): Parameters<typeof worker.queue>[0] {
+  return {
+    queue: 'billing-reconciliation',
+    messages: [
+      {
+        body,
+        attempts,
+        ack(): void {
+          observation.acknowledgements += 1;
+        },
+        retry(options?: ObservedQueueRetryOptions): void {
+          observation.retries.push(options);
+        },
+      },
+    ],
+  };
+}
+
+function billingQueueOutcomeWrites(harness: CloudflareTestHarness) {
+  return harness.bindingState.getAnalyticsWrites().filter((entry) => entry.indexes?.[0] === 'billing-queue-outcome');
+}
+
+function requireRecord(value: unknown): Record<string, unknown> {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    throw new Error('expected queue record');
+  }
+  return value as Record<string, unknown>;
 }
 
 describe('payment security boundaries', () => {
@@ -57,12 +106,7 @@ describe('payment security boundaries', () => {
     assert.equal(authResult.ok, true);
     if (!authResult.ok) return;
 
-    const configured = await enforceBillingRateLimit(
-      harness.env,
-      route,
-      authResult.identity,
-      now
-    );
+    const configured = await enforceBillingRateLimit(harness.env, route, authResult.identity, now);
     assert.ok(configured instanceof Response);
     if (configured instanceof Response) {
       assert.equal(configured.status, 503);
@@ -89,12 +133,7 @@ describe('payment security boundaries', () => {
     const harness = createTestHarness();
     const route = findRoute('/auth/billing/referral-invite', 'POST');
     if (!route) throw new Error('referral invite route missing from manifest');
-    const result = await enforceBillingRateLimit(
-      harness.env,
-      route,
-      undefined,
-      Date.now()
-    );
+    const result = await enforceBillingRateLimit(harness.env, route, undefined, Date.now());
 
     assert.ok(result instanceof Response);
     if (result instanceof Response) {
@@ -103,5 +142,90 @@ describe('payment security boundaries', () => {
     }
     proofMilestone('blocked', 'parent-write-rate-limit-principal');
     proofMilestone('completed', 'parent-write-rate-limit-principal');
+  });
+
+  it('records identifier-free queue retry telemetry with the exact bounded delay', async () => {
+    const harness = createTestHarness();
+    const observation = createQueueObservation();
+
+    await worker.queue(observedQueueBatch('invalid-queue-body', 2, observation), harness.env);
+
+    assert.deepEqual(observation, {
+      acknowledgements: 0,
+      retries: [{ delaySeconds: 90 }],
+    });
+    assert.deepEqual(billingQueueOutcomeWrites(harness), [
+      {
+        indexes: ['billing-queue-outcome', 'unclassified', 'retry-scheduled'],
+        doubles: [2, 90],
+      },
+    ]);
+  });
+
+  it('dead-letters an exhausted provider event with no receipt and records only its payload class', async () => {
+    const harness = createTestHarness();
+    const observation = createQueueObservation();
+
+    await worker.queue(
+      observedQueueBatch(
+        {
+          action: 'provider-webhook',
+          provider: 'stripe',
+          eventId: 'evt-missing-receipt-private',
+          eventType: 'invoice.paid',
+        },
+        5,
+        observation
+      ),
+      harness.env
+    );
+
+    assert.deepEqual(observation, {
+      acknowledgements: 1,
+      retries: [],
+    });
+    assert.equal(harness.deadLetterMessages.length, 1);
+    const deadLetter = requireRecord(harness.deadLetterMessages[0]);
+    assert.deepEqual(Object.keys(deadLetter).sort(), [
+      'disposition',
+      'errorCode',
+      'failedAt',
+      'payloadDigest',
+      'payloadKind',
+      'reason',
+      'sourceQueue',
+    ]);
+    assert.equal(deadLetter.disposition, 'dead-letter');
+    assert.equal(deadLetter.sourceQueue, 'BILLING_RECONCILIATION_QUEUE');
+    assert.equal(deadLetter.reason, 'queue-consumer-manual-required');
+    assert.equal(deadLetter.payloadKind, 'provider-webhook');
+    assert.equal(deadLetter.errorCode, 'billing-queue-operation-failed');
+    assert.equal(typeof deadLetter.payloadDigest, 'string');
+    assert.equal(typeof deadLetter.failedAt, 'string');
+    assert.deepEqual(billingQueueOutcomeWrites(harness), [
+      {
+        indexes: ['billing-queue-outcome', 'provider-webhook', 'dead-lettered'],
+        doubles: [5, 0],
+      },
+    ]);
+  });
+
+  it('keeps an exhausted message retryable and visible when dead-letter custody is unavailable', async () => {
+    const harness = createTestHarness({ BILLING_DEAD_LETTER_QUEUE: undefined });
+    const observation = createQueueObservation();
+
+    await worker.queue(observedQueueBatch('invalid-queue-body', 5, observation), harness.env);
+
+    assert.deepEqual(observation, {
+      acknowledgements: 0,
+      retries: [{ delaySeconds: 900 }],
+    });
+    assert.equal(harness.deadLetterMessages.length, 0);
+    assert.deepEqual(billingQueueOutcomeWrites(harness), [
+      {
+        indexes: ['billing-queue-outcome', 'unclassified', 'dead-letter-unavailable'],
+        doubles: [5, 900],
+      },
+    ]);
   });
 });

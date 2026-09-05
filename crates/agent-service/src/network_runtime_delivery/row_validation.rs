@@ -8,6 +8,8 @@ use ocentra_parent_agent_protocol::network_flow::ActivityNetworkFlowObservation;
 use serde::de::DeserializeOwned;
 use serde_json::Value;
 
+const ERROR_DETAIL_SEPARATOR: &str = ": ";
+
 pub(super) struct ValidatedNetworkRuntimeRow {
     pub(super) status: ActivityCaptureCapabilityStatus,
     pub(super) protocol: Option<ActivityNetworkProtocol>,
@@ -47,7 +49,15 @@ pub(super) fn validate(
         .transpose()?;
     let process_id = row
         .process_id
-        .map(|value| u32::try_from(value).map_err(|_| invalid_value(ValidationField::ProcessId)))
+        .map(|value| {
+            u32::try_from(value).map_err(|error| {
+                invalid_value(
+                    ValidationField::ProcessId,
+                    InvalidPersistedValue(value.to_string()),
+                    error,
+                )
+            })
+        })
         .transpose()?;
     Ok(ValidatedNetworkRuntimeRow {
         status,
@@ -61,16 +71,29 @@ fn parse_required<T>(field: ValidationField, value: PersistedText<'_>) -> Result
 where
     T: DeserializeOwned,
 {
-    serde_json::from_value(Value::String(value.0.to_owned())).map_err(|_| invalid_value(field))
+    serde_json::from_value(Value::String(value.0.to_owned()))
+        .map_err(|error| invalid_value(field, InvalidPersistedValue(value.0.to_owned()), error))
 }
 
 fn validate_observed_at(value: PersistedText<'_>) -> Result<(), EventingError> {
     DateTime::parse_from_rfc3339(value.0)
         .map(|_| ())
-        .map_err(|_| invalid_value(ValidationField::ObservedAt))
+        .map_err(|error| {
+            invalid_value(
+                ValidationField::ObservedAt,
+                InvalidPersistedValue(value.0.to_owned()),
+                error,
+            )
+        })
 }
 
-fn invalid_value(field: ValidationField) -> EventingError {
+struct InvalidPersistedValue(String);
+
+fn invalid_value(
+    field: ValidationField,
+    value: InvalidPersistedValue,
+    error: impl std::fmt::Display,
+) -> EventingError {
     let field = match field {
         ValidationField::CapabilityStatus => constants::field::CAPABILITY_STATUS,
         ValidationField::NetworkProtocol => constants::field::NETWORK_PROTOCOL,
@@ -78,8 +101,8 @@ fn invalid_value(field: ValidationField) -> EventingError {
         ValidationField::ProcessId => constants::field::PROCESS_ID,
         ValidationField::ObservedAt => constants::field::OBSERVED_AT,
     };
-    EventingError::InvalidValue {
-        field,
-        value: constants::network_flow::NETWORK_RUNTIME_STARTUP_RECONCILIATION_FAILURE.to_string(),
-    }
+    let mut value = value.0;
+    value.push_str(ERROR_DETAIL_SEPARATOR);
+    value.push_str(&error.to_string());
+    EventingError::InvalidValue { field, value }
 }

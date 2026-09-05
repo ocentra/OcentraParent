@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use ocentra_child_runtime::service::{
     ChildAgentIngressError, ChildAgentReadiness, ChildAgentService, ChildAgentServiceError,
@@ -12,7 +12,7 @@ fn unique_root(label: &str) -> PathBuf {
     ))
 }
 
-fn clean_root(root: &PathBuf) {
+fn clean_root(root: &Path) {
     let _ = std::fs::remove_dir_all(root);
 }
 
@@ -51,23 +51,30 @@ async fn ingress_rejects_observed_commands_until_owner_current_binding_is_availa
     let service =
         ChildAgentService::initialize_with_paths(ChildAgentServicePaths::from_root(root.clone()))
             .await?;
-    let error = service
-        .ingress()
+    let ingress = service.ingress();
+    let service_task = tokio::spawn(service.run_until_shutdown());
+    let result = ingress
         .submit_observed_event(ocentra_app_core::app_observed_event(
             ocentra_app_core::AppObservationIntent::InventoryObservationOnly,
         ))
-        .await
-        .expect_err("in-process ingress must fail closed without current trust");
+        .await;
+    let error = match result {
+        Err(error) => error,
+        Ok(_) => return Err("in-process ingress accepted a command without current trust".into()),
+    };
 
     let ChildAgentIngressError::Service(error) = error else {
         return Err("missing current trust must be a service readiness rejection".into());
     };
-    assert_eq!(
-        matches!(*error, ChildAgentServiceError::TrustBindingManualRequired),
-        true
-    );
+    match *error {
+        ChildAgentServiceError::TrustBindingManualRequired => {}
+        unexpected => {
+            return Err(format!("unexpected missing-trust service error: {unexpected:?}").into())
+        }
+    }
 
-    drop(service);
+    service_task.abort();
+    let _ = service_task.await;
     clean_root(&root);
     Ok(())
 }

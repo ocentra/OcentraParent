@@ -50,7 +50,7 @@ pub(super) fn batch(
         apply_mutation(&key, mutation)?;
     }
     super::super::confirm_runtime_batch(registry_id, &key, permit)
-        .map_err(|_| super::super::RuntimeBatchFailure::OutcomeUnknown)
+        .map_err(|_confirmation_error| super::super::RuntimeBatchFailure::OutcomeUnknown)
 }
 
 #[cfg(windows)]
@@ -67,7 +67,7 @@ fn apply_mutation(
                     vtype: REG_BINARY,
                 },
             )
-            .map_err(|_| super::super::RuntimeBatchFailure::OutcomeUnknown),
+            .map_err(|_write_error| super::super::RuntimeBatchFailure::OutcomeUnknown),
         None => delete_value(key, mutation.name),
     }
 }

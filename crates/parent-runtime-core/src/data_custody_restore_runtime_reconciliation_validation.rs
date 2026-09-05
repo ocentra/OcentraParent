@@ -1,4 +1,6 @@
-use super::data_custody_restore_runtime_receipts::migration_receipt_from_dispatch;
+use super::data_custody_restore_runtime_receipts::{
+    migration_receipt_from_dispatch, MigrationReceiptDispatch,
+};
 use ocentra_schema::export_import_backup_recovery as contracts;
 use ocentra_storage_custody_core::export_import_backup_recovery::{
     export_import_backup_recovery_compensation::PartialWriteCompensation,
@@ -44,17 +46,19 @@ pub(crate) fn plan_migration_manual_required(
 ) -> Result<contracts::ExportImportMigrationReceipt, RestoreRuntimeError> {
     migration_receipt_from_dispatch(
         plan,
-        contracts::ExportImportMigrationOutcome::ManualRequired,
-        planned.applied_sections.clone(),
-        planned.rejected_sections.clone(),
-        PartialWriteCompensation::NotRequired,
-        planned.provider_operation_ref.as_ref(),
-        planned.rollback_provider_operation_ref.as_ref(),
-        recorded_at,
-        Some(
-            "Migration was pending before restart; provider status reconciliation is required."
-                .to_owned(),
-        ),
+        MigrationReceiptDispatch {
+            outcome: contracts::ExportImportMigrationOutcome::ManualRequired,
+            applied_sections: planned.applied_sections.clone(),
+            rejected_sections: planned.rejected_sections.clone(),
+            compensation: PartialWriteCompensation::NotRequired,
+            provider_operation: planned.provider_operation_ref.as_ref(),
+            rollback_provider_operation: planned.rollback_provider_operation_ref.as_ref(),
+            recorded_at,
+            note: Some(
+                "Migration was pending before restart; provider status reconciliation is required."
+                    .to_owned(),
+            ),
+        },
     )
     .map_err(RestoreRuntimeError::Migration)
 }

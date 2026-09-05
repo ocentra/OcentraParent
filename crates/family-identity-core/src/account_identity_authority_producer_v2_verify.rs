@@ -36,12 +36,12 @@ pub(crate) fn verify(
         return Err(AccountIdentityAuthorityProducerV2Error::UnsupportedOperation);
     }
     let claims: AccountIdentityAuthorityProducerV2Claims = serde_json::from_slice(&parsed.payload)
-        .map_err(|_| AccountIdentityAuthorityProducerV2Error::AuthorityInvalid)?;
+        .map_err(|_error| AccountIdentityAuthorityProducerV2Error::AuthorityInvalid)?;
     claims
         .validate_shape()
-        .map_err(|_| AccountIdentityAuthorityProducerV2Error::AuthorityInvalid)?;
+        .map_err(|_error| AccountIdentityAuthorityProducerV2Error::AuthorityInvalid)?;
     let canonical_payload = serde_json::to_vec(&claims)
-        .map_err(|_| AccountIdentityAuthorityProducerV2Error::AuthorityInvalid)?;
+        .map_err(|_error| AccountIdentityAuthorityProducerV2Error::AuthorityInvalid)?;
     if canonical_payload != parsed.payload {
         return Err(AccountIdentityAuthorityProducerV2Error::InvalidWire);
     }
@@ -87,12 +87,12 @@ pub(crate) fn verify_receipt(
     }
     let receipt: AccountIdentityAuthorityProducerV2Receipt =
         serde_json::from_slice(&parsed.payload)
-            .map_err(|_| AccountIdentityAuthorityProducerV2Error::InvalidWire)?;
+            .map_err(|_error| AccountIdentityAuthorityProducerV2Error::InvalidWire)?;
     receipt
         .validate_shape()
-        .map_err(|_| AccountIdentityAuthorityProducerV2Error::InvalidWire)?;
+        .map_err(|_error| AccountIdentityAuthorityProducerV2Error::InvalidWire)?;
     let canonical_receipt = serde_json::to_vec(&receipt)
-        .map_err(|_| AccountIdentityAuthorityProducerV2Error::InvalidWire)?;
+        .map_err(|_error| AccountIdentityAuthorityProducerV2Error::InvalidWire)?;
     if canonical_receipt != parsed.payload
         || receipt.operation != AccountIdentityAuthorityProducerV2Operation::IssueCurrentAuthority
     {
@@ -157,7 +157,7 @@ pub(super) fn verify_signature(
     }
     UnparsedPublicKey::new(&ECDSA_P256_SHA256_FIXED, public_key)
         .verify(signing_bytes, signature)
-        .map_err(|_| AccountIdentityAuthorityProducerV2Error::SignatureInvalid)
+        .map_err(|_error| AccountIdentityAuthorityProducerV2Error::SignatureInvalid)
 }
 
 fn is_low_s(value: &[u8]) -> bool {

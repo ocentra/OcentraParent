@@ -25,7 +25,7 @@ pub(crate) fn browser_managed_status_snapshot_from_result(
     }
     expect_event(
         &response_event,
-        AgentEventName::AgentBrowserManagedStatusReported,
+        &AgentEventName::AgentBrowserManagedStatusReported,
         "browser managed status",
     )?;
     let event = events.last().cloned().ok_or_else(|| {
@@ -46,7 +46,7 @@ pub(crate) fn browser_activity_read_model_snapshot_from_result(
         ActivityBrowserReadModel,
     >(
         result,
-        AgentEventName::AgentActivityBrowserReadModelReported,
+        &AgentEventName::AgentActivityBrowserReadModelReported,
         constants::activity_surface::READ_MODEL_BROWSER,
         "browser",
     )?;
@@ -66,7 +66,7 @@ pub(crate) fn browser_inventory_read_model_snapshot_from_result(
     }
     expect_event(
         &response_event,
-        AgentEventName::AgentBrowserInventoryReadModelReported,
+        &AgentEventName::AgentBrowserInventoryReadModelReported,
         "browser inventory read model",
     )?;
     let event = events.last().cloned().ok_or_else(|| {
@@ -94,7 +94,7 @@ pub(crate) fn browser_evidence_read_model_snapshot_from_result(
     }
     expect_event(
         &response_event,
-        AgentEventName::AgentBrowserEvidenceRecentReported,
+        &AgentEventName::AgentBrowserEvidenceRecentReported,
         "browser evidence read model",
     )?;
     let event = events.last().cloned().ok_or_else(|| {
@@ -122,7 +122,7 @@ pub(crate) fn browser_intervention_read_model_snapshot_from_result(
     }
     expect_event(
         &response_event,
-        AgentEventName::AgentBrowserInterventionReadModelReported,
+        &AgentEventName::AgentBrowserInterventionReadModelReported,
         "browser intervention read model",
     )?;
     let event = events.last().cloned().ok_or_else(|| {
@@ -141,15 +141,15 @@ pub(crate) fn browser_intervention_read_model_snapshot_from_result(
 
 fn expect_event(
     response_event: &AgentEventEnvelope,
-    expected: AgentEventName,
+    expected: &AgentEventName,
     label: &str,
 ) -> Result<(), String> {
-    if response_event.event == expected {
+    if &response_event.event == expected {
         return Ok(());
     }
     Err(format!(
         "agent-service expected {} for {label}, received {}",
-        serialized_enum_label(&expected),
+        serialized_enum_label(expected),
         serialized_enum_label(&response_event.event)
     ))
 }

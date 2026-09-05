@@ -2,7 +2,7 @@ use crate::{
     activity_network_flow_payload::network_flow_read_model_payload_with_runtime_delivery,
     activity_payload::{ingest_status_payload, recent_summary_payload},
     activity_store_path::activity_db_path,
-    activity_surface_store::load_app_game_model,
+    activity_surface_store::app_game::load_app_game_model,
     browser_evidence_payload::browser_evidence_read_model_payload,
     browser_inventory_read_model::{
         browser_inventory_read_model_from_platform_inventory,
@@ -94,8 +94,12 @@ mod app_game_linux_docker_host_preflight_supervisor;
 mod app_game_linux_docker_host_preflight_wait;
 #[path = "activity_api/app_game_notification_readiness_payload.rs"]
 mod app_game_notification_readiness_payload;
+#[path = "activity_api/app_game_notification_readiness_report.rs"]
+mod app_game_notification_readiness_report;
 #[path = "activity_api/app_game_platform_probe_cache.rs"]
 pub(crate) mod app_game_platform_probe_cache;
+#[path = "activity_api/app_game_platform_probe_runtime.rs"]
+pub(crate) mod app_game_platform_probe_runtime;
 #[path = "activity_api/app_game_platform_proof_status_payload.rs"]
 pub(crate) mod app_game_platform_proof_status_payload;
 #[path = "activity_api/app_game_platform_proof_status_transport.rs"]
@@ -116,6 +120,8 @@ mod app_game_timer_parent_preference_setup_request_status;
 mod app_game_timer_parent_surface_action_results;
 #[path = "activity_api/app_game_timer_parent_surface_payload.rs"]
 pub(crate) mod app_game_timer_parent_surface_payload;
+#[path = "activity_api/app_game_timer_parent_surface_report.rs"]
+pub(crate) mod app_game_timer_parent_surface_report;
 #[path = "activity_api/browser_intervention_payload.rs"]
 mod browser_intervention_payload;
 #[path = "activity_api/browser_intervention_report.rs"]
@@ -136,7 +142,7 @@ pub(crate) mod social_source_custody_mutation_payload;
 use self::app_game_boundary_read_model_payload::{
     app_game_boundary_read_model_from_service_model, app_game_boundary_read_model_payload,
 };
-use self::app_game_notification_readiness_payload::{
+use self::app_game_notification_readiness_report::{
     app_game_notification_readiness_report_from_service_model,
     app_game_notification_readiness_report_payload,
 };
@@ -310,9 +316,9 @@ pub async fn build_activity_app_game_notification_readiness_report(
         ),
         AgentEventName::AgentActivityAppGameNotificationReadinessReadModelReported,
         async {
-            load_app_game_model().await.map(|model| {
-                app_game_notification_readiness_report_from_service_model(model)
-            })
+            load_app_game_model()
+                .await
+                .map(app_game_notification_readiness_report_from_service_model)
         },
         app_game_notification_readiness_report_payload,
     )

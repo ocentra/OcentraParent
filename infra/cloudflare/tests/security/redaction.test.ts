@@ -5,6 +5,7 @@ import {
   redactHeaders,
   redactPayload,
   sanitizeProviderMetadata,
+  sanitizeProviderMetadataForMode,
 } from '../../src/security/redaction.js';
 
 const log = Logger.instance;
@@ -114,6 +115,29 @@ describe('security redaction', () => {
     assert.deepEqual(sanitizeProviderMetadata({ testLiveMarker: 'preview' }), {
       accepted: false,
       reason: 'metadata-value-invalid',
+    });
+  });
+
+  it('rejects explicit provider metadata that contradicts the Worker test or live mode', () => {
+    assert.deepEqual(sanitizeProviderMetadataForMode({ testLiveMarker: 'test' }, 'test'), {
+      accepted: true,
+      metadata: { testLiveMarker: 'test' },
+    });
+    assert.deepEqual(sanitizeProviderMetadataForMode({ testLiveMarker: 'live' }, 'live'), {
+      accepted: true,
+      metadata: { testLiveMarker: 'live' },
+    });
+    assert.deepEqual(sanitizeProviderMetadataForMode({ testLiveMarker: 'live' }, 'test'), {
+      accepted: false,
+      reason: 'metadata-test-live-mismatch',
+    });
+    assert.deepEqual(sanitizeProviderMetadataForMode({ testLiveMarker: 'test' }, 'live'), {
+      accepted: false,
+      reason: 'metadata-test-live-mismatch',
+    });
+    assert.deepEqual(sanitizeProviderMetadataForMode({ invoiceReference: 'invoice-123' }, 'live'), {
+      accepted: true,
+      metadata: { invoiceReference: 'invoice-123' },
     });
   });
 });

@@ -24,8 +24,7 @@ mod export_import_backup_recovery_restore;
 #[path = "export_import_backup_recovery_restore_execution_plan.rs"]
 pub mod export_import_backup_recovery_restore_execution_plan;
 
-#[cfg(test)]
-#[path = "export_import_backup_recovery_tests.rs"]
+#[path = "../tests/unit/export_import_backup_recovery_private.rs"]
 mod export_import_backup_recovery_tests;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -45,7 +44,7 @@ const BACKUP_SCHEDULED_MANUAL_REQUIRED_NOTE: &str =
     "Scheduled backup remains manual-required until a trusted scheduler and provider runtime exist.";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct ExportBundleBuildRequest {
+pub struct ExportBundleBuildRequest {
     pub(crate) bundle_id: contracts::ExportImportBundleId,
     pub(crate) product_version: contracts::ExportImportProductVersion,
     pub(crate) created_at: contracts::ExportImportTimestamp,
@@ -61,7 +60,7 @@ pub(crate) struct ExportBundleBuildRequest {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct ExportPayloadSectionInput {
+pub struct ExportPayloadSectionInput {
     pub(crate) data_class: contracts::ExportImportDataClass,
     pub(crate) payload_ref: contracts::ExportImportPayloadRef,
     pub(crate) payload_integrity_ref: Option<contracts::ExportImportIntegrityRef>,
@@ -71,7 +70,7 @@ pub(crate) struct ExportPayloadSectionInput {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct ExportHumanSummaryInput {
+pub struct ExportHumanSummaryInput {
     pub(crate) headline: String,
     pub(crate) excluded_data_classes: Vec<contracts::ExportImportDataClass>,
     pub(crate) raw_payload_redacted: bool,
@@ -80,7 +79,7 @@ pub(crate) struct ExportHumanSummaryInput {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) enum ExportBundleBuildError {
+pub enum ExportBundleBuildError {
     EncryptionCustodyUnavailable,
 }
 
@@ -89,7 +88,7 @@ pub(crate) enum ExportBundleBuildError {
 /// tombstone-cursor custody are available, so callers cannot mint an accepted
 /// preview from booleans or advance revocation state with an imported cursor.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct ImportBundleContext {
+pub struct ImportBundleContext {
     pub(crate) local_household_id: contracts::ExportImportHouseholdId,
     pub(crate) local_product_version: contracts::ExportImportProductVersion,
     pub(crate) available_key_refs: Vec<contracts::ExportImportKeyRef>,
@@ -104,11 +103,11 @@ pub(crate) struct ImportBundleContext {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct RestoreApplyRequest {
-    pub confirmed: bool,
+pub struct RestoreApplyRequest {
+    pub(crate) confirmed: bool,
 }
 
-pub(crate) fn derive_export_bundle(
+pub fn derive_export_bundle(
     request: ExportBundleBuildRequest,
     sections: Vec<ExportPayloadSectionInput>,
     summary: ExportHumanSummaryInput,
@@ -116,18 +115,20 @@ pub(crate) fn derive_export_bundle(
     export_import_backup_recovery_build::derive_export_bundle(request, sections, summary)
 }
 
-pub(crate) fn run_import_preflight(
+pub fn run_import_preflight(
     bundle: &contracts::ExportImportRecoveryBundle,
     context: &ImportBundleContext,
 ) -> contracts::ExportImportImportPreflight {
     export_import_backup_recovery_import::run_import_preflight(bundle, context)
 }
 
-pub(crate) fn migration_execution_readiness(
-    bundle: &contracts::ExportImportRecoveryBundle,
-    preflight: &contracts::ExportImportImportPreflight,
+pub fn migration_execution_readiness(
+    bound: &export_import_backup_recovery_bundle_preflight_binding::BoundImportPreflight,
 ) -> contracts::ExportImportMigrationExecutionReadiness {
-    export_import_backup_recovery_migration::migration_execution_readiness(bundle, preflight)
+    export_import_backup_recovery_migration::migration_execution_readiness(
+        bound.execution_binding().migration_ref().cloned(),
+        bound.preflight(),
+    )
 }
 
 pub fn authorize_backup_request(
@@ -141,7 +142,7 @@ pub fn authorize_backup_request(
             None,
             None,
         )
-        .map_err(|_| BackupRequestError::HouseholdMismatch)?;
+        .map_err(|_error| BackupRequestError::HouseholdMismatch)?;
 
     let scheduled = input.cadence == contracts::ExportImportBackupCadence::Scheduled;
     Ok(contracts::ExportImportBackupRequestState {
@@ -163,7 +164,7 @@ pub fn authorize_backup_request(
 /// preflight and caller-held [`ImportBundleContext`] are deliberately ignored:
 /// neither is currentness authority, and no restore side effect is permitted
 /// through this dead seam.
-pub(crate) fn apply_restore(
+pub fn apply_restore(
     _preflight: &contracts::ExportImportImportPreflight,
     _request: &RestoreApplyRequest,
 ) -> contracts::ExportImportRestoreApplyResult {

@@ -46,8 +46,10 @@ Use [CODE_AUDIT.md](CODE_AUDIT.md) for the 2026-08-15 source/test result and
    foreground/background/region lifecycle code and real XCTest coverage.
 8. **WP20 and WP24 providers**: concrete POI provider and selected AI provider
    routing with redaction, timeout, retry, and receipt tests.
-9. **WP28-WP30 and WP39 product composition**: durable live/missing-device
-   lifecycle plus complete parent/child UI and event-to-portal restart proof.
+9. **WP28-WP29 and WP39 product composition**: durable live/missing-device
+   lifecycle plus event-to-portal restart proof. WP30's bounded product-route
+   truthfulness slice is complete; full live tracking and child UI remain
+   blocked on the same runtime, authority, and delivery owners.
 10. **WP33 verifier restoration**: restore or deliberately replace the absent
    tracked aggregate `scripts/test/tracking-*.mjs` proof contract after code and
    focused tests are green.

@@ -3,14 +3,14 @@
 ## Scope and phase
 
 - Plan owner: `child-agent-runtime-distribution-plan`.
-- Current program phase: finish coherent production source packets before writing the missing test source.
+- Current program phase: continue coherent production/test packets after the retained WP01 route proof and WP06 capability-boundary proof.
 - This plan owns child package/runtime distribution, installed child startup, platform lifecycle, updater distribution consumption, and platform removal callbacks.
 - Setup owns its producer/UI journey, Device Trust owns current trust material, Account owns current household authority, and parent-client distribution stays separate.
-- No test run, proof refresh, precommit, CI, PR, READY, DONE, or release claim is authorized by this routing packet.
+- WP01 and WP06 focused tests and retained proof have run. This does not authorize broader precommit, CI, PR, release, or aggregate child-runtime claims.
 
 ## Source-wave order
 
-- [ ] WP06: preserve the canonical child capability-package identity and every no-daemon/manual-required limit while closing its own smoke/workflow/signing/device/store gaps. Do not absorb Tracking WP11/WP12 Core Location behavior.
+- [x] WP06: canonical child capability-package source, expected test source, focused retained proof, and every no-daemon/manual-required limit agree. macOS/Xcode, physical-device, Apple signing/provisioning, and store authority remain explicit external/manual-required gaps; Tracking WP11/WP12 Core Location behavior was not absorbed.
 - [ ] WP10: after the graph confirms reviewed Device Trust WP01 implementation, compose current trust into shipped child startup, own authenticated external ingress and health, and connect the typed handoff/update consumer. Do not add a reverse dependency on Setup WP07.
 - [ ] WP02: finish the Windows package/runtime identity and installed child startup boundary against WP10.
 - [ ] WP03: finish the macOS child package identity, lifecycle source, and signing/notarization ownership against WP10.
@@ -31,7 +31,7 @@ turn WP06 into a daemon or add an unconsumed Swift file/JSON handoff.
 
 - [ ] WP02-WP04: child-labelled package/lifecycle tests for install, startup authority, health, restart, disable/remove, and cleanup on the target desktop host.
 - [ ] WP05: correct the JNI bridge expectation to fail closed without trust, then cover current-trust startup, foreground lifecycle, authenticated ingress, removal, and device-owner/manual-required states.
-- [ ] WP06: child application identity plus simulator/device capability-limit tests.
+- [x] WP06: child application identity plus host-aware Node/XCTest capability-limit source and retained proof; Windows records the real XCTest as platform-unavailable/manual-required.
 - [ ] WP07: bounded respawn, deliberate-stop, reboot, loop-guard, teardown, and health-observer tests by platform.
 - [ ] WP08: parent-authority mismatch/replay/restart plus platform cleanup callback/idempotency tests.
 - [ ] WP09: updater handoff, installer result/restart, signing/store, and platform matrix behavior tests.
@@ -40,7 +40,7 @@ turn WP06 into a daemon or add an unconsumed Swift file/JSON handoff.
 
 ## Later validation sequence
 
-After all selected production and test source is present:
+After all selected production and test source is present (WP01 and WP06 have already completed their focused retained-proof steps):
 
 1. run focused formatter, syntax, architecture, and crate/package tests per workpack;
 2. run platform lifecycle tests only on suitable hosts/devices;

@@ -32,7 +32,7 @@ use ocentra_parent_agent_protocol::transport::AgentEventName;
 
 use crate::enforcement_payload::{EnforcementCommandPayload, EnforcementPayloadError};
 use crate::{
-    activity_capture::record_activity_events_to_paths, event_builder::build_event,
+    activity_capture_persistence::record_activity_events_to_paths, event_builder::build_event,
     fields::fields_from_pairs,
 };
 
@@ -48,7 +48,7 @@ pub(crate) async fn build_enforcement_audit_report_with_paths(
     command: AgentCommandEnvelope,
     paths: EnforcementJournalPaths,
 ) -> AgentEventEnvelope {
-    build_enforcement_audit_report(command, paths, None).await
+    Box::pin(build_enforcement_audit_report(command, paths, None)).await
 }
 
 pub(super) async fn build_enforcement_audit_report_with_app_game_session(
@@ -56,7 +56,12 @@ pub(super) async fn build_enforcement_audit_report_with_app_game_session(
     paths: EnforcementJournalPaths,
     app_game_session: AppGameTimerSessionBinding,
 ) -> AgentEventEnvelope {
-    build_enforcement_audit_report(command, paths, Some(app_game_session)).await
+    Box::pin(build_enforcement_audit_report(
+        command,
+        paths,
+        Some(app_game_session),
+    ))
+    .await
 }
 
 async fn build_enforcement_audit_report(
@@ -67,7 +72,14 @@ async fn build_enforcement_audit_report(
     let target = command.source.clone();
     let correlation_id = command.message_id.clone();
     let provenance = enforcement_audit_provenance(&command.command);
-    match execute_enforcement_command(command, paths, provenance, app_game_session).await {
+    match Box::pin(execute_enforcement_command(
+        command,
+        paths,
+        provenance,
+        app_game_session,
+    ))
+    .await
+    {
         Ok(payload) => build_event(
             constants::event_id::ENFORCEMENT_AUDIT_REPORTED,
             &correlation_id,

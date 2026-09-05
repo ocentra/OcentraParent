@@ -1,4 +1,3 @@
-import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { TestLogScopeSchema, type RunType, type TestLogScope, type TestSuiteType } from './types';
@@ -16,13 +15,8 @@ import {
 } from '../local-test-log';
 import { recoverLocalArtifactAppends } from '../local-artifact-append';
 import { applyLocalArtifactTransaction } from '../local-artifact-transaction';
-import {
-  assertExistingOwnedPath,
-  assertLocalArtifactIdentity,
-  ensureOwnedDirectory,
-  localArtifactIdentity,
-  resolveLocalArtifactPath,
-} from '../local-artifact-path';
+import { ensureOwnedDirectory, relativeLocalArtifactPath, resolveLocalArtifactPath } from '../local-artifact-path';
+import { providerList, providerStat } from '../local-artifact-mutation-provider';
 import { inferLocalArtifactRoot } from '../local-artifact-root';
 import { bridgeLifecycleClearCountersMutation } from '../transport/bridgeLifecycleState';
 import { withLocalArtifactLock } from '../local-artifact-lock';
@@ -106,32 +100,35 @@ export function listNdjsonFiles(rootPath: string): string[] {
   const artifactRoot = inferLocalArtifactRoot(resolvedRoot);
   return withLocalArtifactLock(artifactRoot, () => {
     recoverLocalArtifactAppends(artifactRoot);
-    if (!fs.existsSync(resolvedRoot)) {
+    const relativeRoot = relativeLocalArtifactPath(artifactRoot, resolvedRoot).split(path.sep).join('/');
+    const stat = providerStat(artifactRoot, relativeRoot);
+    if (stat == null) {
       return [];
     }
-    return listOwnedNdjsonFiles(resolvedRoot).sort((left, right) => left.localeCompare(right));
+    if (!stat.is_directory) {
+      throw new Error('NDJSON listing root is not an owned directory');
+    }
+    return listOwnedNdjsonFiles(artifactRoot, relativeRoot, resolvedRoot).sort((left, right) =>
+      left.localeCompare(right)
+    );
   });
 }
 
-function listOwnedNdjsonFiles(rootPath: string): string[] {
-  const rootIdentity = localArtifactIdentity(rootPath, 'directory');
-  const entries = fs.readdirSync(rootPath, { withFileTypes: true });
+function listOwnedNdjsonFiles(artifactRoot: string, relativeRoot: string, rootPath: string): string[] {
+  const entries = providerList(artifactRoot, relativeRoot);
   const files: string[] = [];
 
   for (const entry of entries) {
     const fullPath = path.join(rootPath, entry.name);
-    const stat = fs.lstatSync(fullPath);
-    if (stat.isDirectory() && !stat.isSymbolicLink()) {
-      assertExistingOwnedPath(fullPath, 'directory');
-      files.push(...listOwnedNdjsonFiles(fullPath));
+    if (entry.is_directory) {
+      const childRelative = path.posix.join(relativeRoot, entry.name);
+      files.push(...listOwnedNdjsonFiles(artifactRoot, childRelative, fullPath));
       continue;
     }
-    assertExistingOwnedPath(fullPath, 'file');
     if (entry.name.endsWith('.ndjson')) {
       files.push(fullPath);
     }
   }
-  assertLocalArtifactIdentity(rootPath, 'directory', rootIdentity);
   return files;
 }
 
@@ -141,7 +138,7 @@ export function clearDirectory(targetDir: string): void {
     recoverLocalArtifactAppends(rootDir);
     const clearedScope = clearedTestLogScope(rootDir, targetDir);
     applyLocalArtifactTransaction(rootDir, [
-      { kind: 'remove', filePath: targetDir },
+      { kind: 'removeTree', filePath: targetDir },
       ...(clearedScope == null ? [] : clearedScopeDerivedMutations(rootDir, clearedScope)),
       ...(clearedScope == null ? [] : [bridgeLifecycleClearCountersMutation(rootDir)]),
     ]);

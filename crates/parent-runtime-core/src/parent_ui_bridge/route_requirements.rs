@@ -1,7 +1,10 @@
 use super::*;
 
 pub(super) fn route_requires_network_flow_read_model(route: &ParentRouteId) -> bool {
-    matches!(route, ParentRouteId::ProofPanels)
+    matches!(
+        route,
+        ParentRouteId::Activity | ParentRouteId::CapabilityStatus | ParentRouteId::ProofPanels
+    )
 }
 
 pub(super) fn route_requires_network_runtime_event_chain_stream(route: &ParentRouteId) -> bool {
@@ -21,13 +24,26 @@ pub(super) fn route_requires_policy_preview_read_model(route: &ParentRouteId) ->
 }
 
 pub(super) fn route_requires_screen_summary_read_model(route: &ParentRouteId) -> bool {
-    matches!(route, ParentRouteId::ScreenAnalysis)
+    matches!(
+        route,
+        ParentRouteId::Activity | ParentRouteId::CapabilityStatus | ParentRouteId::ScreenAnalysis
+    )
 }
 
 pub(super) fn route_requires_tracking_read_model(route: &ParentRouteId) -> bool {
     matches!(
         route,
-        ParentRouteId::PolicyTracking | ParentRouteId::ProofPanels
+        ParentRouteId::Activity
+            | ParentRouteId::CapabilityStatus
+            | ParentRouteId::PolicyTracking
+            | ParentRouteId::ProofPanels
+    )
+}
+
+pub(super) fn route_requires_activity_app_game_read_models(route: &ParentRouteId) -> bool {
+    matches!(
+        route,
+        ParentRouteId::Activity | ParentRouteId::AppGameSessions | ParentRouteId::CapabilityStatus
     )
 }
 
@@ -37,6 +53,13 @@ pub(super) fn route_requires_app_game_session_read_models(route: &ParentRouteId)
 
 pub(super) fn route_requires_browser_read_models(route: &ParentRouteId) -> bool {
     matches!(route, ParentRouteId::Browser)
+}
+
+pub(super) fn route_requires_browser_managed_status(route: &ParentRouteId) -> bool {
+    matches!(
+        route,
+        ParentRouteId::Browser | ParentRouteId::CapabilityStatus
+    )
 }
 
 pub(super) fn route_requires_browser_activity_read_model(route: &ParentRouteId) -> bool {

@@ -28,9 +28,6 @@ use ocentra_storage_custody_core::storage_custody::{
 };
 use serde_json::json;
 
-#[path = "runtime_gate_tombstone_recovery.rs"]
-mod runtime_gate_tombstone_recovery;
-
 trait ResultRequiredExt<T, E> {
     fn required(self, context: impl std::fmt::Display) -> T;
 }
@@ -110,7 +107,7 @@ fn child_runtime_preflight_blocks_when_entitlement_snapshot_is_unavailable() {
 #[test]
 fn child_runtime_preflight_rejects_caller_supplied_snapshot_trust_context() {
     let mut input = valid_child_runtime_preflight_input();
-    input.entitlement_input = entitlement_input_with_snapshot_context(json!({
+    input.entitlement_input = entitlement_input_with_snapshot_context(&json!({
         "signature_state": "trusted",
         "freshness_state": "fresh",
         "household_binding_state": "matched",
@@ -368,7 +365,7 @@ fn valid_child_runtime_preflight_input() -> ocentra_child_runtime::ChildRuntimeP
             network_reachability_state: NetworkReachabilityState::Reachable,
             recovery_state: RecoveryState::Normal,
         },
-        entitlement_input: entitlement_input_with_snapshot_context(serde_json::Value::Null),
+        entitlement_input: entitlement_input_with_snapshot_context(&serde_json::Value::Null),
         storage_custody_input: StorageCustodyInput {
             location: StorageCustodyLocation::ParentOwnedRemote,
             retention_window_state: RetentionWindowState::Active,
@@ -379,7 +376,7 @@ fn valid_child_runtime_preflight_input() -> ocentra_child_runtime::ChildRuntimeP
 }
 
 fn entitlement_input_with_snapshot_context(
-    snapshot_context: serde_json::Value,
+    snapshot_context: &serde_json::Value,
 ) -> EntitlementCapabilityInput {
     serde_json::from_value(json!({
         "capability": "tracking",

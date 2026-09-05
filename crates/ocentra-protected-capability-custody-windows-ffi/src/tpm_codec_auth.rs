@@ -34,7 +34,8 @@ impl SecretNonce {
     }
 
     pub(crate) fn from_tpm(bytes: &[u8]) -> Result<Self> {
-        let value = <[u8; TPM_SHA256_BYTES]>::try_from(bytes).map_err(|_| Error::MalformedTpm)?;
+        let value =
+            <[u8; TPM_SHA256_BYTES]>::try_from(bytes).map_err(|_error| Error::MalformedTpm)?;
         Ok(Self(value))
     }
 

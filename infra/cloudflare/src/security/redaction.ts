@@ -159,9 +159,12 @@ export type ProviderMetadataResult =
         | 'metadata-key-not-allowed'
         | 'metadata-key-denied'
         | 'metadata-duplicate-key'
+        | 'metadata-test-live-mismatch'
         | 'metadata-value-invalid'
         | 'metadata-value-too-large';
     };
+
+export type ProviderTestLiveMode = 'test' | 'live';
 
 /**
  * Provider adapters may send only billing reconciliation references. This
@@ -211,4 +214,23 @@ export function sanitizeProviderMetadata(value: unknown): ProviderMetadataResult
   }
 
   return { accepted: true, metadata };
+}
+
+/**
+ * Keeps an explicit provider mode marker bound to the Worker environment. A
+ * missing marker remains compatible with providers that expose mode outside
+ * metadata; an explicit contradictory marker is never accepted.
+ */
+export function sanitizeProviderMetadataForMode(
+  value: unknown,
+  expectedMode: ProviderTestLiveMode
+): ProviderMetadataResult {
+  const result = sanitizeProviderMetadata(value);
+  if (!result.accepted || result.metadata.testLiveMarker === undefined) {
+    return result;
+  }
+  if (result.metadata.testLiveMarker !== expectedMode) {
+    return { accepted: false, reason: 'metadata-test-live-mismatch' };
+  }
+  return result;
 }

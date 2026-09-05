@@ -11,14 +11,14 @@ pub(super) fn validate(connection: &Connection) -> Result<(), ()> {
              FROM account_identity_pending_invite_membership p
              JOIN account_identity_setup_invite i ON i.invite_id = p.invite_id",
         )
-        .map_err(|_| ())?;
-    let mut rows = statement.query([]).map_err(|_| ())?;
-    while let Some(row) = rows.next().map_err(|_| ())? {
-        let state = row.get::<_, String>(5).map_err(|_| ())?;
-        let created = row.get::<_, i64>(6).map_err(|_| ())?;
-        let attempt = row.get::<_, Option<String>>(7).map_err(|_| ())?;
-        let lease = row.get::<_, Option<i64>>(8).map_err(|_| ())?;
-        let count = row.get::<_, i64>(9).map_err(|_| ())?;
+        .map_err(|_error| ())?;
+    let mut rows = statement.query([]).map_err(|_error| ())?;
+    while let Some(row) = rows.next().map_err(|_error| ())? {
+        let state = row.get::<_, String>(5).map_err(|_error| ())?;
+        let created = row.get::<_, i64>(6).map_err(|_error| ())?;
+        let attempt = row.get::<_, Option<String>>(7).map_err(|_error| ())?;
+        let lease = row.get::<_, Option<i64>>(8).map_err(|_error| ())?;
+        let count = row.get::<_, i64>(9).map_err(|_error| ())?;
         if !identity_valid(row)?
             || !invite_binding_valid(row)?
             || created <= 0
@@ -33,32 +33,37 @@ pub(super) fn validate(connection: &Connection) -> Result<(), ()> {
 
 fn identity_valid(row: &rusqlite::Row<'_>) -> Result<bool, ()> {
     let strings = [
-        row.get::<_, String>(0).map_err(|_| ())?,
-        row.get::<_, String>(2).map_err(|_| ())?,
-        row.get::<_, String>(3).map_err(|_| ())?,
+        row.get::<_, String>(0).map_err(|_error| ())?,
+        row.get::<_, String>(2).map_err(|_error| ())?,
+        row.get::<_, String>(3).map_err(|_error| ())?,
     ];
     Ok(strings.iter().all(|value| !value.trim().is_empty())
         && matches!(
-            row.get::<_, String>(1).map_err(|_| ())?.as_str(),
+            row.get::<_, String>(1).map_err(|_error| ())?.as_str(),
             "authjs" | "firebase"
         )
         && matches!(
-            row.get::<_, String>(4).map_err(|_| ())?.as_str(),
+            row.get::<_, String>(4).map_err(|_error| ())?.as_str(),
             "co-parent-guardian" | "observer" | "child-device-agent" | "parent-owner"
         )
         && matches!(
-            row.get::<_, String>(5).map_err(|_| ())?.as_str(),
+            row.get::<_, String>(5).map_err(|_error| ())?.as_str(),
             "pending" | "in-flight" | "committed" | "rejected"
         ))
 }
 
 fn invite_binding_valid(row: &rusqlite::Row<'_>) -> Result<bool, ()> {
-    Ok(row.get::<_, String>(10).map_err(|_| ())? == "accepted"
-        && row.get::<_, String>(0).map_err(|_| ())? == row.get::<_, String>(11).map_err(|_| ())?
-        && row.get::<_, String>(1).map_err(|_| ())? == row.get::<_, String>(12).map_err(|_| ())?
-        && row.get::<_, String>(2).map_err(|_| ())? == row.get::<_, String>(13).map_err(|_| ())?
-        && row.get::<_, String>(3).map_err(|_| ())? == row.get::<_, String>(14).map_err(|_| ())?
-        && row.get::<_, String>(4).map_err(|_| ())? == row.get::<_, String>(15).map_err(|_| ())?)
+    Ok(row.get::<_, String>(10).map_err(|_error| ())? == "accepted"
+        && row.get::<_, String>(0).map_err(|_error| ())?
+            == row.get::<_, String>(11).map_err(|_error| ())?
+        && row.get::<_, String>(1).map_err(|_error| ())?
+            == row.get::<_, String>(12).map_err(|_error| ())?
+        && row.get::<_, String>(2).map_err(|_error| ())?
+            == row.get::<_, String>(13).map_err(|_error| ())?
+        && row.get::<_, String>(3).map_err(|_error| ())?
+            == row.get::<_, String>(14).map_err(|_error| ())?
+        && row.get::<_, String>(4).map_err(|_error| ())?
+            == row.get::<_, String>(15).map_err(|_error| ())?)
 }
 
 fn state_valid(state: &str, created: i64, attempt: Option<&str>, lease: Option<i64>) -> bool {

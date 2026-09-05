@@ -154,21 +154,21 @@ fn validate_table(
 ) -> Result<(), ()> {
     let mut statement = connection
         .prepare(&format!("PRAGMA table_info('{table}')"))
-        .map_err(|_| ())?;
-    let mut rows = statement.query([]).map_err(|_| ())?;
+        .map_err(|_error| ())?;
+    let mut rows = statement.query([]).map_err(|_error| ())?;
     let mut index = 0;
-    while let Some(row) = rows.next().map_err(|_| ())? {
+    while let Some(row) = rows.next().map_err(|_error| ())? {
         let Some(expected_column) = expected.get(index) else {
             return Err(());
         };
-        if row.get::<_, String>(1).map_err(|_| ())? != expected_column.0
+        if row.get::<_, String>(1).map_err(|_error| ())? != expected_column.0
             || row
                 .get::<_, String>(2)
-                .map_err(|_| ())?
+                .map_err(|_error| ())?
                 .to_ascii_uppercase()
                 != expected_column.1
-            || row.get::<_, i64>(3).map_err(|_| ())? != expected_column.2
-            || row.get::<_, i64>(5).map_err(|_| ())? != expected_column.3
+            || row.get::<_, i64>(3).map_err(|_error| ())? != expected_column.2
+            || row.get::<_, i64>(5).map_err(|_error| ())? != expected_column.3
         {
             return Err(());
         }

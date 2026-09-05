@@ -1,8 +1,10 @@
 #[cfg(windows)]
 use ocentra_protected_capability_custody_core::broker_admission::BrokerProcessIdentity;
 use ocentra_protected_capability_custody_core::broker_admission::{
+    account_issuer_request::ProtectedAccountIssuerRequestAdmission,
     BrokerAuthorizedClientTranscript, BrokerPeerAdmissionObservation, BrokerPlatformSessionState,
 };
+use ocentra_protected_capability_custody_protocol::account_issuer_session::AuthenticatedAccountIssuerRequest;
 use ocentra_protected_capability_custody_protocol::bootstrap::BootstrapPacket;
 use ocentra_protected_capability_custody_protocol::handshake::UntrustedClientHello;
 use ocentra_protected_capability_custody_protocol::request::authenticated::AuthenticatedRequest;
@@ -102,12 +104,22 @@ impl BrokerCustodyService {
 
     pub(crate) fn execute_account_issuer(
         &self,
-        request: &ocentra_protected_capability_custody_protocol::account_issuer_session::
-            AuthenticatedAccountIssuerRequest,
+        admission: ProtectedAccountIssuerRequestAdmission,
+        request: &AuthenticatedAccountIssuerRequest,
     ) -> Result<
         ocentra_protected_capability_custody_protocol::account_issuer::AccountIssuerReceipt,
         BrokerError,
     > {
-        self.account_issuer.execute(request)
+        self.account_issuer.execute(admission, request)
+    }
+
+    #[cfg(windows)]
+    pub(crate) fn authorize_account_issuer_request(
+        &self,
+        transcript: BrokerAuthorizedClientTranscript,
+        request: &AuthenticatedAccountIssuerRequest,
+    ) -> Result<ProtectedAccountIssuerRequestAdmission, BrokerError> {
+        self.state
+            .authorize_account_issuer_request(transcript, request)
     }
 }

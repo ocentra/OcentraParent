@@ -16,7 +16,7 @@ use crate::{
     enforcement_os_adapter_product_proof_read_model::{
         v08_os_adapter_product_proof_read_model, GeneratedAtTextRef,
     },
-    test_invariants::require_some,
+    test_require_some::require_some,
 };
 
 #[path = "enforcement_os_adapter_product_proof_read_model_tests/product_control_spine_tests.rs"]

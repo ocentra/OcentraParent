@@ -46,6 +46,18 @@ pub struct HouseholdMembership {
     pub joined_at: Option<String>,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct HouseholdMembershipInput {
+    pub membership_id: HouseholdMembershipId,
+    pub account_user_id: AccountUserId,
+    pub household_id: HouseholdId,
+    pub role: HouseholdRole,
+    pub state: HouseholdMembershipState,
+    pub child_profile_id: Option<ChildProfileId>,
+    pub invited_at: String,
+    pub joined_at: Option<String>,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct SupportAdminActor {
     pub actor_id: SupportAdminActorId,
@@ -72,16 +84,17 @@ impl AccountUser {
 }
 
 impl HouseholdMembership {
-    pub fn new(
-        membership_id: HouseholdMembershipId,
-        account_user_id: AccountUserId,
-        household_id: HouseholdId,
-        role: HouseholdRole,
-        state: HouseholdMembershipState,
-        child_profile_id: Option<ChildProfileId>,
-        invited_at: impl Into<String>,
-        joined_at: Option<String>,
-    ) -> Result<Self, EventingError> {
+    pub fn new(input: HouseholdMembershipInput) -> Result<Self, EventingError> {
+        let HouseholdMembershipInput {
+            membership_id,
+            account_user_id,
+            household_id,
+            role,
+            state,
+            child_profile_id,
+            invited_at,
+            joined_at,
+        } = input;
         if role == HouseholdRole::ChildProfile && child_profile_id.is_none() {
             return Err(EventingError::InvalidValue {
                 field: "family_identity.household_membership.child_profile_id",

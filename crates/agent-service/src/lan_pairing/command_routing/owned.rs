@@ -6,14 +6,12 @@ use ocentra_parent_agent_protocol::transport::{
 };
 
 use crate::lan_pairing::{
-    command_entrypoints::{
-        lan_pairing_route_revoke, lan_pairing_route_select, lan_pairing_status_get,
-        submit_pairing_proof,
-    },
+    command_entrypoints::{lan_pairing_route_select, lan_pairing_status_get, submit_pairing_proof},
     controller_lease::{
         controller_lease_release, controller_lease_renew, controller_lease_takeover,
     },
     lan_ai_job::lan_ai_provider_status_get,
+    runtime_commands,
 };
 use crate::lan_runtime_stream_api::build_lan_runtime_event_chain_stream_report;
 
@@ -35,7 +33,15 @@ pub(super) async fn owned_lan_response(
             run_blocking_event(runtime, origin.0.clone(), command, lan_pairing_route_select).await
         }
         AgentCommandName::AgentLanPairingRouteRevoke => {
-            run_blocking_event(runtime, origin.0.clone(), command, lan_pairing_route_revoke).await
+            run_blocking_event(
+                runtime,
+                origin.0.clone(),
+                command,
+                |runtime, origin, command| {
+                    runtime_commands::lan_pairing_route_revoke(&runtime, &origin, command)
+                },
+            )
+            .await
         }
         AgentCommandName::AgentLanPairingStatusGet => {
             run_blocking_event(runtime, origin.0.clone(), command, lan_pairing_status_get).await

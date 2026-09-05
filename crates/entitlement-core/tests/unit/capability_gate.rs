@@ -5,18 +5,19 @@ use ocentra_entitlement_core::entitlement_access::{
     EntitlementEvaluationId, EntitlementManualReviewState,
 };
 use ocentra_eventing::envelope::DomainEvent;
-use ocentra_eventing::error::EventingError;
 use serde_json::json;
+use std::error::Error;
 
 const REQUESTED_EVENT_TYPE: &str = "entitlement.capability-evaluation.requested";
 const DECISION_EVENT_TYPE: &str = "entitlement.capability-decision.recorded";
+type TestResult = Result<(), Box<dyn Error>>;
 
 #[test]
-fn capability_request_records_fail_closed_typed_decision_event() -> Result<(), EventingError> {
+fn capability_request_records_fail_closed_typed_decision_event() -> TestResult {
     let request = EntitlementCapabilityEvaluationRequestedEvent {
         aggregate_id: EntitlementAggregateId::parse("entitlement-household-default")?,
         evaluation_id: EntitlementEvaluationId::parse("entitlement-evaluation-default")?,
-        input: public_input(),
+        input: public_input()?,
     };
 
     let decision = record_entitlement_capability_decision(&request);
@@ -50,11 +51,11 @@ fn capability_request_records_fail_closed_typed_decision_event() -> Result<(), E
 }
 
 #[test]
-fn decision_event_keeps_typed_ids_and_stable_idempotency_keys() -> Result<(), EventingError> {
+fn decision_event_keeps_typed_ids_and_stable_idempotency_keys() -> TestResult {
     let request = EntitlementCapabilityEvaluationRequestedEvent {
         aggregate_id: EntitlementAggregateId::parse("entitlement-household-default")?,
         evaluation_id: EntitlementEvaluationId::parse("entitlement-evaluation-default")?,
-        input: public_input(),
+        input: public_input()?,
     };
     let decision: EntitlementCapabilityDecisionRecordedEvent =
         record_entitlement_capability_decision(&request);
@@ -78,7 +79,10 @@ fn decision_event_keeps_typed_ids_and_stable_idempotency_keys() -> Result<(), Ev
     Ok(())
 }
 
-fn public_input() -> ocentra_entitlement_core::entitlement_access::EntitlementCapabilityInput {
+fn public_input() -> Result<
+    ocentra_entitlement_core::entitlement_access::EntitlementCapabilityInput,
+    serde_json::Error,
+> {
     serde_json::from_value(json!({
         "capability": "tracking",
         "subscription_state": "active",
@@ -87,5 +91,4 @@ fn public_input() -> ocentra_entitlement_core::entitlement_access::EntitlementCa
         "policy_state": "clean",
         "capability_scope": "local-child-runtime"
     }))
-    .expect("public capability input decodes")
 }

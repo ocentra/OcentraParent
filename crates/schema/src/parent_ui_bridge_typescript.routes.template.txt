@@ -235,10 +235,11 @@ export const ParentAiRuntimeRoutes: readonly ParentRouteId[] = [
 ] as const;
 
 export const ParentBrowserParentSurfaceRoutes: readonly ParentRouteId[] = [
-  ParentRoute.ProofPanels,
+  ParentRoute.Browser,
 ] as const;
 
 export const ParentPolicyPreviewRoutes: readonly ParentRouteId[] = [
+  ParentRoute.PolicyNetwork,
   ParentRoute.RuleManagement,
   ParentRoute.Schedules,
   ParentRoute.Approvals,
@@ -246,7 +247,7 @@ export const ParentPolicyPreviewRoutes: readonly ParentRouteId[] = [
 ] as const;
 
 export const ParentScreenSettingsRoutes: readonly ParentRouteId[] = [
-  ParentRoute.SettingsRules,
+  ParentRoute.PolicyScreen,
 ] as const;
 
 export const ParentScreenSummaryRoutes: readonly ParentRouteId[] = [

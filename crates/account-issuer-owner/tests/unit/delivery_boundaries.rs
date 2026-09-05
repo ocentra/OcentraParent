@@ -4,14 +4,15 @@ use ocentra_account_issuer_owner::delivery::{
 use ocentra_schema::account_identity_authority_producer_v2::ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_WIRE_BYTES;
 
 #[test]
-fn delivery_failure_and_receipt_boundaries_remain_fail_closed() {
+fn delivery_failure_and_receipt_boundaries_remain_fail_closed(
+) -> Result<(), AccountIssuerDeliveryError> {
     assert!(matches!(
-        DeliveryFailure::from_bytes(Vec::new()),
+        DeliveryFailure::from_bytes(&[]),
         Err(AccountIssuerDeliveryError::Rejected)
     ));
-    assert!(matches!(DeliveryFailure::from_bytes(vec![0; 1_024]), Ok(_)));
+    let _accepted_failure = DeliveryFailure::from_bytes(&[0; 1_024])?;
     assert!(matches!(
-        DeliveryFailure::from_bytes(vec![0; 1_025]),
+        DeliveryFailure::from_bytes(&[0; 1_025]),
         Err(AccountIssuerDeliveryError::Rejected)
     ));
 
@@ -19,16 +20,11 @@ fn delivery_failure_and_receipt_boundaries_remain_fail_closed() {
         ProtectedAccountIssuerReceipt::from_wire(Vec::new()),
         Err(AccountIssuerDeliveryError::Rejected)
     ));
-    assert!(matches!(
-        ProtectedAccountIssuerReceipt::from_wire(vec![0]),
-        Ok(_)
-    ));
-    assert!(matches!(
-        ProtectedAccountIssuerReceipt::from_wire(
-            vec![0; ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_WIRE_BYTES]
-        ),
-        Ok(_)
-    ));
+    let _accepted_receipt = ProtectedAccountIssuerReceipt::from_wire(vec![0])?;
+    let _accepted_max_receipt = ProtectedAccountIssuerReceipt::from_wire(vec![
+        0;
+        ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_WIRE_BYTES
+    ])?;
     assert!(matches!(
         ProtectedAccountIssuerReceipt::from_wire(vec![
             0;
@@ -37,4 +33,5 @@ fn delivery_failure_and_receipt_boundaries_remain_fail_closed() {
         ]),
         Err(AccountIssuerDeliveryError::Rejected)
     ));
+    Ok(())
 }

@@ -9,7 +9,8 @@ use ocentra_parent_screen_capture_adapter::CapturedScreenImage;
 use sha2::{Digest, Sha256};
 
 use crate::{
-    activity_capture::{record_activity_events_to_paths, ActivityCaptureError},
+    activity_capture::ActivityCaptureError,
+    activity_capture_persistence::record_activity_events_to_paths,
     screen_ai_service_capture_event_builder::{
         screen_analysis_event, screen_queue_job, ScreenAiServiceCaptureIds, ScreenIdPrefix,
         ScreenText,

@@ -9,7 +9,9 @@ mod event_apply;
 use super::data_custody_restore_runtime_ledger_validation::{
     validate_migration_receipt, validate_restore_receipt,
 };
-use super::data_custody_restore_runtime_receipts::restore_receipt_from_dispatch;
+use super::data_custody_restore_runtime_receipts::{
+    restore_receipt_from_dispatch, RestoreReceiptDispatch,
+};
 use super::data_custody_runtime_eventing::DataCustodyRuntimeEvent;
 use super::data_custody_runtime_eventing::DataCustodyRuntimeEventKind;
 use ocentra_storage_custody_core::export_import_backup_recovery::{
@@ -169,14 +171,16 @@ impl ParentRestoreRuntime {
         let plan = self.bind_plan(bundle, mount, plan_ref, operation_ref, execution_ref)?;
         let pending_restore = restore_receipt_from_dispatch(
             &plan,
-            contracts::ExportImportRestoreApplyState::ApplyPending,
-            Vec::new(),
-            plan.rejected_sections().to_vec(),
-            PartialWriteCompensation::NotRequired,
-            None,
-            None,
-            self.next_recorded_at()?,
-            Some("Restore plan is bound; apply remains parent-runtime-owned.".to_owned()),
+            RestoreReceiptDispatch {
+                state: contracts::ExportImportRestoreApplyState::ApplyPending,
+                applied_sections: Vec::new(),
+                rejected_sections: plan.rejected_sections().to_vec(),
+                compensation: PartialWriteCompensation::NotRequired,
+                provider_operation: None,
+                rollback_provider_operation: None,
+                recorded_at: self.next_recorded_at()?,
+                note: Some("Restore plan is bound; apply remains parent-runtime-owned.".to_owned()),
+            },
         )?;
         self.persist_restore(
             &pending_restore,

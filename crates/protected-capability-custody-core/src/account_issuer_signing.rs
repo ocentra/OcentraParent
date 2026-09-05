@@ -15,12 +15,6 @@ pub(crate) struct BoundAccountIssuerP256Key {
 
 #[cfg(windows)]
 impl BoundAccountIssuerP256Key {
-    pub(crate) fn from_ffi(
-        key: ocentra_protected_capability_custody_windows_ffi::BoundAccountIssuerP256Key,
-    ) -> Self {
-        Self { key }
-    }
-
     pub(crate) fn sign_request(
         &self,
         request: &AccountIdentityAuthorityProducerV2Request,
@@ -28,7 +22,7 @@ impl BoundAccountIssuerP256Key {
         let signature = self
             .key
             .sign_account_issuer_v2_request(request)
-            .map_err(|_| AccountIssuerP256SignerError::Rejected)?;
+            .map_err(|_signing_error| AccountIssuerP256SignerError::Rejected)?;
         Ok(AccountIssuerSignerCapability::from_signed_request(
             request,
             *signature.as_bytes(),

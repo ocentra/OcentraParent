@@ -3,8 +3,9 @@ use crate::parent_service_health::ParentAgentServiceHealthReason;
 use ocentra_schema::parent_ui_bridge::ParentRouteDataSource;
 
 #[path = "route_snapshot/dependencies.rs"]
-mod dependencies;
+pub(super) mod dependencies;
 use self::dependencies::build_live_activity_snapshot;
+use super::parent_desktop_distribution::parent_desktop_distribution_snapshot_for_route;
 
 pub(super) fn build_parent_route_snapshot_impl(
     route: ParentRouteId,
@@ -16,8 +17,26 @@ pub(super) fn build_parent_route_snapshot_impl(
     if let Some(health) = service_health.filter(|health| !health.is_ready()) {
         return unavailable_parent_route_snapshot(&route, health, None);
     }
-    let mut loaded =
+    let loaded =
         dependencies::load_parent_route_snapshot_dependencies(&route, network_flow_snapshot);
+    build_parent_route_snapshot_from_dependencies(
+        route,
+        lan_route_query,
+        network_flow_snapshot,
+        snapshot_overlay,
+        service_health,
+        loaded,
+    )
+}
+
+pub(super) fn build_parent_route_snapshot_from_dependencies(
+    route: ParentRouteId,
+    lan_route_query: &LanRouteQuery,
+    network_flow_snapshot: Option<&NetworkFlowAgentServiceSnapshot>,
+    snapshot_overlay: Option<&ParentRouteSnapshotOverlay>,
+    service_health: Option<&ParentAgentServiceHealth>,
+    mut loaded: dependencies::ParentRouteSnapshotDependencies,
+) -> ParentRouteSnapshot {
     if matches!(lan_route_query, LanRouteQuery::Unavailable(_)) {
         loaded.dependency_failures.record("lan-route-query");
     }
@@ -32,7 +51,7 @@ pub(super) fn build_parent_route_snapshot_impl(
     let parent_portal_rows =
         parent_portal_rows_for_route(&route, &summary, &data_source, lan_add_device_read_model);
     let diagnostic_panels_enabled = is_dev_tools_route(&route);
-    let browser_panels = browser_route_panels_snapshot(&route);
+    let browser_panels = browser_route_panels_snapshot(&route, &loaded);
     let setup_first_run_panel = setup_first_run_panel_snapshot(&route, lan_route_query);
     let generated_at = lan_add_device_read_model
         .as_ref()
@@ -57,6 +76,7 @@ pub(super) fn build_parent_route_snapshot_impl(
         &parent_portal_shell_status,
         snapshot_overlay,
     );
+    let parent_desktop_distribution = parent_desktop_distribution_snapshot_for_route(&route);
 
     ParentRouteSnapshot {
         schema_version: PARENT_UI_BRIDGE_SCHEMA_VERSION,
@@ -70,6 +90,7 @@ pub(super) fn build_parent_route_snapshot_impl(
         data_source,
         summary,
         service_health: service_health.map(ParentAgentServiceHealth::to_route_snapshot),
+        parent_desktop_distribution,
         diagnostic_panels_enabled,
         parent_portal_rows,
         parent_portal_shell_status: Some(parent_portal_shell_status),
@@ -118,6 +139,18 @@ fn unavailable_parent_route_snapshot(
     let summary = summary_for_route(route, &data_source, None);
     let parent_portal_shell_status =
         parent_portal_shell_status(route, &summary, &data_source, &connection_state, None);
+    let parent_desktop_distribution = parent_desktop_distribution_snapshot_for_route(route);
+    let live_activity = match route {
+        ParentRouteId::PolicyTracking => build_live_activity_snapshot(
+            route,
+            &lan_route_query,
+            None,
+            &dependencies::ParentRouteSnapshotDependencies::default(),
+            &parent_portal_shell_status,
+            None,
+        ),
+        _ => None,
+    };
     ParentRouteSnapshot {
         schema_version: PARENT_UI_BRIDGE_SCHEMA_VERSION,
         route: route.clone(),
@@ -130,10 +163,11 @@ fn unavailable_parent_route_snapshot(
         data_source,
         summary,
         service_health: Some(service_health.to_route_snapshot()),
+        parent_desktop_distribution,
         diagnostic_panels_enabled: false,
         parent_portal_rows: None,
         parent_portal_shell_status: Some(parent_portal_shell_status),
-        live_activity: None,
+        live_activity,
         browser_panels: None,
         setup_first_run_panel: setup_first_run_panel_snapshot(route, &lan_route_query),
         screen_settings_service_response: None,

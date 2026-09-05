@@ -10,6 +10,11 @@ mod app_game_notification_audit_history_bridge;
 #[path = "app_game_notification_scheduler_bridge.rs"]
 mod app_game_notification_scheduler_bridge;
 
+#[path = "app_game_notification_scheduler_bridge_identity.rs"]
+mod app_game_notification_scheduler_bridge_identity;
+#[path = "app_game_notification_scheduler_bridge_identity_support.rs"]
+mod app_game_notification_scheduler_bridge_identity_support;
+
 #[path = "app_game_notification_provider_preflight_bridge.rs"]
 mod app_game_notification_provider_preflight_bridge;
 

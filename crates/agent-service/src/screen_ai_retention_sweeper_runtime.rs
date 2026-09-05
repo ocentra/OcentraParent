@@ -26,7 +26,8 @@ use ocentra_parent_agent_protocol::screen_evidence::{
 };
 
 use crate::{
-    activity_capture::{record_activity_events_to_paths, ActivityCaptureError},
+    activity_capture::ActivityCaptureError,
+    activity_capture_persistence::record_activity_events_to_paths,
     activity_store_path::{activity_db_path, activity_journal_key_path, activity_journal_path},
     fields::fields_from_pairs,
     screen_ai_retention_sweeper_deletion_events::publish_screen_retention_deletion_events,

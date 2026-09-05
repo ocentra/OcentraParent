@@ -35,9 +35,7 @@ use ocentra_parent_agent_protocol::AppGamePlatformProofStatusReadModel;
 use ocentra_parent_agent_protocol::AppGamePlatformProofStatusRow;
 use ocentra_parent_screen_capture_adapter::linux_foreground_source::LinuxForegroundSourcePreflight;
 
-use super::app_game_adapter_execution_readiness_payload::GeneratedAtText;
 use super::app_game_adapter_host_capabilities::HostCapabilitySignals;
-use super::app_game_linux_docker_host_preflight::unavailable_linux_docker_host_preflight;
 use crate::fields::fields_from_pairs;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -49,37 +47,11 @@ pub(super) struct TextList(pub(super) Vec<String>);
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(super) struct SerializedReadModelText(pub(super) String);
 
-pub fn app_game_platform_proof_status_read_model(
-    generated_at: GeneratedAtText,
-) -> AppGamePlatformProofStatusReadModel {
-    // Synchronous read-model callers do not own transport provenance or the
-    // server cache. Keep the explicit seam probe-free and fail closed.
-    let host_capabilities = HostCapabilitySignals::detect();
-    let linux_docker_host_preflight = unavailable_linux_docker_host_preflight();
-    let linux_preflight = LinuxForegroundSourcePreflight::unavailable();
-    app_game_platform_proof_status_read_model_from_preflights(
-        generated_at,
-        &host_capabilities,
-        &linux_preflight,
-        &linux_docker_host_preflight,
-    )
-}
-
-pub fn app_game_platform_proof_status_read_model_with_linux_preflight(
-    generated_at: GeneratedAtText,
-    linux_preflight: LinuxForegroundSourcePreflight,
-) -> AppGamePlatformProofStatusReadModel {
-    let host_capabilities = HostCapabilitySignals::detect();
-    app_game_platform_proof_status_read_model_from_preflights(
-        generated_at,
-        &host_capabilities,
-        &linux_preflight,
-        &unavailable_linux_docker_host_preflight(),
-    )
-}
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(super) struct PlatformProofGeneratedAtText(pub(super) String);
 
 pub(super) fn app_game_platform_proof_status_read_model_from_preflights(
-    generated_at: GeneratedAtText,
+    generated_at: PlatformProofGeneratedAtText,
     host_capabilities: &HostCapabilitySignals,
     linux_preflight: &LinuxForegroundSourcePreflight,
     linux_docker_host_preflight: &AppGameLinuxDockerHostPreflight,
@@ -158,7 +130,7 @@ pub fn app_game_platform_proof_status_payload(
 }
 
 fn platform_status_rows(
-    generated_at: &GeneratedAtText,
+    generated_at: &PlatformProofGeneratedAtText,
     host_capabilities: &HostCapabilitySignals,
     linux_preflight: &LinuxForegroundSourcePreflight,
     linux_docker_host_preflight: &AppGameLinuxDockerHostPreflight,
@@ -185,7 +157,9 @@ fn platform_status_rows(
     ]
 }
 
-fn windows_status_row(generated_at: &GeneratedAtText) -> AppGamePlatformProofStatusRow {
+fn windows_status_row(
+    generated_at: &PlatformProofGeneratedAtText,
+) -> AppGamePlatformProofStatusRow {
     platform_status_row(&PlatformStatusSpec {
         generated_at,
         platform: TextValue(APP_GAME_PARENT_PLATFORM_WINDOWS),
@@ -210,7 +184,7 @@ fn windows_status_row(generated_at: &GeneratedAtText) -> AppGamePlatformProofSta
 }
 
 fn android_status_row(
-    generated_at: &GeneratedAtText,
+    generated_at: &PlatformProofGeneratedAtText,
     host_capabilities: &HostCapabilitySignals,
 ) -> AppGamePlatformProofStatusRow {
     let host_state = host_capabilities.android_state().0;
@@ -242,7 +216,7 @@ fn android_status_row(
 }
 
 fn linux_status_row(
-    generated_at: &GeneratedAtText,
+    generated_at: &PlatformProofGeneratedAtText,
     host_capabilities: &HostCapabilitySignals,
     linux_preflight: &LinuxForegroundSourcePreflight,
     linux_docker_host_preflight: &AppGameLinuxDockerHostPreflight,
@@ -289,7 +263,7 @@ fn linux_status_row(
 }
 
 fn platform_not_applicable_status_row(
-    generated_at: &GeneratedAtText,
+    generated_at: &PlatformProofGeneratedAtText,
     platform: TextValue,
     platform_gap: TextValue,
 ) -> AppGamePlatformProofStatusRow {
@@ -312,7 +286,7 @@ fn platform_not_applicable_status_row(
 }
 
 struct PlatformStatusSpec<'a> {
-    generated_at: &'a GeneratedAtText,
+    generated_at: &'a PlatformProofGeneratedAtText,
     platform: TextValue,
     proof_state: TextValue,
     authority_state: TextValue,
@@ -338,6 +312,7 @@ fn platform_status_row(spec: &PlatformStatusSpec<'_>) -> AppGamePlatformProofSta
         host_capability_evidence_refs: spec.host_capability_evidence_refs.0.clone(),
         host_capability_probe_refs: spec.host_capability_probe_refs.0.clone(),
         linux_docker_host_preflight: spec.linux_docker_host_preflight.clone(),
+        windows_local_policy_evidence: None,
         product_meanings: vec![
             APP_GAME_ADAPTER_PRODUCT_NATIVE_APP.to_string(),
             APP_GAME_ADAPTER_PRODUCT_NATIVE_GAME.to_string(),

@@ -16,11 +16,7 @@ pub(super) fn is_dev_tools_route_impl(route: &ParentRouteId) -> bool {
 pub(super) fn is_lan_surface_route_impl(route: &ParentRouteId) -> bool {
     matches!(
         route,
-        ParentRouteId::Devices
-            | ParentRouteId::LanPairing
-            | ParentRouteId::CapabilityStatus
-            | ParentRouteId::PlatformsInstall
-            | ParentRouteId::InstallUpdates
+        ParentRouteId::Devices | ParentRouteId::LanPairing | ParentRouteId::CapabilityStatus
     )
 }
 

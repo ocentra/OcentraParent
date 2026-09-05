@@ -96,6 +96,396 @@
     "titleOffsetX": 0,
     "titleOffsetY": 0
   },
+  "parentPortal": {
+    "mainApp": {
+      "canvas": {
+        "width": 2048,
+        "height": 900
+      },
+      "layout": {
+        "outerPad": 16,
+        "gap": 14,
+        "leftW": 252,
+        "rightW": 336,
+        "topY": 15,
+        "headerH": 82,
+        "tabsY": 116,
+        "tabsH": 44,
+        "mainY": 125,
+        "bottomY": 824,
+        "bottomH": 76
+      },
+      "colors": {
+        "background": "#030712",
+        "panelFill": "#071625",
+        "panelStroke": "#3fc9e8",
+        "cyan": "#42e8ff",
+        "gold": "#f6c34a",
+        "purple": "#9b5cff",
+        "red": "#ff5d72",
+        "muted": "#c7d7ee",
+        "bodyText": "#ffffff",
+        "mutedText": "#9fb8cf",
+        "selectedFill": "#273184"
+      },
+      "chrome": {
+        "panelCut": 14,
+        "panelStrokeWidth": 1.1,
+        "panelInnerInset": 5,
+        "hoverPad": 4,
+        "glowOpacity": 0.24,
+        "buttonArrowWidth": 26,
+        "rowHeight": 35,
+        "rowGap": 4,
+        "avatarRadius": 15,
+        "frameOuterBulgeWidth": 156,
+        "frameInnerBulgeWidth": 126
+      }
+    },
+    "chatInterface": {
+      "canvas": {
+        "width": 2048,
+        "height": 900
+      },
+      "layout": {
+        "outerPad": 16,
+        "gap": 14,
+        "leftW": 252,
+        "rightW": 336,
+        "topY": 15,
+        "headerH": 82,
+        "tabsY": 116,
+        "tabsH": 44,
+        "mainY": 125,
+        "bottomY": 824,
+        "bottomH": 76
+      },
+      "colors": {
+        "background": "#030712",
+        "panelFill": "#071625",
+        "panelStroke": "#3fc9e8",
+        "cyan": "#42e8ff",
+        "gold": "#f6c34a",
+        "purple": "#9b5cff",
+        "red": "#ff5d72",
+        "muted": "#c7d7ee",
+        "bodyText": "#ffffff",
+        "mutedText": "#9fb8cf",
+        "selectedFill": "#273184"
+      },
+      "chrome": {
+        "panelCut": 14,
+        "panelStrokeWidth": 1.1,
+        "panelInnerInset": 5,
+        "hoverPad": 4,
+        "glowOpacity": 0.24,
+        "buttonArrowWidth": 26,
+        "rowHeight": 35,
+        "rowGap": 4,
+        "avatarRadius": 15,
+        "frameOuterBulgeWidth": 156,
+        "frameInnerBulgeWidth": 126
+      }
+    },
+    "contentDraft": {
+      "mainApp": {
+        "sidePanelFoldouts": [
+          {
+            "id": "quick-glance",
+            "label": "Quick glance",
+            "tone": "cyan",
+            "buttons": [
+              {
+                "id": "overview",
+                "label": "Overview",
+                "detail": "Today control snapshot.",
+                "routePath": "#/overview",
+                "icon": "overview",
+                "tone": "cyan"
+              }
+            ]
+          },
+          {
+            "id": "guide",
+            "label": "Guide",
+            "tone": "cyan",
+            "buttons": [
+              {
+                "id": "start",
+                "label": "Start here",
+                "detail": "Setup and controls map.",
+                "routePath": "#/start",
+                "icon": "start",
+                "tone": "cyan"
+              },
+              {
+                "id": "rules",
+                "label": "Rules",
+                "detail": "Rules and policy guide.",
+                "routePath": "#/policy",
+                "icon": "rules",
+                "tone": "red"
+              },
+              {
+                "id": "memory",
+                "label": "Memory",
+                "detail": "Cited local memory.",
+                "routePath": "#/memory",
+                "icon": "memory",
+                "tone": "cyan"
+              },
+              {
+                "id": "ai",
+                "label": "AI",
+                "detail": "Local AI and memory readiness.",
+                "routePath": "#/ai-runtime",
+                "icon": "ai-setup",
+                "tone": "purple"
+              },
+              {
+                "id": "reports",
+                "label": "Reports",
+                "detail": "Stored reports and summaries.",
+                "routePath": "#/activity",
+                "icon": "reports",
+                "tone": "cyan"
+              },
+              {
+                "id": "private",
+                "label": "Private",
+                "detail": "Privacy and data custody guide.",
+                "routePath": "#/privacy-design",
+                "icon": "private",
+                "tone": "cyan"
+              }
+            ]
+          },
+          {
+            "id": "manage",
+            "label": "Manage",
+            "tone": "cyan",
+            "buttons": [
+              {
+                "id": "browser",
+                "label": "Browser state",
+                "detail": "Supported browsers and web evidence.",
+                "routePath": "#/browser-settings",
+                "icon": "browser-state",
+                "tone": "gold"
+              },
+              {
+                "id": "devices",
+                "label": "Devices",
+                "detail": "Child devices and pairing.",
+                "routePath": "#/devices",
+                "icon": "devices",
+                "tone": "cyan"
+              },
+              {
+                "id": "alerts",
+                "label": "Alerts",
+                "detail": "Parent notification channels.",
+                "routePath": "#/notifications",
+                "icon": "alerts",
+                "tone": "red"
+              },
+              {
+                "id": "drives",
+                "label": "Drives",
+                "detail": "Parent-owned exports and sync.",
+                "routePath": "#/drive-connections",
+                "icon": "drives",
+                "tone": "gold"
+              }
+            ]
+          }
+        ],
+        "mainPanelTop": [
+          {
+            "id": "top-cards",
+            "label": "Top cards",
+            "tone": "cyan",
+            "buttons": [
+              {
+                "id": "snapshot",
+                "label": "Today control snapshot",
+                "detail": "Family state, active rules, and evidence.",
+                "routePath": "#/overview",
+                "icon": "overview",
+                "tone": "cyan"
+              },
+              {
+                "id": "control-map",
+                "label": "What parents control",
+                "detail": "Browser, app, rules, schedules, AI, reports.",
+                "routePath": "#/start",
+                "icon": "start",
+                "tone": "gold"
+              },
+              {
+                "id": "data-custody",
+                "label": "Data custody",
+                "detail": "Local evidence and parent-owned export boundaries.",
+                "routePath": "#/privacy-design",
+                "icon": "private",
+                "tone": "purple"
+              }
+            ]
+          }
+        ],
+        "mainPanelBottom": [
+          {
+            "id": "bottom-actions",
+            "label": "Bottom actions",
+            "tone": "cyan",
+            "buttons": [
+              {
+                "id": "open-assistant",
+                "label": "AI assistant",
+                "detail": "Ask MIA instead of hunting settings.",
+                "routePath": "#/assistant",
+                "icon": "ai-guide",
+                "tone": "cyan"
+              },
+              {
+                "id": "open-settings",
+                "label": "Settings",
+                "detail": "Open family settings controls.",
+                "routePath": "#/settings-rules",
+                "icon": "settings",
+                "tone": "gold"
+              }
+            ]
+          }
+        ]
+      },
+      "chatInterface": {
+        "sidePanelFoldouts": [
+          {
+            "id": "assistant-quick-actions",
+            "label": "Quick action",
+            "tone": "cyan",
+            "buttons": [
+              {
+                "id": "today-report",
+                "label": "Today report",
+                "detail": "Open stored activity and summary evidence.",
+                "routePath": "#/overview",
+                "icon": "today-report",
+                "tone": "cyan"
+              },
+              {
+                "id": "browser-state",
+                "label": "Browser state",
+                "detail": "Supported browsers, unmanaged risk, web evidence.",
+                "routePath": "#/browser",
+                "icon": "browser-state",
+                "tone": "gold"
+              },
+              {
+                "id": "rules",
+                "label": "Rules",
+                "detail": "House rules, allow, ask, explain, block.",
+                "routePath": "#/policy",
+                "icon": "rules",
+                "tone": "red"
+              },
+              {
+                "id": "ai-setup",
+                "label": "AI setup",
+                "detail": "Local AI, API providers, model state.",
+                "routePath": "#/ai-runtime",
+                "icon": "ai-setup",
+                "tone": "purple"
+              },
+              {
+                "id": "drives",
+                "label": "Drives",
+                "detail": "Connect parent-owned exports and custody.",
+                "routePath": "#/drive-connections",
+                "icon": "drives",
+                "tone": "gold"
+              },
+              {
+                "id": "support-api",
+                "label": "Support",
+                "detail": "Send a parent-authored support message.",
+                "routePath": "#/diagnostics",
+                "icon": "support-api",
+                "tone": "cyan"
+              }
+            ]
+          }
+        ],
+        "mainPanelTop": [
+          {
+            "id": "assistant-prompts",
+            "label": "Quick prompts",
+            "tone": "cyan",
+            "buttons": [
+              {
+                "id": "what-happened-today",
+                "label": "What happened today?",
+                "detail": "Ask MIA for a daily activity summary.",
+                "routePath": "#/assistant",
+                "icon": "question",
+                "tone": "cyan"
+              },
+              {
+                "id": "open-browser-rules",
+                "label": "Open browser rules",
+                "detail": "Ask MIA to prepare browser rule changes.",
+                "routePath": "#/assistant",
+                "icon": "browser-state",
+                "tone": "gold"
+              },
+              {
+                "id": "change-rule",
+                "label": "Change a rule",
+                "detail": "Ask MIA to guide a rule update.",
+                "routePath": "#/assistant",
+                "icon": "rules",
+                "tone": "purple"
+              },
+              {
+                "id": "support-bundle",
+                "label": "Support message",
+                "detail": "Ask MIA to draft a support message.",
+                "routePath": "#/assistant",
+                "icon": "support-api",
+                "tone": "purple"
+              }
+            ]
+          }
+        ],
+        "mainPanelBottom": [
+          {
+            "id": "assistant-composer",
+            "label": "Composer",
+            "tone": "cyan",
+            "buttons": [
+              {
+                "id": "message-mia",
+                "label": "Message MIA",
+                "detail": "Typed parent question sent to AI.",
+                "routePath": "#/assistant",
+                "icon": "ai-guide",
+                "tone": "cyan"
+              },
+              {
+                "id": "send",
+                "label": "Send",
+                "detail": "Submit the current parent prompt.",
+                "routePath": "#/assistant",
+                "icon": "send",
+                "tone": "cyan"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
   "preview": {
     "showContent": true
   },

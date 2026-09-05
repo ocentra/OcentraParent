@@ -49,7 +49,9 @@ describe('app-game timer parent-surface portal route panel', () => {
 
     expect(payloads).toEqual([PreferenceSetupPayload]);
   });
+});
 
+describe('app-game timer parent-surface rendered rows', () => {
   it('renders Rust-owned timer parent-surface rows', () => {
     const html = renderToStaticMarkup(
       createElement(AppGameTimerParentSurfaceRoutePanel, {
@@ -80,9 +82,7 @@ describe('app-game timer parent-surface portal route panel', () => {
     expect(html).toContain('Raw private source rows</dt><dd>Not claimed');
     expect(html).toContain('Delivery</dt><dd>Not claimed');
     expect(html).toContain('Notification delivery</dt><dd>Not claimed');
-    expect(html).toContain(
-      'Child UX handoff refs</dt><dd>app-game-child-ux-local-handoff-action-result-app-game-1'
-    );
+    expect(html).toContain('Child UX handoff refs</dt><dd>app-game-child-ux-local-handoff-action-result-app-game-1');
     expect(html).toContain('Session duration</dt><dd>15 min from stored evidence');
     expect(html).toContain('Session duration</dt><dd>15 min');
     expect(html).toContain('Evidence source</dt><dd>stored journal rows');
@@ -106,7 +106,9 @@ describe('app-game timer parent-surface portal route panel', () => {
     expect(html).toContain('App/game timer parent surface');
     expect(html).toContain('Study Timer');
   });
+});
 
+describe('app-game timer parent-surface fail-closed controls', () => {
   it('withholds parent preference controls when the Rust-owned action is unavailable', () => {
     const panel = {
       ...AppGameTimerParentSurfacePanelFixture,

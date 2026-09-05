@@ -20,9 +20,7 @@ import {
 
 describe('Rust-owned report/query custody contract edge', () => {
   it('parses the generated proof and preserves every required outcome state', () => {
-    expect(ReportQueryCustodyProofSchema.parse(generatedProof)).toEqual(
-      ReportQueryCustodyProofReadModel
-    );
+    expect(ReportQueryCustodyProofSchema.parse(generatedProof)).toEqual(ReportQueryCustodyProofReadModel);
     expect(reportQueryCustodyProofIsHonestGenerated(generatedProof)).toBe(true);
     expect(summarizeReportQueryCustodyStates(ReportQueryCustodyProofReadModel.rows)).toEqual({
       derivedFresh: 1,
@@ -45,7 +43,9 @@ describe('Rust-owned report/query custody contract edge', () => {
 
     expect(reportQueryCustodyRequestIsHonestGenerated(request)).toBe(false);
   });
+});
 
+describe('Rust-owned report/query custody schema versions', () => {
   it('rejects missing, zero, and unsupported custody schema versions', () => {
     const missingVersion = { ...generatedProof.request } as Record<string, unknown>;
     delete missingVersion.schemaVersion;
@@ -62,11 +62,9 @@ describe('Rust-owned report/query custody contract edge', () => {
     ] as const;
 
     for (const request of invalidRequests) {
-      expect(
-        reportQueryCustodyRequestIsHonestGenerated(
-          request as unknown as typeof generatedProof.request
-        )
-      ).toBe(false);
+      expect(reportQueryCustodyRequestIsHonestGenerated(request as unknown as typeof generatedProof.request)).toBe(
+        false
+      );
       expect(() => ReportQueryCustodyRequestSchema.parse(request)).toThrow();
     }
 
@@ -86,14 +84,14 @@ describe('Rust-owned report/query custody contract edge', () => {
 
     for (const proof of invalidProofs) {
       expect(
-        reportQueryCustodyProofIsHonestGenerated(
-          proof as unknown as GeneratedReportQueryCustodyContractProof
-        )
+        reportQueryCustodyProofIsHonestGenerated(proof as unknown as GeneratedReportQueryCustodyContractProof)
       ).toBe(false);
       expect(() => ReportQueryCustodyProofSchema.parse(proof)).toThrow();
     }
   });
+});
 
+describe('Rust-owned report/query custody row source binding', () => {
   it('binds each row source class to both request scopes', () => {
     const row = generatedProof.rows[0];
     expect(row?.state).toBe('derivedFresh');
@@ -114,7 +112,9 @@ describe('Rust-owned report/query custody contract edge', () => {
       })
     ).toBe(false);
   });
+});
 
+describe('Rust-owned report/query custody request binding', () => {
   it('keeps row scopes, citation arrays, and authority generation exactly bound to the request', () => {
     const row = generatedProof.rows[0]!;
     const scopeMismatch = {
@@ -137,8 +137,7 @@ describe('Rust-owned report/query custody contract edge', () => {
             index === 0
               ? {
                   ...citation,
-                  sourceReference:
-                    'unbound-source-reference' as unknown as typeof citation.sourceReference,
+                  sourceReference: 'unbound-source-reference' as unknown as typeof citation.sourceReference,
                 }
               : citation
           ),
@@ -155,8 +154,7 @@ describe('Rust-owned report/query custody contract edge', () => {
             index === 0
               ? {
                   ...citation,
-                  sourceReference:
-                    'unbound-assistant-reference' as unknown as typeof citation.sourceReference,
+                  sourceReference: 'unbound-assistant-reference' as unknown as typeof citation.sourceReference,
                 }
               : citation
           ),
@@ -180,7 +178,9 @@ describe('Rust-owned report/query custody contract edge', () => {
     expect(reportQueryCustodyProofIsHonestGenerated(assistantCitationMismatch)).toBe(false);
     expect(reportQueryCustodyProofIsHonestGenerated(generationMismatch)).toBe(false);
   });
+});
 
+describe('Rust-owned report/query custody proof bounds', () => {
   it('rejects proofs whose result count exceeds the request page size or omits a required state', () => {
     const pageBoundRows = generatedProof.rows.map((row) => ({
       ...row,

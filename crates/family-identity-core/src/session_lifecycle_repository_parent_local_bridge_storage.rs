@@ -87,7 +87,7 @@ pub(super) fn read_record(
             },
         )
         .optional()
-        .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?
+        .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?
         .map(|row| {
             decode_record(
                 row,
@@ -178,7 +178,7 @@ pub(super) fn current_bridge_revoke_epoch(
             |row| row.get::<_, i64>(0),
         )
         .optional()
-        .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+        .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
     match epoch {
         Some(epoch) => positive_generation(epoch),
         None => {
@@ -188,7 +188,7 @@ pub(super) fn current_bridge_revoke_epoch(
                          (account_id, epoch) VALUES (?1, 1)",
                     [account_id.as_str()],
                 )
-                .map_err(|_| SessionLifecycleRepositoryError::CurrentnessConflict)?;
+                .map_err(|_error| SessionLifecycleRepositoryError::CurrentnessConflict)?;
             (inserted == 1)
                 .then_some(1)
                 .ok_or(SessionLifecycleRepositoryError::CurrentnessConflict)
@@ -215,7 +215,7 @@ pub(super) fn advance_bridge_revoke_epoch(
                 super::super::codec::to_sql_generation(expected_epoch)?,
             ],
         )
-        .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+        .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
     if changed != 1 {
         let reloaded = current_bridge_revoke_epoch(transaction, account_id)?;
         return if reloaded != expected_epoch {

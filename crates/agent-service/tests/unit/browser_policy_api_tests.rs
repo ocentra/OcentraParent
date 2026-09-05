@@ -45,7 +45,8 @@ use ocentra_parent_agent_protocol::BrowserPolicyValue;
 use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 use ocentra_parent_agent_service::test_support::handle_local_command_text_with_browser_policy_store_for_test;
 
-use crate::test_invariants::{require_log_string_field, require_ok};
+use crate::test_require_log_string_field::require_log_string_field;
+use crate::test_require_ok::require_ok;
 
 #[tokio::test]
 async fn browser_policy_replace_persists_and_get_reports_after_runtime_restart() {
@@ -508,12 +509,15 @@ fn serialize_test_json<T>(value: &T) -> TestString
 where
     T: serde::Serialize + ?Sized,
 {
-    crate::test_invariants::serialize_test_json(value)
+    crate::test_serialize_json::serialize_test_json(value)
 }
 
 fn parse_test_json<T>(text: &TestStr) -> T
 where
     T: serde::de::DeserializeOwned,
 {
-    crate::test_invariants::require_json_decode(text, constants::error::AGENT_EVENT_SERIALIZES)
+    crate::test_require_json_decode::require_json_decode(
+        text,
+        constants::error::AGENT_EVENT_SERIALIZES,
+    )
 }

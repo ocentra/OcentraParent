@@ -161,10 +161,10 @@ where
 }
 
 fn ensure_phase_deadline(deadline: Instant, timeout: Duration, phase: &str) -> Result<(), String> {
-    remaining_timeout(deadline).map(|_| ()).map_err(|_| {
+    remaining_timeout(deadline).map(|_| ()).map_err(|error| {
         format!(
-            "agent-service WebSocket {phase} timed out after {}ms",
-            timeout.as_millis()
+            "agent-service WebSocket {phase} timed out after {}ms: {error}",
+            timeout.as_millis(),
         )
     })
 }

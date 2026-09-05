@@ -64,7 +64,7 @@ pub(super) fn parse(
     if cursor.take_array::<4>()? != MAGIC
         || cursor.take_u16()? != VERSION
         || usize::try_from(cursor.take_u32()?)
-            .map_err(|_| ProvisioningError::ExistingStateRejected)?
+            .map_err(|_error| ProvisioningError::ExistingStateRejected)?
             != bytes.len()
     {
         return Err(ProvisioningError::ExistingStateRejected);
@@ -85,8 +85,8 @@ pub(super) fn parse(
         policy_digest: cursor.take_array::<32>()?,
     };
 
-    let fixed_registry_id =
-        constants::fixed_registry_id().map_err(|_| ProvisioningError::ExistingStateRejected)?;
+    let fixed_registry_id = constants::fixed_registry_id()
+        .map_err(|_error| ProvisioningError::ExistingStateRejected)?;
     if !cursor.is_empty()
         || registry_id_digest
             != domain_hash(
@@ -159,7 +159,7 @@ impl<'a> Cursor<'a> {
     fn take_array<const N: usize>(&mut self) -> Result<[u8; N], ProvisioningError> {
         self.take(N)?
             .try_into()
-            .map_err(|_| ProvisioningError::ExistingStateRejected)
+            .map_err(|_error| ProvisioningError::ExistingStateRejected)
     }
 
     fn take_u16(&mut self) -> Result<u16, ProvisioningError> {

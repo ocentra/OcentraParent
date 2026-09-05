@@ -15,9 +15,9 @@ use ocentra_parent_agent_protocol::{
 use crate::{
     app::{lan_pairing::LanPairingRuntime, websocket::handle_command_text_for_test},
     lan_pairing_test_assertions::{
-        SelectedRouteCustodyExpectation, assert_persistent_status_support_surface,
-        assert_rejection, assert_rejection_with_audit, assert_status_selected_route_custody,
-        assert_status_selection, assert_status_support_surface,
+        assert_persistent_status_support_surface, assert_rejection, assert_rejection_with_audit,
+        assert_status_selected_route_custody, assert_status_selection,
+        assert_status_support_surface, SelectedRouteCustodyExpectation,
     },
     lan_pairing_test_commands::{
         command_for_target, health_command, intent_payload, intent_payload_for_kind,

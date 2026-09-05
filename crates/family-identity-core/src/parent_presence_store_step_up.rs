@@ -90,8 +90,9 @@ pub(crate) fn insert_intent(
                 intent.expires_at,
             ],
         )
-        .map(|_| ())
-        .map_err(|_error| ParentPresenceStoreError::Unavailable)
+        .map_err(|_error| ParentPresenceStoreError::Unavailable)?;
+    drop(intent);
+    Ok(())
 }
 
 pub(crate) fn mark_consumed(

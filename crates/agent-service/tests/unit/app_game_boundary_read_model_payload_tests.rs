@@ -9,7 +9,9 @@ use ocentra_parent_agent_protocol::app_game_boundary_read_model::{self, AppGameB
 use ocentra_parent_agent_protocol::constants;
 use std::primitive::str as TestStr;
 
-use crate::test_invariants::{require_json_decode, require_log_string_field, require_ok};
+use crate::test_require_json_decode::require_json_decode;
+use crate::test_require_log_string_field::require_log_string_field;
+use crate::test_require_ok::require_ok;
 
 use super::app_game_boundary_read_model_payload::{
     app_game_boundary_read_model_from_service_model, app_game_boundary_read_model_payload,
@@ -41,12 +43,24 @@ fn app_game_boundary_payload_contains_dedicated_counts_and_citations() {
     );
 
     assert_eq!(decoded.returned, 3);
-    assert_eq!(decoded.performance_health.limit, constants::activity_store::DEFAULT_RECENT_LIMIT);
-    assert_eq!(decoded.performance_health.status, app_game_boundary_read_model::AppGameHealthStatus::Healthy);
+    assert_eq!(
+        decoded.performance_health.limit,
+        constants::activity_store::DEFAULT_RECENT_LIMIT
+    );
+    assert_eq!(
+        decoded.performance_health.status,
+        app_game_boundary_read_model::AppGameHealthStatus::Healthy
+    );
     assert_eq!(decoded.performance_health.daily_rollup_returned, 1);
     assert_eq!(decoded.performance_health.returned, 1);
-    assert_eq!(decoded.performance_health.custody_label, app_game::APP_GAME_JOURNAL_CUSTODY_LOCAL_SQLITE);
-    assert_eq!(decoded.performance_health.replay_state, app_game::APP_GAME_JOURNAL_REPLAY_STATE_REPLAYED);
+    assert_eq!(
+        decoded.performance_health.custody_label,
+        app_game::APP_GAME_JOURNAL_CUSTODY_LOCAL_SQLITE
+    );
+    assert_eq!(
+        decoded.performance_health.replay_state,
+        app_game::APP_GAME_JOURNAL_REPLAY_STATE_REPLAYED
+    );
     assert_eq!(decoded.evidence_claim_row_count, 1);
     assert_eq!(decoded.platform_authority_matrix_count, 1);
     assert_eq!(decoded.platform_authority_row_count, 1);

@@ -47,7 +47,7 @@ pub(super) fn serve(
     // material, closing the PID-reuse window between admission and hello.
     let fresh_process_id = stream.client_process_id().map_err(map_transport_error)?;
     let fresh_session_id = stream.client_session_id().map_err(map_transport_error)?;
-    let _authorized_transcript = custody.authorize_client_transcript(
+    let authorized_transcript = custody.authorize_client_transcript(
         observation,
         &bootstrap,
         &client_hello,
@@ -69,6 +69,7 @@ pub(super) fn serve(
             custody,
             request_frame.as_ref(),
             &broker_hello,
+            authorized_transcript,
         );
     }
     let request =
@@ -114,6 +115,8 @@ fn serve_account_issuer(
     custody: &BrokerCustodyService,
     request_frame: &[u8],
     broker_hello: &UntrustedBrokerHello,
+    authorized_transcript: ocentra_protected_capability_custody_core::broker_admission::
+        BrokerAuthorizedClientTranscript,
 ) -> Result<(), BrokerError> {
     let request =
         ocentra_protected_capability_custody_protocol::account_issuer_session::decode_request(
@@ -125,7 +128,9 @@ fn serve_account_issuer(
         INITIAL_SESSION_SEQUENCE,
         broker_hello.authenticator(),
     )?;
-    let receipt = custody.execute_account_issuer(&authenticated)?;
+    let admission =
+        custody.authorize_account_issuer_request(authorized_transcript, &authenticated)?;
+    let receipt = custody.execute_account_issuer(admission, &authenticated)?;
     let authenticated_receipt =
         ocentra_protected_capability_custody_protocol::account_issuer_session::
             AuthenticatedAccountIssuerReceipt::authenticate(

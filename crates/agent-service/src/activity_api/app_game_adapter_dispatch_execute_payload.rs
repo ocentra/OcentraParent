@@ -50,11 +50,11 @@ pub(crate) async fn build_activity_app_game_adapter_dispatch_execute_report_with
             let mut enforcement_command = command;
             enforcement_command.command =
                 ocentra_parent_agent_protocol::transport::AgentCommandName::AgentEnforcementExecute;
-            build_enforcement_audit_report_with_app_game_session(
+            Box::pin(build_enforcement_audit_report_with_app_game_session(
                 enforcement_command,
                 paths,
                 app_game_session,
-            )
+            ))
             .await
         }
         Err(reason) => dispatch_execute_rejected_from_value(command, reason.log_value()),

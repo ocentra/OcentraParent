@@ -1,9 +1,15 @@
 use std::{fs, path::PathBuf, time::SystemTime};
 
+use ocentra_app_game_core::app_game_child_ux_preference_preflight_types::AppGameChildUxPreferencePreflightStatus;
 use ocentra_app_game_core::app_game_child_ux_scheduler_store::AppGameChildUxSchedulerProofStore;
 use ocentra_app_game_core::app_game_child_ux_scheduler_types::AppGameChildUxSchedulerPersistResult;
 use ocentra_app_game_core::app_game_notification_local_outbox_bridge::build_app_game_notification_local_outbox_bridge;
 use ocentra_app_game_core::app_game_notification_local_outbox_bridge_types::AppGameNotificationLocalOutboxBridgeOptions;
+use ocentra_app_game_core::app_game_notification_preference_preflight_bridge::build_app_game_notification_preference_preflight_bridge;
+use ocentra_app_game_core::app_game_notification_preference_preflight_bridge_types::{
+    AppGameNotificationPreferencePreflightBridgeOptions,
+    AppGameNotificationPreferencePreflightBridgeReadModel,
+};
 use ocentra_app_game_core::app_game_notification_scheduler_bridge::{
     build_app_game_notification_scheduler_bridge, parse_app_game_notification_scheduler_jsonl,
     persist_app_game_notification_scheduler_bridge,
@@ -12,9 +18,6 @@ use ocentra_app_game_core::app_game_notification_scheduler_bridge::{
 use ocentra_app_game_core::app_game_notification_scheduler_bridge_types::{
     AppGameNotificationSchedulerBridgeOptions, AppGameNotificationSchedulerBridgeStatus,
 };
-use ocentra_app_game_core::app_game_notification_preference_preflight_bridge::build_app_game_notification_preference_preflight_bridge;
-use ocentra_app_game_core::app_game_notification_preference_preflight_bridge_types::AppGameNotificationPreferencePreflightBridgeOptions;
-use ocentra_app_game_core::app_game_child_ux_preference_preflight_types::AppGameChildUxPreferencePreflightStatus;
 use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::activity::policy::{ParentActorReference, ParentActorRole};
 use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
@@ -97,11 +100,16 @@ fn scheduler_bridge_consumes_wp58_and_keeps_blocked_rows_unscheduled(
 }
 
 #[test]
-fn preference_preflight_bridge_preserves_scheduler_and_outbox_refs() -> Result<(), Box<dyn std::error::Error>> {
+fn preference_preflight_bridge_preserves_scheduler_and_outbox_refs(
+) -> Result<(), Box<dyn std::error::Error>> {
     let directory = test_directory("preference-preflight");
     let store = AppGameChildUxSchedulerProofStore::open(&directory)?;
-    let scheduler = build_app_game_notification_scheduler_bridge(scheduler_options(), source_bridge()?)?;
-    let record = scheduler.rows[0].scheduler_record.clone().expect_value("scheduled record");
+    let scheduler =
+        build_app_game_notification_scheduler_bridge(scheduler_options(), source_bridge()?)?;
+    let record = scheduler.rows[0]
+        .scheduler_record
+        .clone()
+        .expect_value("scheduled record");
     store.persist(record.clone())?;
     let model = build_app_game_notification_preference_preflight_bridge(
         &store,
@@ -116,41 +124,66 @@ fn preference_preflight_bridge_preserves_scheduler_and_outbox_refs() -> Result<(
     assert_eq!(model.manual_required_count, 1);
     assert_eq!(model.unavailable_count, 1);
     let row = &model.rows[0];
-    assert_eq!(model.rows[1].status, AppGameChildUxPreferencePreflightStatus::ManualRequired);
-    assert_eq!(model.rows[2].status, AppGameChildUxPreferencePreflightStatus::Unavailable);
-    assert_eq!(model.rows[1].blocked_reason_refs, vec![APP_GAME_NOTIFICATION_READINESS_MINIMAL_PAYLOAD_MANUAL_REQUIRED.into()]);
-    assert_eq!(model.rows[2].blocked_reason_refs, vec![APP_GAME_NOTIFICATION_READINESS_MINIMAL_PAYLOAD_UNAVAILABLE.into()]);
+    assert_eq!(
+        model.rows[1].status,
+        AppGameChildUxPreferencePreflightStatus::ManualRequired
+    );
+    assert_eq!(
+        model.rows[2].status,
+        AppGameChildUxPreferencePreflightStatus::Unavailable
+    );
+    assert_eq!(
+        model.rows[1].blocked_reason_refs,
+        vec![APP_GAME_NOTIFICATION_READINESS_MINIMAL_PAYLOAD_MANUAL_REQUIRED.into()]
+    );
+    assert_eq!(
+        model.rows[2].blocked_reason_refs,
+        vec![APP_GAME_NOTIFICATION_READINESS_MINIMAL_PAYLOAD_UNAVAILABLE.into()]
+    );
     let preflight = row.preflight_row.as_ref().expect_value("preflight row");
-    assert_eq!(preflight.source_scheduler_entry_id.as_str(), record.scheduler_entry_id.as_str());
-    assert_eq!(preflight.source_local_outbox_record_ref.as_ref().map(|value| value.as_str()), Some(record.source_entry_id.as_str()));
-    assert_eq!(preflight.scheduler_decision_ref, record.scheduler_decision_ref);
-    assert_eq!(preflight.scheduler_artifact_ref, record.scheduler_artifact_ref);
-    assert_eq!(preflight.provider_channel, Some(V3NotificationProviderChannel::InApp));
-    assert_eq!(preflight.reason_code, Some(V3NotificationRuleReasonCode::PolicyViolation));
-    assert_eq!(preflight.source_outbox_file_ref.as_ref().map(|v| v.as_str()), Some("outbox-file-59"));
-    assert_eq!(preflight.local_data_path_ref.as_ref().map(|v| v.as_str()), Some("local-data-59"));
+    assert_eq!(
+        preflight.source_scheduler_entry_id.as_str(),
+        record.scheduler_entry_id.as_str()
+    );
+    assert_eq!(
+        preflight
+            .source_local_outbox_record_ref
+            .as_ref()
+            .map(|value| value.as_str()),
+        Some(record.source_entry_id.as_str())
+    );
+    assert_eq!(
+        preflight.scheduler_decision_ref,
+        record.scheduler_decision_ref
+    );
+    assert_eq!(
+        preflight.scheduler_artifact_ref,
+        record.scheduler_artifact_ref
+    );
+    assert_eq!(
+        preflight.provider_channel,
+        Some(V3NotificationProviderChannel::InApp)
+    );
+    assert_eq!(
+        preflight.reason_code,
+        Some(V3NotificationRuleReasonCode::PolicyViolation)
+    );
+    assert_eq!(
+        preflight
+            .source_outbox_file_ref
+            .as_ref()
+            .map(|v| v.as_str()),
+        Some("outbox-file-59")
+    );
+    assert_eq!(
+        preflight.local_data_path_ref.as_ref().map(|v| v.as_str()),
+        Some("local-data-59")
+    );
     assert_eq!(preflight.policy_refs, vec!["policy-59".into()]);
     assert_eq!(preflight.audit_refs, vec!["audit-59".into()]);
     assert_eq!(preflight.evidence_refs.len(), 1);
-    assert!(!preflight.parent_preference_mutation_runtime_claimed);
-    assert!(!preflight.parent_frequency_control_ui_claimed);
-    assert!(!preflight.quiet_hours_timer_runtime_claimed);
-    assert!(!preflight.provider_delivery_runtime_claimed);
-    assert!(!preflight.provider_receipt_ingestion_claimed);
-    assert!(!preflight.provider_credentials_claimed);
-    assert!(!preflight.cloud_routing_claimed);
-    assert!(!preflight.parent_notification_ui_claimed);
-    assert!(!preflight.child_delivery_claimed);
-    assert!(!preflight.adapter_dispatch_claimed);
-    assert!(!preflight.platform_enforcement_claimed);
-    assert_eq!(preflight.parent_preference_requirement_refs.len(), 1);
-    assert_eq!(preflight.notification_frequency_requirement_refs.len(), 1);
-    assert_eq!(preflight.quiet_hours_requirement_refs.len(), 1);
-    assert_eq!(preflight.parent_preference_requirement_refs[0].as_str(), "app-game-parent-preference-requirement:bridge-62:app-game-notification-scheduler:bridge-59:app-game-notification-outbox:bridge-58:time-limit");
-    assert_eq!(preflight.notification_frequency_requirement_refs[0].as_str(), "app-game-notification-frequency-requirement:bridge-62:app-game-notification-scheduler:bridge-59:app-game-notification-outbox:bridge-58:time-limit");
-    assert_eq!(preflight.quiet_hours_requirement_refs[0].as_str(), "app-game-quiet-hours-requirement:bridge-62:app-game-notification-scheduler:bridge-59:app-game-notification-outbox:bridge-58:time-limit");
-    assert_ne!(preflight.parent_preference_requirement_refs[0], preflight.notification_frequency_requirement_refs[0]);
-    assert_ne!(preflight.notification_frequency_requirement_refs[0], preflight.quiet_hours_requirement_refs[0]);
+    assert_preflight_claims_clear(&model, preflight);
+    assert_preflight_requirement_refs(preflight);
     assert!(model.rows[1].preflight_row.is_none());
     assert!(model.rows[2].preflight_row.is_none());
     assert!(!model.parent_preference_mutation_runtime_claimed);
@@ -169,12 +202,71 @@ fn preference_preflight_bridge_preserves_scheduler_and_outbox_refs() -> Result<(
     Ok(())
 }
 
+fn assert_preflight_claims_clear(
+    model: &AppGameNotificationPreferencePreflightBridgeReadModel,
+    preflight: &ocentra_app_game_core::app_game_child_ux_preference_preflight_types::AppGameChildUxPreferencePreflightRow,
+) {
+    assert!(!preflight.parent_preference_mutation_runtime_claimed);
+    assert!(!preflight.parent_frequency_control_ui_claimed);
+    assert!(!preflight.quiet_hours_timer_runtime_claimed);
+    assert!(!preflight.provider_delivery_runtime_claimed);
+    assert!(!preflight.provider_receipt_ingestion_claimed);
+    assert!(!preflight.provider_credentials_claimed);
+    assert!(!preflight.cloud_routing_claimed);
+    assert!(!preflight.parent_notification_ui_claimed);
+    assert!(!preflight.child_delivery_claimed);
+    assert!(!preflight.adapter_dispatch_claimed);
+    assert!(!preflight.platform_enforcement_claimed);
+    assert!(!model.parent_preference_mutation_runtime_claimed);
+    assert!(!model.provider_delivery_runtime_claimed);
+    assert!(!model.parent_frequency_control_ui_claimed);
+    assert!(!model.quiet_hours_timer_runtime_claimed);
+    assert!(!model.provider_receipt_ingestion_claimed);
+    assert!(!model.provider_credentials_claimed);
+    assert!(!model.retry_worker_runtime_claimed);
+    assert!(!model.production_durable_outbox_storage_claimed);
+    assert!(!model.cloud_routing_claimed);
+    assert!(!model.parent_notification_ui_claimed);
+    assert!(!model.child_delivery_claimed);
+    assert!(!model.adapter_dispatch_claimed);
+    assert!(!model.platform_enforcement_claimed);
+}
+
+fn assert_preflight_requirement_refs(
+    preflight: &ocentra_app_game_core::app_game_child_ux_preference_preflight_types::AppGameChildUxPreferencePreflightRow,
+) {
+    assert_eq!(preflight.parent_preference_requirement_refs.len(), 1);
+    assert_eq!(preflight.notification_frequency_requirement_refs.len(), 1);
+    assert_eq!(preflight.quiet_hours_requirement_refs.len(), 1);
+    assert_eq!(
+        preflight.parent_preference_requirement_refs[0].as_str(),
+        "app-game-parent-preference-requirement:bridge-62:app-game-notification-scheduler:bridge-59:app-game-notification-outbox:bridge-58:time-limit"
+    );
+    assert_eq!(
+        preflight.notification_frequency_requirement_refs[0].as_str(),
+        "app-game-notification-frequency-requirement:bridge-62:app-game-notification-scheduler:bridge-59:app-game-notification-outbox:bridge-58:time-limit"
+    );
+    assert_eq!(
+        preflight.quiet_hours_requirement_refs[0].as_str(),
+        "app-game-quiet-hours-requirement:bridge-62:app-game-notification-scheduler:bridge-59:app-game-notification-outbox:bridge-58:time-limit"
+    );
+    assert_ne!(
+        preflight.parent_preference_requirement_refs[0],
+        preflight.notification_frequency_requirement_refs[0]
+    );
+    assert_ne!(
+        preflight.notification_frequency_requirement_refs[0],
+        preflight.quiet_hours_requirement_refs[0]
+    );
+}
+
 #[test]
-fn preference_preflight_bridge_rejects_missing_persisted_scheduler_record() {
+fn preference_preflight_bridge_rejects_missing_persisted_scheduler_record(
+) -> Result<(), Box<dyn std::error::Error>> {
     let directory = test_directory("preference-preflight-missing");
-    let store = AppGameChildUxSchedulerProofStore::open(&directory).expect("scheduler store");
-    let scheduler = build_app_game_notification_scheduler_bridge(scheduler_options(), source_bridge().expect("source"))
-        .expect("scheduler bridge");
+    let store = AppGameChildUxSchedulerProofStore::open(&directory)?;
+    let scheduler =
+        build_app_game_notification_scheduler_bridge(scheduler_options(), source_bridge()?)?;
     let result = build_app_game_notification_preference_preflight_bridge(
         &store,
         AppGameNotificationPreferencePreflightBridgeOptions {
@@ -183,7 +275,15 @@ fn preference_preflight_bridge_rejects_missing_persisted_scheduler_record() {
         },
         scheduler,
     );
-    assert!(result.is_err());
+    let error = result
+        .err()
+        .expect_value("missing persisted scheduler record must be rejected");
+    assert_eq!(error.kind(), std::io::ErrorKind::InvalidData);
+    assert_eq!(
+        error.to_string(),
+        "app_game.notification_preference_preflight.source_bridge: bridge-59:app-game-notification-outbox-bridge:bridge-58:time-limit"
+    );
+    Ok(())
 }
 
 #[test]
@@ -193,7 +293,10 @@ fn preference_preflight_bridge_rejects_mismatched_persisted_scheduler_record(
     let store = AppGameChildUxSchedulerProofStore::open(&directory)?;
     let scheduler =
         build_app_game_notification_scheduler_bridge(scheduler_options(), source_bridge()?)?;
-    let record = scheduler.rows[0].scheduler_record.clone().expect_value("scheduled record");
+    let record = scheduler.rows[0]
+        .scheduler_record
+        .clone()
+        .expect_value("scheduled record");
     store.persist(record)?;
 
     let mut tampered_scheduler = scheduler;
@@ -210,7 +313,14 @@ fn preference_preflight_bridge_rejects_mismatched_persisted_scheduler_record(
         },
         tampered_scheduler,
     );
-    assert!(result.is_err());
+    let error = result
+        .err()
+        .expect_value("mismatched persisted scheduler record must be rejected");
+    assert_eq!(error.kind(), std::io::ErrorKind::InvalidData);
+    assert_eq!(
+        error.to_string(),
+        "invalid eventing value for app_game.notification_preference_preflight.source_bridge: bridge-59"
+    );
     fs::remove_dir_all(directory)?;
     Ok(())
 }
@@ -228,7 +338,14 @@ fn preference_preflight_bridge_rejects_empty_bridge_context(
         },
         build_app_game_notification_scheduler_bridge(scheduler_options(), source_bridge()?)?,
     );
-    assert!(result.is_err());
+    let error = result
+        .err()
+        .expect_value("empty bridge context must be rejected");
+    assert_eq!(error.kind(), std::io::ErrorKind::InvalidData);
+    assert_eq!(
+        error.to_string(),
+        "app_game.notification_preference_preflight.context:  "
+    );
     fs::remove_dir_all(directory)?;
     Ok(())
 }
@@ -363,7 +480,7 @@ fn assert_source_rejected(
     );
 }
 
-fn source_bridge() -> Result<
+pub(super) fn source_bridge() -> Result<
     ocentra_app_game_core::app_game_notification_local_outbox_bridge_types::AppGameNotificationLocalOutboxBridgeReadModel,
     ocentra_eventing::error::EventingError,
 >{
@@ -454,14 +571,14 @@ fn outbox_options() -> AppGameNotificationLocalOutboxBridgeOptions {
     }
 }
 
-fn scheduler_options() -> AppGameNotificationSchedulerBridgeOptions {
+pub(super) fn scheduler_options() -> AppGameNotificationSchedulerBridgeOptions {
     AppGameNotificationSchedulerBridgeOptions {
         bridge_id: "bridge-59".to_owned(),
         scheduler_now_at: "2026-08-15T00:01:00Z".into(),
     }
 }
 
-fn test_directory(label: &str) -> PathBuf {
+pub(super) fn test_directory(label: &str) -> PathBuf {
     let mut path = std::env::temp_dir();
     path.push(format!(
         "ocentra-app-game-notification-scheduler-{label}-{}-{}",

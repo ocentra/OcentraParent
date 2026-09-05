@@ -62,6 +62,7 @@ describe('app/game notification parent surface panel', () => {
     expect(html).toContain('scheduler-entry-app-game-time-limit, outbox-record-app-game-time-limit');
     expect(html).toContain('app-game-notification-parent-surface-unavailable');
     expect(html).toContain('unavailable-visible');
+    expect((html.match(/<dt>Status<\/dt>/g) ?? []).length).toBe(2);
   });
 
   it('keeps the Rust-owned empty state explicit when the panel snapshot is absent', () => {
@@ -69,6 +70,23 @@ describe('app/game notification parent surface panel', () => {
 
     expect(html).toContain('No app/game notification parent-surface panel has been reported yet.');
     expect(html).toContain('service event not reported');
+  });
+
+  it('finds the runtime reference by label instead of metric position', () => {
+    const panel: ParentAppGameNotificationParentSurfacePanelSnapshot = {
+      ...NotificationParentSurfacePanel,
+      metrics: [
+        { label: 'Runtime reference', value: 'runtime-ref-reordered' },
+        { label: 'Status', value: 'manual-required' },
+        { label: 'Rows returned', value: '0' },
+      ],
+      rows: [],
+    };
+
+    const html = renderToStaticMarkup(createElement(AppGameNotificationParentSurfaceRoutePanel, { panel }));
+
+    expect(html).toContain('runtime-ref-reordered');
+    expect((html.match(/<dt>Status<\/dt>/g) ?? []).length).toBe(1);
   });
 
   it('mounts only on the App/Game Sessions route', () => {

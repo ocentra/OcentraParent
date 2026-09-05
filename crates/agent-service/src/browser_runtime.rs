@@ -12,7 +12,7 @@ impl BrowserManagedRuntime {
     }
 
     pub async fn build_status_report(&self, command: AgentCommandEnvelope) -> AgentEventEnvelope {
-        browser_runtime_impl::build_browser_managed_status_report(self.clone(), command).await
+        browser_runtime_impl::build_browser_managed_status_report(*self, command).await
     }
 
     pub(crate) fn resolve_status(

@@ -25,9 +25,13 @@ metadata ownership, and WP204 on three FD/process-custody test roots. No tests,
 proof, or DONE claims follow.
 
 WP120, WP150, WP163/WP164, and WP165-WP220 have source-review dispositions in
-`CODE_AUDIT.md`; these are not DONE/proof claims. Open blockers are WP167 ->
-WP168 supersession, WP193/WP203 Windows authority samplers, WP195/WP205 proof
-refs, WP204 OS-custody/test ownership, and WP207/WP211/WP216/WP217/WP220
+`CODE_AUDIT.md`; these are not broad DONE/proof claims. WP203's bounded Windows
+observer/protocol proof is retained under
+`output/app-game-plan-proof/203-app-game-windows-local-policy-evidence-proof/`;
+Agent Service composition and enforcement authority remain open. Other open
+blockers are WP167 -> WP168 supersession, the WP193 Windows authority preflight,
+WP195/WP205 proof refs, WP204 OS-custody/test ownership, and
+WP207/WP211/WP216/WP217/WP220
 authenticated child writer/transport/ingress. Physical Android/WSL/Apple proof
 remains open. Canonical `101995347c8` also integrates WP130/WP132 mounted
 behavior coverage and WP156/WP158/WP217 test-source coverage; execution and

@@ -12,7 +12,7 @@ pub(crate) mod journal_identity;
 mod platform;
 mod validation;
 
-#[cfg(test)]
+#[path = "../tests/unit/path_security_private.rs"]
 mod path_security_test;
 
 pub(crate) struct PendingSecuredPath {
@@ -48,7 +48,8 @@ impl PendingSecuredPath {
         let lexical_parent = path.parent().ok_or(PathSecurityError::UnsafePath)?;
         let (lexical_file_handle, lexical_file_digest) = platform::open_guarded(path, false)?;
         let (lexical_parent_handle, _) = platform::open_guarded(lexical_parent, true)?;
-        let canonical = dunce::canonicalize(path).map_err(|_| PathSecurityError::Unavailable)?;
+        let canonical = dunce::canonicalize(path)
+            .map_err(|_canonicalization_error| PathSecurityError::Unavailable)?;
         if !canonical.is_absolute() {
             return Err(PathSecurityError::UnsafePath);
         }
@@ -115,7 +116,7 @@ impl PendingSecuredPath {
             self.physical_file_digest,
             rollback_journal.digest(),
         )
-        .map_err(|_| PathSecurityError::Unavailable)
+        .map_err(|_physical_identity_error| PathSecurityError::Unavailable)
     }
 
     pub(crate) fn secure_rollback_journal(&mut self) -> Result<(), PathSecurityError> {
@@ -140,9 +141,9 @@ impl PendingSecuredPath {
             self.physical_file_digest,
             rollback_journal.digest(),
         )
-        .map_err(|_| PathSecurityError::Unavailable)?;
+        .map_err(|_physical_identity_error| PathSecurityError::Unavailable)?;
         let identity = DatabaseIdentity::from_parts(physical_identity, database_instance_id)
-            .map_err(|_| PathSecurityError::Unavailable)?;
+            .map_err(|_database_identity_error| PathSecurityError::Unavailable)?;
         Ok(SecuredPath {
             canonical: self.canonical,
             file_handle: self.file_handle,

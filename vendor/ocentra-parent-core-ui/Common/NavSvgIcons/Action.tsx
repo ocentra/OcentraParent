@@ -142,7 +142,7 @@ export const Action = memo(function Action({
           filter={`url(#${uid}-frameGlow)`}
         />
       ) : null}
-      <g id="arrow-child" transform={arrowTransform} filter={`url(#${uid}-arrowGlow)`}>
+      <g id={`${uid}-arrow-child`} transform={arrowTransform} filter={`url(#${uid}-arrowGlow)`}>
         <path
           d={arrowPath}
           fill={`url(#${uid}-arrowFill)`}
@@ -160,7 +160,7 @@ export const Action = memo(function Action({
           opacity="0.7"
         />
       </g>
-      <g id="thunder-bolt-child" transform={boltTransform} filter={`url(#${uid}-boltGlow)`}>
+      <g id={`${uid}-thunder-bolt-child`} transform={boltTransform} filter={`url(#${uid}-boltGlow)`}>
         <path
           d={boltPath}
           fill={`url(#${uid}-boltFill)`}

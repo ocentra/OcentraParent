@@ -9,8 +9,8 @@ use tokio::sync::{RwLock, Semaphore};
 use crate::queue::policy::NoSubscriberQueuePolicy;
 use crate::{
     AggregateKey, DomainEvent, EventQueue, EventType, EventingError, ExpectValue,
-    HandlerExecutionPolicy, JournalMode, JournalPolicy, RequestCompletionReport,
-    RequestRegistry, SharedEventClock, SharedEventJournal, StoredEventEnvelope,
+    HandlerExecutionPolicy, JournalMode, JournalPolicy, RequestCompletionReport, RequestRegistry,
+    SharedEventClock, SharedEventJournal, StoredEventEnvelope,
 };
 
 mod active_dispatch;
@@ -297,7 +297,6 @@ impl EventBus {
         *self.shutdown.lock().expect_value("event bus shutdown lock") =
             EventBusLifecycleState::Shutdown;
     }
-
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

@@ -147,8 +147,9 @@ pub(super) fn parent_access_state_for_lan_read_model(
 
 pub(super) fn browser_route_panels_snapshot(
     route: &ParentRouteId,
+    loaded: &crate::parent_ui_bridge::route_snapshot::dependencies::ParentRouteSnapshotDependencies,
 ) -> Option<ParentRouteBrowserPanelsSnapshot> {
-    browser::browser_route_panels_snapshot(route)
+    browser::browser_route_panels_snapshot(route, loaded)
 }
 
 pub(super) fn setup_first_run_panel_snapshot(

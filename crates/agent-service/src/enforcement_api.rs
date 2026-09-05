@@ -68,8 +68,11 @@ impl EnforcementJournalPaths {
 }
 
 pub async fn build_enforcement_audit_report(command: AgentCommandEnvelope) -> AgentEventEnvelope {
-    build_enforcement_audit_report_with_paths(command, EnforcementJournalPaths::from_environment())
-        .await
+    Box::pin(build_enforcement_audit_report_with_paths(
+        command,
+        EnforcementJournalPaths::from_environment(),
+    ))
+    .await
 }
 
 pub async fn build_enforcement_product_control_spine_report(
@@ -109,7 +112,10 @@ pub(crate) async fn build_enforcement_audit_report_with_paths(
     command: AgentCommandEnvelope,
     paths: EnforcementJournalPaths,
 ) -> AgentEventEnvelope {
-    enforcement_command_execution::build_enforcement_audit_report_with_paths(command, paths).await
+    Box::pin(
+        enforcement_command_execution::build_enforcement_audit_report_with_paths(command, paths),
+    )
+    .await
 }
 
 pub(crate) async fn build_enforcement_audit_report_with_app_game_session(
@@ -117,10 +123,12 @@ pub(crate) async fn build_enforcement_audit_report_with_app_game_session(
     paths: EnforcementJournalPaths,
     app_game_session: AppGameTimerSessionBinding,
 ) -> AgentEventEnvelope {
-    enforcement_command_execution::build_enforcement_audit_report_with_app_game_session(
-        command,
-        paths,
-        app_game_session,
+    Box::pin(
+        enforcement_command_execution::build_enforcement_audit_report_with_app_game_session(
+            command,
+            paths,
+            app_game_session,
+        ),
     )
     .await
 }

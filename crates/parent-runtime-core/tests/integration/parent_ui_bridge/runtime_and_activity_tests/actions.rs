@@ -1,27 +1,26 @@
 use super::support::*;
 use super::*;
+use ocentra_parent_agent_protocol::transport::AgentCommandName;
 
 #[test]
 fn screen_settings_actions_attach_runtime_service_response_snapshot() {
-    let (address, capture) = start_local_server_with_capture_responses(vec![
-        screen_settings_response_event(
-            PayloadText("screen-settings-request-9".to_string()),
-            PayloadText("get".to_string()),
-            AgentEventName::AgentScreenSettingsReported,
-            PayloadText("accepted".to_string()),
-            None,
-        ),
-        screen_settings_response_event(
-            PayloadText("screen-settings-request-10".to_string()),
-            PayloadText("replace".to_string()),
-            AgentEventName::AgentScreenSettingsReplaceRejected,
-            PayloadText("rejected".to_string()),
-            Some(PayloadText("stale-revision".to_string())),
-        ),
-    ]);
+    let get_response = screen_settings_response_event(
+        PayloadText("screen-settings-request-9".to_string()),
+        PayloadText("get".to_string()),
+        AgentEventName::AgentScreenSettingsReported,
+        PayloadText("accepted".to_string()),
+        None,
+    );
+    let replace_response = screen_settings_response_event(
+        PayloadText("screen-settings-request-10".to_string()),
+        PayloadText("replace".to_string()),
+        AgentEventName::AgentScreenSettingsReplaceRejected,
+        PayloadText("rejected".to_string()),
+        Some(PayloadText("stale-revision".to_string())),
+    );
     let get_action = ParentUiAction {
         action: ParentUiActionKind::ScreenSettingsGetRequested,
-        route: ParentRouteId::SettingsRules,
+        route: ParentRouteId::PolicyScreen,
         command: None,
         payload: json!({
             "screenSettingsRequest": "{\"schemaVersion\":1,\"requestId\":\"screen-settings-request-9\",\"kind\":\"get\"}",
@@ -31,7 +30,7 @@ fn screen_settings_actions_attach_runtime_service_response_snapshot() {
     };
     let replace_action = ParentUiAction {
         action: ParentUiActionKind::ScreenSettingsReplaceRequested,
-        route: ParentRouteId::SettingsRules,
+        route: ParentRouteId::PolicyScreen,
         command: None,
         payload: json!({
             "screenSettingsRequest": "{\"schemaVersion\":1,\"requestId\":\"screen-settings-request-10\",\"kind\":\"replace\",\"baseSettingVersion\":7,\"setting\":null}",
@@ -39,25 +38,34 @@ fn screen_settings_actions_attach_runtime_service_response_snapshot() {
         }),
         context: None,
     };
-    let get_result = with_agent_addr(&address, || dispatch_parent_ui_action(&get_action));
-    let replace_result = with_agent_addr(&address, || dispatch_parent_ui_action(&replace_action));
-    let get_request = require_ok(
-        capture.recv_timeout(Duration::from_secs(1)),
-        "captured screen settings get command arrives",
+    let get_result = projected_action_result(
+        &get_action,
+        vec![(AgentCommandName::AgentScreenSettingsGet, get_response)],
     );
-    let replace_request = require_ok(
-        capture.recv_timeout(Duration::from_secs(1)),
-        "captured screen settings replace command arrives",
+    let replace_result = projected_action_result(
+        &replace_action,
+        vec![(
+            AgentCommandName::AgentScreenSettingsReplace,
+            replace_response,
+        )],
     );
 
     assert_eq!(
-        get_request.command["command"],
+        serialize_json(
+            &AgentCommandName::AgentScreenSettingsGet,
+            TestContext("screen settings get command serializes"),
+        ),
         json!("agent.screen-settings.get")
     );
     assert_eq!(
-        replace_request.command["command"],
+        serialize_json(
+            &AgentCommandName::AgentScreenSettingsReplace,
+            TestContext("screen settings replace command serializes"),
+        ),
         json!("agent.screen-settings.replace")
     );
+    assert_owner_unavailable_connected_action(&dispatch_parent_ui_action(&get_action));
+    assert_owner_unavailable_connected_action(&dispatch_parent_ui_action(&replace_action));
 
     let get_snapshot = require_some(
         get_result.snapshot,
@@ -192,24 +200,25 @@ fn policy_preview_offline_and_stale_target_attention_precedes_manual_review_with
 
 #[test]
 fn tracking_retention_settings_write_action_results_project_into_live_activity_snapshot() {
-    let (address, capture) = start_local_server_with_capture_responses(vec![
-        tracking_retention_settings_write_response_event(),
-    ]);
-    let tracking_result = with_agent_addr(&address, || {
-        dispatch_parent_ui_action(&empty_action(
-            ParentUiActionKind::TrackingRetentionSettingsWriteRequested,
-            ParentRouteId::Activity,
-        ))
-    });
-    let request = require_ok(
-        capture.recv_timeout(Duration::from_secs(1)),
-        "captured tracking retention write command arrives",
+    let action = empty_action(
+        ParentUiActionKind::TrackingRetentionSettingsWriteRequested,
+        ParentRouteId::Activity,
     );
+    let mut responses = vec![(
+        AgentCommandName::AgentActivityTrackingRetentionSettingsWrite,
+        tracking_retention_settings_write_response_event(),
+    )];
+    responses.extend(activity_route_projection());
+    let tracking_result = projected_action_result(&action, responses);
 
     assert_eq!(
-        request.command["command"],
+        serialize_json(
+            &AgentCommandName::AgentActivityTrackingRetentionSettingsWrite,
+            TestContext("tracking retention command serializes"),
+        ),
         json!("agent.activity.tracking.retention-settings.write")
     );
+    assert_owner_unavailable_action(&dispatch_parent_ui_action(&action));
 
     let tracking_live_activity = require_result_live_activity(
         &tracking_result,
@@ -234,19 +243,21 @@ fn tracking_retention_settings_write_action_results_project_into_live_activity_s
 
 #[test]
 fn app_game_adapter_dispatch_execute_action_results_project_into_live_activity_snapshot() {
-    let mut responses = vec![app_game_adapter_dispatch_execute_response_event(
-        PayloadText("latest-execute-command".to_string()),
+    let action = empty_action(
+        ParentUiActionKind::AppGameAdapterDispatchExecuteRequested,
+        ParentRouteId::AppGameSessions,
+    );
+    let mut responses = vec![(
+        AgentCommandName::AgentActivityAppGameAdapterDispatchExecute,
+        app_game_adapter_dispatch_execute_response_event(PayloadText(
+            "latest-execute-command".to_string(),
+        )),
     )];
-    responses.extend(app_game_route_load_response_events());
-    let (address, capture) = start_local_server_with_capture_responses(responses);
-    let app_game_dispatch_result = with_agent_addr(&address, || {
-        dispatch_parent_ui_action(&empty_action(
-            ParentUiActionKind::AppGameAdapterDispatchExecuteRequested,
-            ParentRouteId::AppGameSessions,
-        ))
-    });
-    let requests = capture_app_game_dispatch_requests(&capture);
-    assert_app_game_dispatch_request_commands(&requests);
+    responses.extend(app_game_route_projection(
+        app_game_route_load_response_events(),
+    ));
+    let app_game_dispatch_result = projected_action_result(&action, responses);
+    assert_owner_unavailable_action(&dispatch_parent_ui_action(&action));
 
     let app_game_dispatch_live_activity = require_result_live_activity(
         &app_game_dispatch_result,
@@ -306,17 +317,19 @@ fn app_game_adapter_dispatch_execute_action_results_project_into_live_activity_s
 
 #[test]
 fn app_game_timer_parent_preference_setup_action_results_project_into_live_activity_snapshot() {
-    let mut responses = vec![app_game_timer_parent_preference_setup_requested_response_event()];
-    responses.extend(app_game_route_load_response_events());
-    let (address, capture) = start_local_server_with_capture_responses(responses);
-    let app_game_timer_result = with_agent_addr(&address, || {
-        dispatch_parent_ui_action(&empty_action(
-            ParentUiActionKind::AppGameTimerParentPreferenceSetupRequested,
-            ParentRouteId::AppGameSessions,
-        ))
-    });
-    let requests = capture_app_game_timer_requests(&capture);
-    assert_app_game_timer_request_commands(&requests);
+    let action = empty_action(
+        ParentUiActionKind::AppGameTimerParentPreferenceSetupRequested,
+        ParentRouteId::AppGameSessions,
+    );
+    let mut responses = vec![(
+        AgentCommandName::AgentActivityAppGameTimerParentPreferenceSetupRequest,
+        app_game_timer_parent_preference_setup_requested_response_event(),
+    )];
+    responses.extend(app_game_route_projection(
+        app_game_route_load_response_events(),
+    ));
+    let app_game_timer_result = projected_action_result(&action, responses);
+    assert_owner_unavailable_action(&dispatch_parent_ui_action(&action));
 
     let command_result_projection = require_some(
         app_game_timer_result

@@ -73,6 +73,7 @@ const HTTPS_SCHEME: &str = "https";
 const NULL_ORIGIN: &str = "null";
 const NULL_AUTHORITY_PREFIX: &str = "null:";
 const WILDCARD_ORIGIN: &str = "*";
+const URI_ROOT_PATH: &str = "/";
 
 pub fn configured_parent_dev_bridge_address() -> Option<SocketAddr> {
     let port = std::env::var(constants::env_var::PARENT_DEV_BRIDGE_PORT)
@@ -250,7 +251,10 @@ fn is_valid_allowed_origin(origin: AllowedOriginTextRef<'_>) -> bool {
         return false;
     }
 
-    uri.path().is_empty() && !origin.0.contains('?') && !origin.0.contains('#')
+    uri.path() == URI_ROOT_PATH
+        && !origin.0.ends_with(URI_ROOT_PATH)
+        && !origin.0.contains('?')
+        && !origin.0.contains('#')
 }
 
 fn default_allowed_origins() -> Vec<HeaderValue> {

@@ -19,7 +19,7 @@ pub(crate) struct ScanHistoryWriteLock {
 }
 
 pub(crate) fn scan_history_write_lock(path: &LanScanHistoryPath) -> Option<ScanHistoryWriteLock> {
-    cross_process_path_lock(path, ScanHistoryLockKind::Write)
+    cross_process_path_lock(path, &ScanHistoryLockKind::Write)
         .map(|lock| ScanHistoryWriteLock { _lock: lock })
 }
 
@@ -27,7 +27,7 @@ pub(crate) struct CrossProcessPathLock {
     _file: File,
 }
 
-fn lock_path(path: &LanScanHistoryPath, lock_kind: ScanHistoryLockKind) -> LanScanHistoryPath {
+fn lock_path(path: &LanScanHistoryPath, lock_kind: &ScanHistoryLockKind) -> LanScanHistoryPath {
     let extension = if matches!(lock_kind, ScanHistoryLockKind::Write) {
         LOCK_EXTENSION
     } else {
@@ -38,7 +38,7 @@ fn lock_path(path: &LanScanHistoryPath, lock_kind: ScanHistoryLockKind) -> LanSc
 
 pub(crate) fn cross_process_path_lock(
     path: &LanScanHistoryPath,
-    lock_kind: ScanHistoryLockKind,
+    lock_kind: &ScanHistoryLockKind,
 ) -> Option<CrossProcessPathLock> {
     #[cfg(target_os = "windows")]
     {
@@ -51,7 +51,7 @@ pub(crate) fn cross_process_path_lock(
 #[cfg(target_os = "windows")]
 fn windows_cross_process_path_lock(
     path: &LanScanHistoryPath,
-    lock_kind: ScanHistoryLockKind,
+    lock_kind: &ScanHistoryLockKind,
 ) -> Option<CrossProcessPathLock> {
     use std::os::windows::fs::OpenOptionsExt;
 
@@ -78,7 +78,7 @@ fn windows_cross_process_path_lock(
 #[cfg(not(target_os = "windows"))]
 fn non_windows_cross_process_path_lock(
     path: &LanScanHistoryPath,
-    lock_kind: ScanHistoryLockKind,
+    lock_kind: &ScanHistoryLockKind,
 ) -> Option<CrossProcessPathLock> {
     let lock_path = lock_path(path, lock_kind);
     let file = OpenOptions::new()

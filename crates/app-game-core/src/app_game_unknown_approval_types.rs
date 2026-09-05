@@ -35,7 +35,18 @@ pub struct AppGameUnknownInventoryCandidateContext {
     pub candidate_id: String,
     pub device_ref: String,
     pub local_user_ref: String,
+    pub child_status_refs: Vec<String>,
     pub observed_at_epoch_ms: u64,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AppGameUnknownInventoryApprovalRequestInput {
+    pub candidate_context: AppGameUnknownInventoryCandidateContext,
+    pub request_id: String,
+    pub transition_id: String,
+    pub child_reason_refs: Vec<String>,
+    pub expires_at_epoch_ms: u64,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

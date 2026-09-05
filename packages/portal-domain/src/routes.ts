@@ -95,12 +95,13 @@ export const PortalDeveloperCommandRoutes = [PortalRoute.Commands] as const;
 export const PortalDeveloperEventRoutes = [PortalRoute.Events] as const;
 export const PortalDeveloperLogRoutes = [PortalRoute.Logs] as const;
 export const PortalPolicyPreviewRoutes = [
+  PortalRoute.PolicyNetwork,
   PortalRoute.RuleManagement,
   PortalRoute.Schedules,
   PortalRoute.Approvals,
   PortalRoute.Enforcement,
 ] as const;
-export const PortalScreenSettingsRoutes = [PortalRoute.SettingsRules] as const;
+export const PortalScreenSettingsRoutes = [PortalRoute.PolicyScreen] as const;
 export const PortalScreenSummaryRoutes = [PortalRoute.ScreenAnalysis] as const;
 export const PortalSetupFirstRunRoutes = [PortalRoute.Start] as const;
 export const PortalTrackingStatusRoutes = [PortalRoute.PolicyTracking] as const;
@@ -165,7 +166,12 @@ function routeMatches(route: PortalRouteValue, routes: readonly PortalRouteValue
   return routes.some((candidate) => candidate === route);
 }
 
+const PortalBackgroundFrameTunerQuery = 'bg-only=1';
+
 export const PortalDevToolWindow = {
+  BackgroundFrameTunerHash: portalRouteHashPathWithQuery(PortalRoute.FrameTuner, PortalBackgroundFrameTunerQuery),
+  BackgroundFrameTunerLabel: 'portal-background-tuner',
+  BackgroundFrameTunerQuery: PortalBackgroundFrameTunerQuery,
   FrameTunerHeight: 900,
   FrameTunerHash: portalRouteHashPath(PortalRoute.FrameTuner),
   FrameTunerLabel: 'portal-app-layout',
@@ -175,8 +181,15 @@ export const PortalDevToolWindow = {
   TauriInternalKey: '__TAURI_INTERNALS__',
 } as const;
 
+export type PortalDevToolWindowLabel = (typeof PortalDevToolWindow)['BackgroundFrameTunerLabel' | 'FrameTunerLabel'];
+
 export function portalDevToolUrl(origin: string, pathname: string, route: PortalRouteValue): PortalDevToolUrl {
   return SharedPortalDevToolUrlSchema.parse(`${origin}${pathname}${portalRouteHashPath(route)}`);
+}
+
+export function portalFrameTunerUrl(origin: string, pathname: string, backgroundOnly: boolean): PortalDevToolUrl {
+  const routeHash = backgroundOnly ? PortalDevToolWindow.BackgroundFrameTunerHash : PortalDevToolWindow.FrameTunerHash;
+  return SharedPortalDevToolUrlSchema.parse(`${origin}${pathname}${routeHash}`);
 }
 
 export const PortalRouteGroup = {

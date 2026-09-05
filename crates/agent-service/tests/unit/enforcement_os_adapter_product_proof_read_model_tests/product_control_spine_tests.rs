@@ -3,11 +3,11 @@ use std::primitive::str as TestStr;
 use std::string::String as TestString;
 
 use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::constants::v08_cross_platform_enforcement_capability_proof as cross_proof;
 use ocentra_parent_agent_protocol::constants::v08_enforcement_product_control_spine as spine;
 use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformEnforcementCapabilityProofEntry;
 use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformEnforcementCapabilityProofReadModel;
 use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformEnforcementCapabilitySurface;
-use ocentra_parent_agent_protocol::constants::v08_cross_platform_enforcement_capability_proof as cross_proof;
 use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlCapabilityStatus;
 use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlClaimState;
 use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlDevicePolicyState;
@@ -23,7 +23,7 @@ use crate::{
         v08_cross_platform_enforcement_capability_proof_read_model, GeneratedAtTextRef,
     },
     enforcement_os_adapter_product_proof_read_model::product_control_spine::v08_enforcement_product_control_spine_read_model,
-    test_invariants::require_some,
+    test_require_some::require_some,
 };
 
 type TestResult = Result<(), TestString>;
@@ -191,7 +191,10 @@ fn product_control_app_time_limit_tracks_cross_platform_runtime_state() {
         cross_entry.linked_proof_artifacts
     );
     assert_eq!(product_entry.claim_boundary, cross_entry.claim_boundary);
-    assert_eq!(product_entry.fallback_behavior, cross_entry.fallback_behavior);
+    assert_eq!(
+        product_entry.fallback_behavior,
+        cross_entry.fallback_behavior
+    );
     assert_eq!(product_entry.last_checked_at, cross_entry.last_checked_at);
 }
 
@@ -296,7 +299,10 @@ fn cross_entry_for(
     surface: V08CrossPlatformEnforcementCapabilitySurface,
 ) -> &V08CrossPlatformEnforcementCapabilityProofEntry {
     require_some(
-        read_model.entries.iter().find(|entry| entry.surface == surface),
+        read_model
+            .entries
+            .iter()
+            .find(|entry| entry.surface == surface),
         cross_proof::READ_MODEL_ID,
     )
 }

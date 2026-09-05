@@ -35,10 +35,14 @@ pub(crate) struct ClientSession {
 
 pub(crate) fn establish(mut stream: PipeStream) -> Result<AuthenticatedBrokerSession, ClientError> {
     let peer = windows_ipc_peer::observe_server(&stream)?;
-    let anchor =
-        ClientAnchor::open(peer.process_id(), peer.session_id()).map_err(map_anchor_error)?;
-    anchor.revalidate().map_err(map_anchor_error)?;
-    let identity = anchor.client_identity().map_err(map_anchor_error)?;
+    let anchor = ClientAnchor::open(peer.process_id(), peer.session_id())
+        .map_err(|error| map_anchor_error(&error))?;
+    anchor
+        .revalidate()
+        .map_err(|error| map_anchor_error(&error))?;
+    let identity = anchor
+        .client_identity()
+        .map_err(|error| map_anchor_error(&error))?;
     let bootstrap = BootstrapPacket::generate(
         identity.process_id(),
         identity.process_epoch(),
@@ -78,7 +82,7 @@ pub(crate) fn establish(mut stream: PipeStream) -> Result<AuthenticatedBrokerSes
         .map_err(ClientError::Protocol)?;
     anchor
         .authorize_broker_hello(&broker_hello, peer.process_id(), peer.session_id())
-        .map_err(map_anchor_error)?;
+        .map_err(|error| map_anchor_error(&error))?;
     windows_ipc_peer::reobserve_server(&stream, peer)?;
     let authenticator = broker_hello.clone_authenticator();
     Ok(AuthenticatedBrokerSession::from_session(ClientSession {
@@ -99,7 +103,9 @@ impl ClientSession {
         ocentra_protected_capability_custody_protocol::account_issuer::AccountIssuerReceipt,
         ClientError,
     > {
-        self.anchor.revalidate().map_err(map_anchor_error)?;
+        self.anchor
+            .revalidate()
+            .map_err(|error| map_anchor_error(&error))?;
         windows_ipc_peer::reobserve_server(&self.stream, self.peer)?;
         let now = unix_now_millis()?;
         self.broker_hello
@@ -145,7 +151,9 @@ impl ClientSession {
                 &self.authenticator,
             )
             .map_err(ClientError::Protocol)?;
-        self.anchor.revalidate().map_err(map_anchor_error)?;
+        self.anchor
+            .revalidate()
+            .map_err(|error| map_anchor_error(&error))?;
         Ok(receipt)
     }
 
@@ -153,7 +161,9 @@ impl ClientSession {
         mut self,
         request: ClientRequest,
     ) -> Result<UntrustedResponse, ClientError> {
-        self.anchor.revalidate().map_err(map_anchor_error)?;
+        self.anchor
+            .revalidate()
+            .map_err(|error| map_anchor_error(&error))?;
         windows_ipc_peer::reobserve_server(&self.stream, self.peer)?;
         let now = unix_now_millis()?;
         self.broker_hello
@@ -196,7 +206,9 @@ impl ClientSession {
         response
             .verify_authenticated_session(&authenticated, unix_now_millis()?, &self.authenticator)
             .map_err(ClientError::Protocol)?;
-        self.anchor.revalidate().map_err(map_anchor_error)?;
+        self.anchor
+            .revalidate()
+            .map_err(|error| map_anchor_error(&error))?;
         Ok(response)
     }
 
@@ -227,7 +239,7 @@ fn unix_now_millis() -> Result<u64, ClientError> {
     u64::try_from(duration.as_millis()).map_err(|_error| ClientError::PeerAuthentication)
 }
 
-fn map_anchor_error(error: BrokerRuntimeError) -> ClientError {
+fn map_anchor_error(error: &BrokerRuntimeError) -> ClientError {
     match error {
         BrokerRuntimeError::DeploymentRequired | BrokerRuntimeError::Unavailable => {
             ClientError::DeploymentRequired

@@ -109,10 +109,6 @@ fn unavailable_reason_for(request: &ScreenIntelligenceRouteRequest) -> &'static 
         crate::screen_intelligence_router::UNAVAILABLE_CREDENTIAL_PROMPT
     } else if request.source_kind == ScreenIntelligenceSourceKind::ManagedBrowser {
         crate::screen_intelligence_router::UNAVAILABLE_MANAGED_BROWSER_STRUCTURED_EXTRACTION
-    } else if super::consistency::managed_browser_structured_extraction_producer_is_unavailable(
-        request,
-    ) {
-        crate::screen_intelligence_router::UNAVAILABLE_MANAGED_BROWSER_STRUCTURED_EXTRACTION
     } else {
         crate::screen_intelligence_router::UNAVAILABLE_CREDENTIAL_PROMPT
     }

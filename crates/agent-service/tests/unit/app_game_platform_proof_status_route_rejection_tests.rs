@@ -4,16 +4,14 @@ use ocentra_parent_agent_protocol::app_game_platform_proof_status::{
     APP_GAME_PLATFORM_GAP_LINUX_FOREGROUND_CAPTURE, APP_GAME_PLATFORM_GAP_LINUX_NATIVE_SERVICE,
     APP_GAME_PLATFORM_GAP_LINUX_ROLLBACK, APP_GAME_PLATFORM_GAP_PLATFORM_ENFORCEMENT,
 };
-use ocentra_parent_agent_protocol::constants::value::
-    APP_GAME_TEST_PLATFORM_PROOF_STATUS_GENERATED_AT;
+use ocentra_parent_agent_protocol::constants::value::APP_GAME_TEST_PLATFORM_PROOF_STATUS_GENERATED_AT;
 use ocentra_parent_screen_capture_adapter::linux_foreground_source::LinuxForegroundSourcePreflight;
 
-use super::app_game_adapter_execution_readiness_payload::GeneratedAtText;
 use super::app_game_adapter_host_capabilities::HostCapabilitySignals;
 use super::app_game_linux_docker_host_preflight_state::{build_preflight, DockerPreflightState};
-use super::app_game_platform_proof_status_payload::{
-    app_game_platform_proof_status_read_model_from_preflights,
-};
+use super::app_game_platform_proof_status_payload::app_game_platform_proof_status_read_model_from_preflights;
+use super::app_game_platform_proof_status_payload::PlatformProofGeneratedAtText;
+use crate::test_require_some::require_some;
 
 #[test]
 fn ready_docker_preflight_route_carries_counts_and_redaction_only() {
@@ -32,7 +30,7 @@ fn ready_docker_preflight_route_carries_counts_and_redaction_only() {
     );
 
     let read_model = app_game_platform_proof_status_read_model_from_preflights(
-        GeneratedAtText(APP_GAME_TEST_PLATFORM_PROOF_STATUS_GENERATED_AT.to_string()),
+        PlatformProofGeneratedAtText(APP_GAME_TEST_PLATFORM_PROOF_STATUS_GENERATED_AT.to_string()),
         &host_capabilities,
         &linux_foreground_preflight,
         &docker_preflight,
@@ -50,20 +48,21 @@ fn ready_docker_preflight_route_carries_counts_and_redaction_only() {
         (false, false, false, false, false, false)
     );
 
-    let Some(linux_row) = read_model
-        .rows
-        .iter()
-        .find(|row| row.platform == APP_GAME_PARENT_PLATFORM_LINUX)
-    else {
-        panic!("the platform proof route must include a Linux row");
-    };
-    let Some(docker) = linux_row.linux_docker_host_preflight.as_ref() else {
-        panic!("the Linux row must carry the injected Docker preflight");
-    };
+    let linux_row = require_some(
+        read_model
+            .rows
+            .iter()
+            .find(|row| row.platform == APP_GAME_PARENT_PLATFORM_LINUX),
+        "the platform proof route must include a Linux row",
+    );
+    let docker = require_some(
+        linux_row.linux_docker_host_preflight.as_ref(),
+        "the Linux row must carry the injected Docker preflight",
+    );
 
     assert_eq!(docker.state, APP_GAME_LINUX_DOCKER_PREFLIGHT_READY);
-    assert_eq!(docker.cli_visible, true);
-    assert_eq!(docker.daemon_visible, true);
+    assert!(docker.cli_visible);
+    assert!(docker.daemon_visible);
     assert_eq!(
         (
             docker.context_inventory_visible,
@@ -75,7 +74,7 @@ fn ready_docker_preflight_route_carries_counts_and_redaction_only() {
         ),
         (true, 2, true, 3, true, 1)
     );
-    assert_eq!(docker.identifiers_redacted, true);
+    assert!(docker.identifiers_redacted);
     assert_eq!(docker.proof_refs, Vec::<String>::new());
     assert_eq!(docker.open_gaps, Vec::<String>::new());
     assert_eq!(

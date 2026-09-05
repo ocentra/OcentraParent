@@ -3,6 +3,15 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { ParentRoute, type ParentSetupFirstRunPanelSnapshot } from '../../generated/parent-ui-bridge';
 import { SetupFirstRunRoutePanel, shouldRenderSetupFirstRunRoute } from '../../src/SetupFirstRunRoutePanel';
+import type { PortalRenderActions } from '../../src/portal-actions';
+
+const actions: PortalRenderActions = {
+  reconnect() {},
+  selectCommandResult() {},
+  async sendCommand() {
+    return null;
+  },
+};
 
 const sampleSetupFirstRunPanelValue: ParentSetupFirstRunPanelSnapshot = {
   eyebrow: 'Setup route',
@@ -96,7 +105,7 @@ function sampleSetupFirstRunPanel(): ParentSetupFirstRunPanelSnapshot {
   return sampleSetupFirstRunPanelValue;
 }
 
-describe('setup first-run portal route panel', () => {
+describe('setup first-run portal route panel boundaries', () => {
   it('attaches only to the start route', () => {
     expect(shouldRenderSetupFirstRunRoute(ParentRoute.Start)).toBe(true);
     expect(shouldRenderSetupFirstRunRoute(ParentRoute.Overview)).toBe(false);
@@ -104,11 +113,15 @@ describe('setup first-run portal route panel', () => {
   });
 
   it('renders an honest boundary-status panel instead of an invented setup state machine', () => {
-    const markup = renderToStaticMarkup(createElement(SetupFirstRunRoutePanel, { panel: sampleSetupFirstRunPanel() }));
+    const markup = renderToStaticMarkup(
+      createElement(SetupFirstRunRoutePanel, { actions, panel: sampleSetupFirstRunPanel() })
+    );
 
     expect(markup).toContain('Setup-first-run boundary status');
     expect(markup).toContain('data-ocentra-setup-proof="first-run-route"');
     expect(markup).toContain('Current boundary status');
+    expect(markup.match(/<details class="setup-first-run-detail-card">/g)).toHaveLength(3);
+    expect(markup.match(/<summary>/g)).toHaveLength(3);
     expect(markup).toContain('What is real now');
     expect(markup).toContain('What is missing');
     expect(markup).toContain('Where it belongs');
@@ -126,6 +139,19 @@ describe('setup first-run portal route panel', () => {
     expect(markup).not.toContain('welcome-screen');
     expect(markup).not.toContain('setup-complete-screen');
     expect(markup).not.toContain('parent-desktop-runtime-package-plan');
+  });
+});
+
+describe('setup first-run portal route panel details', () => {
+  it('keeps the current boundary visible while collapsing the detailed setup ledger', () => {
+    const markup = renderToStaticMarkup(
+      createElement(SetupFirstRunRoutePanel, { actions, panel: sampleSetupFirstRunPanel() })
+    );
+
+    expect(markup).toContain('<article class="summary product-status-card"><h2>Current boundary status</h2>');
+    expect(markup).toContain('<summary><span class="setup-first-run-detail-title">What is real now</span>');
+    expect(markup).toContain('class="setup-first-run-detail-content"');
+    expect(markup).not.toContain('<details class="setup-first-run-detail-card" open=""');
   });
 
   it('renders manual-required authority and source boundaries supplied by the Rust snapshot', () => {
@@ -159,7 +185,7 @@ describe('setup first-run portal route panel', () => {
         },
       ],
     };
-    const markup = renderToStaticMarkup(createElement(SetupFirstRunRoutePanel, { panel }));
+    const markup = renderToStaticMarkup(createElement(SetupFirstRunRoutePanel, { actions, panel }));
 
     expect(markup).toContain('Setup state');
     expect(markup).toContain('manual-required');
@@ -169,7 +195,9 @@ describe('setup first-run portal route panel', () => {
     expect(markup).toContain('Degraded/manual state');
     expect(markup).not.toContain('onboarding complete');
   });
+});
 
+describe('setup first-run portal route panel owner states', () => {
   it('renders owner-gated first-run states and safe next actions supplied by the Rust snapshot', () => {
     const panel: ParentSetupFirstRunPanelSnapshot = {
       ...sampleSetupFirstRunPanelValue,
@@ -229,7 +257,7 @@ describe('setup first-run portal route panel', () => {
         },
       ],
     };
-    const markup = renderToStaticMarkup(createElement(SetupFirstRunRoutePanel, { panel }));
+    const markup = renderToStaticMarkup(createElement(SetupFirstRunRoutePanel, { actions, panel }));
 
     expect(markup).toContain('First-run states and next actions');
     for (const detail of panel.cards[3]!.details) {
@@ -238,12 +266,19 @@ describe('setup first-run portal route panel', () => {
     }
     expect(markup).not.toContain('onboarding complete');
   });
+});
 
-  it('renders an unavailable panel when the Rust snapshot is missing', () => {
-    const markup = renderToStaticMarkup(createElement(SetupFirstRunRoutePanel, { panel: null }));
+describe('setup first-run portal route panel unavailable state', () => {
+  it('keeps the setup guide usable when current service status is missing', () => {
+    const markup = renderToStaticMarkup(createElement(SetupFirstRunRoutePanel, { actions, panel: null }));
 
-    expect(markup).toContain('Start route unavailable');
-    expect(markup).toContain('Parent Rust snapshot unavailable for the setup-first-run route.');
+    expect(markup).toContain('Setup status unavailable');
+    expect(markup).toContain('setup-first-run-route-panel');
+    expect(markup).toContain('data-ocentra-setup-state="unavailable"');
+    expect(markup).toContain('Connect the local service to load current setup progress.');
+    expect(markup).toContain('The setup guide remains available above.');
+    expect(markup).toContain('>Retry status<');
+    expect(markup).not.toContain('Rust snapshot');
     expect(markup).not.toContain('Setup-first-run boundary status');
     expect(markup).not.toContain('Current boundary status');
   });

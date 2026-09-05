@@ -19,7 +19,7 @@ pub(super) fn load_or_create(registry_id: &str) -> Result<Zeroizing<Vec<u8>>, Pl
 #[cfg(windows)]
 fn create_and_confirm(registry_id: &str) -> Result<Zeroizing<Vec<u8>>, PlatformError> {
     let mut secret = Zeroizing::new(vec![0_u8; AUTHORITY_SECRET_BYTES]);
-    getrandom::fill(secret.as_mut_slice()).map_err(|_| PlatformError::Unavailable)?;
+    getrandom::fill(secret.as_mut_slice()).map_err(|_random_error| PlatformError::Unavailable)?;
     if secret.iter().all(|byte| *byte == 0) {
         return Err(PlatformError::Unavailable);
     }

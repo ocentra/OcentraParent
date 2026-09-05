@@ -7,3 +7,9 @@ pub(super) fn load_verified_notification_preflight(
 ) -> std::io::Result<Option<boundary::VerifiedNotificationPreflight>> {
     boundary::load_verified_notification_preflight()
 }
+
+pub(super) fn load_verified_notification_preflight_from_activity_db_path(
+    activity_db_path: &std::path::Path,
+) -> std::io::Result<Option<boundary::VerifiedNotificationPreflight>> {
+    boundary::load_verified_notification_preflight_from_activity_db_path(activity_db_path)
+}

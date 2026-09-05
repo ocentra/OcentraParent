@@ -7,6 +7,7 @@ use ocentra_parent_agent_protocol::activity_surface::ActivityHistoricalReportLis
 use ocentra_parent_agent_protocol::activity_surface::ActivityHistoricalReportListItem;
 use ocentra_parent_agent_protocol::activity_surface::ActivityReadModelState;
 use ocentra_parent_agent_protocol::activity_surface::ActivityReportCustodyLabel;
+use ocentra_parent_agent_protocol::activity_surface::ActivityReportFrequency;
 use ocentra_parent_agent_protocol::activity_surface::ActivityReportSourceLabel;
 use ocentra_parent_agent_protocol::activity_surface::ActivityReportSourceStateSummary;
 use ocentra_parent_agent_protocol::activity_surface::ActivitySavedReportState;
@@ -17,11 +18,49 @@ use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::ACTIVITY_SURFACE_SCHEMA_VERSION;
 
 use crate::{
-    activity_surface_report_store::save_report_document, fields::fields_from_pairs,
+    activity_surface_report_store::{draft_metadata_for_report, save_report_document},
+    activity_surface_request::report_request_from_command,
+    fields::fields_from_pairs,
     local_ai_runtime_config::LocalAiRuntimeConfigSnapshot,
     parent_assistant_report_history::activity_report_history_from_command,
     parent_assistant_runtime::request_from_command,
 };
+
+#[test]
+fn parent_assistant_history_uses_canonical_report_request_and_draft_metadata() {
+    let command = super::command_with_payload(fields_from_pairs(vec![
+        (
+            constants::field::REQUESTED_AT,
+            ocentra_parent_agent_protocol::logging::LogFieldValue::String(
+                constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
+            ),
+        ),
+        (
+            constants::field::RANGE_START,
+            ocentra_parent_agent_protocol::logging::LogFieldValue::String(
+                constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
+            ),
+        ),
+    ]));
+    let request = report_request_from_command(&command, ActivityReportFrequency::Daily);
+    let draft = draft_metadata_for_report(&super::saved_report_document());
+
+    assert_eq!(request.frequency, ActivityReportFrequency::Daily);
+    assert_eq!(
+        request.requested_at,
+        constants::activity_store::TEST_SECOND_OBSERVED_AT
+    );
+    assert_eq!(
+        request.range_start,
+        constants::activity_store::TEST_FIRST_OBSERVED_AT
+    );
+    assert_eq!(draft.saved_state, ActivitySavedReportState::Draft);
+    assert_eq!(draft.saved_at, None);
+    assert_eq!(
+        draft.storage_reason.as_deref(),
+        Some(constants::activity_surface::SUMMARY_STORAGE_DRAFT)
+    );
+}
 
 #[test]
 fn parent_assistant_request_cites_saved_activity_report_history_when_supplied() -> super::TestResult

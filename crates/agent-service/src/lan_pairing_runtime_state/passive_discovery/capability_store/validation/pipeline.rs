@@ -40,11 +40,11 @@ fn last_success_is_valid(health: &LanPassiveDiscoveryPipelineHealthSnapshot) -> 
     health
         .last_succeeded_at
         .as_deref()
-        .map(|value| timestamp_is_not_in_future(CapabilityTimestamp(value)))
+        .map(|value| timestamp_is_not_in_future(&CapabilityTimestamp(value)))
         .unwrap_or(true)
 }
 
-fn timestamp_is_not_in_future(value: CapabilityTimestamp<'_>) -> bool {
+fn timestamp_is_not_in_future(value: &CapabilityTimestamp<'_>) -> bool {
     DateTime::parse_from_rfc3339(value.0)
         .map(|timestamp| timestamp.with_timezone(&Utc) <= Utc::now())
         .unwrap_or(false)

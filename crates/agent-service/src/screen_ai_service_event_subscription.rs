@@ -41,11 +41,8 @@ pub(crate) struct ObservedAtText(pub(crate) String);
 
 #[path = "screen_ai_service_event_subscription/live_view_service_runtime.rs"]
 pub(crate) mod live_view_service_runtime;
-#[path = "screen_ai_service_event_subscription/routing.rs"]
-mod routing;
 
 pub(crate) struct ScreenAiServiceEventRuntime {
-    bus: RootEventPublisher,
     deletion_journals: Arc<Mutex<BTreeMap<PathBuf, NdjsonEventJournal>>>,
 }
 
@@ -55,7 +52,6 @@ impl ScreenAiServiceEventRuntime {
         let state = ScreenAiServiceEventSubscriptionState::default();
         subscribe_screen_service_row_ready_events(&bus, state.clone()).await?;
         Ok(Self {
-            bus,
             deletion_journals: Arc::new(Mutex::new(BTreeMap::new())),
         })
     }
@@ -66,17 +62,11 @@ impl ScreenAiServiceEventRuntime {
         _action_ref: ActionRefText,
         _observed_at: ObservedAtText,
     ) -> Result<ocentra_eventing::bus::reports::handler::PublishReport, EventingError> {
-        return Err(EventingError::InvalidValue {
+        Err(EventingError::InvalidValue {
             field: constants::screen_flow::FIELD_SCREEN_SERVICE_ROW_READY,
             value: constants::screen_flow::ERROR_SCREEN_RUNTIME_OWNER_UNAVAILABLE_MANUAL_REQUIRED
                 .to_string(),
-        });
-    }
-
-    pub(crate) async fn event_metrics_snapshot(
-        &self,
-    ) -> ocentra_eventing::bus::reports::handler::EventMetricsSnapshot {
-        self.bus.metrics_snapshot().await
+        })
     }
 
     pub(crate) async fn publish_deletion_row(
@@ -113,15 +103,6 @@ impl ScreenAiServiceEventRuntime {
 pub(crate) struct ScreenAiServiceRowReadyEvent {
     pub(crate) row: ActivityScreenReadModelRow,
     pub(crate) action_ref: String,
-}
-
-impl ScreenAiServiceRowReadyEvent {
-    pub(crate) fn new(row: ActivityScreenReadModelRow, action_ref: ActionRefText) -> Self {
-        Self {
-            row,
-            action_ref: action_ref.0,
-        }
-    }
 }
 
 impl DomainEvent for ScreenAiServiceRowReadyEvent {
@@ -167,12 +148,6 @@ fn lock_recover<T>(value: &Arc<Mutex<T>>) -> MutexGuard<'_, T> {
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) enum ScreenAiServiceEventSubscriptionDispatch {
-    Published {
-        queue_job_id: String,
-        screen_analysis_result_id: String,
-        downstream_event_count: usize,
-        raw_image_escaped: bool,
-    },
     Rejected {
         queue_job_id: String,
         screen_analysis_result_id: String,
@@ -194,18 +169,6 @@ pub(crate) async fn subscribe_screen_service_row_ready_events(
             let state = state.clone();
             async move { handle_screen_service_row_ready_event(context, state).await }
         },
-    )
-    .await
-}
-
-pub(crate) async fn publish_screen_service_row_ready_event(
-    bus: &RootEventPublisher,
-    event: ScreenAiServiceRowReadyEvent,
-    observed_at: ObservedAtText,
-) -> Result<ocentra_eventing::bus::reports::handler::PublishReport, EventingError> {
-    bus.publish(
-        event,
-        routing::screen_service_row_ready_metadata(&observed_at)?,
     )
     .await
 }

@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { DuckDBInstance, type DuckDBConnection, type DuckDBValue } from '@duckdb/node-api';
+import { type DuckDBConnection, type DuckDBInstance } from '@duckdb/node-api';
 import { getChangedFiles, removeManifest, updateManifest } from './ingestManifest';
 import { getDbDir, getDefaultLogRoot, getTestLogScopeDir, listNdjsonFiles } from './ndjsonPaths';
 import { readTestLogEntriesFromFile } from './ndjsonWriter';
@@ -14,50 +14,18 @@ import {
   GeneratedSearchQuerySql,
   GeneratedStatsQuerySql,
   getGeneratedDefaultDuckDbFileName,
-  rowToGeneratedStats,
-  rowToGeneratedStoredLog,
 } from '../duckdb-log-query';
 import { type StoredTestLogLine, type TestLogScope as TestLogScopeType, type TestLogStats } from './types';
 import { recoverLocalArtifactAppends } from '../local-artifact-append';
 import { statLocalArtifact, type LocalArtifactStat } from '../local-artifact-file';
 import { withLocalArtifactLockAsync } from '../local-artifact-lock';
+import { closeDuckDbResources, openTestLogDuckDbResources, readDuckDbRows, runDuckDb } from './testLogDuckDbResources';
+import { type StatsRow, type StoredLogRow, testLogRow, testLogStats } from './testLogDuckDbRows';
 
 export interface IngestResult {
   readonly mode: 'rebuild' | 'incremental';
   readonly filesProcessed: number;
   readonly logsInserted: number;
-}
-
-interface StoredLogRow {
-  readonly scope: string;
-  readonly run_id: string;
-  readonly run_type: string;
-  readonly suite_type: string | null;
-  readonly test_name: string;
-  readonly log_timestamp: number;
-  readonly level: string;
-  readonly source: string | null;
-  readonly context: string | null;
-  readonly message: string;
-  readonly data: string | null;
-  readonly file: string | null;
-  readonly file_path: string | null;
-  readonly line: number | null;
-  readonly column_value: number | null;
-  readonly correlation_id: string | null;
-  readonly tags: string | null;
-  readonly stack: string | null;
-  readonly origin: string | null;
-  readonly environment: string | null;
-}
-
-interface StatsRow {
-  readonly total_logs: number;
-  readonly error_logs: number;
-  readonly warn_logs: number;
-  readonly distinct_runs: number;
-  readonly distinct_tests: number;
-  readonly newest_timestamp: number | null;
 }
 
 function getDefaultDbPath(scope: TestLogScopeType, rootDir?: string): string {
@@ -70,39 +38,6 @@ function sameFileSystemPath(left: string, right: string): boolean {
   return process.platform === 'win32'
     ? resolvedLeft.toLowerCase() === resolvedRight.toLowerCase()
     : resolvedLeft === resolvedRight;
-}
-
-function openDatabase(filePath: string): Promise<DuckDBInstance> {
-  return DuckDBInstance.create(filePath);
-}
-
-function runAsync(connection: DuckDBConnection, sql: string, ...params: DuckDBValue[]): Promise<void> {
-  return connection.run(sql, params).then(() => undefined);
-}
-
-async function allAsync<T extends object>(
-  connection: DuckDBConnection,
-  sql: string,
-  ...params: DuckDBValue[]
-): Promise<T[]> {
-  const reader = await connection.runAndReadAll(sql, params);
-  return reader.getRowObjects() as T[];
-}
-
-function closeConnection(connection: DuckDBConnection): void {
-  connection.disconnectSync();
-}
-
-function closeDatabase(database: DuckDBInstance): void {
-  database.closeSync();
-}
-
-function rowToStoredLog(row: StoredLogRow): StoredTestLogLine {
-  return rowToGeneratedStoredLog(row);
-}
-
-function rowToStats(row: StatsRow | undefined): TestLogStats {
-  return rowToGeneratedStats(row);
 }
 
 export class TestLogDuckDb {
@@ -132,17 +67,12 @@ export class TestLogDuckDb {
     return withLocalArtifactLockAsync(resolvedRoot, async () => {
       recoverLocalArtifactAppends(resolvedRoot);
       const dbPath = getDefaultDbPath(scope, resolvedRoot);
-      const database = await openDatabase(dbPath);
-      const connection = await database.connect();
-      const stat = statLocalArtifact(dbPath, resolvedRoot);
-      if (stat == null) {
-        closeConnection(connection);
-        closeDatabase(database);
-        throw new Error('DuckDB did not create its owned database file');
-      }
-      const instance = new TestLogDuckDb(resolvedRoot, dbPath, stat.identity, database, connection);
-      await instance.ensureSchema();
-      return instance;
+      const resources = await openTestLogDuckDbResources(dbPath, resolvedRoot, async (connection) => {
+        await runDuckDb(connection, GeneratedCreateTestLogsTableSql);
+        await runDuckDb(connection, GeneratedIndexScopeLevelSql);
+        await runDuckDb(connection, GeneratedIndexScopeRunSql);
+      });
+      return new TestLogDuckDb(resolvedRoot, dbPath, resources.identity, resources.database, resources.connection);
     });
   }
 
@@ -154,22 +84,22 @@ export class TestLogDuckDb {
       if (this.closed) {
         return;
       }
-      closeConnection(this.connection);
-      closeDatabase(this.database);
+      closeDuckDbResources(this.database, this.connection);
       this.closed = true;
+      this.assertDatabaseIdentity();
     });
   }
 
   async ensureSchema(): Promise<void> {
     await this.withOwnedDatabase(async () => {
-      await runAsync(this.connection, GeneratedCreateTestLogsTableSql);
-      await runAsync(this.connection, GeneratedIndexScopeLevelSql);
-      await runAsync(this.connection, GeneratedIndexScopeRunSql);
+      await runDuckDb(this.connection, GeneratedCreateTestLogsTableSql);
+      await runDuckDb(this.connection, GeneratedIndexScopeLevelSql);
+      await runDuckDb(this.connection, GeneratedIndexScopeRunSql);
     });
   }
 
   async reset(): Promise<void> {
-    await this.withOwnedDatabase(() => runAsync(this.connection, 'DELETE FROM test_logs'));
+    await this.withOwnedDatabase(() => runDuckDb(this.connection, 'DELETE FROM test_logs'));
   }
 
   async insertLogs(filePath: string, logs: readonly StoredTestLogLine[]): Promise<number> {
@@ -177,9 +107,9 @@ export class TestLogDuckDb {
       if (logs.length === 0) {
         return 0;
       }
-      await runAsync(this.connection, GeneratedDeleteByFileSql, filePath);
+      await runDuckDb(this.connection, GeneratedDeleteByFileSql, filePath);
       for (const log of logs) {
-        await runAsync(
+        await runDuckDb(
           this.connection,
           `INSERT INTO test_logs (
           ndjson_file,
@@ -263,22 +193,22 @@ export class TestLogDuckDb {
 
   async getStats(scope: TestLogScopeType): Promise<TestLogStats> {
     return this.withOwnedDatabase(async () => {
-      const rows = await allAsync<StatsRow>(this.connection, GeneratedStatsQuerySql, scope);
-      return rowToStats(rows[0]);
+      const rows = await readDuckDbRows<StatsRow>(this.connection, GeneratedStatsQuerySql, scope);
+      return testLogStats(rows[0]);
     });
   }
 
   async latestFailures(scope: TestLogScopeType, limit = 20): Promise<StoredTestLogLine[]> {
     return this.withOwnedDatabase(async () => {
-      const rows = await allAsync<StoredLogRow>(this.connection, GeneratedLatestFailuresQuerySql, scope, limit);
-      return rows.map(rowToStoredLog);
+      const rows = await readDuckDbRows<StoredLogRow>(this.connection, GeneratedLatestFailuresQuerySql, scope, limit);
+      return rows.map(testLogRow);
     });
   }
 
   async search(scope: TestLogScopeType, query: string, limit = 20): Promise<StoredTestLogLine[]> {
     return this.withOwnedDatabase(async () => {
       const likeQuery = buildGeneratedSearchLikeQuery(query);
-      const rows = await allAsync<StoredLogRow>(
+      const rows = await readDuckDbRows<StoredLogRow>(
         this.connection,
         GeneratedSearchQuerySql,
         scope,
@@ -287,7 +217,7 @@ export class TestLogDuckDb {
         likeQuery,
         limit
       );
-      return rows.map(rowToStoredLog);
+      return rows.map(testLogRow);
     });
   }
 
@@ -300,10 +230,7 @@ export class TestLogDuckDb {
       if (this.closed) {
         throw new Error('DuckDB logging index is closed');
       }
-      this.assertDatabaseIdentity();
-      const result = await operation();
-      this.assertDatabaseIdentity();
-      return result;
+      return operation();
     });
   }
 

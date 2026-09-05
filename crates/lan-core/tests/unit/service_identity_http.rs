@@ -99,7 +99,10 @@ fn probe_response_parser_strips_nested_title_markup_before_weak_evidence_applica
     let title = observation.title.clone().value_or_unreachable();
     assert_eq!(title, "Trusted Panel alert(1)");
 
-    let mut device = bounded_probe_devices().into_iter().next().value_or_unreachable();
+    let mut device = bounded_probe_devices()
+        .into_iter()
+        .next()
+        .value_or_unreachable();
     apply_service_identity_probe(&mut device, observation);
 
     assert_eq!(

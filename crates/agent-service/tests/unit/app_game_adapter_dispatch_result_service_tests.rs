@@ -18,10 +18,14 @@ use ocentra_parent_agent_protocol::transport::{
 use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
 use crate::enforcement_api::{build_enforcement_audit_report_with_paths, EnforcementJournalPaths};
-use crate::test_invariants::{require_json_decode, require_some};
+use crate::test_require_json_decode::require_json_decode;
+use crate::test_require_some::require_some;
 use crate::test_text::TestText;
 
-use super::app_game_adapter_dispatch_execute_payload::build_activity_app_game_adapter_dispatch_execute_report_with_paths;
+use super::app_game_adapter_dispatch_execute_payload::{
+    build_activity_app_game_adapter_dispatch_execute_report,
+    build_activity_app_game_adapter_dispatch_execute_report_with_paths,
+};
 use super::app_game_adapter_dispatch_result_payload::{
     build_activity_app_game_adapter_dispatch_result_report,
     build_activity_app_game_adapter_dispatch_result_report_with_store_path, ActivityStorePath,
@@ -229,15 +233,12 @@ async fn app_game_adapter_dispatch_execute_rejects_unresolved_runtime_evidence()
 
 #[tokio::test]
 async fn app_game_adapter_dispatch_execute_rejects_non_windows_targets() {
-    let paths = temp_paths(constants::enforcement::PLATFORM_LINUX);
-    cleanup_paths(&paths);
     let mut command = dispatch_execute_command();
     command.target.platform = constants::enforcement::PLATFORM_LINUX.to_string();
-    let event = Box::pin(
-        build_activity_app_game_adapter_dispatch_execute_report_with_paths(command, paths.clone()),
-    )
+    let event = Box::pin(build_activity_app_game_adapter_dispatch_execute_report(
+        command,
+    ))
     .await;
-    cleanup_paths(&paths);
 
     assert_eq!(event.event, AgentEventName::AgentCommandRejected);
     assert_eq!(
@@ -337,6 +338,10 @@ fn enforcement_execute_payload() -> LogFields {
     fields.insert(
         constants::field::POLICY_DRY_RUN.to_string(),
         LogFieldValue::Boolean(false),
+    );
+    fields.insert(
+        constants::field::PROCESS_ID.to_string(),
+        LogFieldValue::Number(f64::from(u32::MAX)),
     );
     fields.insert(
         constants::field::POLICY_REASON_CODES.to_string(),

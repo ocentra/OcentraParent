@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use crate::support::{ValueOrUnreachable as _, extract_typescript_block};
+use crate::support::{extract_typescript_block, ValueOrUnreachable as _};
 use ocentra_schema::data_custody_source_of_truth as contracts;
 use ocentra_schema::data_custody_source_of_truth_ts::data_custody_source_of_truth_contracts_typescript;
 use serde_json::json;

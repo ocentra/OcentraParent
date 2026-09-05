@@ -81,7 +81,7 @@ impl VerifiedImportCustody {
                 Some(target_device_id.as_str()),
                 Some(self.authority_generation),
             )
-            .map_err(|_| ImportBindingError::AuthorityProofMismatch)?;
+            .map_err(|_error| ImportBindingError::AuthorityProofMismatch)?;
         if self.key_ref != bundle.manifest.key_ref
             || self.manifest_integrity_ref != bundle.manifest.manifest_integrity_ref
         {
@@ -111,63 +111,34 @@ impl VerifiedImportCustody {
         Ok(())
     }
 
-    pub(crate) fn from_verified_parts(
-        bundle_id: contracts::ExportImportBundleId,
-        key_ref: contracts::ExportImportKeyRef,
-        manifest_integrity_ref: contracts::ExportImportIntegrityRef,
-        payload_integrity_refs: Vec<(
-            contracts::ExportImportDataClass,
-            contracts::ExportImportIntegrityRef,
-        )>,
-        household_id: contracts::ExportImportHouseholdId,
-        target_device_id: Option<contracts::ExportImportDeviceId>,
-        authority_generation: u64,
-        migration_ref: Option<contracts::ExportImportMigrationRef>,
-        preflight: contracts::ExportImportImportPreflight,
-        capability: Box<dyn RestoreExecutionCapability>,
-    ) -> Self {
-        Self {
-            bundle_id,
-            key_ref,
-            manifest_integrity_ref,
-            payload_integrity_refs,
-            household_id,
-            target_device_id,
-            authority_generation,
-            migration_ref,
-            preflight,
-            capability,
+    pub(crate) fn into_parts(self) -> VerifiedImportCustodyParts {
+        VerifiedImportCustodyParts {
+            bundle_id: self.bundle_id,
+            key_ref: self.key_ref,
+            manifest_integrity_ref: self.manifest_integrity_ref,
+            payload_integrity_refs: self.payload_integrity_refs,
+            household_id: self.household_id,
+            target_device_id: self.target_device_id,
+            migration_ref: self.migration_ref,
+            preflight: self.preflight,
+            capability: self.capability,
         }
     }
+}
 
-    pub(crate) fn into_parts(
-        self,
-    ) -> (
-        contracts::ExportImportBundleId,
-        contracts::ExportImportKeyRef,
+pub(crate) struct VerifiedImportCustodyParts {
+    pub(crate) bundle_id: contracts::ExportImportBundleId,
+    pub(crate) key_ref: contracts::ExportImportKeyRef,
+    pub(crate) manifest_integrity_ref: contracts::ExportImportIntegrityRef,
+    pub(crate) payload_integrity_refs: Vec<(
+        contracts::ExportImportDataClass,
         contracts::ExportImportIntegrityRef,
-        Vec<(
-            contracts::ExportImportDataClass,
-            contracts::ExportImportIntegrityRef,
-        )>,
-        contracts::ExportImportHouseholdId,
-        Option<contracts::ExportImportDeviceId>,
-        Option<contracts::ExportImportMigrationRef>,
-        contracts::ExportImportImportPreflight,
-        Box<dyn RestoreExecutionCapability>,
-    ) {
-        (
-            self.bundle_id,
-            self.key_ref,
-            self.manifest_integrity_ref,
-            self.payload_integrity_refs,
-            self.household_id,
-            self.target_device_id,
-            self.migration_ref,
-            self.preflight,
-            self.capability,
-        )
-    }
+    )>,
+    pub(crate) household_id: contracts::ExportImportHouseholdId,
+    pub(crate) target_device_id: Option<contracts::ExportImportDeviceId>,
+    pub(crate) migration_ref: Option<contracts::ExportImportMigrationRef>,
+    pub(crate) preflight: contracts::ExportImportImportPreflight,
+    pub(crate) capability: Box<dyn RestoreExecutionCapability>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

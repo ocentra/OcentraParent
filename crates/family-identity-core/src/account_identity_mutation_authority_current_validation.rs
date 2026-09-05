@@ -23,7 +23,7 @@ pub(super) fn validate_against_current_authority(
     }
 
     let expires_at = DateTime::parse_from_rfc3339(authority.session_expires_at())
-        .map_err(|_| AccountIdentityMutationAuthorityError::InvalidAuthority)?
+        .map_err(|_error| AccountIdentityMutationAuthorityError::InvalidAuthority)?
         .with_timezone(&Utc);
     let trusted_now = DateTime::<Utc>::from_timestamp_millis(trusted_now_epoch_millis)
         .ok_or(AccountIdentityMutationAuthorityError::ClockUnavailable)?;
@@ -64,10 +64,10 @@ fn validate_support_receipt(
         return Ok(());
     };
     let issued_at = DateTime::parse_from_rfc3339(&receipt.issued_at)
-        .map_err(|_| AccountIdentityMutationAuthorityError::InvalidAuthority)?
+        .map_err(|_error| AccountIdentityMutationAuthorityError::InvalidAuthority)?
         .with_timezone(&Utc);
     let expires_at = DateTime::parse_from_rfc3339(&receipt.expires_at)
-        .map_err(|_| AccountIdentityMutationAuthorityError::InvalidAuthority)?
+        .map_err(|_error| AccountIdentityMutationAuthorityError::InvalidAuthority)?
         .with_timezone(&Utc);
     if receipt.revocation_state != AccountIdentitySupportReceiptRevocationState::Active
         || issued_at > trusted_now

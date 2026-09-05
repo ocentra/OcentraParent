@@ -6,7 +6,9 @@ use std::{
     thread,
 };
 
-use super::app_game_linux_docker_host_preflight_cleanup_worker::cleanup_worker;
+use super::app_game_linux_docker_host_preflight_cleanup_worker::{
+    cleanup_worker, CleanupWorkerContext,
+};
 
 const CLEANUP_THREAD_NAME: &str = "ocentra-docker-probe-supervisor";
 
@@ -106,7 +108,12 @@ impl ReservedCleanupOwner {
         let worker_degraded = registry.degraded_flag();
         let worker = thread::Builder::new()
             .name(CLEANUP_THREAD_NAME.to_string())
-            .spawn(move || cleanup_worker(worker_mailbox, worker_degraded))
+            .spawn(move || {
+                cleanup_worker(CleanupWorkerContext {
+                    mailbox: worker_mailbox,
+                    degraded: worker_degraded,
+                })
+            })
             .ok()?;
         Some(Self {
             mailbox,

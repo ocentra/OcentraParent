@@ -54,10 +54,10 @@ fn read_websocket_message(
     timeout: Duration,
     deadline: Instant,
 ) -> Result<Message, String> {
-    let remaining = super::connection::remaining_timeout(deadline).map_err(|_| {
+    let remaining = super::connection::remaining_timeout(deadline).map_err(|error| {
         format!(
-            "agent-service WebSocket {phase} timed out after {}ms",
-            timeout.as_millis()
+            "agent-service WebSocket {phase} timed out after {}ms: {error}",
+            timeout.as_millis(),
         )
     })?;
     socket
@@ -78,10 +78,10 @@ fn send_websocket_pong(
     timeout: Duration,
     deadline: Instant,
 ) -> Result<(), String> {
-    let remaining = super::connection::remaining_timeout(deadline).map_err(|_| {
+    let remaining = super::connection::remaining_timeout(deadline).map_err(|error| {
         format!(
-            "agent-service WebSocket {phase} timed out after {}ms",
-            timeout.as_millis()
+            "agent-service WebSocket {phase} timed out after {}ms: {error}",
+            timeout.as_millis(),
         )
     })?;
     socket
@@ -98,10 +98,10 @@ fn send_websocket_pong(
 fn ensure_deadline(deadline: Instant, phase: &str, timeout: Duration) -> Result<(), String> {
     super::connection::remaining_timeout(deadline)
         .map(|_| ())
-        .map_err(|_| {
+        .map_err(|error| {
             format!(
-                "agent-service WebSocket {phase} timed out after {}ms",
-                timeout.as_millis()
+                "agent-service WebSocket {phase} timed out after {}ms: {error}",
+                timeout.as_millis(),
             )
         })
 }

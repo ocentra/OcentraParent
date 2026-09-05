@@ -22,10 +22,10 @@ use ocentra_eventing::journal::ndjson::NdjsonEventJournal;
 use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
 use ocentra_parent_agent_protocol::app_game::{
     AppGameInventoryCategoryCandidate, AppGameInventoryEvidenceRow, APP_GAME_CATALOG_NOT_LOADED,
-    APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS, APP_GAME_INVENTORY_CUSTODY_LOCAL_AGENT,
-    APP_GAME_INVENTORY_STATE_INSTALLED, APP_GAME_INVENTORY_SOURCE_PORTABLE_APP,
-    APP_GAME_PRODUCT_UNKNOWN_EXECUTABLE, APP_GAME_RUNTIME_NOT_CLAIMED,
-    APP_GAME_FOREGROUND_NOT_CLAIMED, APP_GAME_SCHEMA_VERSION,
+    APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS, APP_GAME_FOREGROUND_NOT_CLAIMED,
+    APP_GAME_INVENTORY_CUSTODY_LOCAL_AGENT, APP_GAME_INVENTORY_SOURCE_PORTABLE_APP,
+    APP_GAME_INVENTORY_STATE_INSTALLED, APP_GAME_PRODUCT_UNKNOWN_EXECUTABLE,
+    APP_GAME_RUNTIME_NOT_CLAIMED, APP_GAME_SCHEMA_VERSION,
 };
 
 static TEST_PATH_SEQUENCE: AtomicU64 = AtomicU64::new(1);
@@ -35,7 +35,7 @@ const REQUEST_EXPIRES_AT: u64 = 5_000;
 const RESPONSE_AT: u64 = 2_000;
 
 #[test]
-fn unknown_candidate_producer_preserves_weak_game_classification_and_requires_evidence(
+fn unknown_candidate_producer_preserves_weak_game_classification_and_requires_evidence_and_child_status_refs(
 ) -> Result<(), AppGameUnknownApprovalError> {
     let candidate = produce_app_game_unknown_candidate(candidate_input(
         AppGameUnknownCandidateKind::GameLikeExecutable,
@@ -56,6 +56,18 @@ fn unknown_candidate_producer_preserves_weak_game_classification_and_requires_ev
         produce_app_game_unknown_candidate(missing_evidence),
         Err(AppGameUnknownApprovalError::InvalidField {
             field: "app_game.unknown_candidate.evidence_refs"
+        })
+    ));
+
+    let mut missing_child_status = candidate_input(
+        AppGameUnknownCandidateKind::NewInventoryApp,
+        AppGameUnknownClassification::UnknownApp,
+    );
+    missing_child_status.child_status_refs.clear();
+    assert!(matches!(
+        produce_app_game_unknown_candidate(missing_child_status),
+        Err(AppGameUnknownApprovalError::InvalidField {
+            field: "app_game.unknown_candidate.child_status_refs"
         })
     ));
 
@@ -93,12 +105,13 @@ fn inventory_unknown_app_producer_preserves_row_evidence_and_subject(
         inventory_state: APP_GAME_INVENTORY_STATE_INSTALLED.to_owned(),
         classification_state: APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS.to_owned(),
         catalog_ready_state: APP_GAME_CATALOG_NOT_LOADED.to_owned(),
-        capability_status: ocentra_parent_agent_protocol::app_game::APP_GAME_CAPABILITY_STATUS_AVAILABLE
-            .to_owned(),
+        capability_status:
+            ocentra_parent_agent_protocol::app_game::APP_GAME_CAPABILITY_STATUS_AVAILABLE.to_owned(),
         confidence: 0.2,
         category_candidates: vec![AppGameInventoryCategoryCandidate {
-            category_kind: ocentra_parent_agent_protocol::app_game::APP_GAME_INVENTORY_CATEGORY_UNKNOWN
-                .to_owned(),
+            category_kind:
+                ocentra_parent_agent_protocol::app_game::APP_GAME_INVENTORY_CATEGORY_UNKNOWN
+                    .to_owned(),
             confidence: 0.2,
             catalog_ref: Some(String::from("category-candidate-1")),
             evidence: Vec::new(),
@@ -121,6 +134,7 @@ fn inventory_unknown_app_producer_preserves_row_evidence_and_subject(
             candidate_id: String::from("candidate-inventory-1"),
             device_ref: String::from("device-1"),
             local_user_ref: String::from("local-user-1"),
+            child_status_refs: vec![String::from("child-status-inventory-1")],
             observed_at_epoch_ms: OBSERVED_AT,
         },
     )?
@@ -130,13 +144,26 @@ fn inventory_unknown_app_producer_preserves_row_evidence_and_subject(
 
     assert_eq!(candidate.candidate_id, "candidate-inventory-1");
     assert_eq!(candidate.subject_ref, row.inventory_entry_id);
-    assert_eq!(candidate.kind, AppGameUnknownCandidateKind::PortableExecutable);
+    assert_eq!(
+        candidate.kind,
+        AppGameUnknownCandidateKind::PortableExecutable
+    );
     assert_eq!(candidate.source, AppGameUnknownCandidateSource::Inventory);
-    assert_eq!(candidate.classification, AppGameUnknownClassification::UnknownApp);
-    assert_eq!(candidate.evidence_refs, vec![String::from("inventory-evidence-1")]);
+    assert_eq!(
+        candidate.classification,
+        AppGameUnknownClassification::UnknownApp
+    );
+    assert_eq!(
+        candidate.evidence_refs,
+        vec![String::from("inventory-evidence-1")]
+    );
     assert_eq!(
         candidate.category_candidate_ref,
         Some(String::from("category-candidate-1"))
+    );
+    assert_eq!(
+        candidate.child_status_refs,
+        vec![String::from("child-status-inventory-1")]
     );
     Ok(())
 }
@@ -174,6 +201,36 @@ async fn approval_is_durable_across_restart_and_exact_replay_is_idempotent(
     let recovered = load_app_game_unknown_approval(&restarted, "request-1").await?;
     assert_eq!(recovered.status, AppGameUnknownApprovalStatus::Pending);
     assert_eq!(recovered.request.candidate.candidate_id, "candidate-1");
+    assert_eq!(
+        recovered.request.candidate.child_status_refs,
+        vec![String::from("child-status-1")]
+    );
+
+    let mut stale_response = response_input(
+        "request-1",
+        "response-stale-1",
+        AppGameUnknownParentResponse::AllowOnce,
+        AppGameUnknownAdapterCapabilityState::Unproven,
+    );
+    stale_response.occurred_at_epoch_ms = OBSERVED_AT - 1;
+    let stale_result = persist_app_game_unknown_parent_response(
+        &restarted,
+        metadata("event-response-stale-1", "correlation-1")?,
+        stale_response,
+    )
+    .await;
+    assert!(matches!(
+        stale_result,
+        Err(AppGameUnknownApprovalError::InvalidTransition {
+            reason: "parent response predates current approval state"
+        })
+    ));
+    assert_eq!(
+        load_app_game_unknown_approval(&restarted, "request-1")
+            .await?
+            .updated_at_epoch_ms,
+        OBSERVED_AT
+    );
 
     let allow_once = response_input(
         "request-1",

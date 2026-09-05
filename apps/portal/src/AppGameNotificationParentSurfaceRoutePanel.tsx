@@ -65,17 +65,23 @@ function AppGameNotificationParentSurfaceSummaryCard({
 }: {
   readonly panel: ParentAppGameNotificationParentSurfacePanelSnapshot;
 }): ReactElement {
+  const summaryMetrics = panel.metrics.filter(
+    (detail) => detail.label !== PortalDetails.Status && detail.label !== PortalDetails.ProductClaim
+  );
   const details = [
     { label: PortalDetails.Status, value: panel.state },
     { label: PortalDetails.ProductClaim, value: panel.productClaim },
-    ...panel.metrics,
+    ...summaryMetrics,
   ];
   return (
     <article className={cardClassName()}>
       <h2>{panel.summary}</h2>
       <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
-        {details.map((detail) => (
-          <AppGameNotificationParentSurfaceDetail key={`${detail.label}:${detail.value}`} detail={detail} />
+        {details.map((detail, index) => (
+          <AppGameNotificationParentSurfaceDetail
+            key={`${String(index)}:${detail.label}:${detail.value}`}
+            detail={detail}
+          />
         ))}
       </dl>
     </article>
@@ -87,12 +93,14 @@ function AppGameNotificationParentSurfaceEmptyCard({
 }: {
   readonly panel: ParentAppGameNotificationParentSurfacePanelSnapshot;
 }): ReactElement {
+  const runtimeReference =
+    panel.metrics.find((detail) => detail.label === PortalDetails.RuntimeReference)?.value ?? panel.state;
   return (
     <article className={cardClassName()}>
       <h2>{panel.emptyMessage}</h2>
       <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
         <AppGameNotificationParentSurfaceDetail
-          detail={{ label: PortalDetails.RuntimeReference, value: panel.metrics[2]?.value ?? panel.state }}
+          detail={{ label: PortalDetails.RuntimeReference, value: runtimeReference }}
         />
         <AppGameNotificationParentSurfaceDetail
           detail={{ label: PortalDetails.ProductClaim, value: panel.productClaim }}
@@ -111,8 +119,8 @@ function AppGameNotificationParentSurfaceRowCard({
     <article className={cardClassName()}>
       <h2>{row.title}</h2>
       <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
-        {row.details.map((detail) => (
-          <AppGameNotificationParentSurfaceDetail key={`${row.key}:${detail.label}`} detail={detail} />
+        {row.details.map((detail, index) => (
+          <AppGameNotificationParentSurfaceDetail key={`${row.key}:${String(index)}:${detail.label}`} detail={detail} />
         ))}
       </dl>
     </article>

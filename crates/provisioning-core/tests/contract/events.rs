@@ -111,12 +111,10 @@ fn readiness_and_action_events_preserve_projection_fields_and_distinct_idempoten
 
 #[test]
 fn readiness_event_identifiers_reject_empty_values() {
-    let error = ProvisioningAggregateId::parse(" ").expect_err("empty aggregate id must reject");
-
     assert_eq!(
-        error,
-        EventingError::EmptyValue {
-            field: "provisioning.aggregate_id"
-        }
+        ProvisioningAggregateId::parse(" "),
+        Err(EventingError::EmptyValue {
+            field: "provisioning.aggregate_id",
+        })
     );
 }

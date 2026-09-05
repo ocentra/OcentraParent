@@ -1,4 +1,5 @@
 mod address;
+mod build_fields;
 mod classification;
 mod record;
 mod state;
@@ -8,10 +9,36 @@ use std::net::{IpAddr, Ipv4Addr};
 use ocentra_parent_agent_protocol::constants;
 use serde_json::Value;
 
-use super::super::network_identity_support::{normalized_ipv6_prefix, push_unique_string};
 use super::super::{LocalNetworkInterface, LocalNetworkInterfaceClassification};
 
-pub(super) type ParsedInterfaceAddress = (String, IpAddr, Option<u8>);
+#[derive(Clone, Debug)]
+pub(super) struct ParsedInterfaceAddress {
+    pub(super) text: String,
+    pub(super) address: IpAddr,
+    pub(super) prefix_length: Option<u8>,
+}
+
+pub(super) struct InterfaceBuildInput {
+    pub(super) id: String,
+    pub(super) name: String,
+    pub(super) description: Option<String>,
+    pub(super) index: Option<u32>,
+    pub(super) mac_address: Option<String>,
+    pub(super) addresses: Vec<ParsedInterfaceAddress>,
+    pub(super) default_gateway: Option<String>,
+    pub(super) dns_servers: Vec<String>,
+    pub(super) dhcp_server: Option<String>,
+    pub(super) broadcast_address: Option<String>,
+    pub(super) wifi_ssid: Option<String>,
+    pub(super) wifi_signal_percent: Option<u8>,
+    pub(super) is_up: bool,
+    pub(super) is_connected: bool,
+    pub(super) state_observed: bool,
+    pub(super) is_loopback: bool,
+    pub(super) has_default_route: bool,
+    pub(super) classification: LocalNetworkInterfaceClassification,
+    pub(super) fallback_prefix_length: Option<u8>,
+}
 
 pub(super) const INTERFACE_NAME_KEYS: &[&str] = &[
     constants::lan_pairing::JSON_KEY_INTERFACE_ALIAS,
@@ -123,7 +150,6 @@ const ADDRESS_KEYS: &[&str] = &[
     "local",
 ];
 
-
 pub(super) fn record_value<'a>(record: &'a Value, keys: &[&str]) -> Option<&'a Value> {
     record::record_value(record, keys)
 }
@@ -174,58 +200,30 @@ pub(super) fn is_wireless_interface_name(record: &Value) -> bool {
     classification::is_wireless_interface_name(record)
 }
 
-pub(super) fn build_interface(
-    id: String,
-    name: String,
-    description: Option<String>,
-    index: Option<u32>,
-    mac_address: Option<String>,
-    addresses: Vec<ParsedInterfaceAddress>,
-    default_gateway: Option<String>,
-    dns_servers: Vec<String>,
-    dhcp_server: Option<String>,
-    broadcast_address: Option<String>,
-    wifi_ssid: Option<String>,
-    wifi_signal_percent: Option<u8>,
-    is_up: bool,
-    is_connected: bool,
-    state_observed: bool,
-    is_loopback: bool,
-    has_default_route: bool,
-    classification: LocalNetworkInterfaceClassification,
-    fallback_prefix_length: Option<u8>,
-) -> LocalNetworkInterface {
-    let mut ip_addresses = Vec::new();
-    let mut ipv6_prefixes = Vec::new();
-    let mut ipv4_cidr = None;
-    for (text, parsed, prefix_length) in addresses {
-        push_unique_string(&mut ip_addresses, text.clone());
-        match parsed {
-            IpAddr::V4(_) => {
-                if ipv4_cidr.is_none() {
-                    ipv4_cidr = super::super::linux_identity::cidr_summary(&text, prefix_length);
-                }
-            }
-            IpAddr::V6(_) => {
-                if let Some(prefix_length) = prefix_length {
-                    if let Some(prefix) = normalized_ipv6_prefix(&format!("{text}/{prefix_length}"))
-                    {
-                        push_unique_string(&mut ipv6_prefixes, prefix);
-                    }
-                }
-            }
-        }
-    }
-    if ipv4_cidr.is_none() {
-        if let Some(prefix_length) = fallback_prefix_length {
-            ipv4_cidr = ip_addresses
-                .iter()
-                .find(|value| value.parse::<Ipv4Addr>().is_ok())
-                .and_then(|value| {
-                    super::super::linux_identity::cidr_summary(value, Some(prefix_length))
-                });
-        }
-    }
+pub(super) fn build_interface(input: InterfaceBuildInput) -> LocalNetworkInterface {
+    let InterfaceBuildInput {
+        id,
+        name,
+        description,
+        index,
+        mac_address,
+        addresses,
+        default_gateway,
+        dns_servers,
+        dhcp_server,
+        broadcast_address,
+        wifi_ssid,
+        wifi_signal_percent,
+        is_up,
+        is_connected,
+        state_observed,
+        is_loopback,
+        has_default_route,
+        classification,
+        fallback_prefix_length,
+    } = input;
+    let (ip_addresses, ipv6_prefixes, ipv4_cidr) =
+        build_fields::address_fields(addresses, fallback_prefix_length);
     let mut interface = LocalNetworkInterface {
         id,
         name,

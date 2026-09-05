@@ -1,4 +1,8 @@
-use std::collections::{HashMap, HashSet};
+use std::{
+    collections::{HashMap, HashSet},
+    io,
+    path::Path,
+};
 
 use ocentra_parent_agent_protocol::app_game_notification_status::AppGameNotificationPreferenceStatusReadModel;
 use ocentra_parent_agent_protocol::app_game_notification_status::AppGameNotificationStatusReadModels;
@@ -8,9 +12,6 @@ use ocentra_parent_agent_protocol::notification_provider_status_boundary::{
 };
 use ocentra_parent_agent_protocol::AppGameNotificationReadinessRow;
 
-use super::super::scheduler_runtime::{
-    boundary::VerifiedNotificationPreflight, load_verified_notification_preflight,
-};
 use super::fallback_entries::{
     notification_preference_status_entry_without_scheduler,
     notification_provider_status_entry_without_scheduler,
@@ -19,14 +20,42 @@ use super::preflight_entries::{
     notification_preference_status_entry_from_preflight,
     notification_provider_status_entry_from_preflight,
 };
+use super::scheduler_runtime::{
+    boundary::VerifiedNotificationPreflight, load_verified_notification_preflight,
+    load_verified_notification_preflight_from_activity_db_path,
+};
 use super::surface::notification_parent_surface_intent_read_model;
 
 pub(super) fn notification_status_read_models<T: ToString>(
     rows: &[AppGameNotificationReadinessRow],
-    generated_at: T,
+    generated_at: &T,
+) -> AppGameNotificationStatusReadModels {
+    notification_status_read_models_from_preflight_result(
+        rows,
+        generated_at,
+        load_verified_notification_preflight(),
+    )
+}
+
+pub(super) fn notification_status_read_models_from_activity_db_path<T: ToString>(
+    rows: &[AppGameNotificationReadinessRow],
+    generated_at: &T,
+    activity_db_path: &Path,
+) -> AppGameNotificationStatusReadModels {
+    notification_status_read_models_from_preflight_result(
+        rows,
+        generated_at,
+        load_verified_notification_preflight_from_activity_db_path(activity_db_path),
+    )
+}
+
+fn notification_status_read_models_from_preflight_result<T: ToString>(
+    rows: &[AppGameNotificationReadinessRow],
+    generated_at: &T,
+    preflight_result: io::Result<Option<VerifiedNotificationPreflight>>,
 ) -> AppGameNotificationStatusReadModels {
     let generated_at = generated_at.to_string();
-    let scheduler_evidence_invalid = match load_verified_notification_preflight() {
+    let scheduler_evidence_invalid = match preflight_result {
         Ok(Some(preflight)) => {
             if let Some(read_models) =
                 notification_status_read_models_from_preflight(&preflight, &generated_at)

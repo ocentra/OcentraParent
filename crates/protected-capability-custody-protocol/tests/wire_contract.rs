@@ -26,8 +26,8 @@ use ocentra_protected_capability_custody_protocol::{
 fn now_unix_millis() -> Result<u64, ProtocolError> {
     let duration = SystemTime::now()
         .duration_since(UNIX_EPOCH)
-        .map_err(|_| ProtocolError::InvalidExpiry)?;
-    u64::try_from(duration.as_millis()).map_err(|_| ProtocolError::InvalidExpiry)
+        .map_err(|_error| ProtocolError::InvalidExpiry)?;
+    u64::try_from(duration.as_millis()).map_err(|_error| ProtocolError::InvalidExpiry)
 }
 
 fn client_hello() -> Result<UntrustedClientHello, ProtocolError> {
@@ -91,16 +91,19 @@ fn with_trailing_payload_byte(mut frame: Vec<u8>) -> Vec<u8> {
 }
 
 #[test]
-fn bootstrap_handshake_request_and_response_round_trip_with_authentication(
-) -> Result<(), ProtocolError> {
-    let now = now_unix_millis()?;
+fn bootstrap_round_trips_with_identity_intact() -> Result<(), ProtocolError> {
     let bootstrap = BootstrapPacket::generate(41, 7, 3)?;
     let bootstrap_frame = encode_bootstrap(&bootstrap)?;
     assert_eq!(
         decode_bootstrap(&bootstrap_frame)?.identity(),
         bootstrap.identity()
     );
+    Ok(())
+}
 
+#[test]
+fn handshake_round_trips_and_rejects_client_identity_drift() -> Result<(), ProtocolError> {
+    let now = now_unix_millis()?;
     let client = client_hello()?;
     let client_frame = encode_client_hello(&client)?;
     let decoded_client = decode_client_hello(&client_frame)?;
@@ -125,7 +128,14 @@ fn bootstrap_handshake_request_and_response_round_trip_with_authentication(
         decoded_hello.verify_authenticated_provenance(&drifted_client, now + 1),
         Err(ProtocolError::AuthenticationFailed)
     ));
+    Ok(())
+}
 
+#[test]
+fn request_round_trip_requires_the_expected_sequence() -> Result<(), ProtocolError> {
+    let now = now_unix_millis()?;
+    let hello = broker_hello(now)?;
+    let decoded_hello = decode_broker_hello(&encode_broker_hello(&hello)?)?;
     let authenticator = hello.clone_authenticator();
     let request = UntrustedRequest::authenticate_wire(
         request_values(&hello, now, RequestKind::Prepare, None)?,
@@ -153,7 +163,20 @@ fn bootstrap_handshake_request_and_response_round_trip_with_authentication(
         authenticated_decoded.as_untrusted().kind(),
         RequestKind::Prepare
     );
+    Ok(())
+}
 
+#[test]
+fn response_round_trip_authenticates_observed_generations() -> Result<(), ProtocolError> {
+    let now = now_unix_millis()?;
+    let hello = broker_hello(now)?;
+    let authenticator = hello.clone_authenticator();
+    let request = UntrustedRequest::authenticate_wire(
+        request_values(&hello, now, RequestKind::Prepare, None)?,
+        &authenticator,
+    )?;
+    let authenticated_decoded = decode_request(&encode_request(&request)?)?
+        .into_authenticated_session(&hello, now + 2, 1, &authenticator)?;
     let token = OpaquePreparedToken::from_untrusted_wire_bytes(vec![0x77; 96])?;
     let response = UntrustedResponse::authenticate_wire(
         &authenticated_decoded,

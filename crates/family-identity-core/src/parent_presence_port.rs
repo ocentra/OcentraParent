@@ -18,15 +18,6 @@ use crate::trust_bootstrap_validation::parent_presence_verification_failure_reas
 mod step_up;
 
 impl ParentPresenceVerificationPort {
-    /// Open the durable custody owner used by the native parent step-up
-    /// composition. The portal boundary never receives this port.
-    pub(crate) fn open_for_parent_step_up(
-        store_path: impl Into<PathBuf>,
-        clock: impl Fn() -> ParentPresenceObservedAt + Send + Sync + 'static,
-    ) -> Result<Self, ParentPresenceStorageFailureReason> {
-        Self::with_clock(store_path, clock)
-    }
-
     pub fn open(
         store_path: impl Into<PathBuf>,
     ) -> Result<Self, ParentPresenceStorageFailureReason> {
@@ -97,19 +88,6 @@ impl ParentPresenceVerificationPort {
         input: ParentPresenceVerificationInput,
     ) -> Result<ParentPresenceVerificationAccepted, ParentPresenceVerificationFailureReason> {
         self.verify_and_consume_inner(input, None)
-    }
-
-    pub(crate) fn verify_and_consume_step_up(
-        &mut self,
-        input: ParentPresenceVerificationInput,
-        credential_id: &str,
-        credential_algorithm: i32,
-        credential_sign_count: u32,
-    ) -> Result<ParentPresenceVerificationAccepted, ParentPresenceVerificationFailureReason> {
-        self.verify_and_consume_inner(
-            input,
-            Some((credential_id, credential_algorithm, credential_sign_count)),
-        )
     }
 
     fn verify_and_consume_inner(

@@ -99,7 +99,7 @@ fn encode_frame(tag: u8, payload: &[u8]) -> Result<Vec<u8>, ProtocolError> {
     if frame_len > MAX_FRAME_BYTES {
         return Err(ProtocolError::FrameTooLarge);
     }
-    let payload_len = u32::try_from(payload_len).map_err(|_| ProtocolError::FrameTooLarge)?;
+    let payload_len = u32::try_from(payload_len).map_err(|_error| ProtocolError::FrameTooLarge)?;
     let mut frame = Vec::with_capacity(frame_len);
     frame.extend_from_slice(&payload_len.to_be_bytes());
     frame.extend_from_slice(ACCOUNT_ISSUER_SESSION_DOMAIN);
@@ -120,7 +120,7 @@ impl<'a> Cursor<'a> {
         }
         let prefix: [u8; FRAME_PREFIX_BYTES] = frame[..FRAME_PREFIX_BYTES]
             .try_into()
-            .map_err(|_| ProtocolError::InvalidFrameLength)?;
+            .map_err(|_error| ProtocolError::InvalidFrameLength)?;
         let declared = u32::from_be_bytes(prefix) as usize;
         if declared == 0
             || declared > MAX_FRAME_BYTES - FRAME_PREFIX_BYTES
@@ -189,7 +189,7 @@ impl<'a> Cursor<'a> {
     ) -> Result<[u8; crate::constants::REQUEST_DIGEST_BYTES], ProtocolError> {
         self.take_exact(crate::constants::REQUEST_DIGEST_BYTES)?
             .try_into()
-            .map_err(|_| ProtocolError::InvalidFrameLength)
+            .map_err(|_error| ProtocolError::InvalidFrameLength)
     }
 
     fn take_tag(&mut self) -> Result<AuthenticationTag, ProtocolError> {
@@ -202,7 +202,7 @@ impl<'a> Cursor<'a> {
         Ok(u16::from_be_bytes(
             self.take_exact(2)?
                 .try_into()
-                .map_err(|_| ProtocolError::Truncated)?,
+                .map_err(|_error| ProtocolError::Truncated)?,
         ))
     }
 
@@ -210,7 +210,7 @@ impl<'a> Cursor<'a> {
         Ok(u32::from_be_bytes(
             self.take_exact(4)?
                 .try_into()
-                .map_err(|_| ProtocolError::Truncated)?,
+                .map_err(|_error| ProtocolError::Truncated)?,
         ))
     }
 
@@ -218,7 +218,7 @@ impl<'a> Cursor<'a> {
         Ok(u64::from_be_bytes(
             self.take_exact(8)?
                 .try_into()
-                .map_err(|_| ProtocolError::Truncated)?,
+                .map_err(|_error| ProtocolError::Truncated)?,
         ))
     }
 
@@ -251,7 +251,7 @@ fn append_field(payload: &mut Vec<u8>, value: &[u8], maximum: usize) -> Result<(
     if value.len() > maximum {
         return Err(ProtocolError::FieldTooLarge);
     }
-    let length = u32::try_from(value.len()).map_err(|_| ProtocolError::FieldTooLarge)?;
+    let length = u32::try_from(value.len()).map_err(|_error| ProtocolError::FieldTooLarge)?;
     payload.extend_from_slice(&length.to_be_bytes());
     payload.extend_from_slice(value);
     Ok(())

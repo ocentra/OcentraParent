@@ -99,37 +99,39 @@ impl PartialEq for RestoreExecutionBinding {
 
 impl Eq for RestoreExecutionBinding {}
 
+pub(crate) struct RestoreExecutionBindingParts {
+    pub(crate) bundle_id: contracts::ExportImportBundleId,
+    pub(crate) key_ref: contracts::ExportImportKeyRef,
+    pub(crate) manifest_integrity_ref: contracts::ExportImportIntegrityRef,
+    pub(crate) payload_integrity_refs: Vec<(
+        contracts::ExportImportDataClass,
+        contracts::ExportImportIntegrityRef,
+    )>,
+    pub(crate) target_device_id: contracts::ExportImportDeviceId,
+    pub(crate) accepted_sections: Vec<contracts::ExportImportSectionDecision>,
+    pub(crate) rejected_sections: Vec<contracts::ExportImportSectionDecision>,
+    pub(crate) tombstones_preserved: bool,
+    pub(crate) no_resurrection: bool,
+    pub(crate) migration_ref: Option<contracts::ExportImportMigrationRef>,
+    pub(crate) migration_state: contracts::ExportImportMigrationState,
+    pub(crate) capability: Box<dyn RestoreExecutionCapability>,
+}
+
 impl RestoreExecutionBinding {
-    pub(crate) fn from_parts(
-        bundle_id: contracts::ExportImportBundleId,
-        key_ref: contracts::ExportImportKeyRef,
-        manifest_integrity_ref: contracts::ExportImportIntegrityRef,
-        payload_integrity_refs: Vec<(
-            contracts::ExportImportDataClass,
-            contracts::ExportImportIntegrityRef,
-        )>,
-        target_device_id: contracts::ExportImportDeviceId,
-        accepted_sections: Vec<contracts::ExportImportSectionDecision>,
-        rejected_sections: Vec<contracts::ExportImportSectionDecision>,
-        tombstones_preserved: bool,
-        no_resurrection: bool,
-        migration_ref: Option<contracts::ExportImportMigrationRef>,
-        migration_state: contracts::ExportImportMigrationState,
-        capability: Box<dyn RestoreExecutionCapability>,
-    ) -> Self {
+    pub(crate) fn from_parts(parts: RestoreExecutionBindingParts) -> Self {
         Self {
-            bundle_id,
-            key_ref,
-            manifest_integrity_ref,
-            payload_integrity_refs,
-            target_device_id,
-            accepted_sections,
-            rejected_sections,
-            tombstones_preserved,
-            no_resurrection,
-            migration_ref,
-            migration_state,
-            capability,
+            bundle_id: parts.bundle_id,
+            key_ref: parts.key_ref,
+            manifest_integrity_ref: parts.manifest_integrity_ref,
+            payload_integrity_refs: parts.payload_integrity_refs,
+            target_device_id: parts.target_device_id,
+            accepted_sections: parts.accepted_sections,
+            rejected_sections: parts.rejected_sections,
+            tombstones_preserved: parts.tombstones_preserved,
+            no_resurrection: parts.no_resurrection,
+            migration_ref: parts.migration_ref,
+            migration_state: parts.migration_state,
+            capability: parts.capability,
             dispatch_reservations: Mutex::new(BTreeSet::new()),
         }
     }

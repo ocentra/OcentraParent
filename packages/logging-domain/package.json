@@ -13,6 +13,14 @@
       "import": "./dist/logging-contracts.js",
       "types": "./dist/logging-contracts.d.ts"
     },
+    "./local-artifact-mutation-provider": {
+      "import": "./dist/local-artifact-mutation-provider.js",
+      "types": "./dist/local-artifact-mutation-provider.d.ts"
+    },
+    "./local-artifact-path": {
+      "import": "./dist/local-artifact-path.js",
+      "types": "./dist/local-artifact-path.d.ts"
+    },
     "./core/logConfig": {
       "import": "./dist/core/logConfig.js",
       "types": "./dist/core/logConfig.d.ts"
@@ -24,6 +32,10 @@
     "./core/logger": {
       "import": "./dist/core/logger.js",
       "types": "./dist/core/logger.d.ts"
+    },
+    "./core/localArtifactBridgeQueueStorage": {
+      "import": "./dist/core/localArtifactBridgeQueueStorage.js",
+      "types": "./dist/core/localArtifactBridgeQueueStorage.d.ts"
     },
     "./core/log-redaction": {
       "import": "./dist/core/log-redaction.js",
@@ -99,7 +111,7 @@
     }
   },
   "scripts": {
-    "build": "tsc --build tsconfig.json --force && node ../../scripts/fix-esm-imports.mjs dist",
+    "build": "tsc --build tsconfig.json --force && node ../../scripts/fix-esm-imports.mjs dist && npm run provider:stage",
     "bridge": "tsx scripts/log-bridge.ts",
     "db:ensure": "tsx scripts/ensure-db.ts",
     "db:rebuild": "tsx scripts/rebuild-db-from-ndjson.ts",
@@ -112,7 +124,8 @@
     "view:ndjson": "tsx scripts/view-ndjson.ts",
     "lint": "npx turbo run lint:exec --filter=@ocentra-parent/logging-domain",
     "lint:exec": "eslint --cache src scripts tests && tsc -p tsconfig.json --noEmit",
-    "test": "vitest run --config vitest.config.ts"
+    "provider:stage": "node scripts/stage-local-artifact-provider.mjs",
+    "test": "npm run provider:stage && vitest run --config vitest.config.ts"
   },
   "dependencies": {
     "@duckdb/node-api": "^1.5.4-r.1",

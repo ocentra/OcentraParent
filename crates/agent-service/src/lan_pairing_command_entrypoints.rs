@@ -19,14 +19,6 @@ pub(crate) fn lan_pairing_status_get(
     runtime_commands::lan_pairing_status_get(runtime, origin, command)
 }
 
-pub(crate) fn lan_pairing_route_revoke(
-    runtime: LanPairingRuntime,
-    origin: LanPairingOptionalText,
-    command: AgentCommandEnvelope,
-) -> AgentEventEnvelope {
-    runtime_commands::lan_pairing_route_revoke(runtime, origin, command)
-}
-
 pub(crate) fn signed_child_agent_observed(
     runtime: &LanPairingRuntime,
     origin: &LanPairingOptionalText,

@@ -6,7 +6,9 @@ use rusqlite::{params, OptionalExtension, Transaction};
 use crate::account_identity_authority_producer_v2::AccountIdentityAuthorityProducerV2Request;
 use ocentra_schema::account_identity_authority_producer_v2::ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE;
 
-use super::super::account_identity_authority_issuer_client_reservation::AccountIdentityIssuerReservation;
+use super::super::account_identity_authority_issuer_client_reservation::{
+    AccountIdentityIssuerReservation, AccountIdentityIssuerReservationStorage,
+};
 use super::super::{AccountIdentityAuthorityIssuerClientError, AccountIdentityIssuerCurrentness};
 
 pub(super) const RESERVATION_PREPARED: &str = "prepared";
@@ -20,6 +22,17 @@ pub(super) const SIGNER_SUCCEEDED: &str = "succeeded";
 
 const RESERVATION_LEASE_MILLIS: i64 = 60 * 1_000;
 const MAX_UNFINALIZED_RESERVATIONS_PER_ACCOUNT: i64 = 1_024;
+
+struct ReservationInsert<'a> {
+    binding: &'a ocentra_schema::account_identity_authority_producer_v2::
+        AccountIdentityAuthorityProducerV2Binding,
+    provider: String,
+    provider_subject: String,
+    request_digest: &'a str,
+    request_wire: Vec<u8>,
+    now_text: &'a str,
+    lease_expires_at: &'a str,
+}
 const DELETE_EXPIRED_SQL: &str = "DELETE FROM account_identity_issuer_v2_reservation
               WHERE reservation_id = ?1 AND reservation_state = ?2
                 AND signer_status = ?3 AND lease_expires_at <= ?4";
@@ -76,13 +89,15 @@ pub(super) fn reserve_issue(
     insert_reservation(
         transaction,
         currentness,
-        binding,
-        provider,
-        provider_subject,
-        request_digest,
-        request_wire,
-        now_text,
-        lease_expires_at,
+        ReservationInsert {
+            binding,
+            provider,
+            provider_subject,
+            request_digest: request_digest.as_str(),
+            request_wire,
+            now_text: now_text.as_str(),
+            lease_expires_at: lease_expires_at.as_str(),
+        },
     )
 }
 
@@ -168,7 +183,7 @@ fn reconcile_expired_prepared_reservation(
                 now_text
             ],
         )
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)?;
     Ok(())
 }
 
@@ -197,7 +212,7 @@ fn ensure_reservation_capacity(
             ],
             |row| row.get(0),
         )
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)?;
     (!at_capacity)
         .then_some(())
         .ok_or(AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)
@@ -241,7 +256,7 @@ fn existing_reservation(
             },
         )
         .optional()
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)
 }
 
 struct StoredReservation {
@@ -313,15 +328,17 @@ fn existing_reservation_error(
 fn insert_reservation(
     transaction: &Transaction<'_>,
     currentness: &AccountIdentityIssuerCurrentness,
-    binding: &ocentra_schema::account_identity_authority_producer_v2::
-        AccountIdentityAuthorityProducerV2Binding,
-    provider: String,
-    provider_subject: String,
-    request_digest: String,
-    request_wire: Vec<u8>,
-    now_text: String,
-    lease_expires_at: String,
+    input: ReservationInsert<'_>,
 ) -> Result<AccountIdentityIssuerReservation, AccountIdentityAuthorityIssuerClientError> {
+    let ReservationInsert {
+        binding,
+        provider,
+        provider_subject,
+        request_digest,
+        request_wire,
+        now_text,
+        lease_expires_at,
+    } = input;
     let reservation_id = opaque_token("reservation")?;
     let attempt_token = opaque_token("attempt")?;
     transaction
@@ -351,23 +368,25 @@ fn insert_reservation(
                 now_text,
             ],
         )
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)?;
     Ok(AccountIdentityIssuerReservation::from_storage(
-        reservation_id,
-        currentness.account_id().as_str().to_owned(),
-        currentness.household_id().as_str().to_owned(),
-        provider,
-        provider_subject,
-        binding.service_binding_id.clone(),
-        binding.key_id.clone(),
-        binding.key_generation,
-        binding.enrollment_generation,
-        binding.authority_generation,
-        binding.session_generation,
-        binding.correlation_id.clone(),
-        binding.idempotency_key.clone(),
-        request_wire,
-        attempt_token,
+        AccountIdentityIssuerReservationStorage {
+            reservation_id,
+            account_id: currentness.account_id().as_str().to_owned(),
+            household_id: currentness.household_id().as_str().to_owned(),
+            provider,
+            provider_subject,
+            service_binding_id: binding.service_binding_id.clone(),
+            key_id: binding.key_id.clone(),
+            key_generation: binding.key_generation,
+            enrollment_generation: binding.enrollment_generation,
+            authority_generation: binding.authority_generation,
+            session_generation: binding.session_generation,
+            correlation_id: binding.correlation_id.clone(),
+            idempotency_key: binding.idempotency_key.clone(),
+            request_wire,
+            attempt_token,
+        },
     ))
 }
 
@@ -375,7 +394,7 @@ pub(super) fn opaque_token(
     prefix: &str,
 ) -> Result<String, AccountIdentityAuthorityIssuerClientError> {
     let mut bytes = [0_u8; 32];
-    fill(&mut bytes).map_err(|_| AccountIdentityAuthorityIssuerClientError::Unavailable)?;
+    fill(&mut bytes).map_err(|_error| AccountIdentityAuthorityIssuerClientError::Unavailable)?;
     Ok(format!("{prefix}:{}", hex(bytes.as_slice())))
 }
 
@@ -402,7 +421,7 @@ pub(super) fn timestamp(value: i64) -> Result<String, AccountIdentityAuthorityIs
 }
 
 pub(super) fn sql_generation(value: u64) -> Result<i64, AccountIdentityAuthorityIssuerClientError> {
-    i64::try_from(value).map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)
+    i64::try_from(value).map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)
 }
 
 pub(super) fn hex(value: &[u8]) -> String {

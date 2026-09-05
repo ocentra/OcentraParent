@@ -58,7 +58,7 @@ export function usePortalAppBehavior({
   const networkActivityRefreshRequestedForRouteRef = useRef(false);
   const isFrameTuner = route === ParentRoute.AppLayout || route === ParentRoute.FrameTuner;
   const isDevProtocolRoute = isParentDevProtocolRoute(route);
-  const isProductRoute = !isFrameTuner;
+  const isProductRoute = portalRouteUsesProductShell(route);
   const [frameLayout, setFrameLayout] = usePortalFrameLayout(!isFrameTuner && import.meta.env.DEV);
   const routeFrameLayout = useMemo(
     () => frameLayoutVisibleForProtocolRoute(frameLayout, isDevProtocolRoute),
@@ -153,6 +153,11 @@ function usePortalProductReady(isProductRoute: boolean, onProductSurfaceReady: (
 
 function isParentDevProtocolRoute(route: ParentRouteId): boolean {
   return route === ParentRoute.Commands || route === ParentRoute.Events || route === ParentRoute.Logs;
+}
+
+export function portalRouteUsesProductShell(route: ParentRouteId): boolean {
+  const isFrameTuner = route === ParentRoute.AppLayout || route === ParentRoute.FrameTuner;
+  return !isFrameTuner && !isParentDevProtocolRoute(route);
 }
 
 function usePortalRouteTransition({

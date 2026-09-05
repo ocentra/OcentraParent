@@ -10,6 +10,9 @@ use ocentra_parent_agent_core::{
 use ocentra_parent_agent_protocol::constants;
 use std::fmt;
 
+#[path = "errors/persistence.rs"]
+mod persistence;
+
 #[derive(Debug, PartialEq, Eq)]
 pub enum ActivityCaptureError {
     Store,

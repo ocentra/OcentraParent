@@ -60,16 +60,16 @@ pub(super) fn discover_ssdp_upnp_devices_with_cancellation(
         target,
         mx_seconds_for_timeout(response_timeout),
     );
-    super::receive::collect_ssdp_records_with_cancellation(
-        &socket,
-        &request,
+    super::receive::collect_ssdp_records_with_cancellation(&super::receive::SsdpCollectionRequest {
+        socket: &socket,
+        request: &request,
         target,
         response_timeout,
-        attempts.clamp(1, SSDP_MAX_ATTEMPTS),
+        attempts: attempts.clamp(1, SSDP_MAX_ATTEMPTS),
         description_timeout,
         cancellation,
-        deadline,
-    )
+        outer_deadline: deadline,
+    })
 }
 
 pub(super) fn discover_ssdp_upnp_records() -> Result<Vec<SsdpDiscoveryRecord>, SsdpDiscoveryError> {

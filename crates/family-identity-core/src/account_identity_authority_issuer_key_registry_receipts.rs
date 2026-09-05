@@ -1,13 +1,11 @@
 use std::collections::HashSet;
 
-use chrono::{DateTime, Utc};
-use rusqlite::{params, Connection, Transaction};
+use rusqlite::{params, Connection};
 
 use super::super::service_binding::{
     AccountIdentityIssuerService, AccountIdentityIssuerServiceBinding,
 };
-use super::{to_sql_generation, AccountIdentityIssuerError};
-use crate::account_identity_authority::VerifiedAccountIdentityAuthority;
+use super::AccountIdentityIssuerError;
 
 pub(crate) fn validate_transport_receipts(
     connection: &Connection,
@@ -46,7 +44,7 @@ fn load_receipt_rows(
                     expires_at_millis, receipt_state, consumed_at_millis
              FROM account_identity_issuer_transport_receipt",
         )
-        .map_err(|_| AccountIdentityIssuerError::InvalidKeyRecord)?;
+        .map_err(|_error| AccountIdentityIssuerError::InvalidKeyRecord)?;
     let rows = statement
         .query_map([], |row| {
             Ok((
@@ -64,9 +62,9 @@ fn load_receipt_rows(
                 row.get(11)?,
             ))
         })
-        .map_err(|_| AccountIdentityIssuerError::InvalidKeyRecord)?
+        .map_err(|_error| AccountIdentityIssuerError::InvalidKeyRecord)?
         .collect::<Result<_, _>>()
-        .map_err(|_| AccountIdentityIssuerError::InvalidKeyRecord)?;
+        .map_err(|_error| AccountIdentityIssuerError::InvalidKeyRecord)?;
     Ok(rows)
 }
 
@@ -104,7 +102,7 @@ fn validate_receipt_shape(
     let service = AccountIdentityIssuerService::from_label(service_label)
         .ok_or(AccountIdentityIssuerError::InvalidKeyRecord)?;
     let generation = u64::try_from(*authority_generation)
-        .map_err(|_| AccountIdentityIssuerError::InvalidKeyRecord)?;
+        .map_err(|_error| AccountIdentityIssuerError::InvalidKeyRecord)?;
     if AccountIdentityIssuerServiceBinding::expected_binding_id(
         service,
         account_id,
@@ -138,7 +136,7 @@ fn validate_receipt_key(
             params![account_id, household_id, binding_id, key_id, key_version],
             |row| row.get(0),
         )
-        .map_err(|_| AccountIdentityIssuerError::InvalidKeyRecord)?;
+        .map_err(|_error| AccountIdentityIssuerError::InvalidKeyRecord)?;
     if !key_exists {
         return Err(AccountIdentityIssuerError::InvalidKeyRecord);
     }
@@ -164,110 +162,16 @@ pub(crate) fn validate_clock_state(
             [],
             |row| row.get(0),
         )
-        .map_err(|_| AccountIdentityIssuerError::InvalidClock)?;
+        .map_err(|_error| AccountIdentityIssuerError::InvalidClock)?;
     let (clock_id, last_unix_millis): (i64, i64) = connection
         .query_row(
             "SELECT clock_id, last_unix_millis FROM account_identity_issuer_clock",
             [],
             |row| Ok((row.get(0)?, row.get(1)?)),
         )
-        .map_err(|_| AccountIdentityIssuerError::InvalidClock)?;
+        .map_err(|_error| AccountIdentityIssuerError::InvalidClock)?;
     if count != 1 || clock_id != 1 || last_unix_millis < 0 {
         return Err(AccountIdentityIssuerError::InvalidClock);
     }
     Ok(())
-}
-
-pub(crate) fn trusted_now(
-    transaction: &Transaction<'_>,
-) -> Result<DateTime<Utc>, AccountIdentityIssuerError> {
-    let now = Utc::now();
-    let now_millis = now.timestamp_millis();
-    let previous: i64 = transaction
-        .query_row(
-            "SELECT last_unix_millis FROM account_identity_issuer_clock WHERE clock_id = 1",
-            [],
-            |row| row.get(0),
-        )
-        .map_err(|_| AccountIdentityIssuerError::InvalidClock)?;
-    if previous < 0 || now_millis < previous {
-        return Err(AccountIdentityIssuerError::ClockRollback);
-    }
-    transaction
-        .execute(
-            "UPDATE account_identity_issuer_clock SET last_unix_millis = ?1 WHERE clock_id = 1",
-            [now_millis],
-        )
-        .map_err(|_| AccountIdentityIssuerError::InvalidClock)?;
-    Ok(now)
-}
-
-pub(crate) fn record_transport_receipt(
-    transaction: &Transaction<'_>,
-    receipt_id: &str,
-    authority: &VerifiedAccountIdentityAuthority,
-    binding: &AccountIdentityIssuerServiceBinding,
-    key_id: &str,
-    key_version: u64,
-    issued_at: DateTime<Utc>,
-    expires_at: DateTime<Utc>,
-) -> Result<(), AccountIdentityIssuerError> {
-    transaction
-        .execute(
-            "INSERT INTO account_identity_issuer_transport_receipt (
-                receipt_id, account_id, household_id, service_binding_id, service_label,
-                authority_generation, key_id, key_version, issued_at_millis, expires_at_millis,
-                receipt_state, consumed_at_millis
-             ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, 'issued', NULL)",
-            params![
-                receipt_id,
-                authority.account_id().to_string(),
-                authority.household_id().to_string(),
-                binding.binding_id(),
-                binding.service().label(),
-                to_sql_generation(authority.authority_generation())?,
-                key_id,
-                to_sql_generation(key_version)?,
-                issued_at.timestamp_millis(),
-                expires_at.timestamp_millis(),
-            ],
-        )
-        .map_err(|_| AccountIdentityIssuerError::ReplayDetected)?;
-    Ok(())
-}
-
-pub(crate) fn consume_transport_receipt(
-    transaction: &Transaction<'_>,
-    receipt_id: &str,
-    authority: &VerifiedAccountIdentityAuthority,
-    binding: &AccountIdentityIssuerServiceBinding,
-    key_id: &str,
-    key_version: u64,
-    now: DateTime<Utc>,
-) -> Result<(), AccountIdentityIssuerError> {
-    let changed = transaction
-        .execute(
-            "UPDATE account_identity_issuer_transport_receipt
-                SET receipt_state = 'consumed', consumed_at_millis = ?1
-              WHERE receipt_id = ?2
-                AND account_id = ?3 AND household_id = ?4 AND service_binding_id = ?5
-                AND service_label = ?6 AND authority_generation = ?7
-                AND key_id = ?8 AND key_version = ?9
-                AND receipt_state = 'issued' AND expires_at_millis > ?1",
-            params![
-                now.timestamp_millis(),
-                receipt_id,
-                authority.account_id().to_string(),
-                authority.household_id().to_string(),
-                binding.binding_id(),
-                binding.service().label(),
-                to_sql_generation(authority.authority_generation())?,
-                key_id,
-                to_sql_generation(key_version)?,
-            ],
-        )
-        .map_err(|_| AccountIdentityIssuerError::Unavailable)?;
-    (changed == 1)
-        .then_some(())
-        .ok_or(AccountIdentityIssuerError::ReplayDetected)
 }

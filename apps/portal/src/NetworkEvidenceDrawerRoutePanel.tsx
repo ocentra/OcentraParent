@@ -11,20 +11,45 @@ import {
   projectPortalLanDiagnosticsViewModel,
   type PortalLanDiagnosticsViewModel,
 } from '@ocentra-parent/portal-domain/live-activity-lan-add-device';
-import type { ParentNetworkEvidenceSummarySnapshot, ParentRouteId } from '../generated/parent-ui-bridge';
+import {
+  ParentRoute,
+  type ParentNetworkEvidenceSummarySnapshot,
+  type ParentRouteId,
+} from '../generated/parent-ui-bridge';
 import type { PortalLiveActivityState } from './live-activity-state';
 import { decodeDisplayText, type PortalDisplayText } from '@ocentra-parent/portal-domain/display-text';
-import { isInlineNetworkEvidenceDrawerRoute, isNetworkEvidenceDrawerRoute } from './portal-route-refresh';
+import type { PortalRenderActions } from './portal-actions';
+import { isInlineNetworkEvidenceDrawerRoute } from './portal-route-refresh';
+
+const NETWORK_ROUTE_TEXT = {
+  refresh: decodeDisplayText('Refresh network activity'),
+  unavailableFlowTitle: decodeDisplayText('Flow observations'),
+  unavailableFlowBody: decodeDisplayText(
+    'No network flow rows, protocol, process, domain, destination, or connection totals are shown without a service report. No destination, device, or activity state is inferred.'
+  ),
+  unavailableEvidenceTitle: decodeDisplayText('Evidence custody'),
+  unavailableEvidenceBody: decodeDisplayText(
+    'No evidence identifier, observation window, source quality, or custody state is inferred from an empty snapshot.'
+  ),
+  unavailableLanTitle: decodeDisplayText('LAN discovery'),
+  unavailableLanBody: decodeDisplayText(
+    'No LAN source matrix, discovered device, trusted route, or household decision history has been reported.'
+  ),
+} as const;
 
 export function shouldRenderNetworkEvidenceDrawerRoute(route: ParentRouteId): boolean {
-  return isNetworkEvidenceDrawerRoute(route);
+  return route === ParentRoute.NetworkActivity;
 }
 
 export function NetworkEvidenceDrawerRoutePanel({
+  actions,
+  commandEnabled,
   liveActivity,
   networkEvidenceSummary,
   route,
 }: {
+  readonly actions: PortalRenderActions;
+  readonly commandEnabled: boolean;
   readonly liveActivity: PortalLiveActivityState;
   readonly networkEvidenceSummary?: ParentNetworkEvidenceSummarySnapshot | null;
   readonly route: ParentRouteId;
@@ -35,10 +60,14 @@ export function NetworkEvidenceDrawerRoutePanel({
   const lanSourceMatrix = projectLanDiscoverySourceMatrixViewModel(liveActivity.lanAddDeviceReadModel);
   const lanDiagnostics = projectPortalLanDiagnosticsViewModel(liveActivity.lanAddDeviceReadModel);
   const inlineOnActivityRoute = isInlineNetworkEvidenceDrawerRoute(route);
+  const routeAction = networkRouteAction(actions, commandEnabled);
+  const reported = networkStateReported(liveActivity, networkEvidenceSummary ?? null);
   return (
     <section
       aria-label={resolvePortalDevText(PortalDevTextToken.NetworkFlow)}
       className={PortalDom.Classes.TrackingStatusOverlay}
+      data-ocentra-network-surface="product"
+      data-ocentra-network-route-state={reported ? 'reported' : 'unavailable'}
       style={inlineOnActivityRoute ? inlineActivityRoutePanelStyle : undefined}
     >
       <div
@@ -51,19 +80,93 @@ export function NetworkEvidenceDrawerRoutePanel({
           {liveActivity.networkFlowReadModel === null ? (
             <p>{resolvePortalDevText(PortalDevTextToken.NoNetworkFlow)}</p>
           ) : null}
+          <button
+            className={PortalDom.Classes.CommandResultTab}
+            onClick={routeAction.run}
+            type={PortalDom.ButtonType.Button}
+          >
+            {routeAction.label}
+          </button>
         </header>
         <div
           className={[PortalDom.Classes.ProductDashboard, PortalDom.Classes.TrackingStatusOverlayGrid].join(
             PortalDom.Classes.ClassNameSeparator
           )}
         >
-          <NetworkEvidenceDrawerCard summary={summary} />
-          <NetworkEvidenceUnsupportedClaimCard summary={summary} />
-          <NetworkEvidenceLanSourceMatrixCard matrix={lanSourceMatrix} diagnostics={lanDiagnostics} />
+          {reported ? (
+            <>
+              <NetworkEvidenceDrawerCard summary={summary} />
+              <NetworkEvidenceUnsupportedClaimCard summary={summary} />
+              <NetworkEvidenceLanSourceMatrixCard matrix={lanSourceMatrix} diagnostics={lanDiagnostics} />
+            </>
+          ) : (
+            <NetworkEvidenceUnavailableCards />
+          )}
         </div>
       </div>
     </section>
   );
+}
+
+function NetworkEvidenceUnavailableCards(): ReactElement {
+  return (
+    <>
+      <NetworkEvidenceUnavailableCard
+        title={NETWORK_ROUTE_TEXT.unavailableFlowTitle}
+        body={NETWORK_ROUTE_TEXT.unavailableFlowBody}
+      />
+      <NetworkEvidenceUnavailableCard
+        title={NETWORK_ROUTE_TEXT.unavailableEvidenceTitle}
+        body={NETWORK_ROUTE_TEXT.unavailableEvidenceBody}
+      />
+      <NetworkEvidenceUnavailableCard
+        title={NETWORK_ROUTE_TEXT.unavailableLanTitle}
+        body={NETWORK_ROUTE_TEXT.unavailableLanBody}
+      />
+    </>
+  );
+}
+
+function NetworkEvidenceUnavailableCard({
+  body,
+  title,
+}: {
+  readonly body: PortalDisplayText;
+  readonly title: PortalDisplayText;
+}): ReactElement {
+  return (
+    <article className={networkEvidenceDrawerCardClassName()}>
+      <h2>{title}</h2>
+      <p>{notReportedText()}</p>
+      <p>{body}</p>
+    </article>
+  );
+}
+
+function networkStateReported(
+  liveActivity: PortalLiveActivityState,
+  networkEvidenceSummary: ParentNetworkEvidenceSummarySnapshot | null
+): boolean {
+  return (
+    liveActivity.networkFlowReadModel !== null ||
+    liveActivity.lanAddDeviceReadModel !== null ||
+    networkEvidenceSummary !== null
+  );
+}
+
+function networkRouteAction(
+  actions: PortalRenderActions,
+  commandEnabled: boolean
+): { readonly label: string; readonly run: () => void } {
+  if (!commandEnabled || actions.refreshRouteSnapshot === undefined) {
+    return { label: resolvePortalDevText(PortalDevTextToken.RetryStatus), run: actions.reconnect };
+  }
+  return {
+    label: NETWORK_ROUTE_TEXT.refresh,
+    run: () => {
+      void actions.refreshRouteSnapshot?.();
+    },
+  };
 }
 
 function NetworkEvidenceDrawerCard({ summary }: { readonly summary: NetworkEvidenceDrawerSummary }): ReactElement {

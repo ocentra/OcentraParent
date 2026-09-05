@@ -90,8 +90,12 @@ pub(crate) async fn build_tracking_retention_settings_write_report(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
     let (request, parse_state) = parse_write_request(&command);
-    let flow_report =
-        execute_tracking_retention_settings_write_flow(&command, &request, parse_state).await;
+    let flow_report = Box::pin(execute_tracking_retention_settings_write_flow(
+        &command,
+        &request,
+        parse_state,
+    ))
+    .await;
     let result = build_tracking_retention_settings_write_result(request, parse_state, &flow_report);
 
     let flow_observability_text =
@@ -303,8 +307,12 @@ pub(crate) async fn execute_tracking_retention_settings_write_flow(
         );
     }
 
-    accepted_tracking_retention_settings_write_flow_report(command, request, parent_action_received)
-        .await
+    Box::pin(accepted_tracking_retention_settings_write_flow_report(
+        command,
+        request,
+        parent_action_received,
+    ))
+    .await
 }
 
 fn rejected_tracking_retention_settings_write_flow_report(

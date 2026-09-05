@@ -59,8 +59,9 @@ and quiet-hours proof requirements before any provider delivery can be claimed.
 - `app_game_notification_preference_preflight_bridge` now consumes the complete
   WP59 read model, verifies exact scheduled rows against the durable scheduler
   store, generates deterministic requirements, and retains blocked rows. This
-  production code was drafted at `a93b45f33`; dedicated bridge tests and all
-  execution/validation are intentionally deferred to later global phases.
+  production code was drafted at `a93b45f33`; dedicated bridge behavior tests
+  now live in the registered App/Game contract target and are ready for the
+  validation/proof phase.
 
 ## Proof
 
@@ -73,16 +74,18 @@ and quiet-hours proof requirements before any provider delivery can be claimed.
 - `test-results/app-game-notification-preference-preflight-proof/proof.json`
 - `output/app-game-plan-proof/62-notification-preference-preflight/`
 - `output/app-plan-proof/62-notification-preference-preflight/`
+- Durable retained manifest:
+  [`WP62_NOTIFICATION_PREFERENCE_PREFLIGHT_PROOF.md`](../../../proof/app-game-plan/WP62_NOTIFICATION_PREFERENCE_PREFLIGHT_PROOF.md)
 
 ## Validation
 
-- [ ] Preference preflight parses the WP59 app/game scheduler bridge read model
+- [x] Preference preflight parses the WP59 app/game scheduler bridge read model
       before mapping rows.
-- [ ] Scheduled local rows become parent-preference-required preflight rows with
+- [x] Scheduled local rows become parent-preference-required preflight rows with
       source scheduler/outbox/provider/reason refs.
-- [ ] Manual-required and unavailable rows remain blocked before preference
+- [x] Manual-required and unavailable rows remain blocked before preference
       preflight.
-- [ ] Proof pack records no parent preference UI, no frequency-control UI, no
+- [x] Proof pack records no parent preference UI, no frequency-control UI, no
       quiet-hours timer runtime, no provider delivery, no receipt ingestion, no
       credentials, no child delivery, no adapter dispatch, and no durable
       production outbox claim.

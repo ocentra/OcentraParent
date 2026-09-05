@@ -14,7 +14,7 @@ use crate::lan_pairing_household_device_spine_test_fixtures::{
     ip_only_neighbor, local_agent_discovery_device, router_neighbor, same_host_network_neighbor,
     trusted_registry_entry,
 };
-use crate::test_invariants::require_some;
+use crate::test_require_some::require_some;
 
 #[test]
 fn local_agent_and_neighbor_merge_into_one_canonical_physical_device() {

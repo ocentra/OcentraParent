@@ -3,7 +3,7 @@ use crate::platform::TransitionFailure;
 
 pub(super) fn failure(error: TransitionFailure, phase: TransitionPhase) -> CustodyError {
     match error {
-        TransitionFailure::DefinitelyNotApplied(error) => super::platform::platform_error(error),
+        TransitionFailure::DefinitelyNotApplied(error) => super::platform::platform_error(&error),
         TransitionFailure::OutcomeUnknown => unknown_outcome(phase),
     }
 }

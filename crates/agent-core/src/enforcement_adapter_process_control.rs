@@ -103,9 +103,7 @@ fn identity_outcome(
     completed_at: &str,
     observed_process: &AdapterObservedProcessIdentity,
 ) -> Option<(EnforcementAdapterOutcome, AdapterObservedProcessIdentity)> {
-    let Some((expected_executable_path, expected_start_time)) = expected_identity else {
-        return None;
-    };
+    let (expected_executable_path, expected_start_time) = expected_identity?;
     if executable_path.is_none() || process_start_time == 0 {
         return Some((
             unavailable_adapter_outcome(EnforcementUnavailableReason::ManualRequired, completed_at),

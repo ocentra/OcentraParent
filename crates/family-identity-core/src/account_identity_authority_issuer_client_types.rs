@@ -64,20 +64,6 @@ impl ProtectedAccountIssuerKeyRegistration {
         &self.public_key
     }
 
-    pub(crate) fn from_protected_adapter(
-        public_key: [u8; 65],
-        enrollment_generation: u64,
-    ) -> Option<Self> {
-        (enrollment_generation > 0
-            && enrollment_generation
-                <= ocentra_schema::account_identity_authority_producer_v2::
-                    ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_ENROLLMENT_GENERATION)
-        .then_some(Self {
-            public_key,
-            enrollment_generation,
-        })
-    }
-
     pub(crate) fn enrollment_generation(&self) -> u64 {
         self.enrollment_generation
     }

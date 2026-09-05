@@ -1,23 +1,39 @@
 use super::{
-    CurrentChildDeviceTrustBinding, CurrentHouseholdCapability, CurrentHouseholdControllerLease,
-    HouseholdAuthorityCapabilitySource, HouseholdAuthorityControllerLeaseSource,
-    HouseholdAuthorityDeviceTrustSource, HouseholdAuthorityParentStepUpSource,
-    HouseholdAuthorityRuntimeAuthorization, HouseholdAuthorityRuntimeCasFence,
-    HouseholdAuthorityRuntimeEffectAuthorization, HouseholdAuthorityRuntimeFailure,
+    CurrentChildDeviceTrustBinding, HouseholdAuthorityCapabilitySource,
+    HouseholdAuthorityControllerLeaseSource, HouseholdAuthorityDeviceTrustSource,
+    HouseholdAuthorityParentStepUpSource, HouseholdAuthorityRuntimeAuthorization,
+    HouseholdAuthorityRuntimeCasFence, HouseholdAuthorityRuntimeCasInput,
+    HouseholdAuthorityRuntimeConsumeInput, HouseholdAuthorityRuntimeEffectAuthorization,
+    HouseholdAuthorityRuntimeFailure,
 };
 use crate::account_identity_authority::VerifiedAccountIdentityAuthority;
-use crate::account_identity_authority_repository::AccountIdentityAuthorityService;
 
-pub(super) fn consume(
-    account_service: &AccountIdentityAuthorityService,
-    presented_account_authority: &VerifiedAccountIdentityAuthority,
-    device_trust_source: &impl HouseholdAuthorityDeviceTrustSource,
-    capability_source: &impl HouseholdAuthorityCapabilitySource,
-    controller_lease_source: &impl HouseholdAuthorityControllerLeaseSource,
-    parent_step_up_source: &impl HouseholdAuthorityParentStepUpSource,
-    cas_fence: &mut impl HouseholdAuthorityRuntimeCasFence,
-    authorization: HouseholdAuthorityRuntimeAuthorization,
+pub(super) fn consume<
+    DeviceTrustSource: HouseholdAuthorityDeviceTrustSource,
+    CapabilitySource: HouseholdAuthorityCapabilitySource,
+    ControllerLeaseSource: HouseholdAuthorityControllerLeaseSource,
+    ParentStepUpSource: HouseholdAuthorityParentStepUpSource,
+    CasFence: HouseholdAuthorityRuntimeCasFence,
+>(
+    input: HouseholdAuthorityRuntimeConsumeInput<
+        '_,
+        DeviceTrustSource,
+        CapabilitySource,
+        ControllerLeaseSource,
+        ParentStepUpSource,
+        CasFence,
+    >,
 ) -> Result<HouseholdAuthorityRuntimeEffectAuthorization, HouseholdAuthorityRuntimeFailure> {
+    let HouseholdAuthorityRuntimeConsumeInput {
+        account_service,
+        presented_account_authority,
+        device_trust_source,
+        capability_source,
+        controller_lease_source,
+        parent_step_up_source,
+        cas_fence,
+        authorization,
+    } = input;
     let current_account = super::household_authority_runtime_resolution::account_authority(
         account_service,
         presented_account_authority,
@@ -30,14 +46,12 @@ pub(super) fn consume(
         return Err(HouseholdAuthorityRuntimeFailure::RoleNotAuthorized);
     }
     authorization.validate_current_account(&current_account)?;
-
     let current_device = device_trust_source.current_device_trust_binding(&current_account)?;
     super::household_authority_runtime_device_validation::validate_current(
         &current_account,
         &current_device,
     )?;
     authorization.validate_current_device(&current_device)?;
-
     let current_capability = super::household_authority_runtime_resolution::capability(
         capability_source,
         &current_account,
@@ -62,15 +76,15 @@ pub(super) fn consume(
     )?;
 
     let consumption_nonce = *authorization.consumption_nonce();
-    cas_fence.compare_and_consume(
+    cas_fence.compare_and_consume(HouseholdAuthorityRuntimeCasInput {
         authorization,
-        current_account,
-        current_device,
+        current_account_authority: current_account,
+        current_device_binding: current_device,
         current_capability,
         current_controller_lease,
         current_parent_step_up,
-        &consumption_nonce,
-    )
+        consumption_nonce,
+    })
 }
 
 fn revalidate_parent_step_up(

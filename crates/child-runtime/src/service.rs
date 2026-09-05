@@ -10,7 +10,6 @@ use tokio::sync::{mpsc, oneshot};
 
 use crate::{
     child_domain_runtime_flow::ChildDomainRuntimeEventFlow,
-    child_runtime_tombstone_event_flow::ChildRuntimeTombstoneEventFlow,
     removal::{
         ChildAgentRemovalBoundary, ChildAgentRemovalStatus, ChildAgentServiceIdentity,
         ChildAgentTamperSignalKind, ChildAgentTrustState, VerifiedParentRemovalAuthorization,
@@ -114,7 +113,7 @@ pub(crate) enum ChildAgentCommand {
 }
 
 pub(crate) enum ChildAgentCommandResult {
-    Domain(crate::child_domain_runtime_flow::ChildDomainRuntimeFlowReport),
+    Domain(Box<crate::child_domain_runtime_flow::ChildDomainRuntimeFlowReport>),
     StorageCustody(storage_custody_runtime::ChildStorageCustodyOutcome),
 }
 
@@ -133,7 +132,6 @@ pub struct ChildAgentIngress {
 pub struct ChildAgentService {
     paths: ChildAgentServicePaths,
     domain_flows: Vec<ChildDomainRuntimeEventFlow>,
-    tombstone_flow: ChildRuntimeTombstoneEventFlow,
     storage_custody: storage_custody_runtime::ChildStorageCustodyRuntime,
     removal: ChildAgentRemovalBoundary,
     trust_binding: Option<CurrentChildDeviceTrustBinding>,
@@ -143,5 +141,5 @@ pub struct ChildAgentService {
 }
 
 pub async fn run_child_agent_service() -> Result<(), ChildAgentServiceError> {
-    service_lifecycle::run_child_agent_service().await
+    Box::pin(service_lifecycle::run_child_agent_service()).await
 }

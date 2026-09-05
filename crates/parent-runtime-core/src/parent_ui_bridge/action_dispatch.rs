@@ -94,11 +94,12 @@ fn reject_unavailable_lan_route_query(
     lan_route_query: &LanRouteQuery,
     state: &mut ActionDispatchState,
 ) -> bool {
-    if matches!(lan_route_query, LanRouteQuery::Unavailable(_)) {
-        state.reject("parent Rust facade required LAN route state is unavailable");
-        true
-    } else {
-        false
+    match lan_route_query {
+        LanRouteQuery::Unavailable(error) => {
+            state.reject(error.clone());
+            true
+        }
+        _ => false,
     }
 }
 

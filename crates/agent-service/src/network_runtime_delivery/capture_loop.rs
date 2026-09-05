@@ -8,16 +8,19 @@ use crate::{
     fields::fields_from_pairs,
 };
 
-pub(super) struct ActivityCaptureFailureReason(pub(super) &'static str);
+struct ActivityCaptureFailureReason(&'static str);
 
-pub(super) fn spawn() {
+pub(crate) fn spawn_recurring_capture_loop() {
     if !crate::activity_capture::startup_activity_capture_enabled() {
         return;
     }
     tokio::task::spawn(async {
         loop {
-            if super::reconcile_retained_network_runtime().await.is_err() {
-                log_activity_capture_failure(ActivityCaptureFailureReason(
+            if crate::network_runtime_delivery::reconcile_retained_network_runtime()
+                .await
+                .is_err()
+            {
+                log_activity_capture_failure(&ActivityCaptureFailureReason(
                     constants::network_flow::NETWORK_RUNTIME_STARTUP_RECONCILIATION_FAILURE,
                 ));
             }
@@ -34,32 +37,35 @@ async fn run_activity_capture_once_blocking() {
     let captured = tokio::task::spawn_blocking(record_activity_capture_once_with_network).await;
     match captured {
         Ok(Ok(captured)) => {
-            if super::publish_captured_network_observations(&captured.network_observations)
-                .await
-                .is_err()
+            if crate::network_runtime_delivery::publish_captured_network_observations(
+                &captured.network_observations,
+            )
+            .await
+            .is_err()
             {
-                log_activity_capture_failure(ActivityCaptureFailureReason(
+                log_activity_capture_failure(&ActivityCaptureFailureReason(
                     constants::network_flow::ERROR_NETWORK_RUNTIME_CHAIN_PUBLISHES,
                 ));
             }
         }
         Ok(Err(error)) => log_activity_capture_error(&error),
-        Err(_) => log_activity_capture_failure(ActivityCaptureFailureReason(
+        Err(_) => log_activity_capture_failure(&ActivityCaptureFailureReason(
             constants::value::ACTIVITY_CAPTURE_IO_ERROR,
         )),
     }
 }
 
 fn log_activity_capture_error(error: &ActivityCaptureError) {
-    log_activity_capture_failure(ActivityCaptureFailureReason(error.reason().0));
+    log_activity_capture_failure(&ActivityCaptureFailureReason(error.reason().0));
 }
 
-fn log_activity_capture_failure(reason: ActivityCaptureFailureReason) {
+fn log_activity_capture_failure(reason: &ActivityCaptureFailureReason) {
+    let reason = reason.0;
     let _ = crate::dev_log::write_agent_info(
         constants::dev_log_message::ACTIVITY_CAPTURE_FAILED,
         fields_from_pairs(vec![(
             constants::field::REASON,
-            LogFieldValue::String(reason.0.to_string()),
+            LogFieldValue::String(reason.to_string()),
         )]),
     );
 }

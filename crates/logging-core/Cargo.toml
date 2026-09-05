@@ -21,6 +21,9 @@ serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.145"
 sha2 = "0.10.9"
 
+[target.'cfg(windows)'.dependencies]
+ocentra-parent-logging-local-artifact-windows-ffi = { path = "../logging-local-artifact-windows-ffi" }
+
 [[test]]
 name = "unit"
 path = "tests/unit/mod.rs"
@@ -49,3 +52,7 @@ path = "tests/stack_trace_runtime/mod.rs"
 name = "ndjson_operation_compaction_cache"
 path = "tests/ndjson_operation_compaction_cache.rs"
 required-features = ["test-support"]
+
+[[test]]
+name = "local_artifact_mutation"
+path = "tests/integration/local_artifact_mutation.rs"

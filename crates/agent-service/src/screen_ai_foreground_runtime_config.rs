@@ -31,7 +31,7 @@ use ocentra_parent_screen_capture_adapter::{
 use crate::{
     activity_capture::ActivityCaptureError,
     activity_store_path::{activity_db_path, activity_journal_key_path, activity_journal_path},
-    screen_ai_foreground_runtime::ScreenAiForegroundKey,
+    screen_ai_foreground_runtime::types::ScreenAiForegroundKey,
 };
 
 const DEFAULT_FOREGROUND_POLL_SECONDS: u64 = 2;

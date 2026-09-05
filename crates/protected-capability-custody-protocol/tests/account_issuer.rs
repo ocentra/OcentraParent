@@ -1,6 +1,9 @@
-use ocentra_protected_capability_custody_protocol::account_issuer::account_issuer_receipt_lineage::AccountIssuerReceiptLineage;
+use ocentra_protected_capability_custody_protocol::account_issuer::account_issuer_receipt_lineage::{
+    AccountIssuerReceiptLineage, AccountIssuerReceiptLineageInput,
+};
 use ocentra_protected_capability_custody_protocol::account_issuer::{
-    AccountIssuerMessageKind, AccountIssuerRequest, ProtectedAccountIssuerReceiptWire,
+    AccountIssuerMessageKind, AccountIssuerReceiptInput, AccountIssuerRequest,
+    ProtectedAccountIssuerReceiptWire,
     ACCOUNT_ISSUER_MAX_PROTECTED_RECEIPT_BYTES,
 };
 use ocentra_protected_capability_custody_protocol::account_issuer_contract::{
@@ -58,31 +61,33 @@ fn issue_receipt() -> Result<
     ocentra_protected_capability_custody_protocol::account_issuer::AccountIssuerReceipt,
     ProtocolError,
 > {
-    let lineage = AccountIssuerReceiptLineage::new(
-        AccountIdentityProvider::Authjs,
-        subject()?,
-        field("account-1")?,
-        field("household-1")?,
-        field("member-1")?,
-        field("device-1")?,
-        field("session-1")?,
-        field(&binding_id())?,
-        1,
-        2,
-        3,
-        4,
-        field("2026-08-28T00:00:00.000Z")?,
-        field("2026-08-28T00:05:00.000Z")?,
-    )?;
+    let lineage = AccountIssuerReceiptLineage::new(AccountIssuerReceiptLineageInput {
+        provider: AccountIdentityProvider::Authjs,
+        provider_subject: subject()?,
+        account_id: field("account-1")?,
+        household_id: field("household-1")?,
+        member_id: field("member-1")?,
+        device_id: field("device-1")?,
+        session_id: field("session-1")?,
+        service_binding_id: field(&binding_id())?,
+        key_generation: 1,
+        enrollment_generation: 2,
+        authority_generation: 3,
+        session_generation: 4,
+        issued_at: field("2026-08-28T00:00:00.000Z")?,
+        expires_at: field("2026-08-28T00:05:00.000Z")?,
+    })?;
     ocentra_protected_capability_custody_protocol::account_issuer::AccountIssuerReceipt::new(
-        AccountIssuerMessageKind::IssueCurrentAuthority,
-        field(&receipt_id())?,
-        field("correlation-1")?,
-        field("idempotency-1")?,
-        field(&key_id())?,
-        lineage,
-        field(&digest())?,
-        field(&signed_transport_digest())?,
+        AccountIssuerReceiptInput {
+            kind: AccountIssuerMessageKind::IssueCurrentAuthority,
+            receipt_id: field(&receipt_id())?,
+            correlation_id: field("correlation-1")?,
+            idempotency_key: field("idempotency-1")?,
+            key_id: field(&key_id())?,
+            lineage,
+            result_digest: field(&digest())?,
+            signed_transport_digest: field(&signed_transport_digest())?,
+        },
     )
 }
 

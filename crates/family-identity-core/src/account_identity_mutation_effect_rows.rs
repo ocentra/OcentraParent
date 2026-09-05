@@ -34,6 +34,6 @@ pub(super) fn validate(connection: &Connection) -> Result<(), ()> {
             [],
             |row| row.get::<_, i64>(0),
         )
-        .map_err(|_| ())?;
+        .map_err(|_error| ())?;
     (invalid == 0).then_some(()).ok_or(())
 }

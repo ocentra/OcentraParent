@@ -101,7 +101,7 @@ fn approved_action(
         .ok_or_else(|| {
             "parent resolution approved action is unavailable; manual review required".to_string()
         })?;
-    serde_json::from_value(Value::String(value.to_string())).map_err(|_| {
-        "parent resolution approved action is unsupported; manual review required".to_string()
+    serde_json::from_value(Value::String(value.to_string())).map_err(|error| {
+        format!("parent resolution approved action is unsupported; manual review required: {error}")
     })
 }

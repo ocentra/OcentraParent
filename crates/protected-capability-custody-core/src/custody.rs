@@ -5,7 +5,7 @@ mod recover;
 mod scope;
 mod support;
 
-#[cfg(test)]
+#[path = "../tests/unit/custody_reconciliation_private.rs"]
 mod custody_reconciliation_test;
 
 use std::fmt;
@@ -174,48 +174,50 @@ pub enum CustodyError {
 impl CustodyStore {
     pub(crate) fn open_pending(
         mut pending_path: PendingSecuredPath,
-        platform_owner: Arc<dyn PlatformCustodyOwner>,
+        platform_owner: &dyn PlatformCustodyOwner,
         authority: Arc<dyn CurrentBindingPort>,
     ) -> Result<Self, CustodyError> {
         pending_path
             .secure_rollback_journal()
-            .map_err(support::map_path_error)?;
+            .map_err(|error| support::map_path_error(&error))?;
         let physical_identity = pending_path
             .physical_identity()
-            .map_err(support::map_path_error)?;
+            .map_err(|error| support::map_path_error(&error))?;
         // The broker-held OS writer lease is acquired before SQLite can read,
         // recover, create schema, or write either the main file or journal.
         let platform = platform_owner
             .acquire_database(pending_path.canonical(), physical_identity)
-            .map_err(support::map_platform_error)?;
+            .map_err(|error| support::map_platform_error(&error))?;
         pending_path
             .revalidate_quiescent()
-            .map_err(support::map_path_error)?;
+            .map_err(|error| support::map_path_error(&error))?;
         let opened = crate::storage::open_connection(pending_path.canonical())
-            .map_err(support::sqlite::map_error);
+            .map_err(|error| support::sqlite::map_error(&error));
         pending_path
             .revalidate_quiescent()
-            .map_err(support::map_path_error)?;
+            .map_err(|error| support::map_path_error(&error))?;
         let (mut connection, was_empty) = opened?;
-        let configured =
-            crate::storage::configure(&mut connection).map_err(support::sqlite::map_error);
+        let configured = crate::storage::configure(&mut connection)
+            .map_err(|error| support::sqlite::map_error(&error));
         pending_path
             .revalidate_quiescent()
-            .map_err(support::map_path_error)?;
+            .map_err(|error| support::map_path_error(&error))?;
         configured?;
         let initialized = crate::storage::initialize_or_validate(&mut connection, was_empty)
-            .map_err(support::sqlite::map_error);
+            .map_err(|error| support::sqlite::map_error(&error));
         pending_path
             .revalidate_quiescent()
-            .map_err(support::map_path_error)?;
+            .map_err(|error| support::map_path_error(&error))?;
         let database_instance_id = initialized?;
         let secured_path = pending_path
             .bind_instance(database_instance_id)
-            .map_err(support::map_path_error)?;
+            .map_err(|error| support::map_path_error(&error))?;
         support::attest_path(platform.as_ref(), &secured_path)?;
         let validated = crate::storage::validate_all(&connection, secured_path.identity())
-            .map_err(support::sqlite::map_error);
-        secured_path.revalidate().map_err(support::map_path_error)?;
+            .map_err(|error| support::sqlite::map_error(&error));
+        secured_path
+            .revalidate()
+            .map_err(|error| support::map_path_error(&error))?;
         validated?;
         Ok(Self {
             connection: Mutex::new(connection),

@@ -35,7 +35,7 @@ impl super::super::SqliteAccountIdentityAuthorityRepository {
         let transaction = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+            .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
         let now = clock::trusted_now_in_transaction(&transaction)?;
         let binding = audit_owner_binding(&transaction, current_authority, now)?;
         let current_epoch =
@@ -53,11 +53,11 @@ impl super::super::SqliteAccountIdentityAuthorityRepository {
             audit::cleanup(&transaction, &binding.account_id, now)?;
             transaction
                 .commit()
-                .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+                .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
             return Ok(None);
         };
         let attempt_id = SessionAuditDeliveryAttemptId::generate()
-            .map_err(|_| SessionLifecycleRepositoryError::EntropyUnavailable)?;
+            .map_err(|_error| SessionLifecycleRepositoryError::EntropyUnavailable)?;
         let lease_expires = now
             .checked_add(lease_millis)
             .ok_or(SessionLifecycleRepositoryError::ClockUnavailable)?;
@@ -74,7 +74,7 @@ impl super::super::SqliteAccountIdentityAuthorityRepository {
         audit::cleanup(&transaction, &binding.account_id, now)?;
         transaction
             .commit()
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+            .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
         Ok(Some(ParentLocalBridgeAuditDeliveryClaim {
             event,
             attempt_id,
@@ -92,7 +92,7 @@ impl super::super::SqliteAccountIdentityAuthorityRepository {
         let transaction = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+            .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
         let now = clock::trusted_now_in_transaction(&transaction)?;
         let binding = audit_owner_binding(&transaction, current_authority, now)?;
         let current_epoch =
@@ -100,9 +100,10 @@ impl super::super::SqliteAccountIdentityAuthorityRepository {
         ensure_claim_owner(&claim, &binding, current_epoch)?;
         acknowledge_delivery_row(&transaction, &claim, &binding, current_epoch, now)?;
         audit::cleanup(&transaction, &binding.account_id, now)?;
+        drop(claim);
         transaction
             .commit()
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)
+            .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)
     }
 
     pub fn release_parent_local_bridge_audit_delivery(
@@ -113,7 +114,7 @@ impl super::super::SqliteAccountIdentityAuthorityRepository {
         let transaction = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+            .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
         let now = clock::trusted_now_in_transaction(&transaction)?;
         let binding = audit_owner_binding(&transaction, current_authority, now)?;
         let current_epoch =
@@ -132,6 +133,7 @@ impl super::super::SqliteAccountIdentityAuthorityRepository {
                 now,
                 next_delivery,
             )?;
+            drop(claim);
             return Err(SessionLifecycleRepositoryError::DeliveryConflict);
         }
         release_active_delivery(
@@ -143,9 +145,10 @@ impl super::super::SqliteAccountIdentityAuthorityRepository {
             next_delivery,
         )?;
         audit::cleanup(&transaction, &binding.account_id, now)?;
+        drop(claim);
         transaction
             .commit()
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)
+            .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)
     }
 
     pub fn recover_parent_local_bridge_startup(
@@ -155,7 +158,7 @@ impl super::super::SqliteAccountIdentityAuthorityRepository {
         let transaction = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+            .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
         let now = clock::trusted_now_in_transaction(&transaction)?;
         let binding = audit_owner_binding(&transaction, current_authority, now)?;
         let current_epoch =
@@ -165,7 +168,7 @@ impl super::super::SqliteAccountIdentityAuthorityRepository {
         let cleanup = audit::cleanup(&transaction, &binding.account_id, now)?;
         transaction
             .commit()
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+            .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
         Ok(ParentLocalBridgeStartupRecovery {
             expired_claims_requeued: requeued,
             terminal_sessions_removed: cleanup.terminal_sessions_removed,
@@ -221,7 +224,7 @@ fn claim_pending_event(
                 super::super::codec::to_sql_generation(current_epoch)?,
             ],
         )
-        .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+        .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
     (changed == 1)
         .then_some(())
         .ok_or(SessionLifecycleRepositoryError::DeliveryConflict)
@@ -274,7 +277,7 @@ fn acknowledge_delivery_row(
                 super::super::codec::to_sql_generation(current_epoch)?,
             ],
         )
-        .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+        .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
     (changed == 1)
         .then_some(())
         .ok_or(SessionLifecycleRepositoryError::DeliveryConflict)
@@ -328,7 +331,7 @@ fn release_active_delivery(
                 now,
             ],
         )
-        .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+        .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
     (changed == 1)
         .then_some(())
         .ok_or(SessionLifecycleRepositoryError::DeliveryConflict)
@@ -382,13 +385,13 @@ fn release_expired_delivery(
                 now,
             ],
         )
-        .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+        .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
     (changed == 1)
         .then(|| {
             audit::cleanup(&transaction, &binding.account_id, now)?;
             transaction
                 .commit()
-                .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+                .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
             Ok::<(), SessionLifecycleRepositoryError>(())
         })
         .transpose()?;
@@ -414,11 +417,11 @@ fn ensure_claim_owner(
     binding: &crate::session_lifecycle_custody::record::SessionAuthorityBinding,
     current_epoch: u64,
 ) -> Result<(), SessionLifecycleRepositoryError> {
-    (&claim.event.account_id == &binding.account_id
-        && &claim.event.household_id == &binding.household_id
-        && &claim.event.member_id == &binding.member_id
-        && &claim.event.device_id == &binding.device_id
-        && &claim.event.authority_session_id == &binding.authority_session_id
+    (claim.event.account_id == binding.account_id
+        && claim.event.household_id == binding.household_id
+        && claim.event.member_id == binding.member_id
+        && claim.event.device_id == binding.device_id
+        && claim.event.authority_session_id == binding.authority_session_id
         && claim.event.authority_session_generation == binding.authority_session_generation
         && claim.event.authority_generation == binding.authority_generation
         && claim.event.audience == AccountIdentityParentLocalBridgeAudience::fixed()
@@ -474,8 +477,8 @@ fn requeue_expired_claims(
                 MAX_MAINTENANCE_ROWS,
             ],
         )
-        .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
-    u64::try_from(changed).map_err(|_| SessionLifecycleRepositoryError::Unavailable)
+        .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
+    u64::try_from(changed).map_err(|_error| SessionLifecycleRepositoryError::Unavailable)
 }
 
 fn reject_noncurrent_undelivered_evidence(
@@ -509,7 +512,7 @@ fn reject_noncurrent_undelivered_evidence(
             ],
             |row| row.get::<_, i64>(0),
         )
-        .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+        .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
     (count == 0)
         .then_some(())
         .ok_or(SessionLifecycleRepositoryError::CurrentnessConflict)
@@ -575,7 +578,7 @@ fn read_next_pending(
             },
         )
         .optional()
-        .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?
+        .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?
         .map(|row| decode_event(row, now, clock_skew_millis))
         .transpose()
 }
@@ -669,7 +672,7 @@ fn read_attempt_count(
             [event_id],
             |row| row.get::<_, i64>(0),
         )
-        .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+        .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
     u64::try_from(value)
         .ok()
         .filter(|value| *value > 0)

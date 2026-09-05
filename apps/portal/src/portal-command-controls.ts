@@ -16,7 +16,22 @@ export function renderCommands(container: HTMLElement, state: PortalRuntimeState
   commandGrid.className = PortalDom.Classes.CommandGrid;
   commandGrid.append(...PortalCommandButtons.map((command) => commandButton(command, state, actions)));
 
-  panel.append(title, commandGrid);
+  const commandDisclosure = document.createElement(PortalDom.Tags.Details);
+  commandDisclosure.open = state.commandEnabled;
+  const commandSummary = document.createElement(PortalDom.Tags.SummaryTag);
+  commandSummary.textContent = resolvePortalDevText(
+    state.commandEnabled ? PortalDevTextToken.AgentCommands : PortalDevTextToken.CommandControlsUnavailable
+  );
+  commandDisclosure.append(commandSummary, commandGrid);
+
+  panel.append(title);
+  if (!state.commandEnabled) {
+    const unavailable = document.createElement(PortalDom.Tags.Paragraph);
+    unavailable.className = PortalDom.Classes.CommandResultEmpty;
+    unavailable.textContent = resolvePortalDevText(PortalDevTextToken.CommandServiceUnavailable);
+    panel.append(unavailable);
+  }
+  panel.append(commandDisclosure);
   renderCommandResultPanel(panel, state);
   container.append(panel);
 }

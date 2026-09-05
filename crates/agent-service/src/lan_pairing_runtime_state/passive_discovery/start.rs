@@ -13,18 +13,17 @@ use super::{
     PASSIVE_DISCOVERY_RECONCILIATION_MIN_INTERVAL,
 };
 
-pub(super) fn start(runtime: LanPairingRuntime) -> io::Result<LanPassiveDiscoveryServiceRuntime> {
+pub(super) fn start(runtime: &LanPairingRuntime) -> io::Result<LanPassiveDiscoveryServiceRuntime> {
     let pipeline_health = pipeline_health::LanPassiveDiscoveryPipelineHealth::starting();
-    capability_store::record_starting(&runtime, &pipeline_health.snapshot());
+    capability_store::record_starting(runtime, &pipeline_health.snapshot());
     let (sender, receiver) = refresh_signal_channel();
     let listener_state = Arc::downgrade(&runtime.passive_discovery_listener_state);
-    let listener_join =
-        listener_runtime::spawn(runtime.clone(), sender, pipeline_health.clone())
-            .map_err(|error| record_listener_spawn_failure(&runtime, &pipeline_health, error))?;
+    let listener_join = listener_runtime::spawn(runtime, sender, pipeline_health.clone())
+        .map_err(|error| record_listener_spawn_failure(runtime, &pipeline_health, error))?;
     let mut listener_join = Some(listener_join);
     let reconciliation_stop = Arc::new(AtomicBool::new(false));
     let reconciliation_join = spawn_reconciliation(
-        &runtime,
+        runtime,
         receiver,
         &pipeline_health,
         &reconciliation_stop,
@@ -53,7 +52,7 @@ fn spawn_reconciliation(
         runtime.clone(),
         receiver,
         pipeline_health.clone(),
-        reconciliation_stop.clone(),
+        Arc::clone(reconciliation_stop),
     ) {
         Ok(join) => Ok(join),
         Err(error) => {

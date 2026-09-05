@@ -3,10 +3,7 @@ use super::PassiveDiscoveryListenerRuntime;
 
 impl PassiveDiscoveryListenerRuntime {
     pub(in super::super) fn prepare_startup(&mut self) -> bool {
-        let ready_to_bind = self
-            .listener_state
-            .upgrade()
-            .is_some_and(|listener_state| is_running(&listener_state));
+        let ready_to_bind = is_running(&self.runtime.passive_discovery_listener_state);
         if !ready_to_bind {
             return false;
         }

@@ -18,7 +18,7 @@ pub(crate) fn ensure_current_authority(
     now: i64,
 ) -> Result<(), InviteRecoveryRepositoryError> {
     let expires_at = DateTime::parse_from_rfc3339(authority.session_expires_at())
-        .map_err(|_| InviteRecoveryRepositoryError::AuthorityExpired)?
+        .map_err(|_error| InviteRecoveryRepositoryError::AuthorityExpired)?
         .timestamp_millis();
     if expires_at <= now {
         return Err(InviteRecoveryRepositoryError::AuthorityExpired);
@@ -44,13 +44,13 @@ pub(crate) fn ensure_current_authority(
             },
         )
         .optional()
-        .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?
+        .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)?
         .ok_or(InviteRecoveryRepositoryError::AuthorityUnavailable)?;
     let handoff: AccountIdentityCurrentMemberDeviceAuthorityHandoff = serde_json::from_str(&row.4)
-        .map_err(|_| InviteRecoveryRepositoryError::AuthorityNotCurrent)?;
+        .map_err(|_error| InviteRecoveryRepositoryError::AuthorityNotCurrent)?;
     handoff
         .validate_shape()
-        .map_err(|_| InviteRecoveryRepositoryError::AuthorityNotCurrent)?;
+        .map_err(|_error| InviteRecoveryRepositoryError::AuthorityNotCurrent)?;
     if row.0 != "active"
         || handoff.mapping.status != AccountIdentityMappingStatus::Active
         || &handoff.mapping.provider != authority.provider()
@@ -87,7 +87,7 @@ pub(crate) fn next_transition_at(
             |row| row.get::<_, i64>(0),
         )
         .optional()
-        .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?
+        .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)?
         .ok_or(InviteRecoveryRepositoryError::Missing)?;
     let next = previous
         .checked_add(1)
@@ -100,10 +100,10 @@ pub(crate) fn trusted_now_in_transaction(
 ) -> Result<(i64, String), InviteRecoveryRepositoryError> {
     let system_now = SystemTime::now()
         .duration_since(UNIX_EPOCH)
-        .map_err(|_| InviteRecoveryRepositoryError::ClockUnavailable)?
+        .map_err(|_error| InviteRecoveryRepositoryError::ClockUnavailable)?
         .as_millis();
-    let system_now =
-        i64::try_from(system_now).map_err(|_| InviteRecoveryRepositoryError::ClockUnavailable)?;
+    let system_now = i64::try_from(system_now)
+        .map_err(|_error| InviteRecoveryRepositoryError::ClockUnavailable)?;
     let previous = transaction
         .query_row(
             "SELECT last_epoch_millis FROM account_identity_runtime_clock
@@ -112,7 +112,7 @@ pub(crate) fn trusted_now_in_transaction(
             |row| row.get::<_, i64>(0),
         )
         .optional()
-        .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
+        .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)?;
     let now = match previous {
         None => system_now,
         Some(previous) => {
@@ -138,7 +138,7 @@ pub(crate) fn trusted_now_in_transaction(
              ON CONFLICT(clock_id) DO UPDATE SET last_epoch_millis = excluded.last_epoch_millis",
             params![now],
         )
-        .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
+        .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)?;
     Ok((now, timestamp(now)?))
 }
 

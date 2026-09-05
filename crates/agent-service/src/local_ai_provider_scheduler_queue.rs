@@ -190,9 +190,6 @@ fn is_background_job(job_class: &LocalAiProviderSchedulerJobClass) -> bool {
 }
 
 fn job_class_priority(job_class: &LocalAiProviderSchedulerJobClass) -> u8 {
-    match job_class {
-        LocalAiProviderSchedulerJobClass::ChildSafety => 0,
-        LocalAiProviderSchedulerJobClass::ParentAssistant => 1,
-        LocalAiProviderSchedulerJobClass::ParentReport => 2,
-    }
+    u8::from(job_class == &LocalAiProviderSchedulerJobClass::ParentAssistant)
+        + 2 * u8::from(job_class == &LocalAiProviderSchedulerJobClass::ParentReport)
 }

@@ -1,12 +1,15 @@
 use ocentra_eventing::journal::ndjson::{NdjsonEventJournal, NdjsonJournalOptions};
 use tokio::sync::mpsc;
 
-use crate::retention_delete_tombstone_store::RetentionDeleteTombstoneStore;
+use crate::{
+    child_runtime_tombstone_event_flow::ChildRuntimeTombstoneEventFlow,
+    retention_delete_tombstone_store::RetentionDeleteTombstoneStore,
+};
 
 use super::storage_custody_runtime::ChildStorageCustodyAuthorityHandle;
 use super::{
-    ChildAgentIngress, ChildAgentService, ChildAgentServiceError, ChildRuntimeTombstoneEventFlow,
-    CHILD_AGENT_COMMAND_CAPACITY, CHILD_RUNTIME_DOMAINS,
+    ChildAgentIngress, ChildAgentService, ChildAgentServiceError, CHILD_AGENT_COMMAND_CAPACITY,
+    CHILD_RUNTIME_DOMAINS,
 };
 
 impl ChildAgentService {
@@ -68,7 +71,6 @@ impl ChildAgentService {
         Ok(Self {
             paths,
             domain_flows,
-            tombstone_flow,
             storage_custody,
             removal,
             trust_binding,

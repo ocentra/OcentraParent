@@ -5,23 +5,17 @@ use ocentra_parent_agent_protocol::{
     logging::{LogFieldValue, LogLevel},
     transport::{AgentEventEnvelope, AgentEventName},
 };
-use std::{future::Future, pin::Pin, sync::Arc};
+use std::{future::Future, pin::Pin};
 
 use crate::{
-    browser_policy_runtime::BrowserPolicyRuntime,
-    browser_runtime::BrowserManagedRuntime,
     event_builder::{build_event, portal_peer},
     fields::fields_from_pairs,
-    lan_pairing::LanPairingRuntime,
-    parent_local_bridge_admission::ParentLocalBridgeAdmission,
-    screen_settings_runtime::ScreenSettingsRuntime,
     snapshot::build_dev_log_snapshot,
 };
 
 use super::{
-    command_entry::handle_command_text, socket_handshake::authenticate_connection,
-    WebsocketCommandOrigin, WebsocketCommandText, WebsocketPeerProvenance,
-    WebsocketPlatformProbeDispatcher,
+    handle_command_text, socket_handshake::authenticate_connection, WebsocketCommandText,
+    WebsocketSocketRuntime,
 };
 
 enum SocketLoopControl {
@@ -31,17 +25,11 @@ enum SocketLoopControl {
 
 pub(super) fn handle_socket(
     mut socket: WebSocket,
-    lan_pairing: LanPairingRuntime,
-    browser_policy: BrowserPolicyRuntime,
-    browser_runtime: BrowserManagedRuntime,
-    screen_settings: ScreenSettingsRuntime,
-    origin: WebsocketCommandOrigin,
-    probe_dispatcher: Arc<WebsocketPlatformProbeDispatcher>,
-    provenance: WebsocketPeerProvenance,
-    admission: ParentLocalBridgeAdmission,
+    runtime: WebsocketSocketRuntime,
 ) -> Pin<Box<dyn Future<Output = ()> + Send + 'static>> {
     Box::pin(async move {
-        let Some(authenticated) = authenticate_connection(&mut socket, &admission).await else {
+        let Some(authenticated) = authenticate_connection(&mut socket, &runtime.admission).await
+        else {
             return;
         };
         if send_event(&mut socket, ready_event()).await.is_err() {
@@ -54,20 +42,7 @@ pub(super) fn handle_socket(
             };
 
             if matches!(
-                handle_socket_message(
-                    &mut socket,
-                    message,
-                    &lan_pairing,
-                    &browser_policy,
-                    &browser_runtime,
-                    &screen_settings,
-                    &origin,
-                    &probe_dispatcher,
-                    provenance,
-                    &admission,
-                    &authenticated,
-                )
-                .await,
+                handle_socket_message(&mut socket, message, &runtime, &authenticated,).await,
                 SocketLoopControl::Break
             ) {
                 break;
@@ -86,14 +61,7 @@ async fn receive_message(socket: &mut WebSocket) -> Option<Message> {
 fn handle_socket_message<'a>(
     socket: &'a mut WebSocket,
     message: Message,
-    lan_pairing: &'a LanPairingRuntime,
-    browser_policy: &'a BrowserPolicyRuntime,
-    browser_runtime: &'a BrowserManagedRuntime,
-    screen_settings: &'a ScreenSettingsRuntime,
-    origin: &'a WebsocketCommandOrigin,
-    probe_dispatcher: &'a Arc<WebsocketPlatformProbeDispatcher>,
-    provenance: WebsocketPeerProvenance,
-    admission: &'a ParentLocalBridgeAdmission,
+    runtime: &'a WebsocketSocketRuntime,
     authenticated: &'a ocentra_family_identity_core::session_lifecycle_custody::authenticated_parent_local_bridge::AuthenticatedParentLocalBridgeSession,
 ) -> Pin<Box<dyn Future<Output = SocketLoopControl> + Send + 'a>> {
     Box::pin(async move {
@@ -102,14 +70,7 @@ fn handle_socket_message<'a>(
                 handle_authenticated_command(
                     socket,
                     WebsocketCommandText(text.to_string()),
-                    lan_pairing,
-                    browser_policy,
-                    browser_runtime,
-                    screen_settings,
-                    origin,
-                    probe_dispatcher,
-                    provenance,
-                    admission,
+                    runtime,
                     authenticated,
                 )
                 .await
@@ -124,30 +85,13 @@ fn handle_socket_message<'a>(
 async fn handle_authenticated_command(
     socket: &mut WebSocket,
     command: WebsocketCommandText,
-    lan_pairing: &LanPairingRuntime,
-    browser_policy: &BrowserPolicyRuntime,
-    browser_runtime: &BrowserManagedRuntime,
-    screen_settings: &ScreenSettingsRuntime,
-    origin: &WebsocketCommandOrigin,
-    probe_dispatcher: &Arc<WebsocketPlatformProbeDispatcher>,
-    provenance: WebsocketPeerProvenance,
-    admission: &ParentLocalBridgeAdmission,
+    runtime: &WebsocketSocketRuntime,
     authenticated: &AuthenticatedParentLocalBridgeSession,
 ) -> SocketLoopControl {
-    if admission.revalidate(authenticated).is_err() {
+    if runtime.admission.revalidate(authenticated).is_err() {
         return SocketLoopControl::Break;
     }
-    let event = handle_command_text(
-        command,
-        lan_pairing.clone(),
-        browser_policy.clone(),
-        browser_runtime.clone(),
-        screen_settings.clone(),
-        origin.clone(),
-        probe_dispatcher.clone(),
-        provenance,
-    )
-    .await;
+    let event = handle_command_text(command, runtime.command.clone()).await;
     send_event(socket, event)
         .await
         .map_or(SocketLoopControl::Break, |_| SocketLoopControl::Continue)

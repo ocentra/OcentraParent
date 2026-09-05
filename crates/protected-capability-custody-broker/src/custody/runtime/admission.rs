@@ -1,7 +1,9 @@
 use ocentra_protected_capability_custody_core::broker_admission::{
+    account_issuer_request::ProtectedAccountIssuerRequestAdmission,
     BrokerAuthorizedClientTranscript, BrokerCustodyRuntime, BrokerPeerAdmissionObservation,
     BrokerProcessIdentity, BrokerRuntimeError,
 };
+use ocentra_protected_capability_custody_protocol::account_issuer_session::AuthenticatedAccountIssuerRequest;
 use ocentra_protected_capability_custody_protocol::bootstrap::BootstrapPacket;
 use ocentra_protected_capability_custody_protocol::handshake::UntrustedClientHello;
 use widestring::U16CString;
@@ -11,7 +13,7 @@ use crate::custody::BrokerPipeSecurityDescriptor;
 use super::RuntimeState;
 
 pub(crate) fn preflight_service_start() -> Result<(), crate::BrokerError> {
-    BrokerCustodyRuntime::preflight_service_start().map_err(map_peer_error)
+    BrokerCustodyRuntime::preflight_service_start().map_err(|error| map_peer_error(&error))
 }
 
 impl RuntimeState {
@@ -22,7 +24,7 @@ impl RuntimeState {
     ) -> Result<BrokerPeerAdmissionObservation, crate::BrokerError> {
         self.ready_runtime()?
             .observe_impersonated_named_pipe_client(pipe_process_id, pipe_session_id)
-            .map_err(map_peer_error)
+            .map_err(|error| map_peer_error(&error))
     }
 
     pub(crate) fn authorize_client_peer(
@@ -31,7 +33,7 @@ impl RuntimeState {
     ) -> Result<(), crate::BrokerError> {
         self.ready_runtime()?
             .authorize_client_peer(observation)
-            .map_err(map_peer_error)
+            .map_err(|error| map_peer_error(&error))
     }
 
     pub(crate) fn authorize_client_transcript(
@@ -50,7 +52,17 @@ impl RuntimeState {
                 pipe_process_id,
                 pipe_session_id,
             )
-            .map_err(map_peer_error)
+            .map_err(|error| map_peer_error(&error))
+    }
+
+    pub(crate) fn authorize_account_issuer_request(
+        &self,
+        transcript: BrokerAuthorizedClientTranscript,
+        request: &AuthenticatedAccountIssuerRequest,
+    ) -> Result<ProtectedAccountIssuerRequestAdmission, crate::BrokerError> {
+        self.ready_runtime()?
+            .authorize_account_issuer_request(transcript, request)
+            .map_err(|error| map_peer_error(&error))
     }
 
     pub(crate) fn broker_pipe_sddl(
@@ -59,16 +71,16 @@ impl RuntimeState {
         let text = self
             .ready_runtime()?
             .broker_pipe_sddl()
-            .map_err(map_peer_error)?;
+            .map_err(|error| map_peer_error(&error))?;
         let descriptor =
-            U16CString::from_str(text).map_err(|_| crate::BrokerError::InvalidLaunch)?;
+            U16CString::from_str(text).map_err(|_error| crate::BrokerError::InvalidLaunch)?;
         Ok(BrokerPipeSecurityDescriptor(descriptor))
     }
 
     pub(crate) fn peer_admission_available(&self) -> Result<(), crate::BrokerError> {
         self.ready_runtime()?
             .peer_admission_available()
-            .map_err(map_peer_error)
+            .map_err(|error| map_peer_error(&error))
     }
 
     pub(crate) fn current_process_identity(
@@ -76,7 +88,7 @@ impl RuntimeState {
     ) -> Result<BrokerProcessIdentity, crate::BrokerError> {
         self.ready_runtime()?
             .broker_process_identity()
-            .map_err(map_peer_error)
+            .map_err(|error| map_peer_error(&error))
     }
 
     fn ready_runtime(&self) -> Result<&BrokerCustodyRuntime, crate::BrokerError> {
@@ -87,7 +99,7 @@ impl RuntimeState {
     }
 }
 
-fn map_peer_error(error: BrokerRuntimeError) -> crate::BrokerError {
+fn map_peer_error(error: &BrokerRuntimeError) -> crate::BrokerError {
     match error {
         BrokerRuntimeError::DeploymentRequired => crate::BrokerError::DeploymentRequired,
         _ => crate::BrokerError::PeerAuthentication,

@@ -55,10 +55,17 @@ pub(super) fn assert_generated_report_query_custody_contract_rules() {
 
 pub(super) fn assert_report_query_custody_non_claims() {
     let non_claims = contracts::required_report_query_custody_non_claims();
-    assert_eq!(non_claims.len(), 6);
-    assert!(non_claims.contains(&contracts::ReportQueryCustodyNonClaim::SecondTruthStore));
-    assert!(non_claims.contains(&contracts::ReportQueryCustodyNonClaim::RawChildEvidence));
-    assert!(non_claims.contains(&contracts::ReportQueryCustodyNonClaim::UnboundedPagination));
+    assert_eq!(
+        non_claims,
+        vec![
+            contracts::ReportQueryCustodyNonClaim::SecondTruthStore,
+            contracts::ReportQueryCustodyNonClaim::PortalUi,
+            contracts::ReportQueryCustodyNonClaim::RawChildEvidence,
+            contracts::ReportQueryCustodyNonClaim::UnboundedPagination,
+            contracts::ReportQueryCustodyNonClaim::ProviderRouting,
+            contracts::ReportQueryCustodyNonClaim::OcentraHostedFamilyDataCustody,
+        ]
+    );
 }
 
 pub(super) fn assert_raw_report_query_custody_proof_is_untrusted() {

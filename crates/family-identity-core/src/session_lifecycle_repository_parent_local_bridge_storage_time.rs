@@ -4,6 +4,7 @@
 
 use super::super::SessionLifecycleRepositoryError;
 
+#[derive(Clone, Copy)]
 pub(super) struct ParentLocalBridgeRecordTimeShape {
     pub(super) issued_at_epoch_millis: i64,
     pub(super) expires_at_epoch_millis: i64,

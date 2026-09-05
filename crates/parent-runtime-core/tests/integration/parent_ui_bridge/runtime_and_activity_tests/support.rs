@@ -1,217 +1,8 @@
 use super::*;
-
-pub(super) fn capture_app_game_dispatch_requests(
-    capture: &std::sync::mpsc::Receiver<super::tests_support::CapturedLanRequest>,
-) -> [super::tests_support::CapturedLanRequest; 10] {
-    [
-        require_ok(
-            capture.recv_timeout(Duration::from_secs(1)),
-            "captured app-game dispatch execute command arrives",
-        ),
-        require_ok(
-            capture.recv_timeout(Duration::from_secs(1)),
-            "captured app-use load after dispatch arrives",
-        ),
-        require_ok(
-            capture.recv_timeout(Duration::from_secs(1)),
-            "captured games load after dispatch arrives",
-        ),
-        require_ok(
-            capture.recv_timeout(Duration::from_secs(1)),
-            "captured app-game notification readiness load after dispatch arrives",
-        ),
-        require_ok(
-            capture.recv_timeout(Duration::from_secs(1)),
-            "captured app-game policy readiness load after dispatch arrives",
-        ),
-        require_ok(
-            capture.recv_timeout(Duration::from_secs(1)),
-            "captured app-game platform proof status load after dispatch arrives",
-        ),
-        require_ok(
-            capture.recv_timeout(Duration::from_secs(1)),
-            "captured app-game child transport receipt load after dispatch arrives",
-        ),
-        require_ok(
-            capture.recv_timeout(Duration::from_secs(1)),
-            "captured app-game adapter dispatch preflight load after dispatch arrives",
-        ),
-        require_ok(
-            capture.recv_timeout(Duration::from_secs(1)),
-            "captured app-game adapter dispatch result load after dispatch arrives",
-        ),
-        require_ok(
-            capture.recv_timeout(Duration::from_secs(1)),
-            "captured app-game timer parent surface load after dispatch arrives",
-        ),
-    ]
-}
-
-pub(super) fn assert_app_game_route_load_requests(
-    capture: &std::sync::mpsc::Receiver<super::tests_support::CapturedLanRequest>,
-) {
-    let mut commands = (0..9)
-        .map(|_| {
-            let request = require_ok(
-                capture.recv_timeout(Duration::from_secs(1)),
-                "captured app-game route load request arrives",
-            );
-            command_text(
-                &request.command["command"],
-                TestContext("app-game route load command is a string"),
-            )
-            .0
-        })
-        .collect::<Vec<_>>();
-    commands.sort();
-    assert_eq!(
-        commands,
-        vec![
-            "agent.activity.app-game.adapter-dispatch-preflight.read-model.get".to_string(),
-            "agent.activity.app-game.adapter-dispatch-result.read-model.get".to_string(),
-            "agent.activity.app-game.child-runtime-transport-receipt.read-model.get".to_string(),
-            "agent.activity.app-game.notification-readiness.read-model.get".to_string(),
-            "agent.activity.app-game.platform-proof-status.read-model.get".to_string(),
-            "agent.activity.app-game.policy-readiness.read-model.get".to_string(),
-            "agent.activity.app-game.timer-parent-surface.read-model.get".to_string(),
-            "agent.activity.app-use.read-model.get".to_string(),
-            "agent.activity.games.read-model.get".to_string(),
-        ]
-    );
-}
-
-pub(super) fn assert_app_game_dispatch_request_commands(
-    requests: &[super::tests_support::CapturedLanRequest; 10],
-) {
-    for (request, expected_command) in [
-        (
-            &requests[0],
-            "agent.activity.app-game.adapter-dispatch.execute",
-        ),
-        (&requests[1], "agent.activity.app-use.read-model.get"),
-        (&requests[2], "agent.activity.games.read-model.get"),
-        (
-            &requests[3],
-            "agent.activity.app-game.notification-readiness.read-model.get",
-        ),
-        (
-            &requests[4],
-            "agent.activity.app-game.policy-readiness.read-model.get",
-        ),
-        (
-            &requests[5],
-            "agent.activity.app-game.platform-proof-status.read-model.get",
-        ),
-        (
-            &requests[6],
-            "agent.activity.app-game.child-runtime-transport-receipt.read-model.get",
-        ),
-        (
-            &requests[7],
-            "agent.activity.app-game.adapter-dispatch-preflight.read-model.get",
-        ),
-        (
-            &requests[8],
-            "agent.activity.app-game.adapter-dispatch-result.read-model.get",
-        ),
-        (
-            &requests[9],
-            "agent.activity.app-game.timer-parent-surface.read-model.get",
-        ),
-    ] {
-        assert_eq!(request.command["command"], json!(expected_command));
-    }
-}
-
-pub(super) fn capture_app_game_timer_requests(
-    capture: &std::sync::mpsc::Receiver<super::tests_support::CapturedLanRequest>,
-) -> [super::tests_support::CapturedLanRequest; 10] {
-    [
-        require_ok(
-            capture.recv_timeout(Duration::from_secs(1)),
-            "captured app-game parent preference setup command arrives",
-        ),
-        require_ok(
-            capture.recv_timeout(Duration::from_secs(1)),
-            "captured app-use load after timer setup arrives",
-        ),
-        require_ok(
-            capture.recv_timeout(Duration::from_secs(1)),
-            "captured games load after timer setup arrives",
-        ),
-        require_ok(
-            capture.recv_timeout(Duration::from_secs(1)),
-            "captured app-game notification readiness load after timer setup arrives",
-        ),
-        require_ok(
-            capture.recv_timeout(Duration::from_secs(1)),
-            "captured app-game policy readiness load after timer setup arrives",
-        ),
-        require_ok(
-            capture.recv_timeout(Duration::from_secs(1)),
-            "captured app-game platform proof status load after timer setup arrives",
-        ),
-        require_ok(
-            capture.recv_timeout(Duration::from_secs(1)),
-            "captured app-game child transport receipt load after timer setup arrives",
-        ),
-        require_ok(
-            capture.recv_timeout(Duration::from_secs(1)),
-            "captured app-game adapter dispatch preflight load after timer setup arrives",
-        ),
-        require_ok(
-            capture.recv_timeout(Duration::from_secs(1)),
-            "captured app-game adapter dispatch result load after timer setup arrives",
-        ),
-        require_ok(
-            capture.recv_timeout(Duration::from_secs(1)),
-            "captured app-game timer parent surface load after timer setup arrives",
-        ),
-    ]
-}
-
-pub(super) fn assert_app_game_timer_request_commands(
-    requests: &[super::tests_support::CapturedLanRequest; 10],
-) {
-    for (request, expected_command) in [
-        (
-            &requests[0],
-            "agent.activity.app-game.timer-parent-surface.parent-preference-setup.request",
-        ),
-        (&requests[1], "agent.activity.app-use.read-model.get"),
-        (&requests[2], "agent.activity.games.read-model.get"),
-        (
-            &requests[3],
-            "agent.activity.app-game.notification-readiness.read-model.get",
-        ),
-        (
-            &requests[4],
-            "agent.activity.app-game.policy-readiness.read-model.get",
-        ),
-        (
-            &requests[5],
-            "agent.activity.app-game.platform-proof-status.read-model.get",
-        ),
-        (
-            &requests[6],
-            "agent.activity.app-game.child-runtime-transport-receipt.read-model.get",
-        ),
-        (
-            &requests[7],
-            "agent.activity.app-game.adapter-dispatch-preflight.read-model.get",
-        ),
-        (
-            &requests[8],
-            "agent.activity.app-game.adapter-dispatch-result.read-model.get",
-        ),
-        (
-            &requests[9],
-            "agent.activity.app-game.timer-parent-surface.read-model.get",
-        ),
-    ] {
-        assert_eq!(request.command["command"], json!(expected_command));
-    }
-}
+use crate::parent_ui_bridge::common::events::activity::{
+    app_use_read_model_response_event, games_read_model_response_event,
+};
+use ocentra_parent_agent_protocol::transport::AgentCommandName;
 
 pub(super) fn result_network_flow_row_event_id(
     result: &super::ParentUiActionResult,
@@ -235,11 +26,116 @@ pub(super) fn empty_action(action: ParentUiActionKind, route: ParentRouteId) -> 
     }
 }
 
-pub(super) fn route_snapshot_json(route: ParentRouteId, label: TestContext) -> serde_json::Value {
+pub(super) fn projected_route_snapshot_json(
+    route: ParentRouteId,
+    responses: Vec<(AgentCommandName, AgentEventEnvelope)>,
+    label: TestContext,
+) -> serde_json::Value {
+    let responses = responses
+        .into_iter()
+        .map(|(command, event)| tests_support::projection_response(command, event))
+        .collect();
     require_ok(
-        serde_json::to_value(load_parent_route_snapshot(route, None)),
+        serde_json::to_value(tests_support::projected_route_snapshot(route, responses)),
         label.0,
     )
+}
+
+pub(super) fn projected_action_result(
+    action: &ParentUiAction,
+    responses: Vec<(AgentCommandName, AgentEventEnvelope)>,
+) -> ParentUiActionResult {
+    let responses = responses
+        .into_iter()
+        .map(|(command, event)| tests_support::projection_response(command, event))
+        .collect();
+    tests_support::projected_action_result(action, responses)
+}
+
+pub(super) fn assert_owner_unavailable_action(result: &ParentUiActionResult) {
+    assert!(!result.accepted);
+    assert_eq!(
+        result.connection_state,
+        ocentra_schema::parent_ui_bridge::ParentBridgeConnectionState::Error
+    );
+    assert_eq!(
+        result.message,
+        "parent-local bridge Account owner repository is unavailable"
+    );
+    assert!(result.events.is_empty());
+}
+
+pub(super) fn assert_owner_unavailable_connected_action(result: &ParentUiActionResult) {
+    assert!(!result.accepted);
+    assert_eq!(
+        result.connection_state,
+        ocentra_schema::parent_ui_bridge::ParentBridgeConnectionState::Connected
+    );
+    assert_eq!(
+        result.message,
+        "parent-local bridge Account owner repository is unavailable"
+    );
+    assert!(result.events.is_empty());
+}
+
+pub(super) fn app_game_route_projection(
+    responses: Vec<AgentEventEnvelope>,
+) -> Vec<(AgentCommandName, AgentEventEnvelope)> {
+    let commands = [
+        AgentCommandName::AgentActivityAppUseReadModelGet,
+        AgentCommandName::AgentActivityGamesReadModelGet,
+        AgentCommandName::AgentActivityAppGameNotificationReadinessReadModelGet,
+        AgentCommandName::AgentActivityAppGamePolicyReadinessReadModelGet,
+        AgentCommandName::AgentActivityAppGamePlatformProofStatusReadModelGet,
+        AgentCommandName::AgentActivityAppGameChildRuntimeTransportReceiptReadModelGet,
+        AgentCommandName::AgentActivityAppGameAdapterDispatchPreflightReadModelGet,
+        AgentCommandName::AgentActivityAppGameAdapterDispatchResultReadModelGet,
+        AgentCommandName::AgentActivityAppGameTimerParentSurfaceReadModelGet,
+    ];
+    assert_eq!(responses.len(), commands.len());
+    commands.into_iter().zip(responses).collect()
+}
+
+pub(super) fn activity_route_projection() -> Vec<(AgentCommandName, AgentEventEnvelope)> {
+    vec![
+        (
+            AgentCommandName::AgentNetworkFlowReadModelGet,
+            network_flow_response_event(),
+        ),
+        (
+            AgentCommandName::AgentNetworkRuntimeEventChainStreamGet,
+            network_runtime_event_chain_response_event(),
+        ),
+        (
+            AgentCommandName::AgentPolicyPreviewReadModelGet,
+            policy_preview_response_event(),
+        ),
+        (
+            AgentCommandName::AgentActivityTrackingReadModelGet,
+            tracking_read_model_response_event(),
+        ),
+        (
+            AgentCommandName::AgentActivityScreenReadModelGet,
+            screen_read_model_response_event(),
+        ),
+        (
+            AgentCommandName::AgentActivityAppUseReadModelGet,
+            app_use_read_model_response_event(),
+        ),
+        (
+            AgentCommandName::AgentActivityBrowserReadModelGet,
+            browser_activity_read_model_response_event(),
+        ),
+        (
+            AgentCommandName::AgentActivityGamesReadModelGet,
+            games_read_model_response_event(),
+        ),
+    ]
+}
+
+pub(super) fn activity_route_projection_after_network_refresh(
+) -> Vec<(AgentCommandName, AgentEventEnvelope)> {
+    activity_route_projection().into_iter().skip(1).collect()
 }
 
 pub(super) fn policy_preview_attention_card(fields: &[(&str, &str)]) -> serde_json::Value {
@@ -250,20 +146,10 @@ pub(super) fn policy_preview_attention_card(fields: &[(&str, &str)]) -> serde_js
             LogFieldValue::String((*value).to_string()),
         );
     }
-    let (address, capture) = start_local_server_with_capture_responses(vec![response]);
-    let snapshot = with_agent_addr(&address, || {
-        route_snapshot_json(
-            ParentRouteId::Approvals,
-            TestContext("policy preview attention route serializes"),
-        )
-    });
-    let request = require_ok(
-        capture.recv_timeout(Duration::from_secs(1)),
-        "captured policy preview attention load arrives",
-    );
-    assert_eq!(
-        request.command["command"],
-        json!("agent.policy.preview.read-model.get")
+    let snapshot = projected_route_snapshot_json(
+        ParentRouteId::Approvals,
+        vec![(AgentCommandName::AgentPolicyPreviewReadModelGet, response)],
+        TestContext("policy preview attention route serializes"),
     );
     snapshot["liveActivity"]["policyPreviewPanel"]["cards"][0].clone()
 }

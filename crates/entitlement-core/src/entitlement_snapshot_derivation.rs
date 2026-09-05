@@ -5,6 +5,7 @@ use crate::entitlement_snapshot::{
     EntitlementSnapshotLimitBundle, UnsignedEntitlementSnapshotProjection,
     ENTITLEMENT_SNAPSHOT_SCHEMA_VERSION,
 };
+use crate::entitlement_snapshot_values::EntitlementSnapshotPlanTier;
 
 pub(super) fn checked_effective_child_device_limit(
     base_child_device_limit: u32,
@@ -31,6 +32,11 @@ pub(super) fn derive_unsigned_entitlement_snapshot(
                 .ok_or(EntitlementSnapshotDerivationError::ZeroProviderChildDeviceLimitHint)
         })
         .transpose()?;
+    if input.billing_ledger_state.plan_tier == EntitlementSnapshotPlanTier::Starter
+        && input.billing_ledger_state.base_child_device_limit != 1
+    {
+        return Err(EntitlementSnapshotDerivationError::InvalidStarterBaseChildDeviceLimit);
+    }
     let effective_child_device_limit = checked_effective_child_device_limit(
         input.billing_ledger_state.base_child_device_limit,
         input.referral_ledger_state.active_referral_credits,

@@ -1,14 +1,40 @@
 use ocentra_parent_agent_protocol::activity_surface::ActivityReadModelState;
 use ocentra_parent_agent_protocol::app_game::{
-    APP_GAME_PRODUCT_NATIVE_APP, APP_GAME_PRODUCT_NATIVE_GAME,
+    APP_GAME_CAPABILITY_STATUS_DEGRADED, APP_GAME_CAPABILITY_STATUS_MANUAL_REQUIRED,
+    APP_GAME_CAPABILITY_STATUS_NOT_CLAIMED, APP_GAME_CAPABILITY_STATUS_STALE,
+    APP_GAME_FOREGROUND_FOREGROUND, APP_GAME_PRODUCT_NATIVE_APP, APP_GAME_PRODUCT_NATIVE_GAME,
+    APP_GAME_RUNTIME_RUNNING,
 };
 use ocentra_parent_agent_protocol::constants;
 
 use crate::activity_surface_app_game_model_fixtures::app_game_service_model;
-use crate::activity_surface_common_fixtures::{
-    browser_read_model_fixture, family_request, network_read_model_fixture, recent_summary,
-    remote_device_request, screen_summary,
+use crate::activity_surface_common_fixtures::{family_request, remote_device_request};
+use crate::activity_surface_read_model_fixtures::{
+    browser_read_model_fixture, network_read_model_fixture, recent_summary, screen_summary,
 };
+
+#[test]
+fn screen_result_conversion_preserves_identity_state_and_evidence() {
+    let mut results = screen_summary(1).results;
+    assert_eq!(results.len(), 1);
+    let row =
+        crate::activity_surface_read_models::activity_screen_row_from_result(results.remove(0));
+
+    assert_eq!(row.row_id, "screen-result-1");
+    assert_eq!(row.label, "Screen summary");
+    assert_eq!(
+        row.device_id,
+        constants::activity_surface::DEFAULT_DEVICE_ID
+    );
+    assert_eq!(row.state, ActivityReadModelState::Ready);
+    assert_eq!(row.queue_job_id, "queue-job-1");
+    assert_eq!(
+        row.policy_decision_ref.as_deref(),
+        Some("policy-decision-1")
+    );
+    assert_eq!(row.evidence.len(), 1);
+    assert_eq!(row.evidence[0].evidence_id, "screen-evidence-1");
+}
 
 #[test]
 fn screen_read_model_projects_ready_empty_unavailable_and_offline_states() {
@@ -187,4 +213,33 @@ fn games_read_model_exercises_shared_boundary_and_source_status_helpers() {
         .evidence
         .iter()
         .any(|evidence| evidence.evidence_id == "app-identity-1"));
+}
+
+#[test]
+fn app_game_read_models_preserve_fail_closed_capability_states() {
+    for capability_status in [
+        APP_GAME_CAPABILITY_STATUS_STALE,
+        APP_GAME_CAPABILITY_STATUS_DEGRADED,
+        APP_GAME_CAPABILITY_STATUS_MANUAL_REQUIRED,
+        APP_GAME_CAPABILITY_STATUS_NOT_CLAIMED,
+    ] {
+        let mut model = app_game_service_model();
+        model.capability_status = capability_status.to_string();
+        let app_use = crate::activity_surface_read_models::app_use::app_use_read_model(
+            family_request(),
+            Some(model.clone()),
+        );
+        let games = crate::activity_surface_read_models::games::games_read_model(
+            family_request(),
+            Some(model),
+        );
+
+        assert_eq!(app_use.rows[0].capability_status, capability_status);
+        assert_eq!(games.rows[0].capability_status, capability_status);
+        assert_eq!(app_use.rows[0].runtime_state, APP_GAME_RUNTIME_RUNNING);
+        assert_eq!(
+            games.rows[0].foreground_state,
+            APP_GAME_FOREGROUND_FOREGROUND
+        );
+    }
 }

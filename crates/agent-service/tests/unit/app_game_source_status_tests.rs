@@ -60,19 +60,19 @@ fn app_use_read_model_groups_app_game_source_status_rows_without_launcher_claims
         APP_GAME_INVENTORY_SOURCE_OS_INSTALLED_RECORD,
         1,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
-    );
+    )?;
     assert_source_status(
         source_rows,
         APP_GAME_INVENTORY_SOURCE_SHORTCUT,
         1,
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
-    );
+    )?;
     assert_source_status(
         source_rows,
         APP_GAME_OBSERVATION_MODE_PROCESS_SNAPSHOT,
         1,
         constants::activity_store::TEST_THIRD_OBSERVED_AT,
-    );
+    )?;
     assert_source_status(
         source_rows,
         APP_GAME_OBSERVATION_MODE_FOREGROUND_WINDOW,
@@ -100,19 +100,19 @@ fn games_read_model_groups_game_inventory_runtime_foreground_and_launcher_source
         APP_GAME_INVENTORY_SOURCE_STORE_PACKAGE,
         1,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
-    );
+    )?;
     assert_source_status(
         source_rows,
         APP_GAME_OBSERVATION_MODE_PROCESS_SNAPSHOT,
         1,
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
-    );
+    )?;
     assert_source_status(
         source_rows,
         APP_GAME_OBSERVATION_MODE_FOREGROUND_WINDOW,
         1,
         constants::activity_store::TEST_THIRD_OBSERVED_AT,
-    );
+    )?;
     assert_source_status(
         source_rows,
         APP_GAME_OBSERVATION_MODE_LAUNCHER_MANIFEST,

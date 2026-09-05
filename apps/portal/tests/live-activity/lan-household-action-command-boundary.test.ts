@@ -2,9 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { Logger } from '@ocentra-parent/logging-domain/core/logger';
 import { getStackTrace } from '@ocentra-parent/logging-domain/core/stackTrace';
 import { PortalAgentLanHouseholdActionKind } from '@ocentra-parent/portal-domain/contracts';
-import {
-  createParentPortalLanPairingUiSlots,
-} from '../../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/activity-ui-intent';
+import { createParentPortalLanPairingUiSlots } from '../../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/activity-ui-intent';
 import {
   lanPairingHouseholdActionCommandPayload,
   lanPairingRouteIntentCommandPayload,

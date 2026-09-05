@@ -1,12 +1,18 @@
-import fs from 'node:fs';
 import path from 'node:path';
 import type { RunType, TestLogScope, TestSuiteType } from './types';
 import { getDefaultLogRoot, getRunNdjsonFilePath } from './ndjsonPaths';
 import { GeneratedLocalLogDirs, buildGeneratedLogsTreeKey, getGeneratedRunDirPath } from '../local-test-log';
 import { sanitizeGeneratedPathSegment } from '../local-test-log-paths';
-import { assertExistingOwnedPath, assertNotFileSystemRoot, resolveLocalArtifactPath } from '../local-artifact-path';
+import {
+  assertNotFileSystemRoot,
+  ensureLocalArtifactRoot,
+  relativeLocalArtifactPath,
+  resolveLocalArtifactPath,
+} from '../local-artifact-path';
 import { withLocalArtifactLock } from '../local-artifact-lock';
 import { recoverLocalArtifactAppends } from '../local-artifact-append';
+import { providerList, providerStat } from '../local-artifact-mutation-provider';
+import { scanLogsTree } from './logsTreeScan';
 
 export type LogsTree = Map<string, string> & { readonly __brand: 'LogsTree' };
 
@@ -19,10 +25,7 @@ export interface LogsTreeScope {
 function normalizeRoot(rootDir?: string): string {
   const resolved = resolveLocalArtifactPath(rootDir ?? getDefaultLogRoot());
   assertNotFileSystemRoot(resolved);
-  if (fs.existsSync(resolved)) {
-    assertExistingOwnedPath(resolved, 'directory');
-  }
-  return resolved;
+  return ensureLocalArtifactRoot(resolved);
 }
 
 function suiteSegment(value: LogsTreeScope['suiteType']): string {
@@ -41,77 +44,15 @@ function testLogRoot(rootDir?: string): string {
   return path.join(normalizeRoot(rootDir), GeneratedLocalLogDirs.TestLogs);
 }
 
-function addSuiteFiles(
-  tree: Map<string, string>,
-  scopeName: string,
-  runTypeName: string,
-  suiteName: string,
-  suitePath: string
-): void {
-  for (const fileEntry of fs.readdirSync(suitePath, { withFileTypes: true })) {
-    if (!fileEntry.isFile() || !fileEntry.name.endsWith('.ndjson')) {
-      continue;
-    }
-    const fileKey = fileEntry.name.slice(0, -'.ndjson'.length);
-    sanitizeGeneratedPathSegment(fileKey);
-    const filePath = path.join(suitePath, fileEntry.name);
-    assertExistingOwnedPath(filePath, 'file');
-    tree.set(buildGeneratedLogsTreeKey(scopeName, runTypeName, suiteName, fileKey), filePath);
-  }
-}
-
-function addRunTypeEntries(
-  tree: Map<string, string>,
-  scopeName: string,
-  runTypeName: string,
-  runTypePath: string
-): void {
-  for (const suiteEntry of fs.readdirSync(runTypePath, { withFileTypes: true })) {
-    if (!suiteEntry.isDirectory()) {
-      continue;
-    }
-    const suiteName = sanitizeGeneratedPathSegment(suiteEntry.name);
-    const suitePath = path.join(runTypePath, suiteName);
-    assertExistingOwnedPath(suitePath, 'directory');
-    addSuiteFiles(tree, scopeName, runTypeName, suiteName, suitePath);
-  }
-}
-
-function addScopeEntries(tree: Map<string, string>, scopeName: string, scopePath: string): void {
-  for (const runTypeEntry of fs.readdirSync(scopePath, { withFileTypes: true })) {
-    if (!runTypeEntry.isDirectory()) {
-      continue;
-    }
-    const runTypeName = sanitizeGeneratedPathSegment(runTypeEntry.name);
-    const runTypePath = path.join(scopePath, runTypeName);
-    assertExistingOwnedPath(runTypePath, 'directory');
-    addRunTypeEntries(tree, scopeName, runTypeName, runTypePath);
-  }
-}
-
-function walk(rootPath: string, tree: Map<string, string>): void {
-  if (!fs.existsSync(rootPath)) {
-    return;
-  }
-  assertExistingOwnedPath(rootPath, 'directory');
-
-  for (const scopeEntry of fs.readdirSync(rootPath, { withFileTypes: true })) {
-    if (!scopeEntry.isDirectory()) {
-      continue;
-    }
-    const scopeName = sanitizeGeneratedPathSegment(scopeEntry.name);
-    const scopePath = path.join(rootPath, scopeName);
-    assertExistingOwnedPath(scopePath, 'directory');
-    addScopeEntries(tree, scopeName, scopePath);
-  }
+function relativePath(rootDir: string, targetPath: string): string {
+  return relativeLocalArtifactPath(rootDir, targetPath).split(path.sep).join('/');
 }
 
 export function buildLogsTree(rootDir?: string): LogsTree {
   const normalizedRoot = normalizeRoot(rootDir);
   return withLocalArtifactLock(normalizedRoot, () => {
     recoverLocalArtifactAppends(normalizedRoot);
-    const tree = new Map<string, string>();
-    walk(testLogRoot(normalizedRoot), tree);
+    const tree = scanLogsTree(normalizedRoot, testLogRoot(normalizedRoot));
     return tree as LogsTree;
   });
 }
@@ -150,17 +91,12 @@ export function listFileKeysInScope(scope: LogsTreeScope, rootDir?: string): str
   );
   return withLocalArtifactLock(normalizedRoot, () => {
     recoverLocalArtifactAppends(normalizedRoot);
-    if (!fs.existsSync(scopePath)) {
-      return [];
-    }
-    assertExistingOwnedPath(scopePath, 'directory');
-    return fs
-      .readdirSync(scopePath, { withFileTypes: true })
-      .filter((entry) => entry.isFile() && entry.name.endsWith('.ndjson'))
-      .map((entry) => {
-        assertExistingOwnedPath(path.join(scopePath, entry.name), 'file');
-        return sanitizeGeneratedPathSegment(entry.name.slice(0, -'.ndjson'.length));
-      })
+    const stat = providerStat(normalizedRoot, relativePath(normalizedRoot, scopePath));
+    if (stat == null) return [];
+    if (!stat.is_directory) throw new Error('test log scope is not an owned directory');
+    return providerList(normalizedRoot, relativePath(normalizedRoot, scopePath))
+      .filter((entry) => !entry.is_directory && entry.name.endsWith('.ndjson'))
+      .map((entry) => sanitizeGeneratedPathSegment(entry.name.slice(0, -'.ndjson'.length)))
       .sort((left, right) => left.localeCompare(right));
   });
 }

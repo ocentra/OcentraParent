@@ -121,7 +121,7 @@ fn append_field(
     if field.len() > max_length {
         return Err(ProtocolError::FieldTooLarge);
     }
-    let length = u32::try_from(field.len()).map_err(|_| ProtocolError::FieldTooLarge)?;
+    let length = u32::try_from(field.len()).map_err(|_error| ProtocolError::FieldTooLarge)?;
     target.extend_from_slice(&length.to_be_bytes());
     target.extend_from_slice(field);
     Ok(())

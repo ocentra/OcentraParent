@@ -147,7 +147,7 @@ pub(super) fn validate_table_sql(
             |row| row.get::<_, String>(0),
         )
         .optional()
-        .map_err(|_| AccountIdentityIssuerError::InvalidDurableSchema)?
+        .map_err(|_error| AccountIdentityIssuerError::InvalidDurableSchema)?
         .ok_or(AccountIdentityIssuerError::InvalidDurableSchema)?;
     let marker = format!("CREATETABLEIFNOTEXISTS{}", compact_sql(table));
     let expected = schema
@@ -173,7 +173,7 @@ pub(super) fn validate_index_sql(
             |row| row.get::<_, String>(0),
         )
         .optional()
-        .map_err(|_| AccountIdentityIssuerError::InvalidDurableSchema)?
+        .map_err(|_error| AccountIdentityIssuerError::InvalidDurableSchema)?
         .ok_or(AccountIdentityIssuerError::InvalidDurableSchema)?;
     let marker = format!("CREATEINDEXIFNOTEXISTS{}", compact_sql(index));
     let expected = schema
@@ -203,7 +203,7 @@ pub(super) fn validate_columns(
     let quoted_table = table.replace('"', "\"\"");
     let mut statement = connection
         .prepare(&format!("PRAGMA table_info(\"{quoted_table}\")"))
-        .map_err(|_| AccountIdentityIssuerError::InvalidDurableSchema)?;
+        .map_err(|_error| AccountIdentityIssuerError::InvalidDurableSchema)?;
     let actual = statement
         .query_map([], |row| {
             Ok((
@@ -213,9 +213,9 @@ pub(super) fn validate_columns(
                 row.get::<_, i64>(5)?,
             ))
         })
-        .map_err(|_| AccountIdentityIssuerError::InvalidDurableSchema)?
+        .map_err(|_error| AccountIdentityIssuerError::InvalidDurableSchema)?
         .collect::<Result<Vec<_>, _>>()
-        .map_err(|_| AccountIdentityIssuerError::InvalidDurableSchema)?;
+        .map_err(|_error| AccountIdentityIssuerError::InvalidDurableSchema)?;
     if actual.len() != expected.len()
         || actual.iter().zip(expected).any(
             |(
@@ -295,14 +295,14 @@ fn index_list(
     let quoted_table = table.replace('"', "\"\"");
     let mut statement = connection
         .prepare(&format!("PRAGMA index_list(\"{quoted_table}\")"))
-        .map_err(|_| AccountIdentityIssuerError::InvalidDurableSchema)?;
+        .map_err(|_error| AccountIdentityIssuerError::InvalidDurableSchema)?;
     let actual = statement
         .query_map([], |row| {
             Ok((row.get(1)?, row.get(2)?, row.get(3)?, row.get(4)?))
         })
-        .map_err(|_| AccountIdentityIssuerError::InvalidDurableSchema)?
+        .map_err(|_error| AccountIdentityIssuerError::InvalidDurableSchema)?
         .collect::<Result<_, _>>()
-        .map_err(|_| AccountIdentityIssuerError::InvalidDurableSchema)?;
+        .map_err(|_error| AccountIdentityIssuerError::InvalidDurableSchema)?;
     Ok(actual)
 }
 
@@ -314,12 +314,12 @@ fn validate_index_columns(
     let quoted_index = index.replace('"', "\"\"");
     let mut statement = connection
         .prepare(&format!("PRAGMA index_info(\"{quoted_index}\")"))
-        .map_err(|_| AccountIdentityIssuerError::InvalidDurableSchema)?;
+        .map_err(|_error| AccountIdentityIssuerError::InvalidDurableSchema)?;
     let actual: Vec<String> = statement
         .query_map([], |row| row.get(2))
-        .map_err(|_| AccountIdentityIssuerError::InvalidDurableSchema)?
+        .map_err(|_error| AccountIdentityIssuerError::InvalidDurableSchema)?
         .collect::<Result<_, _>>()
-        .map_err(|_| AccountIdentityIssuerError::InvalidDurableSchema)?;
+        .map_err(|_error| AccountIdentityIssuerError::InvalidDurableSchema)?;
     (actual
         .iter()
         .map(String::as_str)

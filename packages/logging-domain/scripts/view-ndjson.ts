@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import fs from 'node:fs';
+import { readLocalArtifactText } from '../src/local-artifact-file';
 import { getTestLogScopeDir, listNdjsonFiles } from '../src/test-log/ndjsonPaths';
 import { parseTestLogScopeOrDefault } from '../src/test-log/types';
 
@@ -19,4 +19,8 @@ if (files.length === 0) {
 }
 
 const filePath = files[0];
-process.stdout.write(fs.readFileSync(filePath, 'utf8'));
+const content = readLocalArtifactText(filePath, rootDir);
+if (content == null) {
+  throw new Error('selected NDJSON file disappeared before its owned snapshot was read');
+}
+process.stdout.write(content);

@@ -44,10 +44,7 @@ use self::discovery_projection::{
     discovery_state_for, expired_pairing_count, pending_pairing_count,
     physical_household_lan_state, selected_device_readiness, serialized_enum_label,
 };
-use self::physical_lan_scan::{
-    network_device_scan_result_for_command, refresh_network_device_scan_history,
-    LanNetworkDeviceScanResult,
-};
+use self::physical_lan_scan::{network_device_scan_result_for_command, LanNetworkDeviceScanResult};
 use self::registry_projection::{
     household_device_decisions, merged_known_household_devices_for_read_model, pairing_requests,
     persist_known_household_devices, trusted_device_registry,
@@ -58,13 +55,6 @@ use self::replay_projection::effective_replay_projection;
 const APPLE_LAN_DISCOVERY_MANUAL_REQUIRED: bool = true;
 #[cfg(not(any(target_os = "macos", target_os = "ios")))]
 const APPLE_LAN_DISCOVERY_MANUAL_REQUIRED: bool = false;
-pub(crate) fn refresh_browser_discovery_scan_history(
-    runtime: &LanPairingRuntime,
-    command: &AgentCommandEnvelope,
-) {
-    let _ = refresh_network_device_scan_history(runtime, command);
-}
-
 pub(crate) fn browser_add_device_fields(
     runtime: &LanPairingRuntime,
     command: &AgentCommandEnvelope,
@@ -177,7 +167,8 @@ pub(crate) fn browser_add_device_read_model(
     } else {
         None
     };
-    let effective_projection = effective_replay_projection(&scan_result, persisted_projection);
+    let effective_projection =
+        effective_replay_projection(&scan_result, persisted_projection.as_ref());
     let history_generated_at = effective_projection
         .as_ref()
         .map(|projection| LanPairingText(projection.generated_at.clone()))

@@ -64,12 +64,12 @@ fn decode_public_blob(blob: &[u8]) -> Result<[u8; 65]> {
     let magic = u32::from_le_bytes(
         blob[0..4]
             .try_into()
-            .map_err(|_| Error::CryptoPropertyViolation)?,
+            .map_err(|_error| Error::CryptoPropertyViolation)?,
     );
     let coordinate_bytes = u32::from_le_bytes(
         blob[4..8]
             .try_into()
-            .map_err(|_| Error::CryptoPropertyViolation)?,
+            .map_err(|_error| Error::CryptoPropertyViolation)?,
     );
     if magic != BCRYPT_ECDSA_PUBLIC_P256_MAGIC
         || usize::try_from(coordinate_bytes)? != P256_COORDINATE_BYTES

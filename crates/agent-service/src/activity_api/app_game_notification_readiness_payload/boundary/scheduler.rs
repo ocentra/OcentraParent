@@ -29,7 +29,14 @@ pub(crate) struct VerifiedNotificationPreflight {
 
 pub(super) fn load_verified_notification_preflight(
 ) -> io::Result<Option<VerifiedNotificationPreflight>> {
-    let directory = scheduler_directory();
+    let activity_path: PathBuf = activity_db_path().into();
+    load_verified_notification_preflight_from_activity_db_path(&activity_path)
+}
+
+pub(super) fn load_verified_notification_preflight_from_activity_db_path(
+    activity_path: &Path,
+) -> io::Result<Option<VerifiedNotificationPreflight>> {
+    let directory = scheduler_directory(activity_path);
     let directory_metadata = match fs::symlink_metadata(&directory) {
         Ok(metadata) => metadata,
         Err(error) if error.kind() == io::ErrorKind::NotFound => return Ok(None),
@@ -89,8 +96,7 @@ pub(super) fn load_verified_notification_preflight(
     }))
 }
 
-fn scheduler_directory() -> PathBuf {
-    let activity_path: PathBuf = activity_db_path().into();
+fn scheduler_directory(activity_path: &Path) -> PathBuf {
     let file_name = activity_path
         .file_name()
         .and_then(|name| name.to_str())

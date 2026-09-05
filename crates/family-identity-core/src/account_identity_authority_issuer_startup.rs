@@ -14,20 +14,6 @@ impl AccountIdentityIssuerStartupState {
     }
 }
 
-pub(crate) fn initialize(
-    connection: &Connection,
-) -> Result<AccountIdentityIssuerStartupState, AccountIdentityIssuerError> {
-    connection
-        .execute_batch(
-            "PRAGMA foreign_keys = ON;
-             PRAGMA journal_mode = DELETE;
-             PRAGMA synchronous = FULL;",
-        )
-        .map_err(|_| AccountIdentityIssuerError::Unavailable)?;
-    account_identity_authority_issuer_key_registry::ensure_schema(connection)?;
-    recover(connection)
-}
-
 pub(crate) fn recover(
     connection: &Connection,
 ) -> Result<AccountIdentityIssuerStartupState, AccountIdentityIssuerError> {

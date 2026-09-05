@@ -32,6 +32,10 @@ export const SERVICE_BACKED_CONTENT: ParentPortalContent = {
       ...PARENT_PORTAL_CONTENT.modes.parentManage,
       rowSource: PARENT_PORTAL_SERVICE_STATE.RowSource.Api,
     },
+    parentGuide: {
+      ...PARENT_PORTAL_CONTENT.modes.parentGuide,
+      rowSource: PARENT_PORTAL_SERVICE_STATE.RowSource.Api,
+    },
   },
 };
 

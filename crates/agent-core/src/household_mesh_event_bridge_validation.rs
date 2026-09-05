@@ -48,7 +48,7 @@ pub(super) fn validate_incoming_lan_message(
                 );
             }
             HouseholdMeshImportDecision::Republish(local_republish_from_authorized_structure(
-                structural_message,
+                &structural_message,
                 authorization,
             ))
         }
@@ -61,7 +61,7 @@ pub(super) fn validate_incoming_lan_message(
 }
 
 fn local_republish_from_authorized_structure(
-    structural_message: HouseholdMeshStructurallyValidatedTransportEnvelope,
+    structural_message: &HouseholdMeshStructurallyValidatedTransportEnvelope,
     _authorization: &HouseholdMeshPeerAuthorization,
 ) -> HouseholdMeshLocalRepublish {
     let message = structural_message.message();

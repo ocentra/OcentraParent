@@ -1,3 +1,4 @@
+#[cfg(not(windows))]
 use std::fs;
 use std::fs::OpenOptions;
 use std::io;

@@ -11,35 +11,34 @@ use crate::lan_pairing_payload::parse_intent;
 use crate::lan_pairing_status::pairing_status_event;
 
 pub(super) fn lan_pairing_route_revoke(
-    runtime: LanPairingRuntime,
-    origin: LanPairingOptionalText,
+    runtime: &LanPairingRuntime,
+    origin: &LanPairingOptionalText,
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
-    let event = match parse_intent(&command.payload) {
-        Ok(intent) => match validate_command_target(&runtime, &command, &intent)
+    match parse_intent(&command.payload) {
+        Ok(intent) => match validate_command_target(runtime, &command, &intent)
             .and_then(|()| validate_write_authority(&intent))
         {
-            Ok(()) => revoke_or_status(runtime, origin, command, intent),
-            Err(reason) => rejection_event(command, &reason, Some(&intent), &origin),
+            Ok(()) => revoke_or_status(runtime, origin, command, &intent),
+            Err(reason) => rejection_event(command, &reason, Some(&intent), origin),
         },
-        Err(reason) => rejection_event(command, &reason, None, &origin),
-    };
-    event
+        Err(reason) => rejection_event(command, &reason, None, origin),
+    }
 }
 
 fn revoke_or_status(
-    runtime: LanPairingRuntime,
-    origin: LanPairingOptionalText,
+    runtime: &LanPairingRuntime,
+    origin: &LanPairingOptionalText,
     command: AgentCommandEnvelope,
-    intent: ocentra_parent_agent_protocol::lan_pairing::LanParentIntentEnvelope,
+    intent: &ocentra_parent_agent_protocol::lan_pairing::LanParentIntentEnvelope,
 ) -> AgentEventEnvelope {
-    match revoke_pairing(&runtime, &origin, &intent) {
+    match revoke_pairing(runtime, origin, intent) {
         Ok(()) => {
-            let audit_fields = revoked_route_audit_fields(&command, &intent, &origin);
-            let mut event = pairing_status_event(&runtime, command);
+            let audit_fields = revoked_route_audit_fields(&command, intent, origin);
+            let mut event = pairing_status_event(runtime, command);
             extend_log_fields(&mut event.payload, audit_fields);
             event
         }
-        Err(reason) => rejection_event(command, &reason, Some(&intent), &origin),
+        Err(reason) => rejection_event(command, &reason, Some(intent), origin),
     }
 }

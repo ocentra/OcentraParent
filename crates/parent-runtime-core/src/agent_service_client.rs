@@ -13,16 +13,12 @@ use self::snapshots_network::{
     network_flow_read_model_from_payload, network_runtime_event_chain_stream_from_payload,
 };
 use self::snapshots_policy::policy_preview_read_model_from_payload;
-use self::transport::{parent_route_peer_role, rejection_message};
+use self::transport::parent_route_peer_role;
 use self::types::{
     AgentCommandText, AgentServiceCommandResult, AgentServiceResult,
-    AppGameAdapterDispatchPreflightAgentServiceSnapshot,
-    AppGameAdapterDispatchResultAgentServiceSnapshot,
-    AppGameTimerParentSurfaceAgentServiceSnapshot, AppUseReadModelAgentServiceSnapshot,
     BrowserActivityReadModelAgentServiceSnapshot, BrowserEvidenceReadModelAgentServiceSnapshot,
     BrowserInterventionReadModelAgentServiceSnapshot,
     BrowserInventoryReadModelAgentServiceSnapshot, BrowserManagedStatusAgentServiceSnapshot,
-    GamesReadModelAgentServiceSnapshot, LanAgentServiceSnapshot, NetworkFlowAgentServiceSnapshot,
 };
 
 #[path = "agent_service_client/app_game_loaders.rs"]
@@ -44,7 +40,9 @@ mod snapshots_lan_replay;
 mod snapshots_lan_replay_validation;
 pub(crate) mod snapshots_network;
 pub(crate) mod snapshots_policy;
+pub(crate) mod snapshots_social;
 pub(crate) mod snapshots_tracking;
+pub(crate) mod social_loaders;
 pub(crate) mod transport;
 pub(crate) mod types;
 

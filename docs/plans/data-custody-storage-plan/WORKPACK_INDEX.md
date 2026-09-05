@@ -31,7 +31,13 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 | planned / source route / waiting on Account WP05 + WP05A | [WP09 Parent Local Bundle Provider Runtime](workpacks/09-parent-local-bundle-provider-runtime.md) | 0/0 | `BUNDLE_PROTOCOL.md`, `PARENT_STORAGE_PROVIDER_MATRIX.md` | no source, tests, or proof yet; source-phase edges consume reviewed Data foundations plus direct Account WP05A multi-owner data-action outcome while retaining the WP05 base edge; WP05 owns durable scheduler/job state and WP05A coordinates Account/Device Trust/step-up/Protected Custody outcomes for typed Data handoff; remote capability/lease is outside this route; WP11 composition is downstream |
 | planned / source route / waiting on Account WP05 + WP05A | [WP10 Restore Orchestration And Producer Handoffs](workpacks/10-restore-orchestration-and-producer-handoffs.md) | 0/0 | `PARENT_SAVE_RETRIEVE_APPLY_FLOW.md`, `EVENT_MODEL.md` | no source, tests, or proof yet; source-phase edges consume reviewed Data/Account foundations plus direct Account WP05A multi-owner data-action outcome while retaining the WP05 base edge; WP05 owns durable restore/migration ledger and WP05A coordinates Account/Device Trust/step-up/Protected Custody outcomes for typed Data handoff; remote capability/lease is outside this route; WP11 composition is downstream |
 | planned / dependency-waiting source route | [WP11 Runtime Composition And Custody Mount](workpacks/11-runtime-composition-and-custody-mount.md) | 0/0 | `PARENT_SAVE_RETRIEVE_APPLY_FLOW.md`, `BUNDLE_PROTOCOL.md`, `EVENT_MODEL.md` | planned parent-runtime composition/mount roots are absent; implementation-only authorization remains blocked until Account WP05 base, Account WP05A owner coordinator, WP09, and WP10 production source exists; normal tests/proof/DONE remain blocked |
-| source | [Migrated Data And AI UI Plan](workpacks/data and AI Ui plan.md) | 0/0 | source evidence only | n/a |
+
+## Reference documents
+
+- [Data And AI UI Reference](DATA_AND_AI_UI_REFERENCE.md) — reference-only,
+  non-executable product/UI requirements routed to Data WP08/WP11, Parent
+  Desktop WP06, Portal WP01/WP12, and AI WP39-WP45. It has no graph workpack,
+  code/test roots, checklist, proof root, READY state, or completion claim.
 
 ## Default execution order
 

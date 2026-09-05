@@ -5,7 +5,7 @@ use super::{InviteRecoveryRepositoryError, INVITE_TOKEN_DIGEST_DOMAIN};
 
 pub(crate) fn opaque_id(prefix: &str) -> Result<String, InviteRecoveryRepositoryError> {
     let mut bytes = [0_u8; 16];
-    fill(&mut bytes).map_err(|_| InviteRecoveryRepositoryError::EntropyUnavailable)?;
+    fill(&mut bytes).map_err(|_error| InviteRecoveryRepositoryError::EntropyUnavailable)?;
     let mut value = String::with_capacity(prefix.len() + bytes.len() * 2);
     value.push_str(prefix);
     for byte in bytes {

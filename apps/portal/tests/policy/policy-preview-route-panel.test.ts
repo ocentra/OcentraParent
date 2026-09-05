@@ -2,11 +2,17 @@ import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 
-import { ParentRoute, type ParentPolicyPreviewPanelSnapshot } from '../../generated/parent-ui-bridge';
+import {
+  ParentRoute,
+  ParentUiActionKind,
+  type ParentPolicyPreviewPanelSnapshot,
+} from '../../generated/parent-ui-bridge';
 import { PolicyPreviewRoutePanel, shouldRenderPolicyPreviewRoute } from '../../src/PolicyPreviewRoutePanel';
+import { shouldRenderScheduleUnavailablePanel } from '../../src/ParentPortalRoute';
 
 describe('policy preview portal route panel', () => {
   it('attaches only to the policy authoring routes', () => {
+    expect(shouldRenderPolicyPreviewRoute(ParentRoute.PolicyNetwork)).toBe(true);
     expect(shouldRenderPolicyPreviewRoute(ParentRoute.RuleManagement)).toBe(true);
     expect(shouldRenderPolicyPreviewRoute(ParentRoute.Schedules)).toBe(true);
     expect(shouldRenderPolicyPreviewRoute(ParentRoute.Approvals)).toBe(true);
@@ -23,6 +29,7 @@ describe('policy preview portal route panel', () => {
         actions: policyPreviewActions(),
         commandEnabled: true,
         panel: activeControllerPolicyPreviewPanel(),
+        route: ParentRoute.RuleManagement,
       })
     );
 
@@ -34,18 +41,109 @@ describe('policy preview portal route panel', () => {
     expect(markup).toContain('Delivered is reported, but active enforcement is separate.');
   });
 
+  it('renders truthful recovery surfaces when current policy state is unavailable', () => {
+    for (const [route, title] of [
+      [ParentRoute.RuleManagement, 'Rule management status unavailable'],
+      [ParentRoute.Approvals, 'Approvals status unavailable'],
+      [ParentRoute.Enforcement, 'Enforcement status unavailable'],
+    ] as const) {
+      const markup = renderToStaticMarkup(
+        createElement(PolicyPreviewRoutePanel, {
+          actions: policyPreviewActions(),
+          commandEnabled: false,
+          panel: null,
+          route,
+        })
+      );
+
+      expect(markup).toContain(title);
+      expect(markup).toContain('Nothing is inferred or presented as active.');
+      expect(markup).toContain('>Retry status<');
+      expect(markup.match(/<article/g)).toHaveLength(3);
+      expect(markup).toContain('Current state');
+      expect(markup).toContain('Not reported');
+      expect(markup).toContain('Editing authority');
+      expect(markup).toContain('Manual required');
+      expect(markup).toContain('Safe next step');
+      expect(markup).not.toContain('disabled=""');
+      expect(markup).not.toContain('CURRENT POLICY NOT SHOWN HERE');
+    }
+  });
+
+  it('leaves the schedule-specific unavailable surface as the sole schedule fallback', () => {
+    const markup = renderToStaticMarkup(
+      createElement(PolicyPreviewRoutePanel, {
+        actions: policyPreviewActions(),
+        commandEnabled: false,
+        panel: null,
+        route: ParentRoute.Schedules,
+      })
+    );
+
+    expect(markup).toBe('');
+    expect(shouldRenderScheduleUnavailablePanel(ParentRoute.Schedules, null)).toBe(true);
+    expect(shouldRenderScheduleUnavailablePanel(ParentRoute.Schedules, activeControllerPolicyPreviewPanel())).toBe(
+      false
+    );
+  });
+});
+
+describe('policy preview portal authority controls', () => {
+  it('uses status retry rather than a disabled refresh when a reported preview becomes disconnected', () => {
+    const markup = renderToStaticMarkup(
+      createElement(PolicyPreviewRoutePanel, {
+        actions: policyPreviewActions(),
+        commandEnabled: false,
+        panel: activeControllerPolicyPreviewPanel(),
+        route: ParentRoute.RuleManagement,
+      })
+    );
+
+    expect(markup).toContain('>Retry status<');
+    expect(markup).not.toContain('disabled=""');
+    expect(markup).not.toContain('Refresh policy decision');
+  });
+
   it('renders observer-only policy authority from the Rust-owned panel snapshot', () => {
     const markup = renderToStaticMarkup(
       createElement(PolicyPreviewRoutePanel, {
         actions: policyPreviewActions(),
         commandEnabled: true,
         panel: observerPolicyPreviewPanel(),
+        route: ParentRoute.RuleManagement,
       })
     );
 
     expect(markup).toContain('Observer only');
     expect(markup).toContain('cannot confirm or save writes');
     expect(markup).toContain('Delivered is reported, but active enforcement is separate.');
+  });
+
+  it('shows authoring controls only on the Rust-authorized network policy route', () => {
+    const panel = activeControllerPolicyPreviewPanelWithAuthoring();
+    const readOnlyMarkup = renderToStaticMarkup(
+      createElement(PolicyPreviewRoutePanel, {
+        actions: policyPreviewActions(),
+        commandEnabled: true,
+        panel,
+        route: ParentRoute.RuleManagement,
+      })
+    );
+    const networkPolicyMarkup = renderToStaticMarkup(
+      createElement(PolicyPreviewRoutePanel, {
+        actions: policyPreviewActions(),
+        commandEnabled: true,
+        panel,
+        route: ParentRoute.PolicyNetwork,
+      })
+    );
+
+    expect(readOnlyMarkup).not.toContain('Preview draft');
+    expect(readOnlyMarkup).not.toContain('Confirm policy preview');
+    expect(readOnlyMarkup).not.toContain('Cancel draft');
+    expect(networkPolicyMarkup).toContain('Preview draft');
+    expect(networkPolicyMarkup).toContain('Confirm policy preview');
+    expect(networkPolicyMarkup).toContain('Cancel draft');
   });
 });
 
@@ -70,6 +168,7 @@ describe('policy preview portal attention cards', () => {
             ...policyPreviewCards('https://example.test/latest', 'Confirmed'),
           ],
         },
+        route: ParentRoute.RuleManagement,
       })
     );
 
@@ -112,6 +211,7 @@ describe('policy preview portal attention cards', () => {
               ...policyPreviewCards('https://example.test/latest', 'Confirmed'),
             ],
           },
+          route: ParentRoute.RuleManagement,
         })
       );
 
@@ -145,6 +245,7 @@ describe('policy preview portal blocked attention', () => {
             ...policyPreviewCards('https://example.test/latest', 'Confirmed'),
           ],
         },
+        route: ParentRoute.RuleManagement,
       })
     );
 
@@ -160,6 +261,28 @@ function activeControllerPolicyPreviewPanel(): ParentPolicyPreviewPanelSnapshot 
     ...policyPreviewPanelIdentity(),
     summaryDetails: policyPreviewSummaryDetails('Active controller', 'policy-preview-latest'),
     cards: policyPreviewCards('https://example.test/latest', 'Confirmed'),
+  };
+}
+
+function activeControllerPolicyPreviewPanelWithAuthoring(): ParentPolicyPreviewPanelSnapshot {
+  return {
+    ...activeControllerPolicyPreviewPanel(),
+    authoring: {
+      targetValue: 'https://example.test/latest',
+      requestedAction: 'block',
+      stageAction: {
+        action: ParentUiActionKind.PolicyPreviewAuthoringDraftStaged,
+        label: 'Preview draft',
+      },
+      confirmAction: {
+        action: ParentUiActionKind.PolicyRequestAssistantPreviewConfirmRequested,
+        label: 'Confirm policy preview',
+      },
+      cancelAction: {
+        action: ParentUiActionKind.PolicyPreviewAuthoringDraftCancelled,
+        label: 'Cancel draft',
+      },
+    },
   };
 }
 

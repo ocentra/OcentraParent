@@ -146,9 +146,12 @@ export function parentRouteHashPathWithQuery(
 }
 
 export function parentRouteFromHashPath(routeHash: string): ParentRouteId | null {
+  const routeHashMarker = ParentHostBridgeRuntime.RouteHashPrefix.slice(0, 1);
   const hashWithoutPrefix = routeHash.startsWith(ParentHostBridgeRuntime.RouteHashPrefix)
     ? routeHash.slice(ParentHostBridgeRuntime.RouteHashPrefix.length)
-    : routeHash;
+    : routeHash.startsWith(routeHashMarker)
+      ? routeHash.slice(routeHashMarker.length)
+      : routeHash;
   const normalizedHash = hashWithoutPrefix.startsWith(ParentHostBridgeRuntime.UrlPathSeparator)
     ? hashWithoutPrefix.slice(ParentHostBridgeRuntime.UrlPathSeparator.length)
     : hashWithoutPrefix;

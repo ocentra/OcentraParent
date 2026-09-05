@@ -59,22 +59,24 @@ impl NetworkRuntimeChainRefs {
     }
 }
 
+type NetworkRuntimeContinuationRefs = (
+    Option<String>,
+    Option<String>,
+    Option<String>,
+    Option<String>,
+    Option<String>,
+    Option<String>,
+    Option<String>,
+    Option<String>,
+);
+
 fn continuation_refs(
     phase: NetworkRuntimePhase,
     observation: &NetworkObservation,
     observed_at: &str,
     decision: &NetworkRuntimeDecision,
     source_event_id: Option<&str>,
-) -> (
-    Option<String>,
-    Option<String>,
-    Option<String>,
-    Option<String>,
-    Option<String>,
-    Option<String>,
-    Option<String>,
-    Option<String>,
-) {
+) -> NetworkRuntimeContinuationRefs {
     (
         reached_phase_ref(
             phase,

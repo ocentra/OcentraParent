@@ -15,7 +15,7 @@ use crate::{
     local_ai_provider_scheduler::LocalAiProviderSchedulerRuntime,
     local_ai_provider_scheduler_state::LocalAiPhysicalDeviceId,
     local_ai_runtime_provider_proof_read_model::local_ai_runtime_provider_proof_read_model,
-    test_invariants::{require_ok, require_some},
+    test_require_ok::require_ok, test_require_some::require_some,
 };
 
 #[test]

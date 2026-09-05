@@ -1,9 +1,9 @@
 use ocentra_parent_agent_protocol::activity_capture::ActivityCaptureCapabilityStatus;
 
-use crate::screen_ai_cadence_runtime_event::ScreenAiServiceCaptureClock;
-
 #[path = "screen_ai_foreground_runtime/runtime.rs"]
 mod runtime;
+#[path = "screen_ai_foreground_runtime/types.rs"]
+pub(crate) mod types;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) enum ScreenAiForegroundTickOutcome {
@@ -27,8 +27,6 @@ pub(crate) enum ScreenAiForegroundTickOutcome {
     },
 }
 
-pub(crate) type ScreenAiForegroundTickClock = ScreenAiServiceCaptureClock;
-
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct ScreenAiForegroundQueueJobId(String);
 
@@ -37,9 +35,6 @@ impl std::fmt::Display for ScreenAiForegroundQueueJobId {
         formatter.write_str(&self.0)
     }
 }
-
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub(crate) struct ScreenAiForegroundKey(pub(crate) String);
 
 pub(crate) fn spawn_screen_ai_foreground_runtime() {
     runtime::spawn_screen_ai_foreground_runtime();

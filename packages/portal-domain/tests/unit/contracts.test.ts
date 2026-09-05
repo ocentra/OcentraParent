@@ -26,6 +26,7 @@ import {
   PortalAppGameParentSurfaceRoutes,
   PortalBrowserParentSurfaceRoutes,
   PortalNetworkEvidenceDrawerRoutes,
+  PortalPolicyPreviewRoutes,
   PortalRoute,
   PortalRouteLiteral,
   PortalRouteSchema,
@@ -40,6 +41,7 @@ import {
   isPortalAppGameParentSurfaceRoute,
   isPortalBrowserParentSurfaceRoute,
   isPortalNetworkEvidenceDrawerRoute,
+  isPortalPolicyPreviewRoute,
   isPortalScreenSettingsRoute,
   isPortalScreenSummaryRoute,
   isPortalTrackingStatusRoute,
@@ -138,6 +140,7 @@ function expectManageItemOrder(): void {
     portalRouteHashPath(PortalRoute.SettingsRules),
     portalRouteHashPath(PortalRoute.Devices),
     portalRouteHashPath(PortalRoute.Activity),
+    portalRouteHashPath(PortalRoute.AppGameSessions),
     portalRouteHashPath(PortalRoute.BrowserSettings),
     portalRouteHashPath(PortalRoute.RuleManagement),
     portalRouteHashPath(PortalRoute.Schedules),
@@ -150,6 +153,9 @@ function expectManageItemOrder(): void {
     portalRouteHashPath(PortalRoute.PolicyTracking),
     portalRouteHashPath(PortalRoute.PolicyRemoteScreen),
     portalRouteHashPath(PortalRoute.DriveConnections),
+    portalRouteHashPath(PortalRoute.RemoteAccess),
+    portalRouteHashPath(PortalRoute.PlatformsInstall),
+    portalRouteHashPath(PortalRoute.InstallUpdates),
     portalRouteHashPath(PortalRoute.AiRuntime),
     portalRouteHashPath(PortalRoute.Subscription),
   ]);
@@ -196,6 +202,21 @@ function expectManageAccountAndControlBuckets(): void {
     routePath: portalRouteHashPath(PortalRoute.DriveConnections),
     sectionLabel: undefined,
   });
+  expectManageStandaloneItem(PARENT_PORTAL_NAV_LABELS.Remote, {
+    icon: 'remote',
+    routePath: portalRouteHashPath(PortalRoute.RemoteAccess),
+    sectionLabel: undefined,
+  });
+  expectManageStandaloneItem(PARENT_PORTAL_NAV_LABELS.Platforms, {
+    icon: 'devices',
+    routePath: portalRouteHashPath(PortalRoute.PlatformsInstall),
+    sectionLabel: undefined,
+  });
+  expectManageStandaloneItem(PARENT_PORTAL_NAV_LABELS.Updates, {
+    icon: 'updates',
+    routePath: portalRouteHashPath(PortalRoute.InstallUpdates),
+    sectionLabel: undefined,
+  });
   expectManageStandaloneItem(PARENT_PORTAL_NAV_LABELS.AiMemory, {
     icon: 'ai-setup',
     routePath: portalRouteHashPath(PortalRoute.AiRuntime),
@@ -225,6 +246,11 @@ function expectManageCollapsedSections(): void {
     sectionLabel: undefined,
   });
   expectNoManageSectionChildren(PARENT_PORTAL_NAV_LABELS.Activity);
+  expectManageStandaloneItem(PARENT_PORTAL_NAV_LABELS.AppsGames, {
+    icon: 'app',
+    routePath: portalRouteHashPath(PortalRoute.AppGameSessions),
+    sectionLabel: undefined,
+  });
 }
 
 describe('portal route schema contracts', () => {
@@ -328,6 +354,15 @@ describe('portal guide route contracts', () => {
     expect(manageItems.find((item) => item.label === PARENT_PORTAL_NAV_LABELS.DataPrivacy)?.routePath).toBe(
       portalRouteHashPath(PortalRoute.DriveConnections)
     );
+    expect(manageItems.find((item) => item.label === PARENT_PORTAL_NAV_LABELS.Remote)?.routePath).toBe(
+      portalRouteHashPath(PortalRoute.RemoteAccess)
+    );
+    expect(manageItems.find((item) => item.label === PARENT_PORTAL_NAV_LABELS.Platforms)?.routePath).toBe(
+      portalRouteHashPath(PortalRoute.PlatformsInstall)
+    );
+    expect(manageItems.find((item) => item.label === PARENT_PORTAL_NAV_LABELS.Updates)?.routePath).toBe(
+      portalRouteHashPath(PortalRoute.InstallUpdates)
+    );
     expect(manageItems.find((item) => item.label === PARENT_PORTAL_NAV_LABELS.AiMemory)?.routePath).toBe(
       portalRouteHashPath(PortalRoute.AiRuntime)
     );
@@ -346,6 +381,10 @@ describe('portal guide route contracts', () => {
     ]);
     expect(guideAi?.routePath).toBe(portalRouteHashPath(PortalRoute.AiGuide));
     expect(guideReports?.routePath).toBe(portalRouteHashPath(PortalRoute.ReportsGuide));
+    expect(parentPortalRouteContext(PortalRoute.Assistant)).toMatchObject({
+      navLabel: PARENT_PORTAL_NAV_LABELS.Ai,
+      pageMode: 'parentGuide',
+    });
     expect(parentPortalRouteContext(PortalRoute.Policy).pageMode).toBe('parentGuide');
     expect(parentPortalRouteContext(PortalRoute.RuleManagement).pageMode).toBe('parentManage');
     expect(parentPortalRouteContext(PortalRoute.PolicyApps).pageMode).toBe('parentManage');
@@ -359,8 +398,8 @@ describe('portal guide route contracts', () => {
   });
 });
 
-describe('portal collapsed manage route contracts', () => {
-  it('collapsed device and activity routes resolve to the unified manage pages', () => {
+describe('portal manage route contracts', () => {
+  it('routes each product page to its exact manage control', () => {
     expect(parentPortalRouteContext(PortalRoute.Devices)).toMatchObject({
       navLabel: PARENT_PORTAL_NAV_LABELS.Devices,
       selectedControlId: 'lan-pairing',
@@ -370,36 +409,36 @@ describe('portal collapsed manage route contracts', () => {
       selectedControlId: 'lan-pairing',
     });
     expect(parentPortalRouteContext(PortalRoute.CapabilityStatus)).toMatchObject({
-      navLabel: PARENT_PORTAL_NAV_LABELS.Devices,
-      selectedControlId: 'lan-pairing',
+      navLabel: PARENT_PORTAL_NAV_LABELS.Capability,
+      selectedControlId: 'capability-status',
     });
     expect(parentPortalRouteContext(PortalRoute.RemoteAccess)).toMatchObject({
-      navLabel: PARENT_PORTAL_NAV_LABELS.DataPrivacy,
+      navLabel: PARENT_PORTAL_NAV_LABELS.Remote,
       selectedControlId: 'remote-access',
     });
     expect(parentPortalRouteContext(PortalRoute.PlatformsInstall)).toMatchObject({
-      navLabel: PARENT_PORTAL_NAV_LABELS.Devices,
-      selectedControlId: 'lan-pairing',
+      navLabel: PARENT_PORTAL_NAV_LABELS.Platforms,
+      selectedControlId: 'platforms-install',
     });
     expect(parentPortalRouteContext(PortalRoute.InstallUpdates)).toMatchObject({
-      navLabel: PARENT_PORTAL_NAV_LABELS.Devices,
-      selectedControlId: 'lan-pairing',
+      navLabel: PARENT_PORTAL_NAV_LABELS.Updates,
+      selectedControlId: 'install-updates',
     });
     expect(parentPortalRouteContext(PortalRoute.ScreenAnalysis)).toMatchObject({
       navLabel: PARENT_PORTAL_NAV_LABELS.Activity,
-      selectedControlId: 'reports-settings',
+      selectedControlId: 'screen-analysis',
     });
     expect(parentPortalRouteContext(PortalRoute.AppGameSessions)).toMatchObject({
-      navLabel: PARENT_PORTAL_NAV_LABELS.Activity,
+      navLabel: PARENT_PORTAL_NAV_LABELS.AppsGames,
       selectedControlId: 'app-game-sessions',
     });
     expect(parentPortalRouteContext(PortalRoute.NetworkActivity)).toMatchObject({
       navLabel: PARENT_PORTAL_NAV_LABELS.Activity,
-      selectedControlId: 'reports-settings',
+      selectedControlId: 'network-activity',
     });
     expect(parentPortalRouteContext(PortalRoute.ReportCompiler)).toMatchObject({
       navLabel: PARENT_PORTAL_NAV_LABELS.Activity,
-      selectedControlId: 'reports-settings',
+      selectedControlId: 'report-compiler',
     });
     expect(parentPortalRouteContext(PortalRoute.RuleManagement)).toMatchObject({
       navLabel: PARENT_PORTAL_NAV_LABELS.RuleSet,
@@ -433,18 +472,29 @@ describe('portal product route panel contracts', () => {
     expect(PortalAppGameParentSurfaceRoutes).toEqual([PortalRoute.AppGameSessions]);
     expect(PortalAiRuntimeRoutes).toEqual([PortalRoute.AiRuntime]);
     expect(PortalBrowserParentSurfaceRoutes).toEqual([PortalRoute.Browser]);
-    expect(PortalScreenSettingsRoutes).toEqual([PortalRoute.SettingsRules]);
+    expect(PortalPolicyPreviewRoutes).toEqual([
+      PortalRoute.PolicyNetwork,
+      PortalRoute.RuleManagement,
+      PortalRoute.Schedules,
+      PortalRoute.Approvals,
+      PortalRoute.Enforcement,
+    ]);
+    expect(PortalScreenSettingsRoutes).toEqual([PortalRoute.PolicyScreen]);
     expect(PortalScreenSummaryRoutes).toEqual([PortalRoute.ScreenAnalysis]);
     expect(PortalTrackingStatusRoutes).toEqual([PortalRoute.PolicyTracking]);
     expect(isPortalAiRuntimeRoute(PortalRoute.AiRuntime)).toBe(true);
     expect(isPortalAppGameParentSurfaceRoute(PortalRoute.AppGameSessions)).toBe(true);
     expect(isPortalBrowserParentSurfaceRoute(PortalRoute.Browser)).toBe(true);
-    expect(isPortalScreenSettingsRoute(PortalRoute.SettingsRules)).toBe(true);
+    expect(isPortalPolicyPreviewRoute(PortalRoute.PolicyNetwork)).toBe(true);
+    expect(isPortalPolicyPreviewRoute(PortalRoute.RuleManagement)).toBe(true);
+    expect(isPortalScreenSettingsRoute(PortalRoute.PolicyScreen)).toBe(true);
     expect(isPortalScreenSummaryRoute(PortalRoute.ScreenAnalysis)).toBe(true);
     expect(isPortalTrackingStatusRoute(PortalRoute.PolicyTracking)).toBe(true);
     expect(isPortalAiRuntimeRoute(PortalRoute.Browser)).toBe(false);
     expect(isPortalAppGameParentSurfaceRoute(PortalRoute.Browser)).toBe(false);
     expect(isPortalBrowserParentSurfaceRoute(PortalRoute.NetworkActivity)).toBe(false);
+    expect(isPortalPolicyPreviewRoute(PortalRoute.PolicyApps)).toBe(false);
+    expect(isPortalScreenSettingsRoute(PortalRoute.SettingsRules)).toBe(false);
     expect(isPortalScreenSettingsRoute(PortalRoute.PolicyTracking)).toBe(false);
     expect(isPortalScreenSummaryRoute(PortalRoute.Activity)).toBe(false);
     expect(isPortalTrackingStatusRoute(PortalRoute.Activity)).toBe(false);
@@ -458,6 +508,15 @@ describe('portal nav matrix contracts', () => {
     const routePaths = navItemsWithRoutes.map((item) => item.routePath);
 
     expect(new Set(routePaths).size).toBe(routePaths.length);
+    expect(
+      PARENT_PORTAL_CONTENT.navItems
+        .filter((item) => item.groupId === 'quickGlance')
+        .map((item) => [item.label, item.routePath])
+    ).toEqual([
+      [PARENT_PORTAL_NAV_LABELS.Overview, portalRouteHashPath(PortalRoute.Overview)],
+      [PARENT_PORTAL_NAV_LABELS.Capability, portalRouteHashPath(PortalRoute.CapabilityStatus)],
+      [PARENT_PORTAL_NAV_LABELS.Web, portalRouteHashPath(PortalRoute.Browser)],
+    ]);
     expectNavRouteLabelsToMatchContexts();
     expectRouteContextsToTargetSelectableControls(selectableTargetIds);
     expectGuideTargetsToResolve(selectableTargetIds);

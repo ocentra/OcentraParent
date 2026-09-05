@@ -36,7 +36,6 @@ This file is the short resume list for the next worker. It is derived from open 
 - [13 Degraded, Empty, Stale, And Error States](workpacks/13-degraded-empty-stale-and-error-states.md): 5 open of 5 boxes.
 - [14 Audit History And Copy/Debug](workpacks/14-audit-history-and-copy-debug.md): 5 open of 5 boxes.
 - [15 Accessibility, Responsive, And Keyboard UX](workpacks/15-accessibility-responsive-keyboard-ux.md): 5 open of 5 boxes.
-- [16 No-Fake-Data Contract Adapter](workpacks/16-no-fake-data-contract-adapter.md): 5 open of 5 boxes.
 - [17 Playwright Screenshot Proof](workpacks/17-playwright-screenshot-proof.md): 5 open of 5 boxes.
 - [18 Parent Mobile Shell Readiness](workpacks/18-parent-mobile-shell-readiness.md): 5 open of 6 boxes.
 - [19 Product Docs And Checklist Sync](workpacks/19-product-docs-and-checklist-sync.md): 5 open of 5 boxes.
@@ -67,8 +66,11 @@ authority:
 - WP05 already has the narrow real portal staging/cancel/confirm path and Rust
   authoring boundary. Do not duplicate it or claim policy mutation, rollback,
   delivery, or enforcement from the panel.
-- WP06-WP09 and WP11-WP16 are mixed route/read-model seams with missing domain
+- WP06-WP09 and WP11-WP15 are mixed route/read-model seams with missing domain
   providers, durable custody, action authority, or degraded-state ownership.
+- WP16 is closed for the bounded no-fake-data projection and retained proof;
+  installer, updater, rollback, signing, store, transport, and authenticated
+  remote-session execution remain sibling-owner non-claims.
 - WP17-WP20 are proof, mobile scaffold, documentation, and manual-review work,
   not portal production-code gaps.
 

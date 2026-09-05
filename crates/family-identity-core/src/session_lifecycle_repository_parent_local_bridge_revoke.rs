@@ -25,7 +25,7 @@ impl super::super::SqliteAccountIdentityAuthorityRepository {
         let transaction = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+            .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
         let now_epoch_millis = clock::trusted_now_in_transaction(&transaction)?;
         let current_binding = authority::parent_local_bridge_binding_from_verified(
             &transaction,
@@ -49,7 +49,7 @@ impl super::super::SqliteAccountIdentityAuthorityRepository {
         audit::cleanup(&transaction, &record.binding.account_id, now_epoch_millis)?;
         transaction
             .commit()
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)
+            .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)
     }
 
     /// Revoke the connection represented by an authenticated, opaque
@@ -62,7 +62,7 @@ impl super::super::SqliteAccountIdentityAuthorityRepository {
         let transaction = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+            .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
         let now_epoch_millis = clock::trusted_now_in_transaction(&transaction)?;
         let record = super::storage::read_record(
             &transaction,
@@ -88,7 +88,7 @@ impl super::super::SqliteAccountIdentityAuthorityRepository {
         audit::cleanup(&transaction, &record.binding.account_id, now_epoch_millis)?;
         transaction
             .commit()
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)
+            .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)
     }
 
     /// Advance the bridge-specific Account revoke epoch. This is a constant
@@ -101,7 +101,7 @@ impl super::super::SqliteAccountIdentityAuthorityRepository {
         let transaction = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+            .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
         let now_epoch_millis = clock::trusted_now_in_transaction(&transaction)?;
         let binding = authority::parent_local_bridge_binding_from_verified(
             &transaction,
@@ -122,7 +122,7 @@ impl super::super::SqliteAccountIdentityAuthorityRepository {
         audit::cleanup(&transaction, &binding.account_id, now_epoch_millis)?;
         transaction
             .commit()
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+            .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
         Ok(next_epoch)
     }
 }
@@ -176,7 +176,7 @@ fn transition_to_revoked(
                 record.last_transition_at_epoch_millis,
             ],
         )
-        .map_err(|_| SessionLifecycleRepositoryError::CurrentnessConflict)?;
+        .map_err(|_error| SessionLifecycleRepositoryError::CurrentnessConflict)?;
     (changed == 1)
         .then_some(transitioned_at)
         .ok_or(SessionLifecycleRepositoryError::CurrentnessConflict)

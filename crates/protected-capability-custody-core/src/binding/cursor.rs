@@ -36,19 +36,22 @@ impl<'a> Cursor<'a> {
 
     pub(super) fn take_u16(&mut self) -> Result<u16, BindingError> {
         let bytes = self.take_exact(2)?;
-        let array = <[u8; 2]>::try_from(bytes).map_err(|_| BindingError::InvalidEncoding)?;
+        let array =
+            <[u8; 2]>::try_from(bytes).map_err(|_length_error| BindingError::InvalidEncoding)?;
         Ok(u16::from_be_bytes(array))
     }
 
     pub(super) fn take_u32(&mut self) -> Result<u32, BindingError> {
         let bytes = self.take_exact(4)?;
-        let array = <[u8; 4]>::try_from(bytes).map_err(|_| BindingError::InvalidEncoding)?;
+        let array =
+            <[u8; 4]>::try_from(bytes).map_err(|_length_error| BindingError::InvalidEncoding)?;
         Ok(u32::from_be_bytes(array))
     }
 
     pub(super) fn take_u64(&mut self) -> Result<u64, BindingError> {
         let bytes = self.take_exact(8)?;
-        let array = <[u8; 8]>::try_from(bytes).map_err(|_| BindingError::InvalidEncoding)?;
+        let array =
+            <[u8; 8]>::try_from(bytes).map_err(|_length_error| BindingError::InvalidEncoding)?;
         Ok(u64::from_be_bytes(array))
     }
 

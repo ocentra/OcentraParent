@@ -62,7 +62,7 @@ impl ExistingPcpSigner {
         let policy_signature =
             TpmPolicySignature::from_rsa_pss_sha256(&signature).map_err(map_observation_error)?;
         prepared
-            .execute(policy_signature)
+            .execute(&policy_signature)
             .map_err(map_runtime_error)
     }
 

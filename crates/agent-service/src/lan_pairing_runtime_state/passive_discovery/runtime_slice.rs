@@ -1,5 +1,3 @@
-use std::sync::{Arc, Mutex};
-
 use ocentra_lan_core::network_inventory::passive_discovery::{
     collect_raw_socket_protocol_passive_updates, ingest_allowed_snmp_response_packet,
     LanPassiveDiscoveryEventKind, LanPassiveDiscoveryEventRow, LanPassiveDiscoveryListenerState,
@@ -34,7 +32,7 @@ impl LanPairingRuntime {
                 &observed_at.0,
                 &summary.0,
             ) == LanPassiveDiscoveryRecordOutcome::Recorded)
-                .then(|| LanPassiveDiscoveryRefreshSignal {
+                .then_some(LanPassiveDiscoveryRefreshSignal {
                     sequence: 0,
                     source: None,
                     trigger_reason,
@@ -44,32 +42,15 @@ impl LanPairingRuntime {
         None
     }
 
-    pub(crate) fn collect_passive_discovery_runtime_slice(
-        &self,
-        observed_state: &mut LanPassiveDiscoveryRuntimeObservedState,
-    ) -> bool {
-        collect_runtime_slice(
-            &self.passive_discovery_listener_state,
-            self.lan_ai_provider_heartbeat_reachability(),
-            observed_state,
-        )
-        .running
-    }
-
     pub(crate) fn record_local_network_change_triggers_if_needed(
         &self,
         state: &mut LanPassiveDiscoveryListenerState,
         observed_state: &mut LanPassiveDiscoveryRuntimeObservedState,
         observed_at: impl Into<LanPairingText>,
         current_identity: &LanPassiveRuntimeLocalNetworkIdentity,
-    ) {
+    ) -> (bool, Vec<LanPassiveDiscoveryRefreshSignal>) {
         let observed_at = observed_at.into();
-        let _ = record_local_network_change_triggers(
-            state,
-            observed_state,
-            &observed_at,
-            current_identity,
-        );
+        record_local_network_change_triggers(state, observed_state, &observed_at, current_identity)
     }
 
     pub(crate) fn record_heartbeat_loss_trigger_if_needed(
@@ -77,14 +58,15 @@ impl LanPairingRuntime {
         state: &mut LanPassiveDiscoveryListenerState,
         observed_state: &mut LanPassiveDiscoveryRuntimeObservedState,
         observed_at: impl Into<LanPairingText>,
-    ) {
+    ) -> Option<LanPassiveDiscoveryRefreshSignal> {
         let observed_at = observed_at.into();
-        let _ = record_heartbeat_loss_trigger(
+        let heartbeat_reachability = self.lan_ai_provider_heartbeat_reachability();
+        record_heartbeat_loss_trigger(
             state,
             observed_state,
             &observed_at,
-            self.lan_ai_provider_heartbeat_reachability(),
-        );
+            heartbeat_reachability.as_ref(),
+        )
     }
 
     pub(crate) fn record_allowed_snmp_probe_response_packet(&self, payload: &[u8]) -> bool {
@@ -103,37 +85,34 @@ impl LanPairingRuntime {
 }
 
 pub(super) fn collect_runtime_slice(
-    listener_state: &Arc<Mutex<LanPassiveDiscoveryListenerState>>,
-    heartbeat_reachability: Option<LanPairingDeviceReachability>,
+    runtime: &LanPairingRuntime,
     observed_state: &mut LanPassiveDiscoveryRuntimeObservedState,
 ) -> LanPassiveDiscoveryRuntimeSliceOutcome {
-    if !listener_is_running(listener_state) {
+    if !listener_is_running(runtime) {
         return stopped_slice();
     }
 
     let observed_at: LanPairingText = timestamp_now::<String>().into();
     let current_identity = passive_runtime_local_network_identity();
     let arp_rows = collect_arp_rows(&observed_at);
-    let Ok(mut state) = listener_state.lock() else {
+    let Ok(mut state) = runtime.passive_discovery_listener_state.lock() else {
         return stopped_slice();
     };
     if !state.is_running() {
         return stopped_slice();
     }
 
-    let (network_changed, mut refresh_signals) = record_local_network_change_triggers(
-        &mut state,
-        observed_state,
-        &observed_at,
-        &current_identity,
-    );
+    let (network_changed, mut refresh_signals) = runtime
+        .record_local_network_change_triggers_if_needed(
+            &mut state,
+            observed_state,
+            observed_at.clone(),
+            &current_identity,
+        );
     refresh_signals.extend(record_arp_rows(&mut state, arp_rows));
-    if let Some(signal) = record_heartbeat_loss_trigger(
-        &mut state,
-        observed_state,
-        &observed_at,
-        heartbeat_reachability,
-    ) {
+    if let Some(signal) =
+        runtime.record_heartbeat_loss_trigger_if_needed(&mut state, observed_state, observed_at)
+    {
         refresh_signals.push(signal);
     }
     LanPassiveDiscoveryRuntimeSliceOutcome {
@@ -143,8 +122,9 @@ pub(super) fn collect_runtime_slice(
     }
 }
 
-fn listener_is_running(listener_state: &Arc<Mutex<LanPassiveDiscoveryListenerState>>) -> bool {
-    listener_state
+fn listener_is_running(runtime: &LanPairingRuntime) -> bool {
+    runtime
+        .passive_discovery_listener_state
         .lock()
         .map(|state| state.is_running())
         .unwrap_or(false)
@@ -224,12 +204,14 @@ fn record_heartbeat_loss_trigger(
     state: &mut LanPassiveDiscoveryListenerState,
     observed_state: &mut LanPassiveDiscoveryRuntimeObservedState,
     observed_at: &LanPairingText,
-    heartbeat_reachability: Option<LanPairingDeviceReachability>,
+    heartbeat_reachability: Option<&LanPairingDeviceReachability>,
 ) -> Option<LanPassiveDiscoveryRefreshSignal> {
-    let lost = matches!(
-        heartbeat_reachability,
-        Some(LanPairingDeviceReachability::Offline | LanPairingDeviceReachability::Stale)
-    );
+    let lost = heartbeat_reachability.is_some_and(|reachability| {
+        matches!(
+            reachability,
+            LanPairingDeviceReachability::Offline | LanPairingDeviceReachability::Stale
+        )
+    });
     if !lost {
         observed_state.heartbeat_loss_recorded = false;
         return None;

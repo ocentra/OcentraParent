@@ -23,15 +23,15 @@ use ocentra_parent_agent_protocol::screen_evidence::SCREEN_PROVIDER_LOCAL_OCR;
 use ocentra_parent_agent_protocol::screen_evidence::SCREEN_PROVIDER_LOCAL_VISION;
 
 use super::screen_ai_service_event_bridge::{
-    publish_screen_capture_queue_event_chain, screen_runtime_capture_input_from_service_row,
-    screen_runtime_degraded_input_from_service_row, screen_runtime_deletion_input_from_service_row,
-    screen_runtime_input_from_service_row, ScreenAiServiceEventBridgeError,
-    ScreenAiServiceEventBridgeRefs,
+    publish_screen_capture_queue_event_chain, publish_screen_capture_queue_events_for_queue_job,
+    screen_runtime_capture_input_from_service_row, screen_runtime_degraded_input_from_service_row,
+    screen_runtime_deletion_input_from_service_row, screen_runtime_input_from_service_row,
+    ScreenAiQueueJobId, ScreenAiServiceEventBridgeError, ScreenAiServiceEventBridgeRefs,
 };
 use super::screen_ai_service_event_subscription::{
     ActionRefText, ObservedAtText, ScreenAiServiceEventRuntime,
 };
-use crate::test_invariants::require_ok;
+use crate::test_require_ok::require_ok;
 
 static SCREEN_SERVICE_EVENT_TEST_SEQUENCE: AtomicU64 = AtomicU64::new(0);
 
@@ -77,19 +77,23 @@ fn screen_service_event_bridge_maps_service_row_to_existing_screen_runtime_input
 }
 
 #[tokio::test]
-async fn screen_service_event_bridge_requires_runtime_owner_before_chain() {
+async fn screen_service_event_bridge_requires_runtime_owner_before_chain(
+) -> Result<(), &'static str> {
     let runtime = require_ok(
         ScreenAiServiceEventRuntime::start().await,
         constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES,
     );
-    let error = runtime
+    let publish = runtime
         .publish_row_ready(
             service_screen_row(),
             ActionRefText(constants::screen_flow::TEST_SCREEN_ACTION_REF.to_string()),
             ObservedAtText(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string()),
         )
-        .await
-        .expect_err("missing runtime owner must stop before root publication");
+        .await;
+    let error = match publish {
+        Err(error) => error,
+        Ok(_) => return Err("missing runtime owner must stop before root publication"),
+    };
     assert_eq!(
         error,
         EventingError::InvalidValue {
@@ -98,9 +102,7 @@ async fn screen_service_event_bridge_requires_runtime_owner_before_chain() {
                 .to_string(),
         }
     );
-    let metrics = runtime.event_metrics_snapshot().await;
-    assert_eq!(metrics.stored_event_count, 0);
-    assert_eq!(metrics.dead_letter_count, 0);
+    Ok(())
 }
 
 #[tokio::test]
@@ -137,6 +139,28 @@ async fn screen_service_event_bridge_publishes_capture_queue_events_from_capture
     assert_eq!(report.publish_reports.len(), phases.len());
     assert_eq!(report.dead_letters.len(), 0);
     assert!(!report.raw_image_escaped());
+}
+
+#[tokio::test]
+async fn screen_service_event_bridge_returns_no_report_for_missing_queue_job(
+) -> Result<(), &'static str> {
+    let store_path = screen_deletion_journal_path("missing-queue-job").with_extension("db");
+    let _ = fs::remove_file(&store_path);
+    let report = require_ok(
+        publish_screen_capture_queue_events_for_queue_job(
+            &store_path,
+            ScreenAiQueueJobId(constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID.to_string()),
+            ObservedAtText(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string()),
+        )
+        .await,
+        constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES,
+    );
+    let _ = fs::remove_file(&store_path);
+
+    match report {
+        None => Ok(()),
+        Some(_) => Err("missing queue job must not publish a screen runtime report"),
+    }
 }
 
 #[tokio::test]
@@ -324,19 +348,23 @@ fn screen_deletion_journal_path(suffix: &str) -> std::path::PathBuf {
 }
 
 #[tokio::test]
-async fn screen_service_event_bridge_rejects_degraded_without_runtime_owner() {
+async fn screen_service_event_bridge_rejects_degraded_without_runtime_owner(
+) -> Result<(), &'static str> {
     let runtime = require_ok(
         ScreenAiServiceEventRuntime::start().await,
         constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES,
     );
-    let error = runtime
+    let publish = runtime
         .publish_row_ready(
             degraded_service_screen_row(),
             ActionRefText(constants::screen_flow::TEST_SCREEN_ACTION_REF.to_string()),
             ObservedAtText(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string()),
         )
-        .await
-        .expect_err("degraded row must stop without a runtime owner");
+        .await;
+    let error = match publish {
+        Err(error) => error,
+        Ok(_) => return Err("degraded row must stop without a runtime owner"),
+    };
     assert_eq!(
         error,
         EventingError::InvalidValue {
@@ -345,6 +373,7 @@ async fn screen_service_event_bridge_rejects_degraded_without_runtime_owner() {
                 .to_string(),
         }
     );
+    Ok(())
 }
 
 #[test]

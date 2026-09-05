@@ -12,10 +12,7 @@ describe('portal diagnostics export', () => {
   it('copies connection, health, event, and read-model summaries without raw service payload dumps', () => {
     const state = createPortalRuntimeState();
     applyDevicesSnapshot(state, {
-      recentSummary: {
-        returned: 1,
-        mostRecentSubjectName: 'notepad.exe',
-      },
+      recentSummary: recentSummarySnapshot('notepad.exe'),
       networkFlowReadModel: networkFlowReadModelSnapshot(),
     });
     state.connectionState = ParentBridgeConnectionState.Connected;
@@ -41,10 +38,7 @@ describe('portal diagnostics export', () => {
   it('uses route snapshot live activity when raw agent events are absent', () => {
     const state = createPortalRuntimeState();
     applyDevicesSnapshot(state, {
-      recentSummary: {
-        returned: 1,
-        mostRecentSubjectName: 'Child Laptop',
-      },
+      recentSummary: recentSummarySnapshot('Child Laptop'),
       networkFlowReadModel: networkFlowReadModelSnapshot(),
     });
 
@@ -87,6 +81,15 @@ function applyDevicesSnapshot(
       childDevice: 'proof-missing',
     },
   });
+}
+
+function recentSummarySnapshot(mostRecentSubjectName: string) {
+  return {
+    schemaVersion: 1,
+    limit: 10,
+    returned: 1,
+    mostRecentSubjectName,
+  } as const;
 }
 
 function healthEvent() {

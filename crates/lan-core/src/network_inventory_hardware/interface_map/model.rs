@@ -1,10 +1,17 @@
-use std::net::IpAddr;
-
-use super::super::{
-    LocalNetworkInterface, LocalNetworkInterfaceClassification, LocalNetworkInterfaceMap,
-    LocalNetworkIdentity,
-};
 use super::super::network_identity_support;
+use super::super::{
+    LocalNetworkIdentity, LocalNetworkInterface, LocalNetworkInterfaceClassification,
+    LocalNetworkInterfaceMap,
+};
+
+#[path = "model_classification.rs"]
+mod model_classification;
+#[path = "model_classification_rank.rs"]
+mod model_classification_rank;
+#[path = "model_ignored_reason.rs"]
+mod model_ignored_reason;
+#[path = "model_refresh.rs"]
+mod model_refresh;
 
 impl LocalNetworkInterface {
     pub fn is_eligible_by_default(&self) -> bool {
@@ -23,13 +30,10 @@ impl LocalNetworkInterface {
                     | LocalNetworkInterfaceClassification::Loopback
                     | LocalNetworkInterfaceClassification::LinkLocalOnly
             )
-            && self
-                .ip_addresses
-                .iter()
-                .any(|address| {
-                    network_identity_support::supported_local_ipv4_text(address)
-                        || network_identity_support::supported_local_ipv6_text(address)
-                })
+            && self.ip_addresses.iter().any(|address| {
+                network_identity_support::supported_local_ipv4_text(address)
+                    || network_identity_support::supported_local_ipv6_text(address)
+            })
     }
 
     pub fn matches_selection(&self, selected_interface_id: &str) -> bool {
@@ -60,7 +64,9 @@ impl LocalNetworkInterface {
     }
 
     pub(super) fn merge_from(&mut self, candidate: Self) {
-        if interface_id_rank(&candidate.id) > interface_id_rank(&self.id) {
+        if model_classification::interface_id_rank(&candidate.id)
+            > model_classification::interface_id_rank(&self.id)
+        {
             self.id = candidate.id.clone();
         }
         self.description = self.description.clone().or(candidate.description);
@@ -87,8 +93,8 @@ impl LocalNetworkInterface {
             self.state_observed = true;
         }
         self.is_loopback |= candidate.is_loopback;
-        if classification_conservatism(candidate.classification)
-            > classification_conservatism(self.classification)
+        if model_classification_rank::classification_conservatism(candidate.classification)
+            > model_classification_rank::classification_conservatism(self.classification)
         {
             self.classification = candidate.classification;
         }
@@ -100,56 +106,7 @@ impl LocalNetworkInterface {
     }
 
     pub(super) fn refresh_derived_state(&mut self) {
-        self.is_link_local_only = self.ip_addresses.iter().any(|address| {
-            address
-                .parse::<IpAddr>()
-                .is_ok_and(|parsed| match parsed {
-                    IpAddr::V4(value) => value.is_link_local(),
-                    IpAddr::V6(value) => value.is_unicast_link_local(),
-                })
-        }) && self.ip_addresses.iter().all(|address| {
-            address
-                .parse::<IpAddr>()
-                .is_ok_and(|parsed| match parsed {
-                    IpAddr::V4(value) => value.is_link_local(),
-                    IpAddr::V6(value) => value.is_unicast_link_local(),
-                })
-        });
-        self.is_loopback = self.is_loopback
-            || (self.ip_addresses.iter().any(|address| {
-                address
-                    .parse::<IpAddr>()
-                    .is_ok_and(|parsed| parsed.is_loopback())
-            }) && self.ip_addresses.iter().all(|address| {
-                address
-                    .parse::<IpAddr>()
-                    .is_ok_and(|parsed| parsed.is_loopback())
-            }));
-        self.classification = classify_interface(
-            &self.name,
-            self.is_loopback,
-            self.is_link_local_only,
-            self.classification,
-        );
-        self.ignored_reason = interface_ignored_reason(
-            &self.name,
-            self.is_up,
-            self.is_connected,
-            self.is_loopback,
-            self.is_link_local_only,
-        );
-    }
-}
-
-fn interface_id_rank(id: &str) -> u8 {
-    if id.starts_with("mac:") {
-        3
-    } else if id.starts_with("index:") {
-        2
-    } else if id.starts_with("name:") {
-        1
-    } else {
-        0
+        model_refresh::refresh(self);
     }
 }
 
@@ -206,9 +163,7 @@ impl LocalNetworkInterfaceMap {
                 .select_manual_interface(selected_interface_id)
                 .and_then(LocalNetworkInterface::to_local_network_identity);
         }
-        if self.recommended_interface_id.is_none() {
-            return None;
-        }
+        self.recommended_interface_id.as_ref()?;
         self.recommended_interface()
             .and_then(LocalNetworkInterface::to_local_network_identity)
             .or_else(|| {
@@ -224,111 +179,4 @@ fn append_unique_strings(target: &mut Vec<String>, values: Vec<String>) {
     for value in values {
         network_identity_support::push_unique_string(target, value);
     }
-}
-
-fn classify_interface(
-    interface_name: &str,
-    is_loopback: bool,
-    is_link_local_only: bool,
-    current: LocalNetworkInterfaceClassification,
-) -> LocalNetworkInterfaceClassification {
-    if is_loopback {
-        return LocalNetworkInterfaceClassification::Loopback;
-    }
-    if is_link_local_only {
-        return LocalNetworkInterfaceClassification::LinkLocalOnly;
-    }
-    if !matches!(current, LocalNetworkInterfaceClassification::Unknown) {
-        return current;
-    }
-    let normalized = interface_name.trim().to_ascii_lowercase();
-    if normalized.contains("wsl") {
-        return LocalNetworkInterfaceClassification::Wsl;
-    }
-    if normalized.starts_with("docker")
-        || (normalized.starts_with("veth") && !normalized.starts_with("vethernet"))
-        || normalized.starts_with("br-")
-        || normalized.contains("container")
-        || normalized.starts_with("cni")
-        || normalized.starts_with("podman")
-    {
-        return LocalNetworkInterfaceClassification::Container;
-    }
-    if normalized.contains("vpn")
-        || normalized.starts_with("tailscale")
-        || normalized.starts_with("wg")
-        || normalized.starts_with("tun")
-        || normalized.starts_with("tap")
-        || normalized.starts_with("zt")
-        || normalized.starts_with("utun")
-    {
-        return LocalNetworkInterfaceClassification::VpnOrTunnel;
-    }
-    if normalized.starts_with("vethernet")
-        || normalized.starts_with("virbr")
-        || normalized.starts_with("vboxnet")
-        || normalized.starts_with("vmnet")
-        || normalized.contains("virtual")
-        || normalized.contains("hyper-v")
-        || normalized.contains("hyperv")
-    {
-        return LocalNetworkInterfaceClassification::Virtual;
-    }
-    if normalized.starts_with("ethernet")
-        || normalized.starts_with("wi-fi")
-        || normalized.starts_with("wifi")
-        || normalized.starts_with("wlan")
-        || normalized.starts_with("wireless")
-        || normalized.starts_with("eth")
-        || normalized.starts_with("en")
-        || normalized.starts_with("wl")
-        || normalized.starts_with("wwan")
-    {
-        return LocalNetworkInterfaceClassification::Physical;
-    }
-    current
-}
-
-fn classification_conservatism(
-    classification: LocalNetworkInterfaceClassification,
-) -> u8 {
-    match classification {
-        LocalNetworkInterfaceClassification::Unknown => 0,
-        LocalNetworkInterfaceClassification::Physical => 1,
-        LocalNetworkInterfaceClassification::Virtual => 2,
-        LocalNetworkInterfaceClassification::VpnOrTunnel
-        | LocalNetworkInterfaceClassification::Container => 3,
-        LocalNetworkInterfaceClassification::Wsl => 4,
-        LocalNetworkInterfaceClassification::Loopback => 5,
-        LocalNetworkInterfaceClassification::LinkLocalOnly => 6,
-    }
-}
-
-fn interface_ignored_reason(
-    interface_name: &str,
-    is_up: bool,
-    is_connected: bool,
-    is_loopback: bool,
-    is_link_local_only: bool,
-) -> Option<network_identity_support::LocalNetworkInterfaceIgnoreReason> {
-    if !is_connected {
-        return Some(network_identity_support::LocalNetworkInterfaceIgnoreReason::Disconnected);
-    }
-    if !is_up {
-        return Some(network_identity_support::LocalNetworkInterfaceIgnoreReason::Down);
-    }
-    if is_loopback {
-        return Some(network_identity_support::LocalNetworkInterfaceIgnoreReason::Loopback);
-    }
-    let normalized = interface_name.trim().to_ascii_lowercase();
-    if normalized.contains("wsl") {
-        return Some(network_identity_support::LocalNetworkInterfaceIgnoreReason::Wsl);
-    }
-    if let Some(reason) = network_identity_support::ignored_interface_reason(interface_name) {
-        return Some(reason);
-    }
-    if is_link_local_only {
-        return Some(network_identity_support::LocalNetworkInterfaceIgnoreReason::LinkLocalOnly);
-    }
-    None
 }

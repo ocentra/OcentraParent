@@ -15,12 +15,12 @@ pub(super) fn validate_rollback_authority<'a>(
     if !existing_restore.compensation_applied
         && existing_restore.rollback_provider_operation_ref.is_some()
     {
-        return Err(RestoreRuntimeError::Ledger(
+        return Err(RestoreRuntimeError::from(
             RestoreLedgerError::IdentityMismatch,
         ));
     }
     if existing_restore.compensation_applied {
-        return Err(RestoreRuntimeError::Ledger(
+        return Err(RestoreRuntimeError::from(
             RestoreLedgerError::IdentityMismatch,
         ));
     }
@@ -31,7 +31,7 @@ pub(super) fn validate_rollback_authority<'a>(
         observed_provider_operation_ref.as_ref(),
     ) {
         if existing != observed {
-            return Err(RestoreRuntimeError::Ledger(
+            return Err(RestoreRuntimeError::from(
                 RestoreLedgerError::IdentityMismatch,
             ));
         }

@@ -1,12 +1,14 @@
 #![forbid(unsafe_code)]
 
+mod bonus_time;
+
 use ocentra_eventing::error::EventingError;
 use ocentra_parent_agent_protocol::activity::policy_preview::PolicyRequestStatus;
 use ocentra_parent_agent_protocol::constants::policy_control;
 
 use super::{
     origin::assert_request_origin_shape, status::policy_request_status_name, ChildPolicyRequest,
-    PolicyRequestKind, PolicyRequestScope, PolicyTemporaryOverride,
+    PolicyRequestScope, PolicyTemporaryOverride,
 };
 use crate::policy_source::assert_policy_utc_timestamp;
 
@@ -61,31 +63,7 @@ pub(crate) fn validate_policy_temporary_override(
             value: policy_control::request::VALUE_MISSING_AUDIT_REFERENCE.to_string(),
         });
     }
-    if override_record.request_kind == PolicyRequestKind::BonusTime {
-        if override_record.approved_bonus_minutes.is_none() {
-            return Err(EventingError::InvalidValue {
-                field: policy_control::request::FIELD_APPROVED_BONUS_MINUTES,
-                value: policy_control::request::VALUE_BONUS_TIME_APPROVAL_REQUIRES_MINUTES
-                    .to_string(),
-            });
-        }
-        if !matches!(
-            override_record.approved_action,
-            crate::policy_source::PolicyRuleAction::Allow
-                | crate::policy_source::PolicyRuleAction::TimeLimit
-        ) {
-            return Err(EventingError::InvalidValue {
-                field: policy_control::request::FIELD_APPROVED_BONUS_MINUTES,
-                value: "bonus-time-overrides-require-allow-or-time-limit".to_string(),
-            });
-        }
-    } else if override_record.approved_bonus_minutes.is_some() {
-        return Err(EventingError::InvalidValue {
-            field: policy_control::request::FIELD_APPROVED_BONUS_MINUTES,
-            value: "only-bonus-time-overrides-may-carry-bonus-minutes".to_string(),
-        });
-    }
-    Ok(())
+    bonus_time::validate_override(override_record)
 }
 
 pub(crate) fn child_requests_match(left: &ChildPolicyRequest, right: &ChildPolicyRequest) -> bool {
@@ -128,31 +106,7 @@ pub(crate) fn assert_request_resolution_shape(
 }
 
 fn assert_request_scope(scope: &PolicyRequestScope) -> Result<(), EventingError> {
-    if scope.request_kind == PolicyRequestKind::BonusTime {
-        if scope.requested_bonus_minutes.is_none() {
-            return Err(EventingError::InvalidValue {
-                field: policy_control::request::FIELD_REQUESTED_BONUS_MINUTES,
-                value: policy_control::request::VALUE_BONUS_TIME_REQUEST_REQUIRES_MINUTES
-                    .to_string(),
-            });
-        }
-        if !matches!(
-            scope.requested_action,
-            crate::policy_source::PolicyRuleAction::Allow
-                | crate::policy_source::PolicyRuleAction::TimeLimit
-        ) {
-            return Err(EventingError::InvalidValue {
-                field: policy_control::request::FIELD_REQUESTED_BONUS_MINUTES,
-                value: "bonus-time-requests-require-allow-or-time-limit".to_string(),
-            });
-        }
-    } else if scope.requested_bonus_minutes.is_some() {
-        return Err(EventingError::InvalidValue {
-            field: policy_control::request::FIELD_REQUESTED_BONUS_MINUTES,
-            value: "only-bonus-time-requests-may-include-minutes".to_string(),
-        });
-    }
-    Ok(())
+    bonus_time::validate_request_scope(scope)
 }
 
 fn assert_request_status_supported(status: PolicyRequestStatus) -> Result<(), EventingError> {

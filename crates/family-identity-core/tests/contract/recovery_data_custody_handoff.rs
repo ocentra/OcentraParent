@@ -24,7 +24,8 @@ fn approved_parent_recovery(
 }
 
 #[test]
-fn forgot_login_delete_export_is_only_a_typed_data_custody_route() {
+fn forgot_login_delete_export_is_only_a_typed_data_custody_route() -> Result<(), serde_json::Error>
+{
     let decision =
         evaluate_recovery_operation(approved_parent_recovery(RecoveryKind::ForgotLogin, true));
     assert_eq!(
@@ -32,15 +33,16 @@ fn forgot_login_delete_export_is_only_a_typed_data_custody_route() {
         RecoveryDataCustodyHandoffState::ExportDeleteHandoffRequired
     );
     assert!(decision.failure_reason.is_none());
+    let encoded = serde_json::to_value(decision)?;
     assert_eq!(
-        serde_json::to_value(decision).expect("serialize recovery decision")
-            ["data_custody_handoff_state"],
+        encoded["data_custody_handoff_state"],
         "export-delete-handoff-required"
     );
+    Ok(())
 }
 
 #[test]
-fn household_transfer_uses_a_distinct_data_custody_handoff_kind() {
+fn household_transfer_uses_a_distinct_data_custody_handoff_kind() -> Result<(), serde_json::Error> {
     let decision = evaluate_recovery_operation(approved_parent_recovery(
         RecoveryKind::HouseholdTransfer,
         false,
@@ -49,9 +51,10 @@ fn household_transfer_uses_a_distinct_data_custody_handoff_kind() {
         decision.data_custody_handoff_state,
         RecoveryDataCustodyHandoffState::HouseholdTransferHandoffRequired
     );
+    let encoded = serde_json::to_value(decision)?;
     assert_eq!(
-        serde_json::to_value(decision).expect("serialize recovery decision")
-            ["data_custody_handoff_state"],
+        encoded["data_custody_handoff_state"],
         "household-transfer-handoff-required"
     );
+    Ok(())
 }

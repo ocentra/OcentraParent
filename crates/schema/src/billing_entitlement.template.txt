@@ -112,9 +112,19 @@ export const BillingSubscriptionStatusProofRowSchema = withParser(
   }).pipe(
     Schema.filter(
       (row) =>
-        !['past-due', 'expired', 'unknown', 'unavailable'].includes(row.subscriptionStatus) ||
+        !['past-due', 'expired', 'grace', 'unknown', 'unavailable'].includes(row.subscriptionStatus) ||
         row.failureState !== null ||
         'Expected degraded subscription status rows to carry a parent-visible failure state'
+    ),
+    Schema.filter(
+      (row) =>
+        row.subscriptionStatus !== 'grace' ||
+        (row.parentVisibleState === 'grace' &&
+          row.localSafetyBehavior === 'grace-with-local-safety' &&
+          row.deviceActivationBehavior === 'grace-existing-devices' &&
+          row.failureState?.parentVisibleState === 'grace' &&
+          row.failureState.localSafetyBehavior === 'grace-with-local-safety') ||
+        'Expected grace subscription status to remain parent-visible while preserving existing local safety and blocking new-device activation'
     )
   )
 );

@@ -23,16 +23,24 @@ use serde_json::Value;
 pub const AI_PROTOCOL_CONTRACT_SCHEMA_VERSION: &str = AI_CONTRACT_SCHEMA_VERSION;
 
 /// Fail-closed errors returned by the protocol seam.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Debug)]
 pub enum AiProtocolContractError {
-    InvalidEncoding,
-    InvalidWorkRequest,
+    InvalidEncoding(serde_json::Error),
+    InvalidWorkRequest(AiProtocolWorkRequestError),
     StaleSchemaVersion,
     OwnerResolvedAttachment,
     UnsafeAuthorityBoundary,
     UnsafeJournalDurability,
     DigestNotPreserved,
-    SerializationFailed,
+    SerializationFailed(serde_json::Error),
+}
+
+/// Exact source retained when a wire request cannot become a leaf contract.
+#[derive(Debug)]
+pub enum AiProtocolWorkRequestError {
+    Encoding(serde_json::Error),
+    Contract(&'static str),
+    MissingSchemaVersion,
 }
 
 #[derive(Deserialize)]
@@ -55,10 +63,10 @@ struct AiWorkRequestWire {
 /// protocol has no owner-issued redaction or runtime capability to attach.
 pub fn decode_work_request(bytes: &[u8]) -> Result<AiWorkRequest, AiProtocolContractError> {
     let value: Value =
-        serde_json::from_slice(bytes).map_err(|_| AiProtocolContractError::InvalidEncoding)?;
+        serde_json::from_slice(bytes).map_err(AiProtocolContractError::InvalidEncoding)?;
     ensure_current_schema(&value)?;
     let wire: AiWorkRequestWire =
-        serde_json::from_value(value).map_err(|_| AiProtocolContractError::InvalidWorkRequest)?;
+        serde_json::from_value(value).map_err(invalid_work_request_encoding)?;
     if wire.prompt.is_some() || wire.runtime.is_some() {
         return Err(AiProtocolContractError::OwnerResolvedAttachment);
     }
@@ -71,7 +79,7 @@ pub fn decode_work_request(bytes: &[u8]) -> Result<AiWorkRequest, AiProtocolCont
         wire.retry_policy,
         None,
     )
-    .map_err(|_| AiProtocolContractError::InvalidWorkRequest)
+    .map_err(invalid_work_request_contract)
 }
 
 /// Encode a canonical work request without changing its leaf-owned shape.
@@ -115,7 +123,9 @@ fn ensure_current_schema(value: &Value) -> Result<(), AiProtocolContractError> {
         .get("identity")
         .and_then(|identity| identity.get("schemaVersion"))
         .and_then(Value::as_str)
-        .ok_or(AiProtocolContractError::InvalidWorkRequest)?;
+        .ok_or(AiProtocolContractError::InvalidWorkRequest(
+            AiProtocolWorkRequestError::MissingSchemaVersion,
+        ))?;
     if schema_version != AI_PROTOCOL_CONTRACT_SCHEMA_VERSION {
         return Err(AiProtocolContractError::StaleSchemaVersion);
     }
@@ -132,7 +142,7 @@ fn ensure_current_schema_value(
 }
 
 fn encode_json<T: Serialize>(value: &T) -> Result<Vec<u8>, AiProtocolContractError> {
-    serde_json::to_vec(value).map_err(|_| AiProtocolContractError::SerializationFailed)
+    serde_json::to_vec(value).map_err(AiProtocolContractError::SerializationFailed)
 }
 
 fn encode_json_with_digest<T: Serialize>(
@@ -141,7 +151,7 @@ fn encode_json_with_digest<T: Serialize>(
 ) -> Result<Vec<u8>, AiProtocolContractError> {
     let bytes = encode_json(value)?;
     let encoded: Value =
-        serde_json::from_slice(&bytes).map_err(|_| AiProtocolContractError::SerializationFailed)?;
+        serde_json::from_slice(&bytes).map_err(AiProtocolContractError::SerializationFailed)?;
     let actual_digest = encoded
         .get("digest")
         .and_then(Value::as_str)
@@ -149,4 +159,12 @@ fn encode_json_with_digest<T: Serialize>(
     (actual_digest == expected_digest)
         .then_some(bytes)
         .ok_or(AiProtocolContractError::DigestNotPreserved)
+}
+
+fn invalid_work_request_encoding(error: serde_json::Error) -> AiProtocolContractError {
+    AiProtocolContractError::InvalidWorkRequest(AiProtocolWorkRequestError::Encoding(error))
+}
+
+fn invalid_work_request_contract(error: &'static str) -> AiProtocolContractError {
+    AiProtocolContractError::InvalidWorkRequest(AiProtocolWorkRequestError::Contract(error))
 }

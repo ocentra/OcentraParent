@@ -15,8 +15,8 @@ use super::helpers::{
 use super::neighbor_support::{discovery_evidence_source_from_scan_source, effective_scan_sources};
 use super::service_identity::{self, AllowedSnmpResponseObserver};
 use super::{
-    LanDiscoveryRefreshMode, LanManualInterfaceSelection, LanNetworkInventoryDevice,
-    LanPassiveRuntimeLocalNetworkIdentity,
+    LanDiscoveryRefreshMode, LanManualInterfaceSelection, LanNetworkDiscoveryRequest,
+    LanNetworkInventoryDevice, LanPassiveRuntimeLocalNetworkIdentity,
 };
 
 pub(super) mod cancellation;
@@ -100,17 +100,17 @@ pub fn discover_lan_network_devices_with_hints_refresh_mode_and_scan_and_probe_s
     allowed_snmp_response_observer: AllowedSnmpResponseObserver<'_>,
 ) -> Vec<LanNetworkInventoryDevice> {
     let selected_interface = service_identity_selected_interface_scope(selected_interface_scope);
-    cancellation::discover_lan_network_devices_with_cancellation(
+    cancellation::discover_lan_network_devices_with_cancellation(&LanNetworkDiscoveryRequest {
         identity_hint_devices,
         previous_devices,
         refresh_mode,
         active_refresh_suppression_devices,
         probe_suppression_devices,
-        selected_interface.as_deref(),
+        selected_interface_scope: selected_interface.as_deref(),
         allowed_snmp_response_observer,
-        None,
-        None,
-    )
+        cancellation: None,
+        deadline: None,
+    })
 }
 
 pub fn service_identity_selected_interface_scope(

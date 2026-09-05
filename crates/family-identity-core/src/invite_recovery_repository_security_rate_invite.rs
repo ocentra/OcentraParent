@@ -19,7 +19,7 @@ pub(crate) fn enforce_invite_rate_limit(
             |row| Ok((row.get::<_, i64>(0)?, row.get::<_, i64>(1)?)),
         )
         .optional()
-        .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
+        .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)?;
     match existing {
         None => transaction
             .execute(
@@ -28,7 +28,7 @@ pub(crate) fn enforce_invite_rate_limit(
                  VALUES (?1, ?2, 1)",
                 params![subject_digest, now],
             )
-            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?,
+            .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)?,
         Some((window, _)) if elapsed_at_least(now, window, WINDOW_MILLIS) => transaction
             .execute(
                 "UPDATE account_identity_invite_rate_limit
@@ -36,7 +36,7 @@ pub(crate) fn enforce_invite_rate_limit(
                  WHERE subject_digest = ?1",
                 params![subject_digest, now],
             )
-            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?,
+            .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)?,
         Some((_window, attempts)) if attempts >= MAX_ATTEMPTS => {
             return Err(InviteRecoveryRepositoryError::InviteRejected)
         }
@@ -46,7 +46,7 @@ pub(crate) fn enforce_invite_rate_limit(
                  SET attempt_count = attempt_count + 1 WHERE subject_digest = ?1",
                 params![subject_digest],
             )
-            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?,
+            .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)?,
     };
     Ok(())
 }

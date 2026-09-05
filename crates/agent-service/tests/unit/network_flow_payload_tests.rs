@@ -1,6 +1,8 @@
 use std::string::String as TestString;
 use std::{error::Error, io::Error as IoError};
 
+use crate::network_runtime_delivery::NetworkRuntimeServiceDeliveryReport;
+use crate::network_runtime_test_support::network_flow_read_model_payload_with_runtime_delivery_for_test;
 use ocentra_parent_agent_core::network_event_runtime::NetworkRuntimeJournalState;
 use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
 use ocentra_parent_agent_protocol::constants;
@@ -14,10 +16,6 @@ use ocentra_parent_agent_protocol::network_flow::{
     NETWORK_FLOW_READ_MODEL_FIELD_TOMBSTONE_ROWS,
 };
 use ocentra_parent_agent_protocol::NETWORK_FLOW_SCHEMA_VERSION;
-use ocentra_parent_agent_service::test_support::{
-    network_flow_read_model_payload_with_runtime_delivery_for_test,
-    NetworkRuntimeServiceDeliveryReportForTest,
-};
 
 type TestResult<T = ()> = Result<T, Box<dyn Error>>;
 
@@ -111,7 +109,7 @@ fn network_flow_payload_reports_tombstone_refs_without_active_rows() {
 #[test]
 fn network_flow_payload_includes_runtime_delivery_counts_when_supplied() {
     let read_model = read_model();
-    let delivery = NetworkRuntimeServiceDeliveryReportForTest {
+    let delivery = NetworkRuntimeServiceDeliveryReport {
         observed_rows: 1,
         delivered_rows: 1,
         failed_rows: 0,

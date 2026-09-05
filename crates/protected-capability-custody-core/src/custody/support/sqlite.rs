@@ -8,7 +8,10 @@ use crate::storage::StorageError;
 pub(in crate::custody) fn lock_connection(
     store: &CustodyStore,
 ) -> Result<MutexGuard<'_, Connection>, CustodyError> {
-    store.connection.lock().map_err(|_| CustodyError::Conflict)
+    store
+        .connection
+        .lock()
+        .map_err(|_poison_error| CustodyError::Conflict)
 }
 
 /// Call only after dropping every SQLite guard/transaction. This revalidates
@@ -21,13 +24,13 @@ pub(in crate::custody) fn finish_step<T>(
     match store
         .secured_path
         .revalidate()
-        .map_err(super::map_path_error)
+        .map_err(|error| super::map_path_error(&error))
     {
         Err(path_error) => Err(path_error),
         Ok(()) => result,
     }
 }
 
-pub(in crate::custody) fn map_error(error: StorageError) -> CustodyError {
+pub(in crate::custody) fn map_error(error: &StorageError) -> CustodyError {
     super::mapping::map_storage_error(error)
 }

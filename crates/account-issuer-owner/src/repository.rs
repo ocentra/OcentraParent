@@ -22,9 +22,7 @@ use ocentra_schema::account_identity_authority_producer_v2::{
 
 use crate::contract::IssueCurrentAuthorityCommand;
 use crate::currentness::CurrentAuthority;
-use crate::delivery::{
-    DeliveryClaim, DeliveryFailure, PreparedAcknowledgeReceipt, ProtectedAccountIssuerReceipt,
-};
+use crate::delivery::{DeliveryClaim, DeliveryFailure, PreparedAcknowledgeReceipt};
 use crate::key_registry::KeyRecord;
 
 #[path = "repository_error.rs"]
@@ -140,9 +138,7 @@ impl AccountIssuerRepository {
         provider_subject: &AccountIdentityProviderSubject,
         claim: &DeliveryClaim,
     ) -> Result<PreparedAcknowledgeReceipt, AccountIssuerRepositoryError> {
-        let current = self
-            .resolve_current(provider, provider_subject)
-            .map_err(|error| error)?;
+        let current = self.resolve_current(provider, provider_subject)?;
         self.client
             .prepare_acknowledge_receipt(&current.inner, &claim.inner)
             .map(|request| PreparedAcknowledgeReceipt { request })
@@ -153,14 +149,12 @@ impl AccountIssuerRepository {
         &mut self,
         provider: &AccountIdentityProvider,
         provider_subject: &AccountIdentityProviderSubject,
-        claim: &DeliveryClaim,
-        protected_receipt: &ProtectedAccountIssuerReceipt,
+        claim: &AccountIdentityIssuerOutboxClaim,
+        protected_receipt_wire: &[u8],
     ) -> Result<AccountIdentityAuthorityProducerV2Receipt, AccountIssuerRepositoryError> {
-        let current = self
-            .resolve_current(provider, provider_subject)
-            .map_err(|error| error)?;
+        let current = self.resolve_current(provider, provider_subject)?;
         self.client
-            .acknowledge_receipt(&current.inner, &claim.inner, protected_receipt.wire())
+            .acknowledge_receipt(&current.inner, claim, protected_receipt_wire)
             .map_err(AccountIssuerRepositoryError::from)
     }
 }

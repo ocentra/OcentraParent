@@ -17,7 +17,7 @@ pub(super) fn network_runtime_startup_error(
 }
 
 pub(super) fn network_runtime_startup_reason(
-    error: NetworkRuntimeStartupError,
+    error: &NetworkRuntimeStartupError,
 ) -> StartupErrorReason {
     let reason = match error {
         NetworkRuntimeStartupError::Spine => {

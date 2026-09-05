@@ -10,7 +10,7 @@ use crate::{
 };
 
 impl ChildStorageCustodyRuntime {
-    pub(crate) async fn replay_record(
+    pub(super) async fn replay_record(
         &self,
         record: &StorageCustodyEffectRecord,
     ) -> Result<bool, ChildAgentServiceError> {

@@ -36,26 +36,11 @@ struct AuthenticatedDeliveryExecutionContext {
     activity_store_path: PathBuf,
 }
 
-pub(crate) struct AuthenticatedDeliveryStorePath(PathBuf);
-pub(crate) struct AuthenticatedDeliveryActivityStorePath(PathBuf);
-
 pub struct AuthenticatedDeliveryExecutionExecutor {
     context: AuthenticatedDeliveryExecutionContext,
 }
 
 impl AuthenticatedDeliveryExecutionExecutor {
-    pub(crate) fn from_service_configuration(
-        store_path: AuthenticatedDeliveryStorePath,
-        activity_store_path: AuthenticatedDeliveryActivityStorePath,
-    ) -> Self {
-        Self {
-            context: AuthenticatedDeliveryExecutionContext {
-                store_path: store_path.0,
-                activity_store_path: activity_store_path.0,
-            },
-        }
-    }
-
     pub fn execute_authenticated_owned_process_delivery(
         &self,
         request: AuthenticatedDeliveryExecutionRequest,

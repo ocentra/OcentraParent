@@ -24,28 +24,30 @@ pub struct AccountIssuerReceiptLineage {
     expires_at: AccountIssuerField,
 }
 
+pub struct AccountIssuerReceiptLineageInput {
+    pub provider: AccountIdentityProvider,
+    pub provider_subject: AccountIdentityProviderSubject,
+    pub account_id: AccountIssuerField,
+    pub household_id: AccountIssuerField,
+    pub member_id: AccountIssuerField,
+    pub device_id: AccountIssuerField,
+    pub session_id: AccountIssuerField,
+    pub service_binding_id: AccountIssuerField,
+    pub key_generation: u64,
+    pub enrollment_generation: u64,
+    pub authority_generation: u64,
+    pub session_generation: u64,
+    pub issued_at: AccountIssuerField,
+    pub expires_at: AccountIssuerField,
+}
+
 impl AccountIssuerReceiptLineage {
-    pub fn new(
-        provider: AccountIdentityProvider,
-        provider_subject: AccountIdentityProviderSubject,
-        account_id: AccountIssuerField,
-        household_id: AccountIssuerField,
-        member_id: AccountIssuerField,
-        device_id: AccountIssuerField,
-        session_id: AccountIssuerField,
-        service_binding_id: AccountIssuerField,
-        key_generation: u64,
-        enrollment_generation: u64,
-        authority_generation: u64,
-        session_generation: u64,
-        issued_at: AccountIssuerField,
-        expires_at: AccountIssuerField,
-    ) -> Result<Self, ProtocolError> {
+    pub fn new(input: AccountIssuerReceiptLineageInput) -> Result<Self, ProtocolError> {
         for generation in [
-            key_generation,
-            enrollment_generation,
-            authority_generation,
-            session_generation,
+            input.key_generation,
+            input.enrollment_generation,
+            input.authority_generation,
+            input.session_generation,
         ] {
             if generation == 0 || generation > ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_GENERATION
             {
@@ -53,20 +55,20 @@ impl AccountIssuerReceiptLineage {
             }
         }
         Ok(Self {
-            provider,
-            provider_subject,
-            account_id,
-            household_id,
-            member_id,
-            device_id,
-            session_id,
-            service_binding_id,
-            key_generation,
-            enrollment_generation,
-            authority_generation,
-            session_generation,
-            issued_at,
-            expires_at,
+            provider: input.provider,
+            provider_subject: input.provider_subject,
+            account_id: input.account_id,
+            household_id: input.household_id,
+            member_id: input.member_id,
+            device_id: input.device_id,
+            session_id: input.session_id,
+            service_binding_id: input.service_binding_id,
+            key_generation: input.key_generation,
+            enrollment_generation: input.enrollment_generation,
+            authority_generation: input.authority_generation,
+            session_generation: input.session_generation,
+            issued_at: input.issued_at,
+            expires_at: input.expires_at,
         })
     }
 

@@ -96,7 +96,7 @@ pub(super) fn valid_rsa_public_blob(value: &[u8]) -> bool {
     let prime_two_bytes = u32::from_le_bytes([value[20], value[21], value[22], value[23]]);
     magic == windows_sys::Win32::Security::Cryptography::BCRYPT_RSAPUBLIC_MAGIC
         && bit_length != 0
-        && bit_length % 8 == 0
+        && bit_length.is_multiple_of(8)
         && exponent_bytes != 0
         && modulus_bytes != 0
         && prime_one_bytes == 0
@@ -126,7 +126,7 @@ pub(super) fn rsa_3072_modulus(value: &[u8]) -> Result<[u8; RSA_3072_MODULUS_BYT
         .get(27..)
         .ok_or(Error::CryptoPropertyViolation)?
         .try_into()
-        .map_err(|_| Error::CryptoPropertyViolation)
+        .map_err(|_error| Error::CryptoPropertyViolation)
 }
 
 pub(super) fn set_fixed_key_security(key: NCRYPT_KEY_HANDLE) -> Result<()> {

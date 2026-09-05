@@ -25,7 +25,7 @@ impl LanPairingRuntime {
             }
             LanPairingRegistryPersistence::LocalJsonRegistry(path) => apply_persisted(
                 &mut registry,
-                LanPairingRegistryPathRef(path.as_path()),
+                &LanPairingRegistryPathRef(path.as_path()),
                 origin,
                 intent,
                 observed_at,
@@ -56,7 +56,7 @@ fn apply_ephemeral(
 
 fn apply_persisted(
     registry: &mut ocentra_parent_agent_core::trusted_device_registry::TrustedDeviceRegistry,
-    path: LanPairingRegistryPathRef<'_>,
+    path: &LanPairingRegistryPathRef<'_>,
     origin: &LanPairingOptionalText,
     intent: &LanParentIntentEnvelope,
     observed_at: &LanPairingText,

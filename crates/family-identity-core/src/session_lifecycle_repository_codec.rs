@@ -56,6 +56,7 @@ struct StoredSessionRow {
     last_transition_at_epoch_millis: i64,
 }
 
+#[derive(Clone, Copy)]
 enum SessionLookup<'a> {
     Access(&'a SessionAccessDigest),
     Refresh(&'a SessionRefreshDigest),
@@ -83,12 +84,12 @@ pub(crate) fn read_active_for_account(
         .prepare(&format!(
             "{SESSION_SELECT} WHERE account_id = ?1 AND activity_state = 'active' ORDER BY session_id"
         ))
-        .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+        .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
     let rows = statement
         .query_map([account_id.to_string()], decode_stored_row)
-        .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+        .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
     rows.map(|row| {
-        row.map_err(|_| SessionLifecycleRepositoryError::Unavailable)
+        row.map_err(|_error| SessionLifecycleRepositoryError::Unavailable)
             .and_then(stored_row_into_record)
     })
     .collect::<Result<Vec<_>, _>>()
@@ -117,7 +118,7 @@ pub(crate) fn insert_record(
              )",
             record_params(record)?,
         )
-        .map_err(|_| SessionLifecycleRepositoryError::CurrentnessConflict)?;
+        .map_err(|_error| SessionLifecycleRepositoryError::CurrentnessConflict)?;
     (changed == 1)
         .then_some(())
         .ok_or(SessionLifecycleRepositoryError::CurrentnessConflict)
@@ -157,7 +158,7 @@ pub(crate) fn rotate_record(
                 rusqlite::types::Value::Integer(current.last_transition_at_epoch_millis),
             ])),
         )
-        .map_err(|_| SessionLifecycleRepositoryError::CurrentnessConflict)?;
+        .map_err(|_error| SessionLifecycleRepositoryError::CurrentnessConflict)?;
     (changed == 1)
         .then_some(())
         .ok_or(SessionLifecycleRepositoryError::CurrentnessConflict)
@@ -188,7 +189,7 @@ pub(crate) fn transition_activity(
                 current.last_transition_at_epoch_millis,
             ],
         )
-        .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+        .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
     (changed == 1)
         .then_some(())
         .ok_or(SessionLifecycleRepositoryError::CurrentnessConflict)
@@ -206,7 +207,7 @@ pub(crate) fn current_revoke_epoch(
             |row| row.get::<_, i64>(0),
         )
         .optional()
-        .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+        .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
     match epoch {
         Some(epoch) => from_sql_generation(epoch),
         None => {
@@ -216,7 +217,7 @@ pub(crate) fn current_revoke_epoch(
                      VALUES (?1, 1)",
                     [account_id.as_str()],
                 )
-                .map_err(|_| SessionLifecycleRepositoryError::CurrentnessConflict)?;
+                .map_err(|_error| SessionLifecycleRepositoryError::CurrentnessConflict)?;
             (inserted == 1)
                 .then_some(1)
                 .ok_or(SessionLifecycleRepositoryError::CurrentnessConflict)
@@ -242,7 +243,7 @@ pub(crate) fn advance_revoke_epoch(
                 to_sql_generation(expected_epoch)?,
             ],
         )
-        .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+        .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
     if changed != 1 {
         let reloaded = current_revoke_epoch(transaction, account_id)?;
         return if reloaded != expected_epoch {
@@ -277,7 +278,7 @@ pub(crate) fn register_consumed_refresh(
                 consumed_at_epoch_millis,
             ],
         )
-        .map_err(|_| SessionLifecycleRepositoryError::ReplayRejected)?;
+        .map_err(|_error| SessionLifecycleRepositoryError::ReplayRejected)?;
     (changed == 1)
         .then_some(())
         .ok_or(SessionLifecycleRepositoryError::ReplayRejected)
@@ -296,11 +297,11 @@ pub(crate) fn refresh_was_consumed(
         )
         .optional()
         .map(|row| row.is_some())
-        .map_err(|_| SessionLifecycleRepositoryError::Unavailable)
+        .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)
 }
 
 pub(crate) fn to_sql_generation(value: u64) -> Result<i64, SessionLifecycleRepositoryError> {
-    i64::try_from(value).map_err(|_| SessionLifecycleRepositoryError::InvalidTransition)
+    i64::try_from(value).map_err(|_error| SessionLifecycleRepositoryError::InvalidTransition)
 }
 
 fn read_one(
@@ -320,7 +321,7 @@ fn read_one(
     transaction
         .query_row(&sql, [key], decode_stored_row)
         .optional()
-        .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?
+        .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?
         .map(stored_row_into_record)
         .transpose()
 }

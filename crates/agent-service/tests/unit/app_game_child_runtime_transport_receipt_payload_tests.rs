@@ -15,8 +15,8 @@ use ocentra_parent_agent_protocol::transport::{
 use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
 use crate::{
-    activity_report_env_lock::REPORT_ENV_LOCK,
-    test_invariants::{require_json_decode, require_log_string_field},
+    activity_report_env_lock::REPORT_ENV_LOCK, test_require_json_decode::require_json_decode,
+    test_require_log_string_field::require_log_string_field,
 };
 
 use super::app_game_child_runtime_transport_receipt_payload::build_activity_app_game_child_runtime_transport_receipt_report;

@@ -59,7 +59,7 @@ pub(super) fn revoke_pairing(
                 )
                 .map_err(|_error| LanPairingRejectionReason::SignedChildAgentContextUnavailable)?,
             LanPairingRegistryPersistence::UnavailableLocalJsonRegistry => {
-                return Err(LanPairingRejectionReason::SignedChildAgentContextUnavailable);
+                Err(LanPairingRejectionReason::SignedChildAgentContextUnavailable)
             }
         })
 }

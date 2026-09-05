@@ -67,7 +67,11 @@ impl CdpSession {
         Ok(Self { socket, next_id: 1 })
     }
 
-    pub(super) fn call(&mut self, method: &str, params: Value) -> Result<Value, CdpTransportError> {
+    pub(super) fn call(
+        &mut self,
+        method: &str,
+        params: &Value,
+    ) -> Result<Value, CdpTransportError> {
         let id = self.next_id;
         self.next_id = self.next_id.saturating_add(1);
         let body = serde_json::to_string(&json!({
@@ -77,7 +81,7 @@ impl CdpSession {
         }))
         .map_err(|_error| CdpTransportError::InvalidResponse)?;
         self.socket
-            .send(Message::Text(body.into()))
+            .send(Message::Text(body))
             .map_err(|_error| CdpTransportError::Transport)?;
 
         loop {
@@ -115,10 +119,10 @@ impl CdpSession {
         binding: &LaunchBinding,
         capability_revoked: Arc<AtomicBool>,
     ) -> Result<FrozenPageGuard, CdpTransportError> {
-        self.call("Page.enable", json!({}))?;
+        self.call("Page.enable", &json!({}))?;
         self.call(
             CDP_METHOD_SET_WEB_LIFECYCLE_STATE,
-            json!({ "state": CDP_STATE_FROZEN }),
+            &json!({ "state": CDP_STATE_FROZEN }),
         )?;
         Ok(FrozenPageGuard {
             armed: true,
@@ -135,7 +139,7 @@ impl FrozenPageGuard {
         }
         session.call(
             CDP_METHOD_SET_WEB_LIFECYCLE_STATE,
-            json!({ "state": CDP_STATE_ACTIVE }),
+            &json!({ "state": CDP_STATE_ACTIVE }),
         )?;
         self.armed = false;
         self.retirement_binding = None;

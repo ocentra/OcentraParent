@@ -10,10 +10,10 @@ use crate::storage::{self, Record};
 pub(super) fn recover_initial(
     store: &CustodyStore,
     binding: &Binding,
-    broker: BrokerRecord,
+    broker: &BrokerRecord,
     attestation: PlatformAttestation,
 ) -> Result<Record, CustodyError> {
-    let broker = verify_broker(store.platform.as_ref(), &broker, &store.secured_path)?;
+    let broker = verify_broker(store.platform.as_ref(), broker, &store.secured_path)?;
     validate_current(&broker, binding)?;
     validate_attestation(&broker, attestation)?;
     if broker.state != SealedState::Prepared || broker.sequence != 1 {
@@ -43,22 +43,22 @@ pub(super) fn advance(
     store
         .secured_path
         .revalidate()
-        .map_err(super::super::support::map_path_error)?;
+        .map_err(|error| super::super::support::map_path_error(&error))?;
     let mut connection = lock_connection(store)?;
     let result = (|| {
         storage::validate_all(&connection, store.secured_path.identity())
-            .map_err(map_storage_error)?;
+            .map_err(|error| map_storage_error(&error))?;
         let transaction = connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
-            .map_err(|_| CustodyError::Database)?;
-        let changed =
-            storage::compare_and_replace(&transaction, prior, &next).map_err(map_storage_error)?;
+            .map_err(|_sqlite_error| CustodyError::Database)?;
+        let changed = storage::compare_and_replace(&transaction, prior, &next)
+            .map_err(|error| map_storage_error(&error))?;
         if !changed {
             return Err(CustodyError::Conflict);
         }
         transaction
             .commit()
-            .map_err(|_| CustodyError::Database)
+            .map_err(|_sqlite_error| CustodyError::Database)
             .map(|()| next)
     })();
     drop(connection);
@@ -70,22 +70,24 @@ fn persist_initial(store: &CustodyStore, broker: &Record) -> Result<(), CustodyE
     store
         .secured_path
         .revalidate()
-        .map_err(super::super::support::map_path_error)?;
+        .map_err(|error| super::super::support::map_path_error(&error))?;
     let mut connection = lock_connection(store)?;
     let result = (|| {
         storage::validate_all(&connection, store.secured_path.identity())
-            .map_err(map_storage_error)?;
+            .map_err(|error| map_storage_error(&error))?;
         let transaction = connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
-            .map_err(|_| CustodyError::Database)?;
+            .map_err(|_sqlite_error| CustodyError::Database)?;
         if storage::load_by_lookup(&transaction, &broker.lookup_digest)
-            .map_err(map_storage_error)?
+            .map_err(|error| map_storage_error(&error))?
             .is_some()
         {
             return Err(CustodyError::Conflict);
         }
-        storage::insert(&transaction, broker).map_err(map_storage_error)?;
-        transaction.commit().map_err(|_| CustodyError::Database)
+        storage::insert(&transaction, broker).map_err(|error| map_storage_error(&error))?;
+        transaction
+            .commit()
+            .map_err(|_sqlite_error| CustodyError::Database)
     })();
     drop(connection);
     finish_step(store, result)

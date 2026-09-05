@@ -112,6 +112,8 @@
   "generatedArtifactsMode": "tracked",
   "generatedArtifactsAllowlist": [
     "apps/portal/generated/parent-ui-bridge.ts",
+    "apps/portal/generated/parent-ui-bridge-validation.ts",
+    "apps/portal/generated/parent-ui-bridge-validation-primitives.ts",
     "apps/portal/generated/parent-ui-screen-bridge.ts",
     "crates/app-game-core/tests/generated/app-game-notification-parent-surface-intent.ts",
     "crates/app-game-core/tests/generated/app-game-source-freshness-preview-gate.ts",

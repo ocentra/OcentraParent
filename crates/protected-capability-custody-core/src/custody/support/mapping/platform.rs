@@ -2,7 +2,7 @@ use super::super::super::CustodyError;
 use crate::authority::AuthorityError;
 use crate::platform::PlatformError;
 
-pub(super) fn platform_error(error: PlatformError) -> CustodyError {
+pub(super) fn platform_error(error: &PlatformError) -> CustodyError {
     match error {
         PlatformError::Unavailable
         | PlatformError::DeploymentRequired
@@ -15,7 +15,7 @@ pub(super) fn platform_error(error: PlatformError) -> CustodyError {
     }
 }
 
-pub(super) fn authority_error(error: AuthorityError) -> CustodyError {
+pub(super) fn authority_error(error: &AuthorityError) -> CustodyError {
     match error {
         AuthorityError::Unavailable => CustodyError::Unavailable,
         AuthorityError::Rejected => CustodyError::WrongBinding,

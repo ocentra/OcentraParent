@@ -22,7 +22,7 @@ const ACCOUNT_OWNER_UNAVAILABLE_REASON: &str = "parent-local bridge Account owne
 
 #[derive(Clone)]
 pub(crate) struct ParentLocalBridgeAdmission {
-    account_owner: Arc<Mutex<AccountIdentityAuthorityService>>,
+    account_owner: Option<Arc<Mutex<AccountIdentityAuthorityService>>>,
     startup_recovered: bool,
 }
 
@@ -35,10 +35,10 @@ pub(crate) enum ParentLocalBridgeAdmissionError {
 }
 
 impl ParentLocalBridgeAdmission {
-    pub(crate) fn mount_for_service(network: &NetworkPolicy) -> Option<Self> {
+    pub(crate) fn mount_for_service(network: &NetworkPolicy) -> Self {
         match Self::mount_account_owned() {
-            Ok(admission) if admission.is_ready() => Some(admission),
-            Ok(_) => {
+            Ok(admission) if admission.is_ready() => admission,
+            Ok(_) | Err(_) => {
                 let _ = crate::dev_log::write_agent_error(
                     constants::error::AGENT_SERVICE_RUNS,
                     startup_error_log_fields(
@@ -46,48 +46,22 @@ impl ParentLocalBridgeAdmission {
                         StartupErrorReason(ACCOUNT_OWNER_UNAVAILABLE_REASON.to_owned()),
                     ),
                 );
-                None
-            }
-            Err(_) => {
-                let _ = crate::dev_log::write_agent_error(
-                    constants::error::AGENT_SERVICE_RUNS,
-                    startup_error_log_fields(
-                        network,
-                        StartupErrorReason(ACCOUNT_OWNER_UNAVAILABLE_REASON.to_owned()),
-                    ),
-                );
-                None
+                Self::unavailable()
             }
         }
     }
 
     pub(crate) fn mount_account_owned() -> Result<Self, ParentLocalBridgeAdmissionError> {
         let account_owner = AccountIdentityAuthorityService::mount_account_owned()
-            .map_err(|_| ParentLocalBridgeAdmissionError::OwnerUnavailable)?;
+            .map_err(|_error| ParentLocalBridgeAdmissionError::OwnerUnavailable)?;
         Ok(Self {
-            account_owner: Arc::new(Mutex::new(account_owner)),
+            account_owner: Some(Arc::new(Mutex::new(account_owner))),
             startup_recovered: false,
         })
     }
 
-    /// Complete service admission only from an external provider-composed
-    /// Account authority. Recovery runs before the admission becomes ready,
-    /// so the service cannot expose a listener with unreconciled audit state.
-    /// The authority is borrowed only for this bounded recovery call and is
-    /// never retained or reconstructed from transport input.
-    pub(crate) fn from_owner_composed(
-        mut account_owner: AccountIdentityAuthorityService,
-        current_authority: &VerifiedAccountIdentityAuthority,
-    ) -> Result<Self, ParentLocalBridgeAdmissionError> {
-        startup_recovery::complete(&mut account_owner, current_authority)?;
-        Ok(Self {
-            account_owner: Arc::new(Mutex::new(account_owner)),
-            startup_recovered: true,
-        })
-    }
-
     pub(crate) fn is_ready(&self) -> bool {
-        self.startup_recovered
+        self.startup_recovered && self.account_owner.is_some()
     }
 
     pub(crate) fn authenticate(
@@ -99,7 +73,7 @@ impl ParentLocalBridgeAdmission {
         }
         self.owner()?
             .authenticate_parent_local_bridge_handshake(handshake)
-            .map_err(|_| ParentLocalBridgeAdmissionError::AuthenticationRejected)
+            .map_err(|_error| ParentLocalBridgeAdmissionError::AuthenticationRejected)
     }
 
     pub(crate) fn revalidate(
@@ -111,7 +85,7 @@ impl ParentLocalBridgeAdmission {
         }
         self.owner()?
             .revalidate_parent_local_bridge_session(authenticated)
-            .map_err(|_| ParentLocalBridgeAdmissionError::CurrentnessRejected)
+            .map_err(|_error| ParentLocalBridgeAdmissionError::CurrentnessRejected)
     }
 
     fn owner(
@@ -119,7 +93,41 @@ impl ParentLocalBridgeAdmission {
     ) -> Result<MutexGuard<'_, AccountIdentityAuthorityService>, ParentLocalBridgeAdmissionError>
     {
         self.account_owner
+            .as_ref()
+            .ok_or(ParentLocalBridgeAdmissionError::OwnerUnavailable)?
             .lock()
-            .map_err(|_| ParentLocalBridgeAdmissionError::OwnerUnavailable)
+            .map_err(|_error| ParentLocalBridgeAdmissionError::OwnerUnavailable)
+    }
+
+    fn unavailable() -> Self {
+        Self {
+            account_owner: None,
+            startup_recovered: false,
+        }
+    }
+}
+
+/// Complete admission only from an external provider-composed Account owner
+/// and opaque current authority. Recovery finishes before the result becomes
+/// ready; the authority is borrowed only for that bounded recovery operation.
+impl<'a>
+    TryFrom<(
+        AccountIdentityAuthorityService,
+        &'a VerifiedAccountIdentityAuthority,
+    )> for ParentLocalBridgeAdmission
+{
+    type Error = ParentLocalBridgeAdmissionError;
+
+    fn try_from(
+        (mut account_owner, current_authority): (
+            AccountIdentityAuthorityService,
+            &'a VerifiedAccountIdentityAuthority,
+        ),
+    ) -> Result<Self, Self::Error> {
+        startup_recovery::complete(&mut account_owner, current_authority)?;
+        Ok(Self {
+            account_owner: Some(Arc::new(Mutex::new(account_owner))),
+            startup_recovered: true,
+        })
     }
 }

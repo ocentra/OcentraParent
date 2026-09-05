@@ -77,23 +77,34 @@ function ensureGeneratedLoggingContractsArtifact() {
 }
 
 async function loadSmokeDependencies() {
-  const [ndjsonWriter, ndjsonPaths, testLogTypes, bridgeServer, bridgeTransport, schemaContracts, portalLogger, query] =
-    await Promise.all([
-      import('@ocentra-parent/logging-domain/test-log/ndjsonWriter'),
-      import('@ocentra-parent/logging-domain/test-log/ndjsonPaths'),
-      import('@ocentra-parent/logging-domain/test-log/types'),
-      import('@ocentra-parent/logging-domain/transport/bridgeServer'),
-      import('@ocentra-parent/logging-domain/transport/bridgeTransport'),
-      import('@ocentra-parent/schema-domain/generated/logging-contracts'),
-      import('../../apps/portal/src/dev-logger.ts'),
-      import('./lib/log-query-service.mjs'),
-    ]);
+  const [
+    ndjsonWriter,
+    ndjsonPaths,
+    testLogTypes,
+    bridgeServer,
+    bridgeTransport,
+    bridgeQueueStorage,
+    schemaContracts,
+    portalLogger,
+    query,
+  ] = await Promise.all([
+    import('@ocentra-parent/logging-domain/test-log/ndjsonWriter'),
+    import('@ocentra-parent/logging-domain/test-log/ndjsonPaths'),
+    import('@ocentra-parent/logging-domain/test-log/types'),
+    import('@ocentra-parent/logging-domain/transport/bridgeServer'),
+    import('@ocentra-parent/logging-domain/transport/bridgeTransport'),
+    import('@ocentra-parent/logging-domain/core/localArtifactBridgeQueueStorage'),
+    import('@ocentra-parent/schema-domain/generated/logging-contracts'),
+    import('../../apps/portal/src/dev-logger.ts'),
+    import('./lib/log-query-service.mjs'),
+  ]);
   return {
     ...ndjsonWriter,
     ...ndjsonPaths,
     ...testLogTypes,
     ...bridgeServer,
     ...bridgeTransport,
+    ...bridgeQueueStorage,
     ...schemaContracts,
     ...portalLogger,
     ...query,
@@ -192,6 +203,9 @@ async function main() {
   const proofId = 'wp10-proof-trace-smoke';
   const staleProofId = 'wp10-stale-proof-trace';
   const bridgeServer = dependencies.createBridgeServer({ rootDir });
+  const portalRuntime = {
+    localStorage: dependencies.createLocalArtifactBridgeQueueStorage(rootDir),
+  };
 
   try {
     seedStaleProofTrace(dependencies, rootDir, staleProofId);
@@ -244,7 +258,8 @@ async function main() {
         expectedNext: 'portal.action.clicked',
       },
       {},
-      endpoint
+      endpoint,
+      portalRuntime
     );
     const actionClicked = await dependencies.sendPortalProofTraceLog(
       dependencies.GeneratedDevLogMessage.PortalCommandSent,
@@ -259,7 +274,8 @@ async function main() {
       {
         uiTarget: 'open-dev-panel',
       },
-      endpoint
+      endpoint,
+      portalRuntime
     );
     const uiRendered = await dependencies.sendPortalProofTraceLog(
       dependencies.GeneratedDevLogMessage.PortalEventReceived,
@@ -274,7 +290,8 @@ async function main() {
       {
         renderState: 'visible',
       },
-      endpoint
+      endpoint,
+      portalRuntime
     );
 
     ensure(

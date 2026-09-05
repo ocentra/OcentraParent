@@ -28,6 +28,7 @@ impl ChildAgentService {
                     .ok_or(ChildAgentServiceError::UnknownDomain(event.domain))?;
                 flow.publish_observed(event)
                     .await
+                    .map(Box::new)
                     .map(ChildAgentCommandResult::Domain)
                     .map_err(Into::into)
             }

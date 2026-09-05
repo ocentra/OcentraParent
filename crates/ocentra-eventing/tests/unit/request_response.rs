@@ -1,4 +1,4 @@
-use crate::ExpectValue;
+use ocentra_eventing::expect_value::{ExpectErrValue, ExpectValue};
 use std::{future, sync::Arc, time::Duration};
 
 use tokio::sync::{Mutex, Notify};
@@ -11,9 +11,7 @@ use super::{
         REQUEST_EVENT_TYPE, REQUEST_ID, RESULT_EVENT_TYPE,
     },
 };
-use crate::{
-    EventRecorder, EventingError, RequestCompletionOutcome, RequestId, RequestOptions,
-};
+use crate::{EventRecorder, EventingError, RequestCompletionOutcome, RequestId, RequestOptions};
 use ocentra_eventing::request::RequestCompletionReport;
 
 #[test]
@@ -35,7 +33,10 @@ fn cancelled_completion_report_uses_canonical_serde_keys() {
     };
     let report_json = serde_json::to_value(report).expect_value("request report serializes");
 
-    assert_eq!(report_json["requestId"], serde_json::json!("request-cancelled-serde"));
+    assert_eq!(
+        report_json["requestId"],
+        serde_json::json!("request-cancelled-serde")
+    );
     assert_eq!(report_json["outcome"], serde_json::json!("cancelled"));
 }
 
@@ -140,7 +141,7 @@ async fn dropping_request_future_cancels_pending_completion_and_publish() {
 
     handler_started.notified().await;
     request.abort();
-    let join_error = request.await.expect_err("aborted request task");
+    let join_error = request.await.expect_err_value("aborted request task");
     assert!(join_error.is_cancelled());
 
     tokio::task::yield_now().await;
@@ -232,7 +233,10 @@ async fn dropping_causal_request_future_records_cancellation_report() {
 
     nested_started.notified().await;
     request.abort();
-    assert!(request.await.expect_err("aborted parent request").is_cancelled());
+    assert!(request
+        .await
+        .expect_err_value("aborted parent request")
+        .is_cancelled());
     tokio::task::yield_now().await;
 
     assert_eq!(
@@ -298,7 +302,7 @@ async fn causal_request_observes_shutdown_while_publish_is_in_flight() {
                                 .expect_value("causal shutdown request options"),
                         )
                         .await;
-                    let error = nested.expect_err("target shutdown cancels causal request");
+                    let error = nested.expect_err_value("target shutdown cancels causal request");
                     *observed_error.lock().await = Some(error);
                     Ok(())
                 }
@@ -337,7 +341,7 @@ async fn causal_request_observes_shutdown_while_publish_is_in_flight() {
         .lock()
         .await
         .take()
-        .expect("causal cancellation error is observed");
+        .expect_value("causal cancellation error is observed");
     assert!(matches!(
         error,
         EventingError::RequestCancelled { request_id }
@@ -386,14 +390,8 @@ async fn caller_drop_cancellation_reports_retain_newest_bounded_window() {
         let request = tokio::spawn(async move {
             request_bus
                 .publish_request(
-                    test_request_with_id(
-                        RequestText(request_id.clone()),
-                        RequestText(request_id),
-                    ),
-                    metadata_with_event_id(
-                        TestText(TEST_TARGET.to_owned()),
-                        TestText(event_id),
-                    ),
+                    test_request_with_id(RequestText(request_id.clone()), RequestText(request_id)),
+                    metadata_with_event_id(TestText(TEST_TARGET.to_owned()), TestText(event_id)),
                     RequestOptions::with_timeout(Duration::from_secs(30))
                         .expect_value("request options"),
                 )
@@ -402,7 +400,10 @@ async fn caller_drop_cancellation_reports_retain_newest_bounded_window() {
 
         handler_started.notified().await;
         request.abort();
-        assert!(request.await.expect_err("aborted request task").is_cancelled());
+        assert!(request
+            .await
+            .expect_err_value("aborted request task")
+            .is_cancelled());
         tokio::task::yield_now().await;
     }
 
@@ -412,11 +413,19 @@ async fn caller_drop_cancellation_reports_retain_newest_bounded_window() {
         REQUEST_CANCELLATION_REPORT_RETENTION_PROBE_COUNT - 1
     );
     assert_eq!(
-        reports.first().expect("oldest retained report").request_id.as_str(),
+        reports
+            .first()
+            .expect_value("oldest retained report")
+            .request_id
+            .as_str(),
         "request-cancellation-retention-0001"
     );
     assert_eq!(
-        reports.last().expect("newest retained report").request_id.as_str(),
+        reports
+            .last()
+            .expect_value("newest retained report")
+            .request_id
+            .as_str(),
         "request-cancellation-retention-4096"
     );
     assert!(reports

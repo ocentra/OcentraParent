@@ -14,41 +14,29 @@ use crate::entitlement_snapshot_values::{
 };
 use serde::{Deserialize, Serialize};
 
-#[path = "entitlement_snapshot_capability_wire_names.rs"]
-mod capability_wire_names;
 #[path = "entitlement_snapshot_derivation.rs"]
 mod derivation;
 #[path = "entitlement_snapshot_shape.rs"]
 mod shape;
-#[path = "entitlement_snapshot_signing.rs"]
-mod signing;
-#[path = "entitlement_snapshot_wire_names.rs"]
-mod wire_names;
 
 pub(crate) const ENTITLEMENT_SNAPSHOT_SCHEMA_VERSION: u16 = 1;
 pub(crate) const ENTITLEMENT_SNAPSHOT_SIGNATURE_BYTES: usize = 64;
 
-const ENTITLEMENT_SNAPSHOT_SIGNING_DOMAIN: &[u8] = b"ocentra.entitlement.snapshot.signing.v1\0";
-const CAPABILITY_TRACKING: &str = "tracking";
-const CAPABILITY_SCREEN_EVIDENCE: &str = "screen-evidence";
-const CAPABILITY_REMOTE_ACCESS: &str = "remote-access";
-const CAPABILITY_ENFORCEMENT: &str = "enforcement";
-
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct EntitlementSnapshotFeatureFlag {
     pub capability: EntitlementCapability,
     pub enabled: bool,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct EntitlementSnapshotLimitBundle {
     pub child_device_limit: u32,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct EntitlementBillingLedgerState {
     pub subscription_state: SubscriptionState,
     pub plan_tier: EntitlementSnapshotPlanTier,
@@ -57,13 +45,13 @@ pub struct EntitlementBillingLedgerState {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct EntitlementReferralLedgerState {
     pub active_referral_credits: u32,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct EntitlementLedgerProjectionState {
     pub account_ref: EntitlementAccountRef,
     pub household_ref: EntitlementHouseholdRef,
@@ -78,7 +66,7 @@ pub struct EntitlementLedgerProjectionState {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct EntitlementProviderStateInput {
     pub authority_boundary: EntitlementProviderStateBoundary,
     pub livemode: bool,
@@ -93,7 +81,7 @@ pub struct EntitlementProviderStateInput {
 /// capability. The issuer boundary consumes it only through its opaque,
 /// owner-produced `TrustedEntitlementIssuanceProjection`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct UnsignedEntitlementSnapshotProjection {
     pub schema_version: u16,
     pub snapshot_id: EntitlementSnapshotId,
@@ -120,9 +108,9 @@ pub struct UnsignedEntitlementSnapshotProjection {
 
 /// Signed wire material received from the entitlement issuer.
 ///
-/// This is transport data only.  A decoded value is never capability
-/// authority until `entitlement_snapshot_authority` verifies its signature,
-/// exact revocation generation/cursor, account handoff, and device binding.
+/// This is transport data only. A decoded value is never capability authority.
+/// The crate deliberately exports no verifier, issuer, revocation store, or
+/// unlock route until those owners are composed by a shipped runtime.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct SignedEntitlementSnapshot {
@@ -163,41 +151,8 @@ pub enum EntitlementSnapshotShapeError {
     InvalidEffectiveChildDeviceLimit,
 }
 
-impl SignedEntitlementSnapshot {
-    pub(crate) fn from_projection(
-        projection: UnsignedEntitlementSnapshotProjection,
-        signature_key_id: EntitlementSignatureKeyId,
-    ) -> Self {
-        Self {
-            schema_version: projection.schema_version,
-            snapshot_id: projection.snapshot_id,
-            account_ref: projection.account_ref,
-            household_ref: projection.household_ref,
-            trusted_device_ref: projection.trusted_device_ref,
-            plan_tier: projection.plan_tier,
-            feature_flags: projection.feature_flags,
-            limits: projection.limits,
-            base_child_device_limit: projection.base_child_device_limit,
-            active_referral_credits: projection.active_referral_credits,
-            paid_extra_child_device_seats: projection.paid_extra_child_device_seats,
-            effective_child_device_limit: projection.effective_child_device_limit,
-            issued_at: projection.issued_at,
-            expires_at: projection.expires_at,
-            grace_until: projection.grace_until,
-            livemode: projection.livemode,
-            revocation_cursor: projection.revocation_cursor,
-            authority_generation: projection.authority_generation,
-            device_trust_required: projection.device_trust_required,
-            package_build_ref: projection.package_build_ref,
-            release_channel: projection.release_channel,
-            signature_key_id,
-            signature: Vec::new(),
-        }
-    }
-}
-
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct EntitlementSnapshotDerivationInput {
     pub snapshot_id: EntitlementSnapshotId,
     pub billing_ledger_state: EntitlementBillingLedgerState,
@@ -213,9 +168,8 @@ pub struct EntitlementSnapshotDerivationInput {
 /// Capability context held by the entitlement owner.
 ///
 /// Its state is crate-private, deserialization always fails, and serialization
-/// is deliberately unavailable. The crate-private verifier is the only
-/// producer of trusted context, and it requires external key, package, and
-/// currentness authorities before any future action owner can use it.
+/// is deliberately unavailable. Only the fail-closed unavailable context is
+/// currently constructible; no signed wire value can manufacture authority.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct EntitlementSnapshotContext {
     pub(crate) signature_state: EntitlementSnapshotSignatureState,
@@ -266,6 +220,7 @@ impl EntitlementSnapshotContext {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum EntitlementSnapshotDerivationError {
     ZeroBaseChildDeviceLimit,
+    InvalidStarterBaseChildDeviceLimit,
     ZeroProviderChildDeviceLimitHint,
     SeatLimitOverflow,
 }

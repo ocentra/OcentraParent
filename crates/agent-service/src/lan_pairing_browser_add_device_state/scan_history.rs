@@ -18,6 +18,8 @@ use crate::{
     time::timestamp_now,
 };
 
+#[path = "scan_history_previous_devices.rs"]
+mod scan_history_previous_devices;
 #[path = "scan_history/write_lock.rs"]
 pub(crate) mod write_lock;
 
@@ -84,19 +86,10 @@ pub(crate) fn recent_previous_scan_agent_truth_devices(
     previous_scan_snapshot: Option<&LanScanHistorySnapshot>,
     now: DateTime<Utc>,
 ) -> Vec<LanPairingDeviceRef> {
-    let Some(previous_scan_snapshot) = previous_scan_snapshot else {
-        return Vec::new();
-    };
-    if !scan_history_is_recent(&previous_scan_snapshot.updated_at.clone().into(), now) {
-        return Vec::new();
-    }
-
-    previous_scan_snapshot
-        .devices
-        .iter()
-        .filter(|device| historical_agent_truth_should_suppress_probe(device))
-        .map(previous_scan_truth_device)
-        .collect()
+    scan_history_previous_devices::recent_previous_scan_agent_truth_devices(
+        previous_scan_snapshot,
+        now,
+    )
 }
 
 pub(crate) fn load_scan_history_snapshot(
@@ -112,7 +105,7 @@ pub(crate) fn scan_history_execution_lock(
     if let Some(parent) = path.as_ref().parent() {
         fs::create_dir_all(parent).ok()?;
     }
-    write_lock::cross_process_path_lock(&path, ScanHistoryLockKind::Execution)
+    write_lock::cross_process_path_lock(&path, &ScanHistoryLockKind::Execution)
 }
 
 pub(crate) fn save_scan_history(
@@ -303,27 +296,4 @@ pub(crate) fn scan_history_is_recent(updated_at: &LanPairingText, now: DateTime<
                     )
         })
         .unwrap_or(false)
-}
-
-fn historical_agent_truth_should_suppress_probe(device: &LanNetworkInventoryDevice) -> bool {
-    matches!(
-        device.agent_status.as_deref(),
-        Some(constants::lan_pairing::LOCAL_AGENT_STATUS)
-            | Some(constants::lan_pairing::SERVICE_IDENTITY_PROBE_AGENT_STATUS)
-    )
-}
-
-fn previous_scan_truth_device(device: &LanNetworkInventoryDevice) -> LanPairingDeviceRef {
-    let mut truth_device = LanPairingDeviceRef::new(
-        device.device_id.clone(),
-        None,
-        device.label.clone(),
-        device.platform.clone(),
-    );
-    truth_device.ip_address = Some(device.ip_address.clone());
-    truth_device.mac_address = Some(device.mac_address.clone());
-    truth_device.hostname = device.hostname.clone();
-    truth_device.network_interface = device.network_interface.clone();
-    truth_device.agent_status = device.agent_status.clone();
-    truth_device
 }

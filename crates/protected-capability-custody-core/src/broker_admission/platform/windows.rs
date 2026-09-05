@@ -21,7 +21,7 @@ pub(in crate::broker_admission) struct WindowsCustodyRuntime {
 pub(in crate::broker_admission) struct RetainedPeer(peer::PeerObservation);
 
 pub(in crate::broker_admission) struct AuthorizedPeer {
-    _peer: peer::AuthorizedPeer,
+    peer: peer::AuthorizedPeer,
 }
 
 pub(super) type BrokerClientAnchor = client_anchor::ClientAnchor;
@@ -94,7 +94,15 @@ impl WindowsCustodyRuntime {
                 pipe_process_id,
                 pipe_session_id,
             )
-            .map(|peer| AuthorizedPeer { _peer: peer })
+            .map(|peer| AuthorizedPeer { peer })
+    }
+
+    pub(in crate::broker_admission) fn revalidate_authorized_peer(
+        &self,
+        peer: &AuthorizedPeer,
+    ) -> Result<(), PlatformError> {
+        self.revalidate_broker()?;
+        peer.peer.revalidate(&self.enrollment)
     }
 }
 

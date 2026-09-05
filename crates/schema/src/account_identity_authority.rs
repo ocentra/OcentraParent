@@ -298,25 +298,6 @@ pub struct AccountIdentityAuthorityHandoff {
     pub binding: AccountIdentityHouseholdChildDeviceBinding,
 }
 
-impl AccountIdentityAuthorityHandoff {
-    /// Validate only the encoded handoff shape and mapping consistency.
-    ///
-    /// This is an identity lookup envelope, not a role, session, device-trust,
-    /// or action authority. Currentness remains repository-owned.
-    pub fn validate_shape(&self) -> Result<(), AccountIdentityBindingValidationError> {
-        (self.schema_version == AccountIdentityAuthoritySchemaVersion::V0_7)
-            .then_some(())
-            .ok_or(AccountIdentityBindingValidationError::SchemaVersionMismatch)?;
-        (self.mapping.status == AccountIdentityMappingStatus::Active)
-            .then_some(())
-            .ok_or(AccountIdentityBindingValidationError::InactiveProviderMapping)?;
-        (self.mapping.account_id == self.binding.account_id)
-            .then_some(())
-            .ok_or(AccountIdentityBindingValidationError::MappingAccountMismatch)?;
-        self.binding.validate_shape()
-    }
-}
-
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum AccountIdentityMemberAuthorityValidationError {
     SchemaVersionMismatch,

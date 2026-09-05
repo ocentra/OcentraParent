@@ -10,7 +10,7 @@ use crate::{
     PolicyTarget, PolicyTargetType, V08EnforcementProductControlParentAction,
     V08EnforcementProductControlSurface,
 };
-use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_eventing::expect_value::{ExpectErrValue, ExpectValue};
 
 #[test]
 fn serializes_policy_dispatch_read_model_with_stable_fields() {
@@ -83,10 +83,12 @@ fn rejects_missing_evidence_references_at_wire_boundary() {
     let mut json = serde_json::to_value(proof_read_model()).expect_value("read model serializes");
     let intent = json["entries"][0]["intent"]
         .as_object_mut()
-        .expect("intent is an object");
+        .expect_value("intent is an object");
     intent.remove("evidenceReferences");
 
-    assert!(serde_json::from_value::<EnforcementPolicyDispatchReadModel>(json).is_err());
+    let error = serde_json::from_value::<EnforcementPolicyDispatchReadModel>(json)
+        .expect_err_value("missing evidence references must fail closed at the wire boundary");
+    assert!(error.to_string().contains("missing field"));
 }
 
 fn proof_read_model() -> EnforcementPolicyDispatchReadModel {

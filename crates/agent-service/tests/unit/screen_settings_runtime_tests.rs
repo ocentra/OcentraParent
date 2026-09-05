@@ -13,7 +13,8 @@ use ocentra_parent_agent_protocol::SCREEN_EVIDENCE_SCHEMA_VERSION;
 
 use crate::{
     screen_settings_runtime::{default_disabled_setting, ScreenSettingsRuntime},
-    test_invariants::{require_ok, require_some},
+    test_require_ok::require_ok,
+    test_require_some::require_some,
 };
 
 #[tokio::test]

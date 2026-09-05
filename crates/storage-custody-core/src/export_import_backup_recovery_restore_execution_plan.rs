@@ -5,7 +5,7 @@ use super::export_import_backup_recovery_bundle_preflight_binding::execution_bin
 use super::export_import_backup_recovery_bundle_preflight_binding::BoundImportPreflight;
 #[path = "export_import_backup_recovery_restore_execution_plan_validation.rs"]
 mod validation;
-use validation::{preflight_is_safe, sections_match_plan};
+use validation::preflight_is_safe;
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct RestoreExecutionPlan {

@@ -195,12 +195,14 @@ it('createPortalRuntimeState: starts disconnected until the host bridge supplies
 it('beginParentRouteLoad: clears rows from a different route before the next bridge response arrives', () => {
   const state = createPortalRuntimeState();
   applyParentRouteSnapshot(state, currentSubscribedDevicesRouteSnapshot);
+  state.lastHostMessage = 'Previous action failed.';
 
   beginParentRouteLoad(state, 'browser');
 
   expect(state.routeSnapshot).toBeNull();
   expect(state.connectionState).toBe('connecting');
   expect(state.commandEnabled).toBe(false);
+  expect(state.lastHostMessage).toBeNull();
 });
 
 it('beginParentRouteLoad: preserves same-route rows as stale reconnect evidence', () => {
@@ -224,9 +226,7 @@ it('beginParentRouteLoad: preserves the Rust selected-device readiness projectio
   expect(state.routeSnapshot?.liveActivity?.lanAddDeviceReadModel?.selectedDeviceReadiness).toEqual(
     snapshot.liveActivity?.lanAddDeviceReadModel?.selectedDeviceReadiness
   );
-  expect(state.routeSnapshot?.liveActivity?.lanAddDeviceReadModel?.selectedDeviceReadiness.readyForControl).toBe(
-    true
-  );
+  expect(state.routeSnapshot?.liveActivity?.lanAddDeviceReadModel?.selectedDeviceReadiness.readyForControl).toBe(true);
 });
 
 it('applyParentRouteSnapshot: keeps missing or stale selected-device readiness fail-closed', () => {
@@ -288,6 +288,7 @@ it('applyParentRouteSnapshot: updates portal runtime state from the Rust-owned b
   expect(state.agentEndpoint).toBe('host-bridge://tauri-parent');
   expect(state.connectionState).toBe('connected');
   expect(state.commandEnabled).toBe(true);
+  expect(state.lastHostMessage).toBeNull();
   expect(state.routeSnapshot?.dataSource).toBe('rust-read-model');
   expect(state.routeSnapshot?.parentPortalRows?.[0]?.label).toBe('Local agent');
 });

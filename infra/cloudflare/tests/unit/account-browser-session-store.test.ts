@@ -7,9 +7,7 @@ import {
   createAccountIdentityAuthorityStore,
   type VerifiedAccountIdentityAuthorityCapability,
 } from '../../src/storage/account-identity-authority-store.js';
-import {
-  createBrowserSessionStore,
-} from '../../src/storage/account-browser-session-store.js';
+import { createBrowserSessionStore } from '../../src/storage/account-browser-session-store.js';
 import {
   isDigest,
   newSessionId,
@@ -103,7 +101,9 @@ async function createFixture(): Promise<StoreFixture> {
   const harness = new SQLiteD1Harness();
   try {
     for (const migration of MIGRATIONS) {
-      harness.database.exec(readFileSync(new URL(`../../migrations/account-identity/${migration}`, import.meta.url), 'utf8'));
+      harness.database.exec(
+        readFileSync(new URL(`../../migrations/account-identity/${migration}`, import.meta.url), 'utf8')
+      );
     }
 
     const providerSubject = 'firebase-browser-session-test';
@@ -190,9 +190,11 @@ describe('account browser session custody store', () => {
       assert.notEqual(created.secrets.sessionToken, created.secrets.refreshToken);
       assert.notEqual(created.secrets.refreshToken, created.secrets.csrfToken);
 
-      const stored = (fixture.harness.database.prepare(
-        'SELECT session_token_digest, refresh_token_digest, csrf_token_digest FROM ocentra_account_browser_sessions WHERE session_id = ?'
-      ).get as (...parameters: SQLiteParameter[]) => Record<string, unknown> | undefined)(created.identity.sessionId);
+      const stored = (
+        fixture.harness.database.prepare(
+          'SELECT session_token_digest, refresh_token_digest, csrf_token_digest FROM ocentra_account_browser_sessions WHERE session_id = ?'
+        ).get as (...parameters: SQLiteParameter[]) => Record<string, unknown> | undefined
+      )(created.identity.sessionId);
       assert.equal(stored?.session_token_digest, await sha256Hex(created.secrets.sessionToken));
       assert.equal(stored?.refresh_token_digest, await sha256Hex(created.secrets.refreshToken));
       assert.equal(stored?.csrf_token_digest, await sha256Hex(created.secrets.csrfToken));
@@ -221,7 +223,10 @@ describe('account browser session custody store', () => {
 
       const loggedOut = await store.logoutRefresh(rotated.secrets.refreshToken, 'store-logout');
       assert.equal(loggedOut.status, 'accepted');
-      assert.deepEqual(await store.readRefresh(rotated.secrets.refreshToken), { status: 'rejected', reason: 'revoked' });
+      assert.deepEqual(await store.readRefresh(rotated.secrets.refreshToken), {
+        status: 'rejected',
+        reason: 'revoked',
+      });
 
       const replay = await createBrowserSessionStore(fixture.harness.d1).rotate(
         created.secrets.refreshToken,

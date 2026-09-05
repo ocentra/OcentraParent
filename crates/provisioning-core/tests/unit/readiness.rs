@@ -43,6 +43,34 @@ fn evaluate_and_plan(
     )
 }
 
+type FailClosedReadinessCase = (
+    ProvisioningReadinessInput,
+    ProvisioningBlockerReason,
+    ProvisioningRecoveryAction,
+    ProvisioningOverallState,
+);
+
+fn assert_fail_closed_readiness_cases(cases: impl IntoIterator<Item = FailClosedReadinessCase>) {
+    for (input, blocker_reason, recovery_action, overall_state) in cases {
+        let (decision, plan) = evaluate_and_plan(input);
+        assert_eq!(decision.blocker_reason, Some(blocker_reason));
+        assert_eq!(decision.overall_state, overall_state);
+        assert_eq!(
+            decision.child_runtime_readiness_state,
+            ChildRuntimeReadinessState::NotReady
+        );
+        assert_eq!(
+            decision.manual_step_state,
+            ProvisioningManualStepState::Required
+        );
+        assert_eq!(
+            plan.child_runtime_start_action,
+            ProvisioningChildRuntimeStartAction::DoNotStart
+        );
+        assert_eq!(plan.recovery_action, recovery_action);
+    }
+}
+
 #[test]
 fn provisioning_blocks_installed_child_until_service_starts() {
     let (decision, plan) = evaluate_and_plan(ProvisioningReadinessInput {
@@ -302,8 +330,8 @@ fn provisioning_requires_direct_entry_when_lan_discovery_is_unavailable() {
 }
 
 #[test]
-fn provisioning_readiness_matrix_keeps_unavailable_owner_inputs_fail_closed() {
-    for (input, blocker_reason, recovery_action, overall_state) in [
+fn provisioning_readiness_keeps_account_and_device_owner_inputs_fail_closed() {
+    assert_fail_closed_readiness_cases([
         (
             ProvisioningReadinessInput {
                 membership_state: HouseholdMembershipState::Pending,
@@ -349,6 +377,12 @@ fn provisioning_readiness_matrix_keeps_unavailable_owner_inputs_fail_closed() {
             ProvisioningRecoveryAction::RePairChildDevice,
             ProvisioningOverallState::Blocked,
         ),
+    ]);
+}
+
+#[test]
+fn provisioning_readiness_keeps_runtime_owner_inputs_fail_closed() {
+    assert_fail_closed_readiness_cases([
         (
             ProvisioningReadinessInput {
                 permission_readiness_state: PermissionReadinessState::Missing,
@@ -394,25 +428,7 @@ fn provisioning_readiness_matrix_keeps_unavailable_owner_inputs_fail_closed() {
             ProvisioningRecoveryAction::RestoreParentSession,
             ProvisioningOverallState::Blocked,
         ),
-    ] {
-        let (decision, plan) = evaluate_and_plan(input);
-
-        assert_eq!(decision.blocker_reason, Some(blocker_reason));
-        assert_eq!(decision.overall_state, overall_state);
-        assert_eq!(
-            decision.child_runtime_readiness_state,
-            ChildRuntimeReadinessState::NotReady
-        );
-        assert_eq!(
-            decision.manual_step_state,
-            ProvisioningManualStepState::Required
-        );
-        assert_eq!(
-            plan.child_runtime_start_action,
-            ProvisioningChildRuntimeStartAction::DoNotStart
-        );
-        assert_eq!(plan.recovery_action, recovery_action);
-    }
+    ]);
 }
 
 #[test]

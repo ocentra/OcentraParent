@@ -1,19 +1,17 @@
 use std::sync::{Arc, Mutex};
 use std::time::Instant;
 
+use super::super::{
+    LanPassiveDiscoveryRefreshSignal, PASSIVE_DISCOVERY_MAX_CYCLE_DURATION,
+    PASSIVE_DISCOVERY_MAX_DATAGRAMS_PER_CYCLE, PASSIVE_DISCOVERY_MAX_DATAGRAMS_PER_SOURCE,
+};
+use super::cycle_cursor::PassiveDiscoveryCycleCursor;
+use super::PassiveDiscoveryListenerRuntime;
 use ocentra_lan_core::network_inventory::passive_discovery::udp_multicast::LanPassiveDiscoveryUdpDatagram;
 use ocentra_lan_core::network_inventory::passive_discovery::{
     LanPassiveDiscoveryListenerState, LanPassiveDiscoveryPacketIngestOutcome,
     LanPassiveDiscoveryTriggerReason,
 };
-use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceReachability;
-
-use super::super::{
-    LanPassiveDiscoveryRefreshSignal, PASSIVE_DISCOVERY_MAX_CYCLE_DURATION,
-    PASSIVE_DISCOVERY_MAX_DATAGRAMS_PER_CYCLE, PASSIVE_DISCOVERY_MAX_DATAGRAMS_PER_SOURCE,
-};
-use super::PassiveDiscoveryListenerRuntime;
-use super::cycle_cursor::PassiveDiscoveryCycleCursor;
 
 impl PassiveDiscoveryListenerRuntime {
     pub(super) fn receive_listener_cycle(
@@ -31,8 +29,10 @@ impl PassiveDiscoveryListenerRuntime {
         for _ in 0..listener_count {
             let remaining_cycle_time = cycle_deadline.saturating_duration_since(Instant::now());
             if !PassiveDiscoveryCycleCursor::should_continue(
-                is_running(listener_state), received_datagrams,
-                PASSIVE_DISCOVERY_MAX_DATAGRAMS_PER_CYCLE, remaining_cycle_time,
+                is_running(listener_state),
+                received_datagrams,
+                PASSIVE_DISCOVERY_MAX_DATAGRAMS_PER_CYCLE,
+                remaining_cycle_time,
             ) {
                 std::thread::yield_now();
                 break;
@@ -90,15 +90,6 @@ impl PassiveDiscoveryListenerRuntime {
     ) {
         let refresh_signals = collect_refresh_signals(listener_state, datagrams);
         self.send_refresh_signals(refresh_signals);
-    }
-
-    pub(super) fn heartbeat_reachability(&self) -> Option<LanPairingDeviceReachability> {
-        self.heartbeat.upgrade().and_then(|heartbeat| {
-            heartbeat
-                .lock()
-                .ok()
-                .and_then(|state| state.as_ref().map(|state| state.reachability.clone()))
-        })
     }
 
     pub(super) fn send_refresh_signals(

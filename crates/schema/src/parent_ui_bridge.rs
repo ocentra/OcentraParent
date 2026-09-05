@@ -94,7 +94,7 @@ pub const PARENT_DEV_BRIDGE_ROUTE_LOAD_ROUTE: &str = "load-route";
 pub const PARENT_DEV_BRIDGE_ROUTE_DISPATCH: &str = "dispatch";
 pub const PARENT_DEV_BRIDGE_LOAD_ROUTE_PATH: &str = "/api/parent-ui/load-route";
 pub const PARENT_DEV_BRIDGE_DISPATCH_PATH: &str = "/api/parent-ui/dispatch";
-pub const PARENT_ROUTE_HASH_PREFIX: &str = "#";
+pub const PARENT_ROUTE_HASH_PREFIX: &str = "#/";
 pub const PARENT_ROUTE_HASH_QUERY_SEPARATOR: &str = "?";
 pub const PARENT_ROUTE_SUBSCRIPTION_EVENT_PREFIX: &str = "parent-route-subscription-";
 pub const PARENT_ROUTE_SUBSCRIPTION_POLL_INTERVAL_MS: u64 = 1000;
@@ -1768,6 +1768,28 @@ pub struct ParentRouteBrowserPanelsSnapshot {
         Option<ParentBrowserPanelSnapshot>,
 }
 
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ParentDesktopDistributionSnapshot {
+    pub payload_source: String,
+    pub source_custody_state: String,
+    pub product_claim_state: String,
+    pub no_claim: String,
+    pub package_frontend_state: String,
+    pub package_service_manager_state: String,
+    pub package_health_probe_state: String,
+    pub package_preview_state: String,
+    pub update_channel_state: String,
+    pub rollback_state: String,
+    pub signing_state: String,
+    pub notarization_state: String,
+    pub store_distribution_state: String,
+    pub platform_matrix_state: String,
+    pub release_branch_state: String,
+    pub artifact_proof_state: String,
+    pub actions_available: bool,
+}
+
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ParentRouteSnapshot {
@@ -1783,6 +1805,8 @@ pub struct ParentRouteSnapshot {
     pub summary: ParentRouteSummary,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub service_health: Option<ParentServiceHealthSnapshot>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub parent_desktop_distribution: Option<ParentDesktopDistributionSnapshot>,
     pub diagnostic_panels_enabled: bool,
     pub parent_portal_rows: Option<Vec<ParentPortalRowSnapshot>>,
     pub parent_portal_shell_status: Option<ParentPortalShellStatusSnapshot>,

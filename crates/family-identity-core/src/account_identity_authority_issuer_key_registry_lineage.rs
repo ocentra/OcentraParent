@@ -39,7 +39,7 @@ fn reject_query_match(
     let invalid = connection
         .query_row(query, [], |_row| Ok(()))
         .optional()
-        .map_err(|_| AccountIdentityIssuerError::Unavailable)?
+        .map_err(|_error| AccountIdentityIssuerError::Unavailable)?
         .is_some();
     (!invalid)
         .then_some(())

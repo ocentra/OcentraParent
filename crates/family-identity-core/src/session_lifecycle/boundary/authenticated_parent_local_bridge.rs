@@ -28,6 +28,21 @@ pub struct AuthenticatedParentLocalBridgeSession {
     expires_at_epoch_millis: i64,
 }
 
+pub(crate) struct AuthenticatedParentLocalBridgeSessionInput {
+    pub(crate) capability_digest: String,
+    pub(crate) account_id: ParentAccountId,
+    pub(crate) actor_id: AccountIdentityMemberId,
+    pub(crate) household_id: FamilyId,
+    pub(crate) controller_device_id: AccountIdentityDeviceId,
+    pub(crate) role: AccountIdentityRole,
+    pub(crate) session_id: AccountIdentitySessionId,
+    pub(crate) session_generation: u64,
+    pub(crate) authority_generation: u64,
+    pub(crate) audience: AccountIdentityParentLocalBridgeAudience,
+    pub(crate) connection_nonce: String,
+    pub(crate) expires_at_epoch_millis: i64,
+}
+
 impl fmt::Debug for AuthenticatedParentLocalBridgeSession {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         formatter
@@ -97,20 +112,21 @@ impl AuthenticatedParentLocalBridgeSession {
         &self.capability_digest
     }
 
-    pub(crate) fn new(
-        capability_digest: String,
-        account_id: ParentAccountId,
-        actor_id: AccountIdentityMemberId,
-        household_id: FamilyId,
-        controller_device_id: AccountIdentityDeviceId,
-        role: AccountIdentityRole,
-        session_id: AccountIdentitySessionId,
-        session_generation: u64,
-        authority_generation: u64,
-        audience: AccountIdentityParentLocalBridgeAudience,
-        connection_nonce: String,
-        expires_at_epoch_millis: i64,
-    ) -> Self {
+    pub(crate) fn new(input: AuthenticatedParentLocalBridgeSessionInput) -> Self {
+        let AuthenticatedParentLocalBridgeSessionInput {
+            capability_digest,
+            account_id,
+            actor_id,
+            household_id,
+            controller_device_id,
+            role,
+            session_id,
+            session_generation,
+            authority_generation,
+            audience,
+            connection_nonce,
+            expires_at_epoch_millis,
+        } = input;
         Self {
             capability_digest,
             account_id,

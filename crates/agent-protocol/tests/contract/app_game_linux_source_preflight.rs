@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::app_game::APP_GAME_SCHEMA_VERSION;
 use ocentra_parent_agent_protocol::app_game_adapter_execution_readiness::{
     APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_DETECTED, APP_GAME_ADAPTER_PRODUCT_NATIVE_APP,
@@ -21,6 +22,7 @@ fn linux_unavailable_row() -> AppGamePlatformProofStatusRow {
         host_capability_evidence_refs: Vec::new(),
         host_capability_probe_refs: Vec::new(),
         linux_docker_host_preflight: None,
+        windows_local_policy_evidence: None,
         product_meanings: vec![
             APP_GAME_ADAPTER_PRODUCT_NATIVE_APP.to_string(),
             APP_GAME_ADAPTER_PRODUCT_NATIVE_GAME.to_string(),
@@ -40,10 +42,10 @@ fn linux_unavailable_row() -> AppGamePlatformProofStatusRow {
 #[test]
 fn linux_unavailable_row_round_trips_without_authority_claims() {
     let row = linux_unavailable_row();
-    let encoded = serde_json::to_value(&row).expect("Linux status row must serialize");
+    let encoded = serde_json::to_value(&row).expect_value("Linux status row must serialize");
     let object = encoded
         .as_object()
-        .expect("Linux status row must be an object");
+        .expect_value("Linux status row must be an object");
 
     assert_eq!(
         object.get("platform"),
@@ -70,6 +72,6 @@ fn linux_unavailable_row_round_trips_without_authority_claims() {
     assert_eq!(object.get("linuxDockerHostPreflight"), None);
 
     let decoded: AppGamePlatformProofStatusRow =
-        serde_json::from_value(encoded).expect("Linux status row must deserialize");
+        serde_json::from_value(encoded).expect_value("Linux status row must deserialize");
     assert_eq!(decoded, row);
 }

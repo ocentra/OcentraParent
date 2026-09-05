@@ -7,30 +7,24 @@ const screenshotDirectory = path.join(
   '11-ui-snapshots'
 );
 
-const screenshotFiles = {
-  desktop: 'hosted-policy-tracking-live-summary.png',
-  familyDashboard: 'hosted-policy-tracking-family-dashboard-rollup.png',
-  reportPolicyConsumer: 'hosted-policy-tracking-report-policy-consumer.png',
-  reportExport: 'hosted-policy-tracking-report-export.png',
-  notificationParentSurface: 'hosted-policy-tracking-notification-parent-surface.png',
-  parentActionReadiness: 'hosted-policy-tracking-parent-action-readiness.png',
-  missingDevice: 'hosted-policy-tracking-missing-device.png',
-  evidenceDrawer: 'hosted-policy-tracking-evidence-drawer.png',
-  citationDetail: 'hosted-policy-tracking-citation-detail.png',
-  retentionSettings: 'hosted-policy-tracking-retention-settings.png',
-  childCheckIn: 'hosted-policy-tracking-child-check-in.png',
-  childRuntimeUi: 'hosted-policy-tracking-child-runtime-ui.png',
-  parentOverviewShell: 'hosted-parent-overview-shell.png',
-  parentDevicesShell: 'hosted-parent-devices-shell.png',
-  unsupportedManualPlatform: 'hosted-policy-tracking-unsupported-manual.png',
-  mobile: 'hosted-policy-tracking-live-summary-mobile.png',
-} as const;
+export type HostedTrackingScreenshotPaths = {
+  readonly proofUnavailable: string;
+  readonly productUnavailable: string;
+  readonly productUnavailableMobile: string;
+  readonly parentOverview: string;
+  readonly parentDevices: string;
+};
 
-export function hostedTrackingScreenshotPaths(repoRoot: string): Record<keyof typeof screenshotFiles, string> {
-  return Object.fromEntries(
-    Object.entries(screenshotFiles).map(([name, fileName]) => [
-      name,
-      path.relative(repoRoot, path.join(repoRoot, screenshotDirectory, fileName)).replace(/\\/gu, '/'),
-    ])
-  ) as Record<keyof typeof screenshotFiles, string>;
+export function hostedTrackingScreenshotPaths(repoRoot: string): HostedTrackingScreenshotPaths {
+  return {
+    proofUnavailable: relativeScreenshot(repoRoot, 'hosted-proof-panels-tracking-unavailable.png'),
+    productUnavailable: relativeScreenshot(repoRoot, 'hosted-policy-tracking-unavailable.png'),
+    productUnavailableMobile: relativeScreenshot(repoRoot, 'hosted-policy-tracking-unavailable-mobile.png'),
+    parentOverview: relativeScreenshot(repoRoot, 'hosted-parent-overview-shell.png'),
+    parentDevices: relativeScreenshot(repoRoot, 'hosted-parent-devices-shell.png'),
+  };
+}
+
+function relativeScreenshot(repoRoot: string, fileName: string): string {
+  return path.relative(repoRoot, path.join(repoRoot, screenshotDirectory, fileName)).replace(/\\/gu, '/');
 }

@@ -73,17 +73,12 @@ impl AccountIssuerP256Signer {
     ) -> Result<AccountIssuerSignerCapability, AccountIssuerP256SignerError> {
         #[cfg(windows)]
         {
-            return self.bound.sign_request(request);
+            self.bound.sign_request(request)
         }
         #[cfg(not(windows))]
         {
             let _ = request;
             Err(AccountIssuerP256SignerError::DeploymentRequired)
         }
-    }
-
-    #[cfg(windows)]
-    pub(crate) fn from_bound_key(bound: account_issuer_signing::BoundAccountIssuerP256Key) -> Self {
-        Self { bound }
     }
 }

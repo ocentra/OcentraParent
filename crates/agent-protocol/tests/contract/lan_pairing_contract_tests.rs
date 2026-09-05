@@ -1,5 +1,17 @@
+use ocentra_eventing::error::EventingError;
 use ocentra_eventing::expect_value::{ExpectErrValue, ExpectValue};
 use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::signed_household_mesh_ingress::transport::{
+    lan_signed_household_mesh_transport_signing_bytes, LanHouseholdMeshChildDeviceId,
+    LanHouseholdMeshFamilyHash, LanHouseholdMeshIdempotencyKey,
+    LanHouseholdMeshIngressSchemaVersionDto, LanHouseholdMeshInstallId,
+    LanHouseholdMeshLocalEventRef, LanHouseholdMeshMessageId, LanHouseholdMeshNonce,
+    LanHouseholdMeshPairingId, LanHouseholdMeshParentDeviceId, LanHouseholdMeshPayloadSha256,
+    LanHouseholdMeshRegistryProofDigest, LanHouseholdMeshRouteId, LanHouseholdMeshSequenceDto,
+    LanHouseholdMeshTargetDeviceId, LanHouseholdMeshTimestamp, LanSignedHouseholdMeshMessageType,
+    LanSignedHouseholdMeshTransportClaimDto, LanSignedHouseholdMeshTransportEnvelope,
+    LAN_SIGNED_HOUSEHOLD_MESH_INGRESS_SCHEMA_VERSION,
+};
 use ocentra_parent_agent_protocol::lan_pairing::{
     DeviceRoleRuntimeReadModel, LanAiProviderRoutingState, LanChildAgentResponse,
     LanChildMdnsAdvertisement, LanChildMdnsAdvertisementInput, LanMdnsAdvertisementLifecycleState,
@@ -15,17 +27,6 @@ use ocentra_parent_agent_protocol::lan_pairing::{
     LanTrustedDeviceRegistrySnapshot,
 };
 use ocentra_parent_agent_protocol::lan_pairing_authority::LanPairingParentAuthority;
-use ocentra_parent_agent_protocol::lan_pairing::signed_household_mesh_ingress::transport::{
-    lan_signed_household_mesh_transport_signing_bytes, LanHouseholdMeshChildDeviceId,
-    LanHouseholdMeshFamilyHash, LanHouseholdMeshIdempotencyKey,
-    LanHouseholdMeshIngressSchemaVersionDto, LanHouseholdMeshInstallId,
-    LanHouseholdMeshLocalEventRef, LanHouseholdMeshMessageId, LanHouseholdMeshNonce,
-    LanHouseholdMeshPairingId, LanHouseholdMeshParentDeviceId, LanHouseholdMeshPayloadSha256,
-    LanHouseholdMeshRegistryProofDigest, LanHouseholdMeshRouteId, LanHouseholdMeshSequenceDto,
-    LanHouseholdMeshTargetDeviceId, LanHouseholdMeshTimestamp,
-    LanSignedHouseholdMeshMessageType, LanSignedHouseholdMeshTransportClaimDto,
-    LanSignedHouseholdMeshTransportEnvelope, LAN_SIGNED_HOUSEHOLD_MESH_INGRESS_SCHEMA_VERSION,
-};
 use ocentra_parent_agent_protocol::lan_pairing_support::{
     LanPairingManualProofGap, LanPairingPersistenceMode, LanPairingProofMode,
     LanPairingRestartBehavior, LanPairingRouteRequirement, LanPairingRuntimeSupportSurface,
@@ -57,10 +58,8 @@ fn signed_household_mesh_transport_claim() -> LanSignedHouseholdMeshTransportCla
             constants::household_mesh::LAN_MESSAGE_DEVICE_DISCOVERY,
         )
         .expect_value("transport LAN message type constructs"),
-        canonical_payload_sha256: LanHouseholdMeshPayloadSha256::try_new(
-            TRANSPORT_PAYLOAD_SHA256,
-        )
-        .expect_value("transport payload digest constructs"),
+        canonical_payload_sha256: LanHouseholdMeshPayloadSha256::try_new(TRANSPORT_PAYLOAD_SHA256)
+            .expect_value("transport payload digest constructs"),
         family_hash: LanHouseholdMeshFamilyHash::try_new("family-hash-1")
             .expect_value("transport family hash constructs"),
         parent_device_id: LanHouseholdMeshParentDeviceId::try_new("parent-device-1")
@@ -77,8 +76,7 @@ fn signed_household_mesh_transport_claim() -> LanSignedHouseholdMeshTransportCla
             .expect_value("transport pairing id constructs"),
         registry_proof_digest: LanHouseholdMeshRegistryProofDigest::try_new("registry-proof-1")
             .expect_value("transport registry proof digest constructs"),
-        nonce: LanHouseholdMeshNonce::try_new("nonce-1")
-            .expect_value("transport nonce constructs"),
+        nonce: LanHouseholdMeshNonce::try_new("nonce-1").expect_value("transport nonce constructs"),
         sequence: LanHouseholdMeshSequenceDto::try_new(7)
             .expect_value("transport sequence constructs"),
         issued_at: LanHouseholdMeshTimestamp::try_new("2026-08-28T22:00:00Z")
@@ -264,20 +262,51 @@ fn signed_household_mesh_transport_claim_round_trips_versioned_wire_shape() {
 
     let mut heartbeat_json = to_json(claim);
     heartbeat_json["messageKind"] = serde_json::json!("heartbeat");
-    let heartbeat = serde_json::from_value::<LanSignedHouseholdMeshTransportClaimDto>(
-        heartbeat_json,
-    )
-    .expect_value("signed household mesh heartbeat claim round trips");
-    assert_eq!(heartbeat.message_kind, LanSignedChildAgentMessageKind::Heartbeat);
+    let heartbeat =
+        serde_json::from_value::<LanSignedHouseholdMeshTransportClaimDto>(heartbeat_json)
+            .expect_value("signed household mesh heartbeat claim round trips");
+    assert_eq!(
+        heartbeat.message_kind,
+        LanSignedChildAgentMessageKind::Heartbeat
+    );
 }
 
 #[test]
 fn signed_household_mesh_transport_scalars_reject_invalid_values() {
-    assert!(LanHouseholdMeshMessageId::try_new("").is_err());
-    assert!(LanHouseholdMeshMessageId::try_new("message with whitespace").is_err());
-    assert!(LanHouseholdMeshPayloadSha256::try_new("f".repeat(63)).is_err());
-    assert!(LanHouseholdMeshPayloadSha256::try_new("g".repeat(64)).is_err());
-    assert!(LanSignedHouseholdMeshMessageType::try_new("future-lan-message").is_err());
+    assert_eq!(
+        LanHouseholdMeshMessageId::try_new(""),
+        Err(EventingError::EmptyValue {
+            field: "LanHouseholdMeshMessageId"
+        })
+    );
+    assert_eq!(
+        LanHouseholdMeshMessageId::try_new("message with whitespace"),
+        Err(EventingError::InvalidValue {
+            field: "LanHouseholdMeshMessageId",
+            value: "[redacted]".to_string(),
+        })
+    );
+    assert_eq!(
+        LanHouseholdMeshPayloadSha256::try_new("f".repeat(63)),
+        Err(EventingError::InvalidValue {
+            field: "LanHouseholdMeshPayloadSha256",
+            value: "[redacted]".to_string(),
+        })
+    );
+    assert_eq!(
+        LanHouseholdMeshPayloadSha256::try_new("g".repeat(64)),
+        Err(EventingError::InvalidValue {
+            field: "LanHouseholdMeshPayloadSha256",
+            value: "[redacted]".to_string(),
+        })
+    );
+    assert_eq!(
+        LanSignedHouseholdMeshMessageType::try_new("future-lan-message"),
+        Err(EventingError::InvalidValue {
+            field: "LanSignedHouseholdMeshMessageType",
+            value: "[redacted]".to_string(),
+        })
+    );
 
     let message_type = LanSignedHouseholdMeshMessageType::try_new(
         constants::household_mesh::LAN_MESSAGE_DEVICE_DISCOVERY,
@@ -293,19 +322,34 @@ fn signed_household_mesh_transport_scalars_reject_invalid_values() {
 fn signed_household_mesh_transport_schema_and_sequence_reject_drift() {
     let schema_version = LanHouseholdMeshIngressSchemaVersionDto::current();
     assert_eq!(schema_version.value(), 1);
-    assert!(LanHouseholdMeshIngressSchemaVersionDto::try_new(2).is_err());
-    assert!(
-        serde_json::from_value::<LanHouseholdMeshIngressSchemaVersionDto>(serde_json::json!(2))
-            .is_err()
+    assert_eq!(
+        LanHouseholdMeshIngressSchemaVersionDto::try_new(2),
+        Err(EventingError::InvalidValue {
+            field: "LanHouseholdMeshIngressSchemaVersionDto",
+            value: "[redacted]".to_string(),
+        })
     );
+    let schema_error =
+        serde_json::from_value::<LanHouseholdMeshIngressSchemaVersionDto>(serde_json::json!(2))
+            .expect_err_value("future signed household-mesh schema must be rejected");
+    assert!(schema_error.to_string().contains("invalid eventing value"));
 
     let sequence = LanHouseholdMeshSequenceDto::try_new(7)
         .expect_value("nonzero household mesh sequence constructs");
     assert_eq!(sequence.value(), 7);
-    assert!(LanHouseholdMeshSequenceDto::try_new(0).is_err());
-    assert!(
-        serde_json::from_value::<LanHouseholdMeshSequenceDto>(serde_json::json!(0)).is_err()
+    assert_eq!(
+        LanHouseholdMeshSequenceDto::try_new(0),
+        Err(EventingError::InvalidValue {
+            field: "LanHouseholdMeshSequenceDto",
+            value: "[redacted]".to_string(),
+        })
     );
+    let sequence_error =
+        serde_json::from_value::<LanHouseholdMeshSequenceDto>(serde_json::json!(0))
+            .expect_err_value("zero signed household-mesh sequence must be rejected");
+    assert!(sequence_error
+        .to_string()
+        .contains("invalid eventing value"));
 }
 
 #[test]
@@ -314,22 +358,24 @@ fn signed_household_mesh_transport_claim_rejects_unknown_and_future_fields() {
 
     let mut unknown_field = claim_json.clone();
     unknown_field["futureField"] = serde_json::json!(true);
-    assert!(
-        serde_json::from_value::<LanSignedHouseholdMeshTransportClaimDto>(unknown_field).is_err()
-    );
+    let unknown_error =
+        serde_json::from_value::<LanSignedHouseholdMeshTransportClaimDto>(unknown_field)
+            .expect_err_value("unknown signed household-mesh claim field must be rejected");
+    assert!(unknown_error.to_string().contains("unknown field"));
 
     let mut future_schema = claim_json.clone();
     future_schema["schemaVersion"] = serde_json::json!(2);
-    assert!(
-        serde_json::from_value::<LanSignedHouseholdMeshTransportClaimDto>(future_schema).is_err()
-    );
+    let schema_error =
+        serde_json::from_value::<LanSignedHouseholdMeshTransportClaimDto>(future_schema)
+            .expect_err_value("future signed household-mesh claim schema must be rejected");
+    assert!(schema_error.to_string().contains("invalid eventing value"));
 
     let mut future_message_kind = claim_json;
     future_message_kind["messageKind"] = serde_json::json!("future-message-kind");
-    assert!(serde_json::from_value::<LanSignedHouseholdMeshTransportClaimDto>(
-        future_message_kind
-    )
-    .is_err());
+    let kind_error =
+        serde_json::from_value::<LanSignedHouseholdMeshTransportClaimDto>(future_message_kind)
+            .expect_err_value("future signed household-mesh message kind must be rejected");
+    assert!(kind_error.to_string().contains("unknown variant"));
 }
 
 #[test]
@@ -341,15 +387,17 @@ fn signed_household_mesh_transport_envelope_rejects_unknown_and_missing_fields()
         "futureField": true,
     });
     let error = serde_json::from_value::<LanSignedHouseholdMeshTransportEnvelope>(unknown_field)
-        .expect_err("unknown signed transport envelope fields must be rejected");
+        .expect_err_value("unknown signed transport envelope fields must be rejected");
     assert!(error.to_string().contains("unknown field"));
 
     let missing_fields = serde_json::json!({
         "schemaVersion": 1,
         "claim": to_json(signed_household_mesh_transport_claim()),
     });
-    assert!(serde_json::from_value::<LanSignedHouseholdMeshTransportEnvelope>(missing_fields)
-        .is_err());
+    let missing_error =
+        serde_json::from_value::<LanSignedHouseholdMeshTransportEnvelope>(missing_fields)
+            .expect_err_value("missing signed transport envelope fields must be rejected");
+    assert!(missing_error.to_string().contains("missing field"));
 }
 
 #[test]

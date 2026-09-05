@@ -6,7 +6,16 @@ use crate::{
     AppGameControlActionResult, AppGameControlApprovalAuthority, AppGamePlatformAuthorityMatrix,
 };
 
+#[path = "app_game_evidence_claim_validation.rs"]
+mod app_game_evidence_claim_validation;
+#[path = "app_game_identity_merge_validation.rs"]
+mod app_game_identity_merge_validation;
+#[path = "app_game_identity_validation.rs"]
+mod app_game_identity_validation;
+
 pub const APP_GAME_SCHEMA_VERSION: u16 = 1;
+pub const APP_GAME_TIMER_PARENT_SURFACE_SERIALIZATION_ERROR: &str =
+    "app-game timer parent surface read model serialization failed";
 pub const APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS: &str = "unknownProcess";
 pub const APP_GAME_CLASSIFICATION_KNOWN_APP: &str = "knownApp";
 pub const APP_GAME_CLASSIFICATION_KNOWN_GAME: &str = "knownGame";
@@ -513,437 +522,20 @@ impl<'de> Deserialize<'de> for AppGameEvidenceClaim {
 
 impl AppGameIdentity {
     fn validate(&self) -> Result<(), &'static str> {
-        if self.schema_version != APP_GAME_SCHEMA_VERSION {
-            return Err("app game identity schema version is unsupported");
-        }
-        if is_blank(&self.identity_id) {
-            return Err("app game identity id must not be empty");
-        }
-        if is_blank(&self.display_label) {
-            return Err("app game identity display label must not be empty");
-        }
-        if ![
-            APP_GAME_PRODUCT_NATIVE_APP,
-            APP_GAME_PRODUCT_NATIVE_GAME,
-            APP_GAME_PRODUCT_LAUNCHER,
-            APP_GAME_PRODUCT_UNKNOWN_EXECUTABLE,
-        ]
-        .contains(&self.product_kind.as_str())
-        {
-            return Err("app game identity product kind is unsupported");
-        }
-        if ![
-            APP_GAME_IDENTITY_CONFIDENCE_WEAK,
-            APP_GAME_IDENTITY_CONFIDENCE_CANDIDATE,
-            APP_GAME_IDENTITY_CONFIDENCE_DETERMINISTIC,
-            APP_GAME_IDENTITY_CONFIDENCE_PARENT_LABELED,
-            APP_GAME_IDENTITY_CONFIDENCE_AI_ASSISTED,
-        ]
-        .contains(&self.confidence.as_str())
-        {
-            return Err("app game identity confidence is unsupported");
-        }
-        if ![
-            APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS,
-            APP_GAME_CLASSIFICATION_KNOWN_APP,
-            APP_GAME_CLASSIFICATION_KNOWN_GAME,
-            APP_GAME_CLASSIFICATION_KNOWN_LAUNCHER,
-            APP_GAME_CLASSIFICATION_LAUNCHER_GAME_CANDIDATE,
-            APP_GAME_CLASSIFICATION_POSSIBLY_GAME,
-            APP_GAME_CLASSIFICATION_PERMISSION_LIMITED,
-            APP_GAME_CLASSIFICATION_UNSUPPORTED_PLATFORM,
-            APP_GAME_CLASSIFICATION_STALE,
-            APP_GAME_CLASSIFICATION_ADAPTER_ERROR,
-        ]
-        .contains(&self.classification_state.as_str())
-        {
-            return Err("app game identity classification state is unsupported");
-        }
-
-        for (field, value) in [
-            ("parentLabel", self.parent_label.as_deref()),
-            ("packageId", self.package_id.as_deref()),
-            ("bundleId", self.bundle_id.as_deref()),
-            ("appUserModelId", self.app_user_model_id.as_deref()),
-            ("desktopEntryId", self.desktop_entry_id.as_deref()),
-            ("applicationTokenRef", self.application_token_ref.as_deref()),
-            ("executablePathRef", self.executable_path_ref.as_deref()),
-            (
-                "publisherSignatureRef",
-                self.publisher_signature_ref.as_deref(),
-            ),
-            ("fileHashRef", self.file_hash_ref.as_deref()),
-            ("launcherRef", self.launcher_ref.as_deref()),
-            ("launcherAppId", self.launcher_app_id.as_deref()),
-            ("launcherManifestId", self.launcher_manifest_id.as_deref()),
-            ("storeId", self.store_id.as_deref()),
-            ("catalogRef", self.catalog_ref.as_deref()),
-            (
-                "childGameEvidenceClaimId",
-                self.child_game_evidence_claim_id.as_deref(),
-            ),
-        ] {
-            if value.is_some_and(is_blank) {
-                return Err(match field {
-                    "parentLabel" => "app game identity parent label must not be empty",
-                    _ => "app game identity reference must not be empty",
-                });
-            }
-        }
-
-        validate_evidence_refs(
-            &self.evidence,
-            "app game identity must cite at least one evidence ref",
-        )?;
-
-        let has_raw_reference = app_game_identity_has_raw_reference(self);
-        if !has_raw_reference
-            && !(self.confidence == APP_GAME_IDENTITY_CONFIDENCE_WEAK
-                && self.classification_state == APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS
-                && self.product_kind == APP_GAME_PRODUCT_UNKNOWN_EXECUTABLE)
-        {
-            return Err("display-name-only app game identity must remain weak and unknown");
-        }
-
-        if (self.confidence == APP_GAME_IDENTITY_CONFIDENCE_DETERMINISTIC
-            || self.confidence == APP_GAME_IDENTITY_CONFIDENCE_PARENT_LABELED)
-            && !app_game_identity_has_deterministic_reference(self)
-            && !(self.product_kind == APP_GAME_PRODUCT_LAUNCHER && has_raw_reference)
-        {
-            return Err("deterministic app game identity must include an identity reference");
-        }
-
-        if app_game_identity_has_only_launcher_references(self)
-            && (self.product_kind != APP_GAME_PRODUCT_LAUNCHER
-                || self.classification_state == APP_GAME_CLASSIFICATION_KNOWN_GAME)
-        {
-            return Err("launcher-only app game identity cannot claim a known game");
-        }
-
-        Ok(())
+        app_game_identity_validation::validate(self)
     }
 }
 
 impl AppGameIdentityMergeProof {
     fn validate(&self) -> Result<(), &'static str> {
-        if self.schema_version != APP_GAME_SCHEMA_VERSION {
-            return Err("app game identity merge schema version is unsupported");
-        }
-        if is_blank(&self.merge_id) {
-            return Err("app game identity merge id must not be empty");
-        }
-        if self.source_identity_ids.len() < 2 {
-            return Err("app game identity merge must cite source identities");
-        }
-        if self.source_identity_ids.iter().any(|id| is_blank(id)) {
-            return Err("app game identity merge source id must not be empty");
-        }
-        for (index, source_id) in self.source_identity_ids.iter().enumerate() {
-            if self.source_identity_ids[..index].contains(source_id) {
-                return Err("app game identity merge source ids must be distinct");
-            }
-            if source_id == &self.target_identity.identity_id {
-                return Err("app game identity merge sources must not include the target");
-            }
-        }
-        if !self.merge_confidence.is_finite()
-            || self.merge_confidence < 0.0
-            || self.merge_confidence > 1.0
-        {
-            return Err("app game identity merge confidence must be between zero and one");
-        }
-        if self.conflicting_file_hash_refs {
-            return Err("conflicting file hashes must block app game identity merge");
-        }
-        if self.merge_confidence > 0.3 && self.shared_deterministic_refs.is_empty() {
-            return Err("non-weak app game identity merge must share deterministic refs");
-        }
-        if self.parent_label_changed
-            && (self.target_identity.parent_label.is_none()
-                || self.shared_deterministic_refs.is_empty())
-        {
-            return Err("parent labels must not create an app game identity merge");
-        }
-        if self
-            .shared_deterministic_refs
-            .iter()
-            .any(|kind| is_blank(kind) || !app_game_identity_deterministic_ref_kind_is_known(kind))
-        {
-            return Err("app game identity merge contains an unsupported deterministic ref kind");
-        }
-        validate_evidence_refs(
-            &self.evidence,
-            "app game identity merge must cite at least one evidence ref",
-        )?;
-        self.target_identity.validate()
+        app_game_identity_merge_validation::validate(self)
     }
 }
 
 impl AppGameEvidenceClaim {
     fn validate(&self) -> Result<(), &'static str> {
-        if self.schema_version != APP_GAME_SCHEMA_VERSION {
-            return Err("app game evidence claim schema version is unsupported");
-        }
-        validate_non_blank(&self.claim_id, "app game evidence claim id must not be empty")?;
-        validate_non_blank(
-            &self.observed_at,
-            "app game evidence claim observed-at must not be empty",
-        )?;
-        validate_known(
-            &self.claim_kind,
-            &[
-                APP_GAME_EVIDENCE_CLAIM_KIND_INVENTORY,
-                APP_GAME_EVIDENCE_CLAIM_KIND_RUNTIME,
-                APP_GAME_EVIDENCE_CLAIM_KIND_FOREGROUND,
-                APP_GAME_EVIDENCE_CLAIM_KIND_LAUNCHER,
-                APP_GAME_EVIDENCE_CLAIM_KIND_SESSION,
-                APP_GAME_EVIDENCE_CLAIM_KIND_CATALOG,
-                APP_GAME_EVIDENCE_CLAIM_KIND_AI_DIGEST,
-            ],
-            "app game evidence claim kind is unsupported",
-        )?;
-        validate_known(
-            &self.observation_mode,
-            &[
-                APP_GAME_OBSERVATION_MODE_FOREGROUND_WINDOW,
-                APP_GAME_OBSERVATION_MODE_PROCESS_SNAPSHOT,
-                APP_GAME_OBSERVATION_MODE_PROCESS_START,
-                APP_GAME_OBSERVATION_MODE_PROCESS_EXIT,
-                APP_GAME_OBSERVATION_MODE_INVENTORY_SCAN,
-                APP_GAME_OBSERVATION_MODE_LAUNCHER_MANIFEST,
-            ],
-            "app game evidence claim observation mode is unsupported",
-        )?;
-        validate_non_blank(
-            &self.display_name,
-            "app game evidence claim display name must not be empty",
-        )?;
-        validate_known(
-            &self.identity_strength,
-            &[
-                APP_GAME_IDENTITY_STRENGTH_DISPLAY_NAME_ONLY,
-                APP_GAME_IDENTITY_STRENGTH_WEAK,
-                APP_GAME_IDENTITY_STRENGTH_OBSERVED_PROCESS,
-                APP_GAME_IDENTITY_STRENGTH_CATALOG_MATCHED,
-                APP_GAME_IDENTITY_STRENGTH_LAUNCHER_CLAIMED,
-                APP_GAME_IDENTITY_STRENGTH_PLATFORM_MANAGED,
-                APP_GAME_IDENTITY_STRENGTH_CHILD_GAME_PROOF,
-            ],
-            "app game evidence claim identity strength is unsupported",
-        )?;
-        validate_known(
-            &self.classification_state,
-            &[
-                APP_GAME_CLASSIFICATION_KNOWN_APP,
-                APP_GAME_CLASSIFICATION_KNOWN_GAME,
-                APP_GAME_CLASSIFICATION_KNOWN_LAUNCHER,
-                APP_GAME_CLASSIFICATION_LAUNCHER_GAME_CANDIDATE,
-                APP_GAME_CLASSIFICATION_POSSIBLY_GAME,
-                APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS,
-                APP_GAME_CLASSIFICATION_PERMISSION_LIMITED,
-                APP_GAME_CLASSIFICATION_UNSUPPORTED_PLATFORM,
-                APP_GAME_CLASSIFICATION_STALE,
-                APP_GAME_CLASSIFICATION_ADAPTER_ERROR,
-            ],
-            "app game evidence claim classification state is unsupported",
-        )?;
-        validate_known(
-            &self.catalog_ready_state,
-            &[
-                APP_GAME_CATALOG_READY,
-                APP_GAME_CATALOG_UNAVAILABLE,
-                APP_GAME_CATALOG_NOT_LOADED,
-                APP_GAME_CATALOG_STALE,
-                APP_GAME_CATALOG_PERMISSION_LIMITED,
-            ],
-            "app game evidence claim catalog state is unsupported",
-        )?;
-        validate_known(
-            &self.runtime_state,
-            &[
-                APP_GAME_RUNTIME_RUNNING,
-                APP_GAME_RUNTIME_NOT_RUNNING,
-                APP_GAME_RUNTIME_NOT_CLAIMED,
-                APP_GAME_RUNTIME_UNKNOWN,
-                APP_GAME_RUNTIME_PERMISSION_LIMITED,
-                APP_GAME_RUNTIME_UNAVAILABLE,
-                APP_GAME_RUNTIME_DEGRADED,
-                APP_GAME_RUNTIME_STALE,
-                APP_GAME_RUNTIME_ADAPTER_ERROR,
-            ],
-            "app game evidence claim runtime state is unsupported",
-        )?;
-        validate_known(
-            &self.foreground_state,
-            &[
-                APP_GAME_FOREGROUND_FOREGROUND,
-                APP_GAME_FOREGROUND_BACKGROUND,
-                APP_GAME_FOREGROUND_UNKNOWN,
-                APP_GAME_FOREGROUND_PERMISSION_LIMITED,
-                APP_GAME_FOREGROUND_DEGRADED,
-                APP_GAME_FOREGROUND_ADAPTER_ERROR,
-                APP_GAME_FOREGROUND_NOT_CLAIMED,
-            ],
-            "app game evidence claim foreground state is unsupported",
-        )?;
-        validate_optional_non_blank(&self.inventory_entry_id)?;
-        validate_optional_non_blank(&self.process_identity)?;
-        validate_optional_non_blank(&self.launcher_ref)?;
-        validate_optional_non_blank(&self.catalog_ref)?;
-        validate_confidence(self.confidence, "app game evidence claim confidence")?;
-        validate_evidence_ref_values(&self.evidence)?;
-
-        if self.identity_strength == APP_GAME_IDENTITY_STRENGTH_DISPLAY_NAME_ONLY
-            && (self.confidence > 0.3
-                || self.inventory_entry_id.is_some()
-                || self.process_identity.is_some()
-                || self.launcher_ref.is_some()
-                || self.catalog_ref.is_some())
-        {
-            return Err("display-name-only app game evidence must remain weak and unlinked");
-        }
-        if self.claim_kind == APP_GAME_EVIDENCE_CLAIM_KIND_INVENTORY
-            && (self.runtime_state != APP_GAME_RUNTIME_NOT_CLAIMED
-                || self.foreground_state != APP_GAME_FOREGROUND_NOT_CLAIMED)
-        {
-            return Err("inventory evidence must not claim runtime or foreground use");
-        }
-        if self.claim_kind == APP_GAME_EVIDENCE_CLAIM_KIND_LAUNCHER
-            && self.classification_state == APP_GAME_CLASSIFICATION_KNOWN_GAME
-            && self.identity_strength != APP_GAME_IDENTITY_STRENGTH_CHILD_GAME_PROOF
-        {
-            return Err("launcher evidence must cite child-game proof before known-game classification");
-        }
-        Ok(())
+        app_game_evidence_claim_validation::validate(self)
     }
-}
-
-fn validate_confidence(value: f64, field: &'static str) -> Result<(), &'static str> {
-    if value.is_finite() && (0.0..=1.0).contains(&value) {
-        Ok(())
-    } else {
-        Err(field)
-    }
-}
-
-fn validate_known(value: &str, allowed: &[&str], error: &'static str) -> Result<(), &'static str> {
-    if allowed.contains(&value) {
-        Ok(())
-    } else {
-        Err(error)
-    }
-}
-
-fn validate_non_blank(value: &str, error: &'static str) -> Result<(), &'static str> {
-    if is_blank(value) {
-        Err(error)
-    } else {
-        Ok(())
-    }
-}
-
-fn validate_optional_non_blank(value: &Option<String>) -> Result<(), &'static str> {
-    value.as_deref().map_or(Ok(()), |value| {
-        validate_non_blank(value, "app game optional reference must not be empty")
-    })
-}
-
-fn validate_evidence_refs(
-    evidence: &[ActivityEvidenceRef],
-    empty_message: &'static str,
-) -> Result<(), &'static str> {
-    if evidence.is_empty() {
-        return Err(empty_message);
-    }
-    if evidence
-        .iter()
-        .any(|reference| is_blank(&reference.evidence_id))
-    {
-        return Err("app game evidence ref id must not be empty");
-    }
-    if evidence.iter().any(|reference| {
-        reference
-            .digest
-            .as_deref()
-            .is_some_and(|value| value.trim().is_empty())
-            || reference
-                .uri
-                .as_deref()
-                .is_some_and(|value| value.trim().is_empty())
-    }) {
-        return Err("app game evidence ref values must not be empty");
-    }
-    Ok(())
-}
-
-fn validate_evidence_ref_values(evidence: &[ActivityEvidenceRef]) -> Result<(), &'static str> {
-    if evidence.iter().any(|reference| is_blank(&reference.evidence_id)) {
-        return Err("app game evidence ref id must not be empty");
-    }
-    if evidence.iter().any(|reference| {
-        reference
-            .digest
-            .as_deref()
-            .is_some_and(|value| value.trim().is_empty())
-            || reference
-                .uri
-                .as_deref()
-                .is_some_and(|value| value.trim().is_empty())
-    }) {
-        return Err("app game evidence ref values must not be empty");
-    }
-    Ok(())
-}
-
-fn is_blank(value: &str) -> bool {
-    value.trim().is_empty()
-}
-
-fn app_game_identity_has_raw_reference(identity: &AppGameIdentity) -> bool {
-    app_game_identity_has_deterministic_reference(identity)
-        || identity.launcher_ref.is_some()
-        || identity.launcher_app_id.is_some()
-        || identity.launcher_manifest_id.is_some()
-}
-
-fn app_game_identity_has_deterministic_reference(identity: &AppGameIdentity) -> bool {
-    identity.package_id.is_some()
-        || identity.bundle_id.is_some()
-        || identity.app_user_model_id.is_some()
-        || identity.desktop_entry_id.is_some()
-        || identity.application_token_ref.is_some()
-        || identity.executable_path_ref.is_some()
-        || identity.publisher_signature_ref.is_some()
-        || identity.file_hash_ref.is_some()
-        || identity.store_id.is_some()
-        || identity.catalog_ref.is_some()
-        || identity.child_game_evidence_claim_id.is_some()
-}
-
-fn app_game_identity_has_only_launcher_references(identity: &AppGameIdentity) -> bool {
-    !app_game_identity_has_deterministic_reference(identity)
-        && (identity.launcher_ref.is_some()
-            || identity.launcher_app_id.is_some()
-            || identity.launcher_manifest_id.is_some())
-}
-
-fn app_game_identity_deterministic_ref_kind_is_known(kind: &str) -> bool {
-    [
-        APP_GAME_IDENTITY_DETERMINISTIC_REF_PACKAGE_ID,
-        APP_GAME_IDENTITY_DETERMINISTIC_REF_BUNDLE_ID,
-        APP_GAME_IDENTITY_DETERMINISTIC_REF_APP_USER_MODEL_ID,
-        APP_GAME_IDENTITY_DETERMINISTIC_REF_DESKTOP_ENTRY_ID,
-        APP_GAME_IDENTITY_DETERMINISTIC_REF_APPLICATION_TOKEN_REF,
-        APP_GAME_IDENTITY_DETERMINISTIC_REF_EXECUTABLE_PATH_REF,
-        APP_GAME_IDENTITY_DETERMINISTIC_REF_PUBLISHER_SIGNATURE_REF,
-        APP_GAME_IDENTITY_DETERMINISTIC_REF_FILE_HASH_REF,
-        APP_GAME_IDENTITY_DETERMINISTIC_REF_LAUNCHER_APP_ID,
-        APP_GAME_IDENTITY_DETERMINISTIC_REF_LAUNCHER_MANIFEST_ID,
-        APP_GAME_IDENTITY_DETERMINISTIC_REF_STORE_ID,
-        APP_GAME_IDENTITY_DETERMINISTIC_REF_CATALOG_REF,
-        APP_GAME_IDENTITY_DETERMINISTIC_REF_CHILD_GAME_EVIDENCE_CLAIM_ID,
-    ]
-    .contains(&kind)
 }
 
 impl From<AppGameIdentityWire> for AppGameIdentity {
@@ -1260,16 +852,17 @@ pub enum AppGameRiskCategoryKind {
 
 impl AppGameRiskCategoryKind {
     pub fn parse(value: &str) -> Option<Self> {
-        match value {
-            "vpnProxy" => Some(Self::VpnProxy),
-            "remoteDesktop" => Some(Self::RemoteDesktop),
-            "downloadTorrent" => Some(Self::DownloadTorrent),
-            "installerUpdater" => Some(Self::InstallerUpdater),
-            "aiChatbot" => Some(Self::AiChatbot),
-            "socialVideoMessaging" => Some(Self::SocialVideoMessaging),
-            "unknownRisk" => Some(Self::UnknownRisk),
-            _ => None,
-        }
+        [
+            ("vpnProxy", Self::VpnProxy),
+            ("remoteDesktop", Self::RemoteDesktop),
+            ("downloadTorrent", Self::DownloadTorrent),
+            ("installerUpdater", Self::InstallerUpdater),
+            ("aiChatbot", Self::AiChatbot),
+            ("socialVideoMessaging", Self::SocialVideoMessaging),
+            ("unknownRisk", Self::UnknownRisk),
+        ]
+        .into_iter()
+        .find_map(|(candidate, category)| (value == candidate).then_some(category))
     }
 }
 

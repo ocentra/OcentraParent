@@ -9,6 +9,7 @@ use ocentra_protected_capability_custody_protocol::response::{
 };
 use ocentra_protected_capability_custody_protocol::types::OpaquePreparedToken;
 
+pub mod account_issuer_request;
 mod authority;
 mod error_status;
 mod executable;
@@ -95,22 +96,25 @@ impl ClientAnchor {
         broker_session_id: u32,
     ) -> Result<Self, BrokerRuntimeError> {
         let database_path = storage_path::fixed_database_identity_path()?;
-        let registry_id = platform::registry_id(&database_path).map_err(error_status::platform)?;
+        let registry_id = platform::registry_id(&database_path)
+            .map_err(|error| error_status::platform(&error))?;
         let platform =
             platform::BrokerClientAnchor::open(&registry_id, broker_process_id, broker_session_id)
-                .map_err(error_status::platform)?;
+                .map_err(|error| error_status::platform(&error))?;
         Ok(Self { platform })
     }
 
     pub fn revalidate(&self) -> Result<(), BrokerRuntimeError> {
-        self.platform.revalidate().map_err(error_status::platform)
+        self.platform
+            .revalidate()
+            .map_err(|error| error_status::platform(&error))
     }
 
     pub fn client_identity(&self) -> Result<ClientProcessIdentity, BrokerRuntimeError> {
         let (process_id, process_epoch, session_id) = self
             .platform
             .client_identity()
-            .map_err(error_status::platform)?;
+            .map_err(|error| error_status::platform(&error))?;
         Ok(ClientProcessIdentity {
             process_id,
             process_epoch,
@@ -126,7 +130,7 @@ impl ClientAnchor {
     ) -> Result<(), BrokerRuntimeError> {
         self.platform
             .authorize_broker_hello(hello, broker_process_id, broker_session_id)
-            .map_err(error_status::platform)
+            .map_err(|error| error_status::platform(&error))
     }
 }
 
@@ -175,11 +179,14 @@ struct PeerAdmissionPrivate;
 /// constructor.
 pub struct BrokerAuthorizedClientTranscript {
     #[cfg(windows)]
-    _platform: platform::BrokerAuthorizedPeer,
+    platform: platform::BrokerAuthorizedPeer,
     _private: AuthorizedTranscriptPrivate,
 }
 
 struct AuthorizedTranscriptPrivate;
+
+#[path = "../tests/unit/broker_admission_account_issuer_request.rs"]
+mod account_issuer_request_tests;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct BrokerPlatformSessionState {

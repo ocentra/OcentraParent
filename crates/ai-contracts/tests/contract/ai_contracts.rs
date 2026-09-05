@@ -4,9 +4,8 @@ use ocentra_ai_contracts::ai_contracts::{
     context::{AiContextBuildState, AiEvidenceKind, AiProvenanceKind, AiReferenceValidationState},
     explanation::{AiExplanationState, AiExplanationSurface},
     identity::{
-        AiActorRole, AiAuthorizationReferenceId, AiChildProfileId, AiDeviceId, AiFamilyId,
-        AiPromptTemplateId, AiPromptVersion, AiRemoteAssistantRequestId, AiRequestId,
-        AiSchemaIdentity, AiSchemaVersion, AiTimestamp, AiWorkItemId,
+        AiActorRole, AiChildProfileId, AiDeviceId, AiFamilyId, AiRequestId, AiSchemaIdentity,
+        AiSchemaVersion, AiTimestamp, AiWorkItemId,
     },
     journal::{AiJournalEntryKind, AiJournalPayloadKind},
     memory::{AiGraphEdgeKind, AiGraphNodeKind, AiMemoryReferenceKind},
@@ -44,10 +43,6 @@ parse_identifier!(child_profile_id, AiChildProfileId);
 parse_identifier!(device_id, AiDeviceId);
 parse_identifier!(request_id, AiRequestId);
 parse_identifier!(work_item_id, AiWorkItemId);
-parse_identifier!(remote_request_id, AiRemoteAssistantRequestId);
-parse_identifier!(authorization_reference_id, AiAuthorizationReferenceId);
-parse_identifier!(prompt_template_id, AiPromptTemplateId);
-parse_identifier!(prompt_version, AiPromptVersion);
 parse_identifier!(timestamp, AiTimestamp);
 
 fn identity_fixture() -> Result<AiSchemaIdentity, Box<dyn Error>> {
@@ -116,7 +111,7 @@ fn work_request_serializes_with_current_schema_and_canonical_field_names() -> Te
 }
 
 #[test]
-fn canonical_enums_serialize_to_generated_kebab_case_literals() -> TestResult {
+fn authority_and_custody_enums_serialize_to_generated_kebab_case_literals() -> TestResult {
     assert_eq!(
         serialized_enum(AiAuthorityBoundary::EvidenceOnly)?,
         "evidence-only"
@@ -222,7 +217,11 @@ fn canonical_enums_serialize_to_generated_kebab_case_literals() -> TestResult {
         serialized_enum(AiValidationState::ManualRequired)?,
         "manual-required"
     );
+    Ok(())
+}
 
+#[test]
+fn evidence_and_reference_enums_serialize_to_generated_kebab_case_literals() -> TestResult {
     assert_eq!(serialized_enum(AiEvidenceKind::Browser)?, "browser");
     assert_eq!(serialized_enum(AiEvidenceKind::App)?, "app");
     assert_eq!(serialized_enum(AiEvidenceKind::Game)?, "game");
@@ -274,7 +273,11 @@ fn canonical_enums_serialize_to_generated_kebab_case_literals() -> TestResult {
         serialized_enum(AiReferenceValidationState::Rejected)?,
         "rejected"
     );
+    Ok(())
+}
 
+#[test]
+fn memory_graph_and_journal_enums_serialize_to_generated_kebab_case_literals() -> TestResult {
     assert_eq!(
         serialized_enum(AiMemoryReferenceKind::RecentActivity)?,
         "recent-activity"
@@ -341,7 +344,11 @@ fn canonical_enums_serialize_to_generated_kebab_case_literals() -> TestResult {
         serialized_enum(AiJournalPayloadKind::RemoteAssistant)?,
         "remote-assistant"
     );
+    Ok(())
+}
 
+#[test]
+fn result_and_output_enums_serialize_to_generated_kebab_case_literals() -> TestResult {
     assert_eq!(serialized_enum(AiResultKind::Observation)?, "observation");
     assert_eq!(
         serialized_enum(AiResultKind::Classification)?,
@@ -374,7 +381,11 @@ fn canonical_enums_serialize_to_generated_kebab_case_literals() -> TestResult {
         serialized_enum(AiOutputValidationState::ManualRequired)?,
         "manual-required"
     );
+    Ok(())
+}
 
+#[test]
+fn explanation_enums_serialize_to_generated_kebab_case_literals() -> TestResult {
     assert_eq!(
         serialized_enum(AiExplanationSurface::ParentReadModel)?,
         "parent-read-model"
@@ -397,7 +408,11 @@ fn canonical_enums_serialize_to_generated_kebab_case_literals() -> TestResult {
         serialized_enum(AiExplanationState::ManualRequired)?,
         "manual-required"
     );
+    Ok(())
+}
 
+#[test]
+fn actor_and_work_enums_serialize_to_generated_kebab_case_literals() -> TestResult {
     assert_eq!(serialized_enum(AiActorRole::Parent)?, "parent");
     assert_eq!(serialized_enum(AiActorRole::ChildAgent)?, "child-agent");
     assert_eq!(serialized_enum(AiActorRole::LocalRuntime)?, "local-runtime");
@@ -443,7 +458,11 @@ fn canonical_enums_serialize_to_generated_kebab_case_literals() -> TestResult {
         serialized_enum(AiWorkState::ManualRequired)?,
         "manual-required"
     );
+    Ok(())
+}
 
+#[test]
+fn remote_assistant_enums_serialize_to_generated_kebab_case_literals() -> TestResult {
     assert_eq!(
         serialized_enum(AiRemoteAssistantState::Disabled)?,
         "disabled"
@@ -497,18 +516,12 @@ fn canonical_enums_serialize_to_generated_kebab_case_literals() -> TestResult {
 
 #[test]
 fn work_state_transition_contract_is_fail_closed() {
-    assert_eq!(AiWorkState::Queued.can_transition_from(None), true);
-    assert_eq!(AiWorkState::Running.can_transition_from(None), false);
-    assert_eq!(
-        AiWorkState::Running.can_transition_from(Some(AiWorkState::Claimed)),
-        true
-    );
-    assert_eq!(
-        AiWorkState::Succeeded.can_transition_from(Some(AiWorkState::Queued)),
-        false
-    );
-    assert_eq!(AiWorkState::Succeeded.is_terminal(), true);
-    assert_eq!(AiWorkState::Queued.is_terminal(), false);
+    assert!(AiWorkState::Queued.can_transition_from(None));
+    assert!(!AiWorkState::Running.can_transition_from(None));
+    assert!(AiWorkState::Running.can_transition_from(Some(AiWorkState::Claimed)));
+    assert!(!AiWorkState::Succeeded.can_transition_from(Some(AiWorkState::Queued)));
+    assert!(AiWorkState::Succeeded.is_terminal());
+    assert!(!AiWorkState::Queued.is_terminal());
 }
 
 #[test]
@@ -544,19 +557,50 @@ fn generated_typescript_source_is_rust_versioned_and_declares_owner_boundaries()
         generated.lines().next(),
         Some("// Rust schema version: ai-contracts-v1")
     );
-    assert_eq!(generated.contains("__AI_CONTRACT_SCHEMA_VERSION__"), false);
+    let schema_declarations = generated
+        .lines()
+        .filter(|line| line.starts_with("export const AiContractSchemaVersion = "))
+        .collect::<Vec<_>>();
     assert_eq!(
-        generated.contains("export interface AiEvidenceContext"),
-        true
+        schema_declarations,
+        vec!["export const AiContractSchemaVersion = \"ai-contracts-v1\" as const;"]
     );
-    assert_eq!(generated.contains("export interface AiResult"), true);
+    let required_interfaces = generated
+        .lines()
+        .filter_map(|line| line.strip_prefix("export interface "))
+        .filter_map(|line| line.strip_suffix(" {"))
+        .filter(|name| {
+            matches!(
+                *name,
+                "AiEvidenceContext" | "AiResult" | "AiRemoteAssistantWireRequest"
+            )
+        })
+        .collect::<Vec<_>>();
     assert_eq!(
-        generated.contains("export interface AiRemoteAssistantWireRequest"),
-        true
+        required_interfaces,
+        vec![
+            "AiEvidenceContext",
+            "AiResult",
+            "AiRemoteAssistantWireRequest"
+        ]
     );
+    let authority_boundary_fields = generated
+        .lines()
+        .filter_map(|line| line.strip_prefix("  authorityBoundary: "))
+        .collect::<Vec<_>>();
     assert_eq!(
-        generated.contains("authorityBoundary: AiAuthorityBoundary;"),
-        true
+        authority_boundary_fields,
+        vec![
+            "AiAuthorityBoundary;",
+            "AiAuthorityBoundary;",
+            "AiAuthorityBoundary;",
+            "AiAuthorityBoundary;",
+            "AiAuthorityBoundary;",
+        ]
     );
-    assert_eq!(generated.contains("digest: AiDigest;"), true);
+    let digest_fields = generated
+        .lines()
+        .filter_map(|line| line.strip_prefix("  digest: "))
+        .collect::<Vec<_>>();
+    assert_eq!(digest_fields, vec!["AiDigest;", "AiDigest;"]);
 }

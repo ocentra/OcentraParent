@@ -75,7 +75,7 @@ import {
 } from './auth/browser-session-routes.js';
 import { browserSessionCookieNames, readCookie } from './storage/account-browser-session-codec.js';
 import { createBrowserSessionStore } from './storage/account-browser-session-store.js';
-import { redactPayload, sanitizeProviderMetadata } from './security/redaction.js';
+import { redactPayload, sanitizeProviderMetadataForMode } from './security/redaction.js';
 
 const STATE_CHANGING_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 const INTERACTIVE_CSRF_HEADER = 'x-ocentra-csrf';
@@ -249,6 +249,7 @@ type DeadLetterPayloadKind =
   | 'reconciliation'
   | 'referral-invite'
   | 'unclassified';
+type BillingQueueOutcome = 'dead-letter-unavailable' | 'dead-lettered' | 'retry-scheduled';
 
 const IDEMPOTENCY_LEASE_MS = 60_000;
 const IDEMPOTENCY_RETRY_BASE_MS = 1_000;
@@ -637,6 +638,19 @@ function deadLetterPayloadKind(payload: Readonly<Record<string, unknown>>): Dead
   }
 }
 
+function recordBillingQueueOutcome(
+  env: Env,
+  payload: Readonly<Record<string, unknown>>,
+  outcome: BillingQueueOutcome,
+  attempts: number,
+  delaySeconds: number
+): void {
+  env.ANALYTICS?.writeDataPoint({
+    indexes: ['billing-queue-outcome', deadLetterPayloadKind(payload), outcome],
+    doubles: [attempts, delaySeconds],
+  });
+}
+
 async function deadLetterPayload(
   payload: Record<string, unknown>,
   reason: QueueFailureReason,
@@ -704,14 +718,15 @@ function providerWebhookMetadataCandidates(payload: Record<string, unknown>): un
   return candidates;
 }
 
-function providerWebhookMetadataFailure(payload: Record<string, unknown>): string | null {
+function providerWebhookMetadataFailure(payload: Record<string, unknown>, env: Env): string | null {
+  const expectedMode = isLocalFixtureEnvironment(env) ? 'test' : 'live';
   const seen = new Set<unknown>();
   for (const candidate of providerWebhookMetadataCandidates(payload)) {
     if (seen.has(candidate)) {
       continue;
     }
     seen.add(candidate);
-    const result = sanitizeProviderMetadata(candidate);
+    const result = sanitizeProviderMetadataForMode(candidate, expectedMode);
     if (!result.accepted) {
       return result.reason;
     }
@@ -1416,7 +1431,7 @@ async function acceptProviderWebhook(
     });
   }
 
-  const metadataFailure = providerWebhookMetadataFailure(payload);
+  const metadataFailure = providerWebhookMetadataFailure(payload, env);
   if (metadataFailure) {
     return json(400, {
       error: 'provider-metadata-validation-failed',
@@ -3031,22 +3046,26 @@ async function processBillingQueueMessage(env: Env, payload: Record<string, unkn
 async function consumeBillingQueue(batch: MessageBatch<unknown>, env: Env): Promise<void> {
   for (const message of batch.messages) {
     const payload = isPlainObject(message.body) ? message.body : null;
+    const observablePayload = payload ?? {};
     if (!payload) {
       if (message.attempts >= 5) {
-        if (
-          await sendBillingDeadLetter(
-            env,
-            { body: cloneJsonValue(message.body) },
-            'queue-consumer-invalid-message',
-            null
-          )
-        ) {
+        const deadLettered = await sendBillingDeadLetter(
+          env,
+          { body: cloneJsonValue(message.body) },
+          'queue-consumer-invalid-message',
+          null
+        );
+        if (deadLettered) {
           message.ack();
+          recordBillingQueueOutcome(env, observablePayload, 'dead-lettered', message.attempts, 0);
         } else {
           message.retry({ delaySeconds: 900 });
+          recordBillingQueueOutcome(env, observablePayload, 'dead-letter-unavailable', message.attempts, 900);
         }
       } else {
-        message.retry({ delaySeconds: Math.min(900, 30 * (message.attempts + 1)) });
+        const delaySeconds = Math.min(900, 30 * (message.attempts + 1));
+        message.retry({ delaySeconds });
+        recordBillingQueueOutcome(env, observablePayload, 'retry-scheduled', message.attempts, delaySeconds);
       }
       continue;
     }
@@ -3059,10 +3078,8 @@ async function consumeBillingQueue(batch: MessageBatch<unknown>, env: Env): Prom
         const eventId = stringOrNull(payload.eventId);
         if (payload.action === 'provider-webhook' && provider && eventId) {
           const receipt = await loadBillingProviderEventReceipt(env, provider, eventId);
-          if (!receipt) {
-            throw new Error(`queue-consumer-provider-receipt-missing:${provider}:${eventId}`);
-          }
           if (
+            receipt !== null &&
             receipt.queueState !== 'delivered' &&
             receipt.queueState !== 'manual-required' &&
             receipt.queueState !== 'dead-letter'
@@ -3084,13 +3101,18 @@ async function consumeBillingQueue(batch: MessageBatch<unknown>, env: Env): Prom
             );
           }
         }
-        if (await sendBillingDeadLetter(env, payload, 'queue-consumer-manual-required', error)) {
+        const deadLettered = await sendBillingDeadLetter(env, payload, 'queue-consumer-manual-required', error);
+        if (deadLettered) {
           message.ack();
+          recordBillingQueueOutcome(env, observablePayload, 'dead-lettered', message.attempts, 0);
         } else {
           message.retry({ delaySeconds: 900 });
+          recordBillingQueueOutcome(env, observablePayload, 'dead-letter-unavailable', message.attempts, 900);
         }
       } else {
-        message.retry({ delaySeconds: Math.min(900, 30 * (message.attempts + 1)) });
+        const delaySeconds = Math.min(900, 30 * (message.attempts + 1));
+        message.retry({ delaySeconds });
+        recordBillingQueueOutcome(env, observablePayload, 'retry-scheduled', message.attempts, delaySeconds);
       }
     }
   }

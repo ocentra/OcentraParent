@@ -56,9 +56,9 @@ fn append_wire(canonical: &mut Vec<u8>, wire: &[u8]) {
 
 fn digest(domain: &[u8], canonical: &[u8]) -> [u8; 32] {
     let mut hasher = Sha256::new();
-    hasher.update(&(domain.len() as u32).to_be_bytes());
+    hasher.update((domain.len() as u32).to_be_bytes());
     hasher.update(domain);
-    hasher.update(&(canonical.len() as u32).to_be_bytes());
+    hasher.update((canonical.len() as u32).to_be_bytes());
     hasher.update(canonical);
     hasher.finalize().into()
 }

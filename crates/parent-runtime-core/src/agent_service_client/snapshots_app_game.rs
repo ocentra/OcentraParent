@@ -40,7 +40,7 @@ fn validate_app_game_response_event<'a>(
     Ok(&result.response_event)
 }
 
-pub(super) fn app_game_notification_readiness_snapshot_from_result(
+pub(crate) fn app_game_notification_readiness_snapshot_from_result(
     result: &AgentServiceCommandResult,
 ) -> Result<AppGameNotificationReadinessAgentServiceSnapshot, String> {
     let response_event = validate_app_game_response_event(
@@ -64,7 +64,7 @@ pub(super) fn app_game_notification_readiness_snapshot_from_result(
     })
 }
 
-pub(super) fn app_game_policy_readiness_snapshot_from_result(
+pub(crate) fn app_game_policy_readiness_snapshot_from_result(
     result: &AgentServiceCommandResult,
 ) -> Result<AppGamePolicyReadinessAgentServiceSnapshot, String> {
     let response_event = validate_app_game_response_event(
@@ -80,7 +80,7 @@ pub(super) fn app_game_policy_readiness_snapshot_from_result(
     Ok(AppGamePolicyReadinessAgentServiceSnapshot { read_model })
 }
 
-pub(super) fn app_game_platform_proof_status_snapshot_from_result(
+pub(crate) fn app_game_platform_proof_status_snapshot_from_result(
     result: &AgentServiceCommandResult,
 ) -> Result<AppGamePlatformProofStatusAgentServiceSnapshot, String> {
     let response_event = validate_app_game_response_event(
@@ -96,7 +96,7 @@ pub(super) fn app_game_platform_proof_status_snapshot_from_result(
     Ok(AppGamePlatformProofStatusAgentServiceSnapshot { read_model })
 }
 
-pub(super) fn app_game_child_runtime_transport_receipt_snapshot_from_result(
+pub(crate) fn app_game_child_runtime_transport_receipt_snapshot_from_result(
     result: &AgentServiceCommandResult,
 ) -> Result<AppGameChildRuntimeTransportReceiptAgentServiceSnapshot, String> {
     let response_event = validate_app_game_response_event(
@@ -113,7 +113,7 @@ pub(super) fn app_game_child_runtime_transport_receipt_snapshot_from_result(
     Ok(AppGameChildRuntimeTransportReceiptAgentServiceSnapshot { read_model })
 }
 
-pub(super) fn app_game_adapter_dispatch_preflight_snapshot_from_result(
+pub(crate) fn app_game_adapter_dispatch_preflight_snapshot_from_result(
     result: &AgentServiceCommandResult,
 ) -> Result<AppGameAdapterDispatchPreflightAgentServiceSnapshot, String> {
     let response_event = validate_app_game_response_event(
@@ -129,7 +129,7 @@ pub(super) fn app_game_adapter_dispatch_preflight_snapshot_from_result(
     Ok(AppGameAdapterDispatchPreflightAgentServiceSnapshot { read_model })
 }
 
-pub(super) fn app_game_adapter_dispatch_result_snapshot_from_result(
+pub(crate) fn app_game_adapter_dispatch_result_snapshot_from_result(
     result: &AgentServiceCommandResult,
 ) -> Result<AppGameAdapterDispatchResultAgentServiceSnapshot, String> {
     let response_event = validate_app_game_response_event(
@@ -145,7 +145,7 @@ pub(super) fn app_game_adapter_dispatch_result_snapshot_from_result(
     Ok(AppGameAdapterDispatchResultAgentServiceSnapshot { read_model })
 }
 
-pub(super) fn app_game_timer_parent_surface_snapshot_from_result(
+pub(crate) fn app_game_timer_parent_surface_snapshot_from_result(
     result: &AgentServiceCommandResult,
 ) -> Result<AppGameTimerParentSurfaceAgentServiceSnapshot, String> {
     let response_event = validate_app_game_response_event(

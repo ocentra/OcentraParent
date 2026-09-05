@@ -64,7 +64,7 @@ import {
   createParentPortalLanPairingUiSlots,
   parentPortalActivityAdapterRecord,
 } from './activity-ui-intent';
-import type { ParentPortalActivityReportView, ParentPortalActivityStateLike } from './activity-ui-intent';
+import type { ParentPortalActivityStateLike } from './activity-ui-intent';
 import type {
   ParentPortalAppGameDashboardIntent,
   ParentPortalAppGameDashboardMetric,
@@ -77,6 +77,8 @@ import { AnimatedSidebarIconButton } from './AnimatedSidebarIconButton';
 import { ChatBubbleSvg, estimateChatBubbleHeight } from './ParentPortalChatBubble';
 import {
   PortalAgentCommand as AgentCommand,
+  PortalAgentActivityReportFrequency,
+  PortalAgentActivitySurfaceScopeKind,
   type PortalAgentCommandName as AgentCommandName,
   PortalAgentLanHouseholdActionKind,
   PortalAgentLanHouseholdDeviceKindValues,
@@ -104,6 +106,7 @@ import {
   type ManageTargetSelection,
 } from '@ocentra-parent/portal-domain/manage-target-selection';
 import { portalRouteFromHashPath } from '@ocentra-parent/portal-domain/routes';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/portal-domain/display-text';
 import { PortalAssets, PortalUnifiedChrome } from '@ocentra-parent/portal-domain/unified-chrome';
 import { ParentPortalPanelFrame } from './ParentPortalPanelFrame';
 import {
@@ -230,6 +233,7 @@ type ParentPortalSvgSurfaceProps = {
   controlId?: string;
   loading?: boolean;
   error?: string | null;
+  statusMessage?: string | null;
   controls?: Partial<ParentPortalSvgControls> | null;
   content?: PartialParentPortalContentData | null;
   initialNavLabel?: string;
@@ -237,14 +241,24 @@ type ParentPortalSvgSurfaceProps = {
   assistantRouteActive?: boolean;
   assistantRoutePath?: string;
   assistantReturnRoutePath?: string;
+  assistantCommandAvailable?: boolean;
+  assistantResponse?: ParentPortalAssistantResponse | null;
   activityState?: ParentPortalActivityState | null;
   lanPairingAutoScanSequence?: number;
+  workspaceVisible?: boolean;
   onRefreshParentPortal: (controlCode: number) => void;
   onMatchmaking: () => void;
-  onNavigate?: (routePath: string) => void;
+  onNavigate?: (routePath: string) => boolean | void;
   onAssistantCommand?: (command: AgentCommandName, payload: Record<string, string>) => void;
   onInitialLayoutReady?: () => void;
 };
+
+type ParentPortalAssistantResponse = Readonly<{
+  eventId: string;
+  kind: 'answer' | 'error' | 'unavailable';
+  state: string;
+  text: string;
+}>;
 
 type ParentPortalActivityState = ParentPortalActivityStateLike & {
   ingestStatus?: Record<string, unknown> | null;
@@ -262,6 +276,7 @@ type ParentPortalActivityState = ParentPortalActivityStateLike & {
   gameSessionReport?: Record<string, unknown> | null;
   gameSessionQueryResult?: Record<string, unknown> | null;
   policyPreviewReadModel?: Record<string, unknown> | null;
+  activityTrackingReadModel?: Parameters<typeof parentPortalActivityAdapterRecord>[0];
 };
 
 type NavItem = Omit<ParentPortalNavItem, 'icon'> & {
@@ -320,6 +335,9 @@ type ControlSubcategorySummary = {
 const PARENT_PORTAL_RESPONSIVE_MIN_LEFT_W = 210;
 const PARENT_PORTAL_RESPONSIVE_MIN_RIGHT_W = 250;
 const PARENT_PORTAL_RESPONSIVE_MIN_MAIN_W = 560;
+const PARENT_PORTAL_RESPONSIVE_MOBILE_SURFACE_W = 768;
+const PARENT_PORTAL_RESPONSIVE_MOBILE_MIN_CANVAS_W = 320;
+const PARENT_PORTAL_RESPONSIVE_MOBILE_MIN_CANVAS_H = 900;
 const PARENT_PORTAL_RESPONSIVE_COMPACT_SURFACE_W = 1600;
 const PARENT_PORTAL_RESPONSIVE_MAX_CANVAS_W = 8192;
 const PARENT_PORTAL_RESPONSIVE_MAX_CANVAS_H = 2800;
@@ -395,6 +413,16 @@ type AssistantTranscriptMessage = {
 };
 
 const ASSISTANT_READY_TEXT = 'Ask MIA about activity, rules, reports, setup, or choose a quick action.';
+
+function assistantReadyMessage(commandAvailable: boolean): AssistantTranscriptMessage {
+  return {
+    id: 'mia-ready',
+    sender: 'assistant',
+    text: commandAvailable
+      ? `${ASSISTANT_READY_TEXT} Answers appear only after the service returns them.`
+      : 'MIA is unavailable because the local service is not connected. Open Start Here to reconnect.',
+  };
+}
 
 const ASSISTANT_DEFAULT_FOLLOW_UPS = [
   'Give me the overall report',
@@ -764,12 +792,23 @@ function compactParentPortalCanvasWidth(cfg: ParentPortalSvgControls): number {
   return Math.ceil(cfg.layout.outerPad * 2 + cfg.layout.leftW + cfg.layout.gap + PARENT_PORTAL_RESPONSIVE_MIN_MAIN_W);
 }
 
+function isParentPortalMobileSurface(surfaceSize: { width: number; height: number }): boolean {
+  return surfaceSize.width > 0 && surfaceSize.width < PARENT_PORTAL_RESPONSIVE_MOBILE_SURFACE_W;
+}
+
 function parentPortalCanvasSizeForSurface(
   cfg: ParentPortalSvgControls,
   surfaceSize: { width: number; height: number }
 ): { width: number; height: number } {
   if (surfaceSize.width <= 0 || surfaceSize.height <= 0) {
     return cfg.canvas;
+  }
+
+  if (isParentPortalMobileSurface(surfaceSize)) {
+    return {
+      width: Math.max(PARENT_PORTAL_RESPONSIVE_MOBILE_MIN_CANVAS_W, Math.round(surfaceSize.width)),
+      height: Math.max(PARENT_PORTAL_RESPONSIVE_MOBILE_MIN_CANVAS_H, cfg.canvas.height),
+    };
   }
 
   if (surfaceSize.width >= PARENT_PORTAL_RESPONSIVE_COMPACT_SURFACE_W) {
@@ -796,6 +835,10 @@ function responsiveParentPortalColumnWidths(
   canvasWidth: number,
   cfg: ParentPortalSvgControls
 ): { leftW: number; mainW: number; rightW: number } {
+  if (canvasWidth < PARENT_PORTAL_RESPONSIVE_MOBILE_SURFACE_W) {
+    const mainW = Math.max(1, canvasWidth - cfg.layout.outerPad * 2);
+    return { leftW: 0, mainW, rightW: 0 };
+  }
   const availableW = canvasWidth - cfg.layout.outerPad * 2 - cfg.layout.gap;
   const leftW = clampValue(cfg.layout.leftW, PARENT_PORTAL_RESPONSIVE_MIN_LEFT_W, cfg.layout.leftW);
   const mainW = Math.max(PARENT_PORTAL_RESPONSIVE_MIN_MAIN_W, availableW - leftW);
@@ -870,6 +913,8 @@ const PARENT_PORTAL_GLASS = {
   dialogFillStrongBottom: PortalUnifiedChrome.CssVarRefs.FrameSurfaceFill,
   dialogScrim: PortalUnifiedChrome.CssVarRefs.FrameScrimFill,
 } as const;
+
+const PARENT_PORTAL_CONTENT_SURFACE_OPACITY = 0.94;
 
 const PARENT_PORTAL_FRAME_MATERIAL = {
   bodyFill: PortalUnifiedChrome.CssVarRefs.FrameBodyFill,
@@ -1153,9 +1198,9 @@ function initialOpenNavSectionIds(navGroups: NavGroup[], navKey: string, navLabe
   return Object.fromEntries(
     navGroups.flatMap((group) => {
       const labels = Array.from(new Set(group.items.map((item) => item.sectionLabel).filter(Boolean)));
-      return labels.map((label, index) => {
+      return labels.map((label) => {
         const sectionId = navSectionId(group.id, label as string);
-        return [sectionId, sectionId === activeSectionId || index === 0];
+        return [sectionId, sectionId === activeSectionId];
       });
     })
   );
@@ -1170,19 +1215,6 @@ function ensureOpenNavGroupIds(
   const activeGroupId = navGroupIdForNavKey(navGroups, navKey, navLabel);
   return Object.fromEntries(
     navGroups.map((group) => [group.id, activeGroupId ? group.id === activeGroupId : Boolean(current[group.id])])
-  );
-}
-
-function ensureOpenNavSectionIds(
-  current: Record<string, boolean>,
-  navGroups: NavGroup[],
-  navKey: string,
-  navLabel: string
-): Record<string, boolean> {
-  const activeSectionId = navSectionIdForNavKey(navGroups, navKey, navLabel);
-  if (!activeSectionId) return current;
-  return Object.fromEntries(
-    navSectionIdsForGroups(navGroups).map((sectionId) => [sectionId, sectionId === activeSectionId])
   );
 }
 
@@ -1232,7 +1264,9 @@ function initialNavItemForContext(
   navItems: NavItem[],
   content: ParentPortalContentData,
   initialNavLabel: string | undefined,
-  selectedControlId: string | undefined
+  selectedControlId: string | undefined,
+  preferredTabId: ParentPortalTabId,
+  preferredGroupId: ParentPortalNavGroup['id']
 ): NavItem | undefined {
   const selectedControl = selectedControlId ? findSelectedControl(content, selectedControlId) : undefined;
   if (selectedControl?.routePath) {
@@ -1241,7 +1275,17 @@ function initialNavItemForContext(
     const deviceRouteItem = deviceOpsNavItemForRoute(navItems, selectedControl.routePath);
     if (deviceRouteItem) return deviceRouteItem;
   }
-  return navItems.find((item) => item.label === initialNavLabel);
+  return (
+    navItems.find((item) => item.label === initialNavLabel && item.groupId === preferredGroupId) ??
+    navItems.find((item) => item.label === initialNavLabel && item.tabId === preferredTabId) ??
+    navItems.find((item) => item.label === initialNavLabel)
+  );
+}
+
+function preferredNavGroupIdForPageMode(pageMode: ParentPortalMode): ParentPortalNavGroup['id'] {
+  if (pageMode === 'parentManage') return 'manage';
+  if (pageMode === 'parentGuide') return 'guide';
+  return 'quickGlance';
 }
 
 const MANAGE_DEVICE_OPS_ROUTE_KEYS = new Set([
@@ -1321,7 +1365,7 @@ function rowSourceForPageMode(
   const source = content.modes[pageMode]?.rowSource ?? 'api';
   if (source === 'aiBenchmarkRows') return content.aiBenchmarkRows;
   if (source === 'fallbackRows') return content.fallbackRows;
-  return parentPortalRows.length > 0 ? parentPortalRows : content.fallbackRows;
+  return parentPortalRows;
 }
 
 function toDisplayRows(
@@ -1351,6 +1395,22 @@ function toDisplayRows(
       tone: row.tone ?? tones[index % tones.length] ?? 'purple',
     };
   });
+}
+
+function unavailableDisplayRow(primaryArea: string): DisplayRow {
+  return {
+    id: 'service-state-unavailable',
+    order: 0,
+    label: 'Service state unavailable',
+    signal: '-',
+    signals: '-',
+    readyCount: '-',
+    gapCount: '-',
+    readiness: 'Unavailable',
+    primaryArea: primaryArea || 'Parent portal',
+    trend: 'Manual required',
+    tone: 'muted',
+  };
 }
 
 function tableVariantForContext(activeNavLabel: string, activeTab: ParentPortalTabId): ParentPortalTableVariant {
@@ -1650,7 +1710,19 @@ function buildControlCategorySummaries(controls: QuickControl[]): ControlCategor
   });
 }
 
-function detailForNav(activeNavLabel: string, detail: TabDetail): TabDetail {
+function detailForNav(activeNavLabel: string, detail: TabDetail, activeNavItem?: NavItem | null): TabDetail {
+  if (activeNavItem?.groupId === 'devTools') {
+    return {
+      ...detail,
+      eyebrow: 'Developer tools',
+      title: activeNavItem.label,
+      summary: activeNavItem.detail,
+      primary: 'Local inspection',
+      secondary: 'Service authority stays fail-closed',
+      action: 'Inspect local state',
+      tone: activeNavItem.tone ?? 'cyan',
+    };
+  }
   const key = assetKey(activeNavLabel);
   if (!key.includes('overview') && !key.includes('today')) return detail;
   return {
@@ -1702,7 +1774,8 @@ function SurfacePanel({
 }) {
   const [hovered, setHovered] = useState(false);
   const color = accentColor ?? toneColor(tone, cfg);
-  const interactive = Boolean(onClick) && !disabled;
+  const actionable = Boolean(onClick);
+  const interactive = actionable && !disabled;
   const active = selected || hovered;
   const frameFillOpacity = disabled
     ? PARENT_PORTAL_FRAME_MATERIAL.disabledFillOpacity
@@ -1725,8 +1798,8 @@ function SurfacePanel({
       onKeyDown={handleKeyDown}
       onMouseEnter={() => interactive && setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      role={interactive ? 'button' : undefined}
-      tabIndex={interactive ? 0 : undefined}
+      role={actionable ? 'button' : undefined}
+      tabIndex={actionable ? (disabled ? -1 : 0) : undefined}
       aria-label={ariaLabel}
       aria-disabled={disabled || undefined}
     >
@@ -1940,6 +2013,7 @@ function ParentPortalHeaderAction({
   tone = 'cyan',
   accentColor,
   active = false,
+  disabled = false,
   onClick,
   ariaLabel,
   cfg,
@@ -1953,13 +2027,14 @@ function ParentPortalHeaderAction({
   tone?: Tone;
   accentColor?: string;
   active?: boolean;
+  disabled?: boolean;
   onClick: () => void;
   ariaLabel?: string;
   cfg: ParentPortalSvgControls;
 }) {
   const [hovered, setHovered] = useState(false);
   const color = accentColor ?? toneColor(tone, cfg);
-  const lit = active || hovered;
+  const lit = !disabled && (active || hovered);
   const iconBoxSize = iconHref ? Math.max(20, Math.min(25, h - 4)) : 0;
   const iconSize = iconHref ? Math.max(16, iconBoxSize - 5) : 0;
   const iconGap = iconHref ? 7 : 0;
@@ -1973,19 +2048,24 @@ function ParentPortalHeaderAction({
     <g
       className="parent-portal-svg-clickable"
       role="button"
-      tabIndex={0}
+      tabIndex={disabled ? -1 : 0}
       aria-label={ariaLabel ?? label}
+      aria-disabled={disabled || undefined}
+      opacity={disabled ? 0.46 : 1}
       onClick={(event) => {
+        if (disabled) return;
         event.stopPropagation();
         onClick();
       }}
       onKeyDown={(event) => {
-        if (event.key !== 'Enter' && event.key !== ' ') return;
+        if (disabled || (event.key !== 'Enter' && event.key !== ' ')) return;
         event.preventDefault();
         event.stopPropagation();
         onClick();
       }}
-      onMouseEnter={() => setHovered(true)}
+      onMouseEnter={() => {
+        if (!disabled) setHovered(true);
+      }}
       onMouseLeave={() => setHovered(false)}
     >
       {lit ? (
@@ -2131,7 +2211,6 @@ function ParentPortalSectionFrame({
   headerH,
   bodyInset,
   fullHeaderLine = false,
-  innerStrokeOpacity = 0.6,
   bodyStrokeOpacity = PARENT_PORTAL_FRAME_MATERIAL.bodyStrokeOpacity,
   bodyFill = PARENT_PORTAL_FRAME_MATERIAL.bodyFill,
   footerLineOpacity = PARENT_PORTAL_FRAME_MATERIAL.footerLineOpacity,
@@ -2141,8 +2220,6 @@ function ParentPortalSectionFrame({
   onNext,
   onWheel,
   selected = false,
-  onSelect,
-  ariaLabel,
   cfg,
   children,
 }: {
@@ -2164,7 +2241,6 @@ function ParentPortalSectionFrame({
   headerH?: number;
   bodyInset?: number;
   fullHeaderLine?: boolean;
-  innerStrokeOpacity?: number;
   bodyStrokeOpacity?: number | string;
   bodyFill?: string;
   footerLineOpacity?: number | string;
@@ -2174,20 +2250,16 @@ function ParentPortalSectionFrame({
   onNext?: () => void;
   onWheel?: (event: WheelEvent<SVGGElement>) => void;
   selected?: boolean;
-  onSelect?: () => void;
-  ariaLabel?: string;
   cfg: ParentPortalSvgControls;
   children: (rect: ParentPortalRect) => ReactNode;
 }) {
-  const [hovered, setHovered] = useState(false);
   const color = accentColor ?? toneColor(tone, cfg);
   const {
     body,
     footer: footerRect,
     headerH: resolvedHeaderH,
   } = parentPortalFrameRects(x, y, w, h, footerH, headerH, bodyInset);
-  const interactive = Boolean(onSelect);
-  const active = selected || hovered;
+  const active = selected;
   const headerInset = Math.max(48, Math.min(76, w * 0.045));
   const headerRightInset = Math.max(48, Math.min(76, w * 0.045));
   const prominentHeader = fullHeaderLine;
@@ -2215,15 +2287,16 @@ function ParentPortalSectionFrame({
   const headerInfoSize = hasHeaderInfo ? (prominentHeader ? 25 : 22) : 0;
   const headerInfoReservedW = hasHeaderInfo ? headerInfoSize + 18 : 0;
   const titleMaxW = Math.max(80, headerLineEnd - titleX - 12 - headerInfoReservedW);
-  const expandedTitle = prominentHeader && title === 'LAN' && titleMaxW >= 190 ? 'Local Area Network' : title;
+  const responsiveTitle =
+    prominentHeader && title === PortalLanPairingScan.Text.HeaderTitle && titleMaxW < 320 ? 'LAN' : title;
   const titleFontSize = fitSingleLineTextSize(
-    expandedTitle,
+    responsiveTitle,
     titleMaxW,
     prominentHeader ? 15 : 12,
     prominentHeader ? 17 : 14,
     0.56
   );
-  const titleText = truncateTextForWidth(expandedTitle, titleMaxW, titleFontSize, 0.56);
+  const titleText = truncateTextForWidth(responsiveTitle, titleMaxW, titleFontSize, 0.56);
   const titleBaseline = prominentHeader
     ? prominentHeaderCenterY + titleFontSize * 0.35
     : headerIcon
@@ -2246,33 +2319,8 @@ function ParentPortalSectionFrame({
   const leftHandleX = x - sideHandleW + PARENT_PORTAL_SIDE_HANDLE_OVERLAP;
   const rightHandleX = x + w - PARENT_PORTAL_SIDE_HANDLE_OVERLAP;
   const showFooterLine = footerLineOpacity !== 0 && footerLineOpacity !== '0';
-  const handleSelect = (event: MouseEvent<SVGGElement>) => {
-    if (!interactive) return;
-    event.stopPropagation();
-    onSelect?.();
-  };
-  const handleKeyDown = (event: KeyboardEvent<SVGGElement>) => {
-    if (!interactive || (event.key !== 'Enter' && event.key !== ' ')) return;
-    event.preventDefault();
-    event.stopPropagation();
-    onSelect?.();
-  };
   return (
-    <g
-      className={interactive ? 'parent-portal-svg-clickable' : undefined}
-      role={interactive ? 'button' : undefined}
-      tabIndex={interactive ? 0 : undefined}
-      aria-label={ariaLabel}
-      aria-pressed={interactive ? selected : undefined}
-      onClick={handleSelect}
-      onKeyDown={handleKeyDown}
-      onWheel={onWheel}
-      onMouseEnter={() => interactive && setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      {interactive ? (
-        <rect x={x - 8} y={y - 8} width={w + 16} height={h + 16} fill="transparent" pointerEvents="all" />
-      ) : null}
+    <g onWheel={onWheel}>
       <ParentPortalPanelFrame
         x={x}
         y={y}
@@ -2551,6 +2599,8 @@ function NavRow({
   iconSize,
   nested = false,
   branchColor,
+  visible = true,
+  disabled = false,
   ariaLabel,
   onSelect,
   cfg,
@@ -2564,11 +2614,14 @@ function NavRow({
   iconSize: number;
   nested?: boolean;
   branchColor?: string;
+  visible?: boolean;
+  disabled?: boolean;
   ariaLabel?: string;
   onSelect: () => void;
   cfg: ParentPortalSvgControls;
 }) {
   const [hovered, setHovered] = useState(false);
+  const interactive = visible && !disabled;
   const color = active ? cfg.colors.bodyText : '#d8eaff';
   const rowX = x + 14;
   const rowW = w - 28;
@@ -2589,24 +2642,35 @@ function NavRow({
   const arrowTipX = arrowBaseX + 20;
   return (
     <g
-      className="parent-portal-svg-clickable"
+      className={interactive ? 'parent-portal-svg-clickable' : undefined}
       onClick={(event) => {
+        if (!interactive) return;
         event.stopPropagation();
         onSelect();
       }}
-      onMouseEnter={() => setHovered(true)}
+      onMouseEnter={() => interactive && setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onKeyDown={(event) => {
-        if (event.key !== 'Enter' && event.key !== ' ') return;
+        if (!interactive || (event.key !== 'Enter' && event.key !== ' ')) return;
         event.preventDefault();
         event.stopPropagation();
         onSelect();
       }}
-      role="button"
-      tabIndex={0}
+      role={visible ? 'button' : undefined}
+      tabIndex={interactive ? 0 : -1}
+      aria-hidden={visible ? undefined : true}
+      aria-disabled={visible && disabled ? true : undefined}
+      aria-current={visible && active ? 'page' : undefined}
       aria-label={ariaLabel ?? `Open ${item.label}`}
     >
-      <rect x={rowX - 6} y={y - 4} width={rowW + 28} height={rowH + 8} fill="transparent" pointerEvents="all" />
+      <rect
+        x={rowX - 6}
+        y={y - 4}
+        width={rowW + 28}
+        height={rowH + 8}
+        fill="transparent"
+        pointerEvents={interactive ? 'all' : 'none'}
+      />
       {nested ? (
         <>
           <path
@@ -2742,7 +2806,6 @@ function FoldoutTriangleIndicator({
   hovered,
   accent,
   glowFilter,
-  cfg,
 }: {
   x: number;
   y: number;
@@ -2751,7 +2814,6 @@ function FoldoutTriangleIndicator({
   hovered: boolean;
   accent: string;
   glowFilter: string;
-  cfg: ParentPortalSvgControls;
 }) {
   const lit = open || hovered;
   const indicatorColor = accent;
@@ -2799,6 +2861,7 @@ function NavSectionHeader({
   h,
   accentColor,
   glowFilter,
+  visible = true,
   onToggle,
   cfg,
 }: {
@@ -2811,6 +2874,7 @@ function NavSectionHeader({
   h: number;
   accentColor?: string;
   glowFilter?: string;
+  visible?: boolean;
   onToggle: () => void;
   cfg: ParentPortalSvgControls;
 }) {
@@ -2836,23 +2900,32 @@ function NavSectionHeader({
     <g
       className="parent-portal-svg-clickable"
       onClick={(event) => {
+        if (!visible) return;
         event.stopPropagation();
         onToggle();
       }}
-      onMouseEnter={() => setHovered(true)}
+      onMouseEnter={() => visible && setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onKeyDown={(event) => {
-        if (event.key !== 'Enter' && event.key !== ' ') return;
+        if (!visible || (event.key !== 'Enter' && event.key !== ' ')) return;
         event.preventDefault();
         event.stopPropagation();
         onToggle();
       }}
-      role="button"
-      tabIndex={0}
+      role={visible ? 'button' : undefined}
+      tabIndex={visible ? 0 : -1}
+      aria-hidden={visible ? undefined : true}
       aria-label={`${open ? 'Collapse' : 'Expand'} ${label}`}
-      aria-expanded={open}
+      aria-expanded={visible ? open : undefined}
     >
-      <rect x={rowX - 7} y={panelY - 4} width={rowW + 14} height={panelH + 8} fill="transparent" pointerEvents="all" />
+      <rect
+        x={rowX - 7}
+        y={panelY - 4}
+        width={rowW + 14}
+        height={panelH + 8}
+        fill="transparent"
+        pointerEvents={visible ? 'all' : 'none'}
+      />
       <path
         d={`M ${x + 18} ${panelY + panelH / 2} H ${rowX - 8}`}
         stroke={accent}
@@ -2921,7 +2994,6 @@ function NavSectionHeader({
         hovered={hovered}
         accent={baseAccent}
         glowFilter={activeGlowFilter}
-        cfg={cfg}
       />
     </g>
   );
@@ -2956,6 +3028,7 @@ function NavGroupHeader({
   w,
   y,
   h,
+  visible = true,
   onToggle,
   cfg,
 }: {
@@ -2965,6 +3038,7 @@ function NavGroupHeader({
   w: number;
   y: number;
   h: number;
+  visible?: boolean;
   onToggle: () => void;
   cfg: ParentPortalSvgControls;
 }) {
@@ -2995,23 +3069,32 @@ function NavGroupHeader({
     <g
       className="parent-portal-svg-clickable"
       onClick={(event) => {
+        if (!visible) return;
         event.stopPropagation();
         onToggle();
       }}
-      onMouseEnter={() => setHovered(true)}
+      onMouseEnter={() => visible && setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onKeyDown={(event) => {
-        if (event.key !== 'Enter' && event.key !== ' ') return;
+        if (!visible || (event.key !== 'Enter' && event.key !== ' ')) return;
         event.preventDefault();
         event.stopPropagation();
         onToggle();
       }}
-      role="button"
-      tabIndex={0}
+      role={visible ? 'button' : undefined}
+      tabIndex={visible ? 0 : -1}
+      aria-hidden={visible ? undefined : true}
       aria-label={`${open ? 'Collapse' : 'Expand'} ${group.label}`}
-      aria-expanded={open}
+      aria-expanded={visible ? open : undefined}
     >
-      <rect x={rowX - 6} y={y - 4} width={rowW + 12} height={h + 8} fill="transparent" pointerEvents="all" />
+      <rect
+        x={rowX - 6}
+        y={y - 4}
+        width={rowW + 12}
+        height={h + 8}
+        fill="transparent"
+        pointerEvents={visible ? 'all' : 'none'}
+      />
       {lit ? (
         <path
           d={cutRectPath(rowX - 3, y - 3, rowW + 6, h + 6, 11)}
@@ -3074,10 +3157,73 @@ function NavGroupHeader({
         hovered={hovered}
         accent={accent}
         glowFilter={glowFilter}
-        cfg={cfg}
       />
     </g>
   );
+}
+
+function ParentPortalMobileNavigation({
+  activeNavRouteKey,
+  assistantActive,
+  assistantRoutePath,
+  navGroups,
+  onAssistantOpen,
+  onSelect,
+}: {
+  activeNavRouteKey: string;
+  assistantActive: boolean;
+  assistantRoutePath: string;
+  navGroups: NavGroup[];
+  onAssistantOpen: () => void;
+  onSelect: (item: NavItem) => void;
+}): ReactElement {
+  return (
+    <nav className="parent-portal-mobile-nav" aria-label="Parent portal sections">
+      <label className="parent-portal-mobile-nav__field">
+        <span className="parent-portal-mobile-nav__label">Section</span>
+        <select
+          className="parent-portal-mobile-nav__select"
+          aria-label="Choose parent portal section"
+          value={assistantActive ? assistantRoutePath : activeNavRouteKey}
+          onChange={(event) => {
+            if (event.target.value === assistantRoutePath) {
+              onAssistantOpen();
+              return;
+            }
+            const item = navGroups
+              .flatMap((group) => group.items)
+              .find((entry) => navItemKey(entry) === event.target.value);
+            if (item) onSelect(item);
+          }}
+        >
+          {navGroups.map((group) => (
+            <optgroup key={group.id} label={group.label}>
+              {group.items.map((item) => (
+                <option key={navItemKey(item)} value={navItemKey(item)}>
+                  {item.label}
+                </option>
+              ))}
+            </optgroup>
+          ))}
+          <optgroup label="Assistant">
+            <option value={assistantRoutePath}>AI Assistant</option>
+          </optgroup>
+        </select>
+      </label>
+    </nav>
+  );
+}
+
+function parentPortalNavControlIsVisible(
+  y: number,
+  height: number,
+  scroll: number,
+  viewportY: number,
+  viewportHeight: number
+): boolean {
+  const translatedTop = y - scroll;
+  const translatedBottom = translatedTop + height;
+  return translatedTop >= viewportY && translatedBottom <= viewportY + viewportHeight;
 }
 
 function NavPanel({
@@ -3086,6 +3232,7 @@ function NavPanel({
   navGroups,
   openGroupIds,
   assistantOpen,
+  assistantCommandAvailable,
   selectedAssistantActionId,
   onAssistantNewChat,
   onNavGroupToggle,
@@ -3099,6 +3246,7 @@ function NavPanel({
   navGroups: NavGroup[];
   openGroupIds: Record<string, boolean>;
   assistantOpen: boolean;
+  assistantCommandAvailable: boolean;
   selectedAssistantActionId: AssistantQuickActionId | null;
   onAssistantNewChat: () => void;
   onNavGroupToggle: (groupId: string) => void;
@@ -3228,7 +3376,7 @@ function NavPanel({
     if (safeNavScroll !== navScroll) setNavScroll(safeNavScroll);
   }, [navScroll, safeNavScroll]);
   useEffect(() => {
-    setOpenSectionIds((current) => ensureOpenNavSectionIds(current, navGroups, activeNavRouteKey, activeNavLabel));
+    setOpenSectionIds(initialOpenNavSectionIds(navGroups, activeNavRouteKey, activeNavLabel));
   }, [activeNavLabel, activeNavRouteKey, navGroups]);
   useEffect(() => {
     if (activeNavRowY === null || maxNavScroll <= 0) return;
@@ -3237,16 +3385,30 @@ function NavPanel({
     const visibleBottom = navViewportY + navViewportH - topPad;
     setNavScroll((value) => {
       const activeTop = activeNavRowY - value;
-      const activeBottom = activeTop + rowH;
+      const trailingContentHeight = Math.min(
+        Math.max(0, rowTop + navContentH - activeNavRowY - rowH),
+        navViewportH * 0.8
+      );
+      const activeBottom = activeTop + rowH + trailingContentHeight;
       if (activeTop < visibleTop) {
         return clampValue(activeNavRowY - visibleTop, 0, maxNavScroll);
       }
       if (activeBottom > visibleBottom) {
-        return clampValue(activeNavRowY + rowH - visibleBottom, 0, maxNavScroll);
+        return clampValue(activeNavRowY + rowH + trailingContentHeight - visibleBottom, 0, maxNavScroll);
       }
       return value;
     });
-  }, [activeNavLabel, activeNavRouteKey, activeNavRowY, maxNavScroll, navViewportH, navViewportY, rowH]);
+  }, [
+    activeNavLabel,
+    activeNavRouteKey,
+    activeNavRowY,
+    maxNavScroll,
+    navContentH,
+    navViewportH,
+    navViewportY,
+    rowH,
+    rowTop,
+  ]);
   const handleNavWheel = (event: WheelEvent<SVGGElement>) => {
     if (maxNavScroll <= 0) return;
     event.stopPropagation();
@@ -3259,11 +3421,11 @@ function NavPanel({
       ? navViewportY + (safeNavScroll / maxNavScroll) * Math.max(0, navViewportH - thumbH)
       : navViewportY;
   const toggleNavSection = (sectionId: string) => {
-    beginFoldPhase(navSectionFoldKey(sectionId), Boolean(openSectionIds[sectionId]) ? 'closing' : 'opening');
+    beginFoldPhase(navSectionFoldKey(sectionId), openSectionIds[sectionId] ? 'closing' : 'opening');
     setOpenSectionIds((current) => toggleOpenNavSectionId(current, navGroups, sectionId));
   };
   const handleNavGroupToggle = (groupId: string) => {
-    beginFoldPhase(navGroupFoldKey(groupId), Boolean(openGroupIds[groupId]) ? 'closing' : 'opening');
+    beginFoldPhase(navGroupFoldKey(groupId), openGroupIds[groupId] ? 'closing' : 'opening');
     onNavGroupToggle(groupId);
   };
   if (assistantOpen) {
@@ -3276,6 +3438,7 @@ function NavPanel({
           h={assistantPanelH}
           navGroups={navGroups}
           selectedActionId={selectedAssistantActionId}
+          commandAvailable={assistantCommandAvailable}
           onNewChat={onAssistantNewChat}
           onActionSelect={onAssistantActionSelect}
           cfg={cfg}
@@ -3337,6 +3500,13 @@ function NavPanel({
                             h={sectionH}
                             accentColor={groupAccent}
                             glowFilter={groupGlowFilter}
+                            visible={parentPortalNavControlIsVisible(
+                              sectionY,
+                              sectionH,
+                              safeNavScroll,
+                              navViewportY,
+                              navViewportH
+                            )}
                             onToggle={() => toggleNavSection(section.id)}
                             cfg={cfg}
                           />
@@ -3361,6 +3531,13 @@ function NavPanel({
                             iconSize={iconSize}
                             nested={nested}
                             branchColor={groupAccent}
+                            visible={parentPortalNavControlIsVisible(
+                              itemY,
+                              rowH,
+                              safeNavScroll,
+                              navViewportY,
+                              navViewportH
+                            )}
                             onSelect={() => onNavItemSelect(item)}
                             cfg={cfg}
                           />
@@ -3419,6 +3596,13 @@ function NavPanel({
                       w={leftW}
                       y={groupY}
                       h={groupH}
+                      visible={parentPortalNavControlIsVisible(
+                        groupY,
+                        groupH,
+                        safeNavScroll,
+                        navViewportY,
+                        navViewportH
+                      )}
                       onToggle={() => handleNavGroupToggle(group.id)}
                       cfg={cfg}
                     />
@@ -3537,6 +3721,7 @@ function AssistantQuickActionPanel({
   h,
   navGroups,
   selectedActionId,
+  commandAvailable,
   onNewChat,
   onActionSelect,
   cfg,
@@ -3547,6 +3732,7 @@ function AssistantQuickActionPanel({
   h: number;
   navGroups: NavGroup[];
   selectedActionId: AssistantQuickActionId | null;
+  commandAvailable: boolean;
   onNewChat: () => void;
   onActionSelect: (actionId: AssistantQuickActionId) => void;
   cfg: ParentPortalSvgControls;
@@ -3615,6 +3801,7 @@ function AssistantQuickActionPanel({
         iconSize={iconSize}
         branchColor={cfg.colors.cyan}
         ariaLabel="Start new MIA chat"
+        disabled={!commandAvailable}
         onSelect={onNewChat}
         cfg={cfg}
       />
@@ -3639,6 +3826,7 @@ function AssistantQuickActionPanel({
           iconSize={iconSize}
           branchColor={toneColor(action.tone, cfg)}
           ariaLabel={`${action.label} history`}
+          disabled={!commandAvailable}
           onSelect={() => onActionSelect(action.id)}
           cfg={cfg}
         />
@@ -3679,6 +3867,7 @@ function AssistantQuickActionPanel({
             iconSize={iconSize}
             branchColor={groupAccent}
             ariaLabel={`Ask MIA about ${actionLabel ?? item.label}`}
+            disabled={!commandAvailable}
             onSelect={() => {
               if (actionId) onActionSelect(actionId);
             }}
@@ -3864,6 +4053,10 @@ type ManageWorkspaceCard = {
   readonly value: string;
   readonly body: string;
   readonly tone: Tone;
+  readonly action?: {
+    readonly label: string;
+    readonly routePath: string;
+  };
 };
 
 type ManageWorkspaceTargetOption = {
@@ -4196,8 +4389,6 @@ const FAMILY_DEVICE_SCOPE_ICONS: NonNullable<DeviceChoiceGridProps['scopeIcons']
   parent: { href: parentNavIconAssetUrls.DevicesMultiScreenIcon },
   portal: { href: parentNavIconAssetUrls.PortalGatewayIcon },
 };
-const FAMILY_DEVICE_SCOPE_VALUES = ['lan', 'parent', 'portal'] as const;
-
 const MANAGE_DEVICE_GRID_CELL_W = 104;
 const MANAGE_DEVICE_GRID_CELL_H = 40;
 const MANAGE_DEVICE_GRID_CELL_MAX_W = 148;
@@ -4228,6 +4419,7 @@ function manageDeviceGridConfig(
   height: number,
   override?: ManageDeviceGridConfigOverride
 ): ManageDeviceGridConfigOverride {
+  const compact = width < 480;
   return mergeManageDeviceGridConfig(
     {
       debug: {
@@ -4236,10 +4428,12 @@ function manageDeviceGridConfig(
       preview: { background: 'transparent', padding: 0 },
       svg: { width, height, inset: 0 },
       layout: {
+        legendX: compact ? 10 : 14,
         legendDotR: 4.4,
         legendItemGap: 19,
         legendTextOffset: 12,
-        legendY: 10,
+        legendY: compact ? 58 : 10,
+        titleY: compact ? 8 : 10,
         cellW: MANAGE_DEVICE_GRID_CELL_W,
         cellH: MANAGE_DEVICE_GRID_CELL_H,
         cellMaxW: MANAGE_DEVICE_GRID_CELL_MAX_W,
@@ -4251,10 +4445,13 @@ function manageDeviceGridConfig(
         selectedInfoIconBox: 23,
         selectedInfoIconGap: 8,
         selectedInfoYGap: 8,
+        scopeIconSize: compact ? 14 : 18,
+        scopeIconGap: compact ? 4 : 7,
+        scopeOptionW: compact ? Math.max(88, (width - 16) / 3) : 148,
       },
       text: {
-        optionSize: 13,
-        legendSize: 13,
+        optionSize: compact ? 11.5 : 13,
+        legendSize: compact ? 10.5 : 13,
         selectedInfoSize: 14,
       },
     },
@@ -4263,28 +4460,32 @@ function manageDeviceGridConfig(
 }
 
 function activityScopeToggleConfig(width: number, height = 66) {
-  const safeWidth = Math.max(220, width);
+  const safeWidth = Math.max(1, width);
+  const compact = safeWidth < 260;
+  const titleBoxMinWidth = compact ? 40 : 74;
+  const titleBoxPaddingX = compact ? 2 : 12;
+  const titleReserve = compact ? 48 : 86;
   return {
     svg: {
       width: safeWidth,
       height,
-      viewportInset: 6,
+      viewportInset: compact ? 0 : 6,
     },
     layout: {
       titleAnchorX: 0,
       titleBoxY: 17,
-      titleBoxMinWidth: 74,
-      titleBoxPaddingX: 12,
+      titleBoxMinWidth,
+      titleBoxPaddingX,
       titleBoxHeight: 32,
       trackY: 15,
-      trackMinWidth: Math.max(128, safeWidth - 86),
+      trackMinWidth: Math.max(1, safeWidth - titleReserve),
       trackHeight: 36,
-      optionPaddingX: 15,
+      optionPaddingX: compact ? 2 : 15,
       outerPaddingRight: 0,
     },
     text: {
-      titleFontSize: 14,
-      optionFontSize: 14,
+      titleFontSize: compact ? 11.5 : 14,
+      optionFontSize: compact ? 11.5 : 14,
     },
   };
 }
@@ -4910,10 +5111,14 @@ function lanPairingPairCommandPayload(slot: DeviceSlot | null): Record<string, s
 
 export function lanPairingHouseholdActionCommandPayload(
   slot: DeviceSlot | null,
-  _actionKind: string,
-  _override: { readonly displayName?: string; readonly deviceKind?: DeviceKind; readonly requiresRoute?: boolean } = {}
+  actionKind: string,
+  override?: { readonly displayName?: string; readonly deviceKind?: DeviceKind; readonly requiresRoute?: boolean }
 ): Record<string, string> | null {
   if (!slot) return null;
+  const supportedAction = Object.values(PortalAgentLanHouseholdActionKind).some((value) => value === actionKind);
+  if (!supportedAction) return null;
+  if (override?.displayName !== undefined && override.displayName.trim().length === 0) return null;
+  if (override?.requiresRoute && !slot.device?.routeId) return null;
   // Household decisions require an owner-issued intent, controller lease, and
   // parent authority. The current DeviceSlot/read-model projection carries
   // discovery and pairing evidence only, so no mutation payload can satisfy
@@ -5082,10 +5287,30 @@ const ACTIVITY_MANAGE_TABS: readonly [ActivityManageTab, ...ActivityManageTab[]]
   { id: 'remoteScreen', label: 'Remote Screen', icon: RemoteAccessMonitorsIcon, tone: 'purple' },
 ];
 
-const ACTIVITY_REPORT_FREQUENCY_OPTIONS = [
-  { value: 'daily', label: 'Daily' },
-  { value: 'weekly', label: 'Weekly' },
-  { value: 'monthly', label: 'Monthly' },
+type ActivityReportFrequencyOption = {
+  value: string;
+  label: string;
+  command: AgentCommandName;
+};
+
+const ACTIVITY_REPORT_DAILY_OPTION: ActivityReportFrequencyOption = {
+  value: PortalAgentActivityReportFrequency.Daily,
+  label: 'Daily',
+  command: AgentCommand.ActivityReportDailyGenerate,
+};
+
+const ACTIVITY_REPORT_FREQUENCY_OPTIONS: ActivityReportFrequencyOption[] = [
+  ACTIVITY_REPORT_DAILY_OPTION,
+  {
+    value: PortalAgentActivityReportFrequency.Weekly,
+    label: 'Weekly',
+    command: AgentCommand.ActivityReportWeeklyGenerate,
+  },
+  {
+    value: PortalAgentActivityReportFrequency.Monthly,
+    label: 'Monthly',
+    command: AgentCommand.ActivityReportMonthlyGenerate,
+  },
 ];
 
 const ACTIVITY_REPORT_OVERRIDE_OPTIONS = [
@@ -5104,12 +5329,71 @@ function activityManageTargetLabel(scopeValue: string, selectedDevice: DeviceSlo
   return selectedDevice?.label ?? 'Select device';
 }
 
+function activityReportScopeCommandPayload(
+  familyScope: boolean,
+  selectedDevice: DeviceSlot | null
+): Record<string, string> | null {
+  if (familyScope) {
+    return {
+      [PortalAgentProtocolField.ScopeKind]: PortalAgentActivitySurfaceScopeKind.Family,
+    };
+  }
+  const deviceId = selectedDevice?.device?.id?.trim() ?? '';
+  if (!deviceId) return null;
+  return {
+    [PortalAgentProtocolField.ScopeKind]: PortalAgentActivitySurfaceScopeKind.Device,
+    [PortalAgentProtocolField.DeviceId]: deviceId,
+  };
+}
+
+function activityReportSaveCommandPayload(report: Record<string, unknown> | null): Record<string, string> | null {
+  if (!report) return null;
+  return {
+    [PortalAgentProtocolField.ActivityReportDocument]: JSON.stringify(report),
+  };
+}
+
 function activityManageTabLabel(tab: ActivityManageTabId): string {
   return ACTIVITY_MANAGE_TABS.find((item) => item.id === tab)?.label ?? 'Activity';
 }
 
 function activityTabRequiresDevice(tab: ActivityManageTabId): boolean {
   return tab !== 'reports';
+}
+
+type ActivityReportScopeStatus = {
+  readonly ariaLabel: string;
+  readonly eyebrow: string;
+  readonly detail: string;
+};
+
+function activityReportScopeStatus(familyScope: boolean, currentDeviceCount: number): ActivityReportScopeStatus | null {
+  if (familyScope) {
+    return {
+      ariaLabel: 'Whole family activity report scope',
+      eyebrow: 'WHOLE FAMILY REPORT',
+      detail: 'Family reports cover every current household device. Switch to Per Device to inspect one child.',
+    };
+  }
+  if (currentDeviceCount === 0) {
+    return {
+      ariaLabel: 'No current activity device targets',
+      eyebrow: 'NO CURRENT DEVICE TARGETS',
+      detail: 'Connect the local service and load a current household device before choosing per-device activity.',
+    };
+  }
+  return null;
+}
+
+function activityDetailTabUnavailableReason(
+  tab: ActivityManageTab,
+  familyScope: boolean,
+  selectedDevice: DeviceSlot | null
+): string | null {
+  if (!activityTabRequiresDevice(tab.id)) return null;
+  if (familyScope) return `${tab.label} requires Per Device activity scope`;
+  if (!selectedDevice) return `${tab.label} requires a current device selection`;
+  return null;
 }
 
 function activityStateValue(value: unknown, fallback = 'Not reported'): string {
@@ -5529,6 +5813,7 @@ function activityRowsFromReadModels(
   const browser = parentPortalActivityAdapterRecord(activityState?.activityBrowserReadModel);
   const games = parentPortalActivityAdapterRecord(activityState?.activityGamesReadModel);
   const network = parentPortalActivityAdapterRecord(activityState?.activityNetworkReadModel);
+  const tracking = parentPortalActivityAdapterRecord(activityState?.activityTrackingReadModel);
   const browserManaged = activityState?.browserManagedStatus;
   const browserEvidence = activityState?.browserEvidenceReadModel;
   const networkFlow = activityState?.networkFlowReadModel;
@@ -5539,6 +5824,7 @@ function activityRowsFromReadModels(
   const browserRow = activityLatestRow(browser) ?? activityLatestRow(browserEvidence);
   const gameRow = activityLatestRow(games);
   const networkRow = activityLatestRow(network) ?? activityLatestRow(networkFlow);
+  const trackingRow = activityLatestRow(tracking);
 
   if (tab === 'reports') {
     return [
@@ -5601,22 +5887,53 @@ function activityRowsFromReadModels(
   }
 
   if (tab === 'tracking') {
+    if (!tracking || !trackingRow) {
+      return activityUnavailableRows('Tracking read model', 'ActivityTrackingReadModelReported', gateRows);
+    }
     return [
       ...gateRows,
       {
-        label: 'Backend not implemented yet',
-        value: 'Rust child-agent tracking read model is not wired yet.',
-        tone: 'gold',
-      },
-      {
-        label: 'Expected backend',
-        value: 'Location, geofence, route, and device-status evidence must come from Rust contracts.',
+        label: 'Read model state',
+        value: 'Available',
         tone: 'cyan',
       },
       {
-        label: 'Current UI state',
-        value: scopeValue === 'device' ? targetLabel : 'Family aggregate placeholder',
+        label: 'Rows returned',
+        value: activityStateValue(tracking['returned'], String(activityStateRows(tracking).length)),
+        tone: 'gold',
+      },
+      {
+        label: 'Latest activity',
+        value: activityStateValue(trackingRow['kind']),
         tone: 'purple',
+      },
+      {
+        label: 'Device',
+        value: activityStateValue(trackingRow['subjectDisplayName'] ?? trackingRow['deviceId']),
+        tone: 'cyan',
+      },
+      {
+        label: 'Observed',
+        value: activityStateValue(tracking['latestObservedAt'] ?? trackingRow['observedAt']),
+        tone: 'gold',
+      },
+      { label: 'Platform', value: activityStateValue(trackingRow['platform']), tone: 'purple' },
+      { label: 'Visibility', value: activityStateValue(trackingRow['queryVisibility']), tone: 'cyan' },
+      {
+        label: 'Capability',
+        value: activityStateValue(trackingRow['capabilityStatus'] ?? tracking['capabilityStatus']),
+        tone: 'gold',
+      },
+      { label: 'Custody', value: activityStateValue(tracking['custodyLabel']), tone: 'purple' },
+      {
+        label: 'Evidence refs',
+        value: activityEvidenceCount(trackingRow['evidenceReferenceIds']),
+        tone: 'gold',
+      },
+      {
+        label: 'Deleted evidence refs',
+        value: activityEvidenceCount(tracking['deletedEvidenceReferenceIds']),
+        tone: 'red',
       },
     ];
   }
@@ -5827,7 +6144,13 @@ function ParentPortalAppGameDashboardPanel({
 }) {
   const color = themeColor ?? appGameDashboardToneColor(appGameDashboardStateTone(dashboard.state), cfg);
   const compact = w < 860;
-  const headerH = 72;
+  const headerH = compact ? 96 : 72;
+  const titleY = y + (compact ? 20 : 22);
+  const titleFontSize = compact ? 15 : 18;
+  const stateY = y + (compact ? 43 : 22);
+  const stateMaxWidth = compact ? w : Math.min(260, w * 0.28);
+  const dividerY = y + (compact ? 53 : 37);
+  const summaryY = y + (compact ? 71 : 57);
   const bodyY = y + headerH;
   const metricColumns = w > 1220 ? 5 : w > 900 ? 4 : 2;
   const metricRows = Math.ceil(Math.min(dashboard.metrics.length, compact ? 6 : 10) / metricColumns);
@@ -5852,18 +6175,18 @@ function ParentPortalAppGameDashboardPanel({
 
   return (
     <g>
-      <text x={x} y={y + 22} fontSize={18} fontWeight={950} fill={cfg.colors.bodyText}>
+      <text x={x} y={titleY} fontSize={titleFontSize} fontWeight={950} fill={cfg.colors.bodyText}>
         APP/GAME READ MODEL DASHBOARD
       </text>
-      <text x={x + w} y={y + 22} textAnchor="end" fontSize={10.5} fontWeight={950} fill={color}>
-        {truncateTextForWidth(`STATE ${dashboard.state.toUpperCase()}`, Math.min(260, w * 0.28), 10.5, 0.58)}
+      <text x={x + w} y={stateY} textAnchor="end" fontSize={10.5} fontWeight={950} fill={color}>
+        {truncateTextForWidth(`STATE ${dashboard.state.toUpperCase()}`, stateMaxWidth, 10.5, 0.58)}
       </text>
-      <path d={`M ${x} ${y + 37} H ${x + w}`} stroke={color} strokeWidth={1.1} opacity={0.5} />
+      <path d={`M ${x} ${dividerY} H ${x + w}`} stroke={color} strokeWidth={1.1} opacity={0.5} />
       {summaryLines.map((line, index) => (
         <text
           key={`app-game-dashboard-summary:${index}`}
           x={x}
-          y={y + 57 + index * 16}
+          y={summaryY + index * 16}
           fontSize={12}
           fontWeight={760}
           fill={cfg.colors.mutedText}
@@ -5871,6 +6194,28 @@ function ParentPortalAppGameDashboardPanel({
           {line}
         </text>
       ))}
+
+      {dashboard.metricsState === 'unavailable' && dashboard.metricsUnavailableMessage ? (
+        <g aria-label="App and game measured totals unavailable">
+          <rect
+            x={x}
+            y={bodyY}
+            width={w}
+            height={metricH}
+            rx={8}
+            fill={cfg.colors.panelFill}
+            stroke={color}
+            strokeWidth={1}
+            opacity={0.88}
+          />
+          <text x={x + 12} y={bodyY + 17} fontSize={10.5} fontWeight={950} fill={color}>
+            MEASURED TOTALS UNAVAILABLE
+          </text>
+          <text x={x + 12} y={bodyY + 35} fontSize={11.2} fontWeight={740} fill={cfg.colors.mutedText}>
+            {truncateTextForWidth(dashboard.metricsUnavailableMessage, w - 24, 11.2, 0.58)}
+          </text>
+        </g>
+      ) : null}
 
       {metrics.map((metric, index) => {
         const column = index % metricColumns;
@@ -5892,9 +6237,14 @@ function ParentPortalAppGameDashboardPanel({
         SERVICE ROWS
       </text>
       {dashboard.rows.length === 0 ? (
-        <text x={x + 12} y={lowerY + 46} fontSize={12.4} fontWeight={780} fill={cfg.colors.mutedText}>
-          {truncateTextForWidth(dashboard.emptyMessage, rowsW - 24, 12.4, 0.58)}
-        </text>
+        <ParentPortalAppGameDashboardUnavailableCards
+          x={x}
+          y={lowerY + 28}
+          w={rowsW}
+          h={Math.max(1, lowerH - 36)}
+          emptyMessage={dashboard.emptyMessage}
+          cfg={cfg}
+        />
       ) : null}
       {visibleRows.map((row, index) => {
         const column = index % rowsColumns;
@@ -5943,6 +6293,91 @@ function ParentPortalAppGameDashboardPanel({
           />
         </>
       )}
+    </g>
+  );
+}
+
+const APP_GAME_DASHBOARD_UNAVAILABLE_CARDS = [
+  {
+    label: 'Activity rows',
+    value: 'Not reported',
+    body: 'No app, game, running, foreground, or launcher totals are shown without service rows.',
+    tone: 'cyan',
+  },
+  {
+    label: 'Capability status',
+    value: 'Not reported',
+    body: 'Capability and source freshness remain unknown until the local service reports typed rows.',
+    tone: 'gold',
+  },
+  {
+    label: 'Evidence status',
+    value: 'Not reported',
+    body: 'No evidence reference, policy readiness, or delivery state is inferred from an empty snapshot.',
+    tone: 'purple',
+  },
+] as const;
+
+function ParentPortalAppGameDashboardUnavailableCards({
+  x,
+  y,
+  w,
+  h,
+  emptyMessage,
+  cfg,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  emptyMessage: string;
+  cfg: ParentPortalSvgControls;
+}) {
+  const columns = w > 760 ? 3 : w > 480 ? 2 : 1;
+  const gap = 10;
+  const rows = Math.ceil(APP_GAME_DASHBOARD_UNAVAILABLE_CARDS.length / columns);
+  const cardW = (w - gap * (columns - 1)) / columns;
+  const cardH = Math.max(96, Math.min(220, (h - gap * (rows - 1)) / rows));
+  return (
+    <g aria-label="App and game status unavailable">
+      {APP_GAME_DASHBOARD_UNAVAILABLE_CARDS.map((card, index) => {
+        const column = index % columns;
+        const row = Math.floor(index / columns);
+        const cardX = x + column * (cardW + gap);
+        const cardY = y + row * (cardH + gap);
+        const color = appGameDashboardToneColor(card.tone, cfg);
+        const body = index === 0 ? `${emptyMessage} ${card.body}` : card.body;
+        const bodyLines = wrapCardText(body, cardW - 28, 10.8, Math.max(2, Math.floor((cardH - 76) / 15)));
+        return (
+          <g key={`app-game-unavailable-card:${card.label}`}>
+            <path
+              d={cutRectPath(cardX, cardY, cardW, cardH, 10)}
+              fill={colorAlpha(color, '12')}
+              stroke={color}
+              strokeWidth={0.9}
+              opacity={0.96}
+            />
+            <text x={cardX + 14} y={cardY + 22} fontSize={9.8} fontWeight={950} fill={color}>
+              {card.label.toUpperCase()}
+            </text>
+            <text x={cardX + 14} y={cardY + 50} fontSize={16} fontWeight={930} fill={cfg.colors.bodyText}>
+              {card.value}
+            </text>
+            {bodyLines.map((line, lineIndex) => (
+              <text
+                key={`app-game-unavailable-card-body:${card.label}:${lineIndex}`}
+                x={cardX + 14}
+                y={cardY + 76 + lineIndex * 15}
+                fontSize={10.8}
+                fontWeight={720}
+                fill={cfg.colors.mutedText}
+              >
+                {line}
+              </text>
+            ))}
+          </g>
+        );
+      })}
     </g>
   );
 }
@@ -6426,45 +6861,25 @@ function manageControlSpecFor(activeNavLabel: string, selectedControlName: strin
       title: 'Remote Screen Policy',
       devices,
       modes: [
-        { label: 'Off', detail: 'Do not allow live viewing.', tone: 'cyan' },
-        { label: 'Ask first', detail: 'Require a parent-approved session.', tone: 'gold' },
-        { label: 'Live view', detail: 'Backend not implemented yet.', tone: 'purple' },
+        {
+          label: 'Unavailable',
+          detail: 'No service-reported remote screen policy is connected.',
+          tone: 'red',
+        },
       ],
       options: [
         {
-          label: 'Backend not implemented yet',
-          detail: 'Live remote screen requires Rust session, custody, permission, and audit wiring.',
+          label: 'Remote screen runtime',
+          detail: 'Live viewing requires an owner-backed session, capability, permission, route, and custody report.',
           enabled: false,
           tone: 'red',
         },
-        {
-          label: 'Separate from screen analysis',
-          detail: 'Screen analysis is periodic summaries; remote screen is live parent viewing.',
-          enabled: true,
-          tone: 'cyan',
-        },
-        {
-          label: 'Require child-device capability',
-          detail: 'Only child agents that advertise live screen support should be selectable.',
-          enabled: true,
-          tone: 'gold',
-        },
-        {
-          label: 'Record audit event',
-          detail: 'Every live view request must be visible in parent audit.',
-          enabled: true,
-          tone: 'purple',
-        },
       ],
-      actions: [
-        { label: 'Check support', detail: 'Backend not implemented yet.', tone: 'cyan' },
-        { label: 'Request view', detail: 'Requires future Rust live-view session support.', tone: 'gold' },
-        { label: 'Open audit', detail: 'Review live-view policy decisions when wired.', tone: 'purple' },
-      ],
+      actions: [],
       status: [
-        { label: 'Backend', detail: 'Not implemented yet', tone: 'red' },
-        { label: 'Scope', detail: 'Per child device', tone: 'cyan' },
-        { label: 'Custody', detail: 'Local first', tone: 'gold' },
+        { label: 'Runtime', detail: 'Unavailable', tone: 'red' },
+        { label: 'Authority', detail: 'Not reported', tone: 'gold' },
+        { label: 'Custody', detail: 'Not reported', tone: 'purple' },
       ],
     };
   }
@@ -6561,22 +6976,26 @@ function manageControlSpecFor(activeNavLabel: string, selectedControlName: strin
       title: 'Notification Channels',
       devices,
       modes: [
-        { label: 'Portal', detail: 'Keep notices inside the parent portal.', tone: 'cyan' },
-        { label: 'Verified', detail: 'Use verified parent-owned destinations.', tone: 'gold' },
-        { label: 'Muted', detail: 'Pause external delivery.', tone: 'purple' },
+        {
+          label: 'Unavailable',
+          detail: 'No service-reported notification channel registry is connected.',
+          tone: 'red',
+        },
       ],
       options: [
-        { label: 'Email', detail: 'Send minimal parent alerts to verified email.', enabled: false, tone: 'cyan' },
-        { label: 'SMS', detail: 'Send high-priority parent alerts by SMS.', enabled: false, tone: 'gold' },
-        { label: 'WhatsApp', detail: 'Use parent-owned WhatsApp when configured.', enabled: false, tone: 'purple' },
-        { label: 'Quiet hours', detail: 'Hold low priority alerts overnight.', enabled: true, tone: 'cyan' },
+        {
+          label: 'Channel registry',
+          detail: 'A verified parent-owned channel must be reported by the notification service.',
+          enabled: false,
+          tone: 'red',
+        },
       ],
-      actions: [
-        { label: 'Verify channel', detail: 'Confirm parent-owned destination.', tone: 'gold' },
-        { label: 'Send test', detail: 'Send a minimal test alert.', tone: 'cyan' },
-        { label: 'Mute all', detail: 'Pause external channels.', tone: 'purple' },
+      actions: [],
+      status: [
+        { label: 'Registry', detail: 'Not reported', tone: 'red' },
+        { label: 'Delivery', detail: 'Unavailable', tone: 'gold' },
+        { label: 'Receipts', detail: 'Not reported', tone: 'purple' },
       ],
-      status: baseStatus,
     };
   }
 
@@ -6585,22 +7004,26 @@ function manageControlSpecFor(activeNavLabel: string, selectedControlName: strin
       title: 'Alerts',
       devices,
       modes: [
-        { label: 'Portal only', detail: 'Keep alerts inside the portal.', tone: 'cyan' },
-        { label: 'Priority', detail: 'Send only high-priority events out.', tone: 'gold' },
-        { label: 'External', detail: 'Use selected verified channels.', tone: 'purple' },
+        {
+          label: 'Unavailable',
+          detail: 'No service-reported parent notification state is connected.',
+          tone: 'red',
+        },
       ],
       options: [
-        { label: 'Policy alerts', detail: 'Notify on blocked or ask-parent decisions.', enabled: true, tone: 'gold' },
-        { label: 'Device offline', detail: 'Warn when child device goes stale.', enabled: true, tone: 'cyan' },
-        { label: 'Approval requests', detail: 'Notify parent when child asks.', enabled: true, tone: 'purple' },
-        { label: 'No raw evidence', detail: 'Never send raw local evidence in alerts.', enabled: true, tone: 'red' },
+        {
+          label: 'Notification intent',
+          detail: 'A current service-issued intent and provider state are required before alerts can be shown.',
+          enabled: false,
+          tone: 'red',
+        },
       ],
-      actions: [
-        { label: 'Test alert', detail: 'Send a minimal test notification.', tone: 'cyan' },
-        { label: 'Choose channels', detail: 'Open verified channel setup.', tone: 'gold' },
-        { label: 'Set quiet hours', detail: 'Choose when alerts pause.', tone: 'purple' },
+      actions: [],
+      status: [
+        { label: 'Intent', detail: 'Not reported', tone: 'red' },
+        { label: 'Preferences', detail: 'Not reported', tone: 'gold' },
+        { label: 'Delivery', detail: 'Unavailable', tone: 'purple' },
       ],
-      status: baseStatus,
     };
   }
 
@@ -6743,32 +7166,29 @@ function manageControlSpecFor(activeNavLabel: string, selectedControlName: strin
     return {
       title: 'Entitlements',
       devices,
-      modes: [
-        { label: 'Included', detail: 'Feature is included in this plan.', tone: 'cyan' },
-        { label: 'Limited', detail: 'Feature has usage or device limits.', tone: 'gold' },
-        { label: 'Locked', detail: 'Feature is unavailable for this plan.', tone: 'red' },
-      ],
+      modes: [{ label: 'Unavailable', detail: 'No verified entitlement snapshot is connected.', tone: 'red' }],
       options: [
         {
-          label: 'Local safety controls',
-          detail: 'Safety-critical local controls stay visible.',
-          enabled: true,
-          tone: 'cyan',
-        },
-        { label: 'Device count', detail: 'Show paired child-device entitlement use.', enabled: true, tone: 'gold' },
-        { label: 'Remote features', detail: 'Show remote and external-service gates.', enabled: false, tone: 'purple' },
-        {
-          label: 'Grace fallback',
-          detail: 'Keep honest degraded state when billing lapses.',
-          enabled: true,
+          label: 'Verified snapshot',
+          detail: 'Requires a current owner-verified entitlement snapshot.',
+          enabled: false,
           tone: 'red',
         },
+        { label: 'Device seats', detail: 'No billing-backed seat limit is reported.', enabled: false, tone: 'gold' },
+        {
+          label: 'Feature access',
+          detail: 'No paid feature access is inferred locally.',
+          enabled: false,
+          tone: 'purple',
+        },
+        {
+          label: 'Billing service',
+          detail: 'Connect the authenticated billing service to refresh this page.',
+          enabled: false,
+          tone: 'cyan',
+        },
       ],
-      actions: [
-        { label: 'Refresh gates', detail: 'Recheck current feature state.', tone: 'cyan' },
-        { label: 'View plan', detail: 'Open subscription plan controls.', tone: 'gold' },
-        { label: 'Apply code', detail: 'Redeem family or support entitlement.', tone: 'purple' },
-      ],
+      actions: [],
       status: baseStatus,
     };
   }
@@ -6777,22 +7197,19 @@ function manageControlSpecFor(activeNavLabel: string, selectedControlName: strin
     return {
       title: 'Subscription',
       devices,
-      modes: [
-        { label: 'Trial', detail: 'Temporary access window.', tone: 'cyan' },
-        { label: 'Paid', detail: 'Plan-backed controls.', tone: 'gold' },
-        { label: 'Grace', detail: 'Safe degraded access.', tone: 'purple' },
-      ],
+      modes: [{ label: 'Unavailable', detail: 'No authenticated subscription state is connected.', tone: 'red' }],
       options: [
-        { label: 'Device limit', detail: 'Show paired child-device count.', enabled: true, tone: 'cyan' },
-        { label: 'Plan comparison', detail: 'Show what each plan includes.', enabled: true, tone: 'gold' },
-        { label: 'Billing portal', detail: 'Open subscription management.', enabled: false, tone: 'purple' },
-        { label: 'Grace mode', detail: 'Keep safety-critical local controls visible.', enabled: true, tone: 'red' },
+        { label: 'Current plan', detail: 'No billing-backed plan is reported.', enabled: false, tone: 'cyan' },
+        { label: 'Device seats', detail: 'No billing-backed seat limit is reported.', enabled: false, tone: 'gold' },
+        {
+          label: 'Billing portal',
+          detail: 'No authenticated portal handoff is available.',
+          enabled: false,
+          tone: 'purple',
+        },
+        { label: 'Subscription state', detail: 'No lifecycle state is reported.', enabled: false, tone: 'red' },
       ],
-      actions: [
-        { label: 'Change plan', detail: 'Open subscription choices.', tone: 'gold' },
-        { label: 'Apply code', detail: 'Redeem family or support entitlement.', tone: 'cyan' },
-        { label: 'View limits', detail: 'Review plan and device limits.', tone: 'purple' },
-      ],
+      actions: [],
       status: baseStatus,
     };
   }
@@ -6883,27 +7300,24 @@ function manageControlSpecFor(activeNavLabel: string, selectedControlName: strin
     return {
       title: 'Remote Access',
       devices,
-      modes: [
-        { label: 'Home LAN', detail: 'Local-only by default.', tone: 'cyan' },
-        { label: 'Parent relay', detail: 'Minimal remote control path.', tone: 'gold' },
-        { label: 'Drive read', detail: 'Read exported reports only.', tone: 'purple' },
-      ],
+      modes: [{ label: 'Unavailable', detail: 'No authenticated remote session is reported.', tone: 'red' }],
       options: [
         {
-          label: 'Pair before remote',
-          detail: 'Remote access requires trusted device setup.',
-          enabled: true,
+          label: 'Authenticated session',
+          detail: 'No owner-backed remote session is connected.',
+          enabled: false,
           tone: 'cyan',
         },
-        { label: 'No raw evidence', detail: 'Remote summaries avoid raw evidence blobs.', enabled: true, tone: 'red' },
-        { label: 'Parent-owned exports', detail: 'Use parent storage for report copies.', enabled: true, tone: 'gold' },
-        { label: 'Emergency revoke', detail: 'Stop remote sessions immediately.', enabled: true, tone: 'purple' },
+        { label: 'Trusted target', detail: 'No current trusted target is reported.', enabled: false, tone: 'gold' },
+        {
+          label: 'Transport route',
+          detail: 'No verified remote transport route is reported.',
+          enabled: false,
+          tone: 'purple',
+        },
+        { label: 'Current authority', detail: 'No current parent authority is reported.', enabled: false, tone: 'red' },
       ],
-      actions: [
-        { label: 'Enable remote', detail: 'Choose a remote access path.', tone: 'gold' },
-        { label: 'Revoke remote', detail: 'Stop remote access for this device.', tone: 'red' },
-        { label: 'Open exports', detail: 'Use parent-owned report storage.', tone: 'cyan' },
-      ],
+      actions: [],
       status: baseStatus,
     };
   }
@@ -6970,6 +7384,8 @@ function manageWorkspaceKindFor(
   title?: string
 ): ManageWorkspaceKind | null {
   const navKey = assetKey(activeNavLabel);
+  const selectedControlKey = assetKey(selectedControlName);
+  if (selectedControlKey.includes('remote-access')) return null;
   if (navKey.includes('device') || navKey.includes('activity')) return null;
   if (navKey.includes('portal')) return 'portal';
   if (navKey.includes('account')) return 'account';
@@ -7106,7 +7522,9 @@ function manageWorkspaceDefaultTabId(
   }
   if (kind === 'data') {
     if (key.includes('audit')) return 'audit';
-    if (key.includes('retention') || key.includes('export')) return 'export';
+    if (key.includes('retention')) return 'retention';
+    if (key.includes('drive') || key.includes('storage')) return 'storage';
+    if (key.includes('export')) return 'export';
     return 'storage';
   }
   if (kind === 'ai') {
@@ -7135,18 +7553,36 @@ function manageWorkspaceTitle(kind: ManageWorkspaceKind): string {
 }
 
 function managePolicyAreaLabel(activeNavLabel: string, selectedControlName: string): string {
-  const key = `${assetKey(activeNavLabel)} ${assetKey(selectedControlName)}`;
-  if (key.includes('remote-screen')) return 'Remote Screen';
-  if (key.includes('app')) return 'Apps';
-  if (key.includes('game')) return 'Games';
-  if (key.includes('screen')) return 'Screen';
-  if (key.includes('network')) return 'Network';
-  if (key.includes('tracking') || key.includes('location')) return 'Tracking';
+  const navKey = assetKey(activeNavLabel);
+  const selectedControlKey = assetKey(selectedControlName);
+  const key = `${navKey} ${selectedControlKey}`;
+  if (navKey === 'approvals') return 'Approvals';
+  if (navKey === 'schedules') return 'Schedules';
+  if (navKey === 'enforce' || navKey === 'enforcement') return 'Enforcement';
+  if (navKey === 'rules' || navKey === 'policy') return 'Rules';
+  if (navKey === 'remote-screen' || selectedControlKey.includes('remote-screen')) return 'Remote Screen';
+  if (
+    navKey === 'app-use' ||
+    key.includes('app-game-sessions') ||
+    key.includes('apps-games') ||
+    key.includes('app-and-game')
+  )
+    return 'App Use';
+  if (navKey === 'apps' || selectedControlKey.includes('app-policy')) return 'Apps';
+  if (navKey === 'games' || selectedControlKey.includes('game-policy')) return 'Games';
+  if (navKey === 'screen' || selectedControlKey.includes('screen-analysis')) return 'Screen';
+  if (navKey === 'network' || selectedControlKey.includes('network-activity')) return 'Network';
+  if (navKey === 'tracking' || key.includes('tracking') || key.includes('location')) return 'Tracking';
   return 'Browser';
 }
 
 function managePolicyAreaIcon(activeNavLabel: string, selectedControlName: string): IconComponent {
   const area = managePolicyAreaLabel(activeNavLabel, selectedControlName);
+  if (area === 'Rules') return PolicyShieldDocumentIcon;
+  if (area === 'Schedules') return ScheduleCalendarClockIcon;
+  if (area === 'Approvals') return AlertNotificationBellIcon;
+  if (area === 'Enforcement') return EnforcementOfficerIcon;
+  if (area === 'App Use') return AppIcon;
   if (area === 'Apps') return AppIcon;
   if (area === 'Games') return GamesIcon;
   if (area === 'Remote Screen') return RemoteAccessMonitorsIcon;
@@ -7191,6 +7627,43 @@ function manageWorkspaceTargetLabel(target: ManageWorkspaceTarget): string {
   return 'Family';
 }
 
+type ManageWorkspaceTargetStatus = {
+  readonly ariaLabel: string;
+  readonly eyebrow: string;
+  readonly detail: string;
+};
+
+function manageWorkspaceTargetStatus(
+  target: ManageWorkspaceTarget,
+  selectedDevice: DeviceSlot | null,
+  hasRuntimeDeviceSlots: boolean
+): ManageWorkspaceTargetStatus | null {
+  if (target === 'family') {
+    return {
+      ariaLabel: 'Whole family manage target scope',
+      eyebrow: 'WHOLE FAMILY TARGET',
+      detail: hasRuntimeDeviceSlots
+        ? 'Family-wide settings are shown below. Choose Per Device to inspect a current child.'
+        : 'Family-wide settings are shown below. Per Device appears after a current child is reported.',
+    };
+  }
+  if (target === 'portal') {
+    return {
+      ariaLabel: 'Parent console manage target scope',
+      eyebrow: 'PARENT CONSOLE TARGET',
+      detail: 'This workspace is scoped to the parent console. Child-device settings remain separate.',
+    };
+  }
+  if (!selectedDevice) {
+    return {
+      ariaLabel: 'No current manage device target',
+      eyebrow: 'NO CURRENT DEVICE TARGET',
+      detail: 'Connect the local service and choose a current household device before using per-device controls.',
+    };
+  }
+  return null;
+}
+
 function sharedWorkspaceTargetForOptions(
   targetOptions: readonly ManageWorkspaceTargetOption[],
   sharedTargetSelection: ManageTargetSelection
@@ -7202,6 +7675,21 @@ function sharedWorkspaceTargetForOptions(
   return sharedTargetSelection.scope === 'perDevice' ? 'perDevice' : defaultTarget;
 }
 
+function reconciledWorkspaceTargetForOptions(
+  targetOptions: readonly ManageWorkspaceTargetOption[],
+  sharedTargetSelection: ManageTargetSelection,
+  currentTarget: ManageWorkspaceTarget
+): ManageWorkspaceTarget {
+  if (
+    sharedTargetSelection.scope !== 'perDevice' &&
+    currentTarget === 'portal' &&
+    targetOptions.some((option) => option.id === 'portal')
+  ) {
+    return 'portal';
+  }
+  return sharedWorkspaceTargetForOptions(targetOptions, sharedTargetSelection);
+}
+
 function manageWorkspaceSummary(
   kind: ManageWorkspaceKind,
   activeTab: string,
@@ -7210,27 +7698,27 @@ function manageWorkspaceSummary(
   workspaceTarget: ManageWorkspaceTarget = 'family'
 ): string {
   if (kind === 'portal') {
-    if (activeTab === 'alerts') return 'Parent notification intent, quiet hours, and alert priority live here.';
+    if (activeTab === 'alerts')
+      return 'No service-reported notification intent, preference, or delivery state is available.';
     if (activeTab === 'channels')
-      return 'Verified parent-owned destinations for email, SMS, WhatsApp, and portal push.';
+      return 'No verified parent-owned notification channel registry or delivery receipt is available.';
     if (activeTab === 'runtime') return 'Local portal health, Rust service state, version, and update posture.';
     return 'Parent profile defaults, privacy posture, login protection, and console preferences.';
   }
   if (kind === 'account') {
     const target = manageWorkspaceTargetLabel(workspaceTarget).toLowerCase();
-    if (activeTab === 'access') return `Review ${target} entitlements, grace mode, seat limits, and feature gates.`;
+    if (activeTab === 'access')
+      return `No verified ${target} entitlement snapshot is connected. This page does not infer paid access.`;
     if (activeTab === 'support') return `Send a parent-authored support message for the ${target} account scope.`;
-    return `Review ${target} trial posture, plan cards, device seats, external AI credits, and upgrade intent.`;
+    return `No authenticated ${target} subscription summary is connected. Pricing and billing actions stay unavailable.`;
   }
   if (kind === 'data') {
     const target = manageWorkspaceTargetLabel(workspaceTarget).toLowerCase();
     if (activeTab === 'export')
-      return `Generate ${target} exports without pretending a cloud connector is already linked.`;
-    if (activeTab === 'retention')
-      return `Set ${target} retention and deletion policy for reports, audit events, evidence summaries, and memory.`;
-    if (activeTab === 'audit')
-      return `Review ${target} custody logs for exports, deletes, support messages, and connector changes.`;
-    return `Inspect ${target} storage custody state for reports, audit, evidence classes, and support messages.`;
+      return `No ${target} export capability or destination is reported. Export actions remain unavailable.`;
+    if (activeTab === 'retention') return `No ${target} retention or deletion policy snapshot is reported.`;
+    if (activeTab === 'audit') return `No ${target} custody audit rows are reported to this page.`;
+    return `No ${target} storage or connector state is reported to this page.`;
   }
   if (kind === 'ai') {
     const target = manageWorkspaceTargetLabel(workspaceTarget).toLowerCase();
@@ -7241,11 +7729,12 @@ function manageWorkspaceSummary(
     if (activeTab === 'templates')
       return `Manage ${target} prompt templates for reports, screen summaries, assistant, and structured output.`;
     if (activeTab === 'providers')
-      return `Configure ${target} external AI providers, budgets, and no-raw-evidence controls.`;
-    if (activeTab === 'memory') return `Review ${target} cited memory, revoke/export controls, and memory audit state.`;
+      return `No owner-backed ${target} external AI provider, key, budget, or raw-evidence policy state is available.`;
+    if (activeTab === 'memory')
+      return `No service-reported ${target} cited-memory registry, review state, export state, or audit state is available.`;
     if (activeTab === 'activity')
       return `Inspect ${target} AI job queue, load/unload events, failed inference, and evaluator traces.`;
-    return `Configure ${target} local AI runtime, family hub queue, and API fallback posture.`;
+    return `No service-reported ${target} local AI runtime or household job state is available.`;
   }
   const area = managePolicyAreaLabel(activeNavLabel, selectedControlName).toLowerCase();
   const scope =
@@ -7262,16 +7751,16 @@ function manageWorkspaceSummary(
     return `Remote screen live-view backend is not implemented yet; Rust session, capability, permission, custody, and audit wiring are required.`;
   }
   if (activeTab === 'schedule')
-    return `Configure ${scope} for ${area} time windows, school, bedtime, and temporary exceptions.`;
+    return `Review ${scope} for ${area} time windows. Connect the local service to make changes.`;
   if (activeTab === 'budget')
-    return `Configure ${scope} for ${area} caps, counting rules, reset windows, and override inheritance.`;
+    return `Review ${scope} for ${area} caps and reset windows. Connect the local service to make changes.`;
   if (activeTab === 'approvals')
-    return `Configure ${scope} for ${area} ask-parent flows, expiry, reasons, parent response, and audit trail.`;
+    return `Review ${scope} for ${area} ask-parent requests. Connect the local service to make changes.`;
   if (activeTab === 'enforcement')
-    return `Configure ${scope} for ${area} observe-only, dry-run, and capability-gated enforcement posture.`;
+    return `Review ${scope} for ${area} enforcement status. Connect the local service to make changes.`;
   if (activeTab === 'audit')
     return `Review ${scope} for ${area} previews, capability results, parent changes, and child-device event evidence.`;
-  return `Configure ${scope} for ${area} decisions: allow, ask, warn, block, explain, exceptions, and capability limits.`;
+  return `Review ${scope} for ${area} decisions. Connect the local service to make changes.`;
 }
 
 function manageWorkspaceCards(
@@ -7285,27 +7774,27 @@ function manageWorkspaceCards(
     if (activeTab === 'alerts') {
       return [
         {
-          label: 'Policy alerts',
-          value: 'Enabled intent',
-          body: 'Blocks, asks, approvals, stale devices, and failures can notify the parent.',
+          label: 'Notification state',
+          value: 'Not reported',
+          body: 'No generic parent notification read model is connected to this route.',
+          tone: 'red',
+        },
+        {
+          label: 'Intent authority',
+          value: 'Unavailable',
+          body: 'No current service-issued notification intent is available to render or deliver.',
           tone: 'gold',
         },
         {
           label: 'Quiet hours',
-          value: 'Configurable',
-          body: 'Low-priority alerts queue during parent-defined quiet windows.',
+          value: 'Not reported',
+          body: 'No persisted parent notification preference is connected to this route.',
           tone: 'purple',
         },
         {
-          label: 'Raw evidence',
-          value: 'Never in alerts',
-          body: 'External notifications carry summaries and event references only.',
-          tone: 'red',
-        },
-        {
-          label: 'Delivery state',
-          value: 'Connector required',
-          body: 'Email, SMS, WhatsApp, and Telegram require verified parent-owned channels.',
+          label: 'Delivery history',
+          value: 'Not reported',
+          body: 'No provider receipt or in-app notification history is connected.',
           tone: 'cyan',
         },
       ];
@@ -7313,27 +7802,27 @@ function manageWorkspaceCards(
     if (activeTab === 'channels') {
       return [
         {
-          label: 'Portal push',
-          value: 'Local first',
-          body: 'In-app notices work without cloud delivery.',
-          tone: 'cyan',
+          label: 'Channel registry',
+          value: 'Not reported',
+          body: 'No verified parent-owned notification destination is connected.',
+          tone: 'red',
         },
         {
-          label: 'Email',
-          value: 'Needs verification',
-          body: 'Cloudflare mail path or provider setup must prove parent ownership.',
+          label: 'Portal notices',
+          value: 'Not reported',
+          body: 'No generic in-app notification state is connected to this route.',
           tone: 'gold',
         },
         {
-          label: 'SMS / WhatsApp',
-          value: 'External service',
-          body: 'Numbers require verification and clear usage limits.',
+          label: 'External delivery',
+          value: 'Unavailable',
+          body: 'No email, SMS, WhatsApp, or other provider delivery owner is connected.',
           tone: 'purple',
         },
         {
           label: 'Test message',
-          value: 'Typed intent',
-          body: 'UI should call a notification test intent when the backend lands.',
+          value: 'Unavailable',
+          body: 'A test cannot be sent until a verified channel and notification service report current state.',
           tone: 'cyan',
         },
       ];
@@ -7355,7 +7844,7 @@ function manageWorkspaceCards(
         {
           label: 'Updates',
           value: 'Parent approved',
-          body: 'Check, install, and rollback should stay explicit parent actions.',
+          body: 'Check, install, and rollback stay explicit parent actions.',
           tone: 'purple',
         },
         {
@@ -7397,27 +7886,27 @@ function manageWorkspaceCards(
     if (activeTab === 'access') {
       return [
         {
-          label: 'Seat gate',
-          value: 'Plan based',
-          body: 'Basic, Pro, and Max gate child-device count and optional add-on seats.',
-          tone: 'gold',
-        },
-        {
-          label: 'Grace mode',
-          value: 'Safe degrade',
-          body: 'Local safety-critical controls remain visible during billing grace.',
+          label: 'Entitlement snapshot',
+          value: 'Not reported',
+          body: 'No current owner-verified entitlement snapshot is connected.',
           tone: 'red',
         },
         {
-          label: 'External AI',
-          value: 'Credit based',
-          body: 'Provider/API AI usage is optional and budget-limited.',
+          label: 'Device seats',
+          value: 'Not reported',
+          body: 'No billing-backed device limit is available to this surface.',
+          tone: 'gold',
+        },
+        {
+          label: 'Feature access',
+          value: 'Not evaluated',
+          body: 'The portal does not infer paid feature access from local state.',
           tone: 'purple',
         },
         {
-          label: 'Offline state',
-          value: 'Honest',
-          body: 'UI must show stale entitlement state instead of pretending the cloud is reachable.',
+          label: 'Billing service',
+          value: 'Unavailable',
+          body: 'Connect the authenticated billing service to refresh entitlement state.',
           tone: 'cyan',
         },
       ];
@@ -7427,28 +7916,28 @@ function manageWorkspaceCards(
     }
     return [
       {
-        label: 'Basic',
-        value: '$5 / 3 devices',
-        body: '15 day trial target, local controls, reports, and basic plan gates.',
+        label: 'Current plan',
+        value: 'Not reported',
+        body: 'No billing-backed plan summary is connected to the parent portal.',
         tone: 'cyan',
       },
       {
-        label: 'Pro',
-        value: '$10 / 7 devices',
-        body: 'More seats, richer reports, external notification channels, and cloud account support.',
+        label: 'Subscription status',
+        value: 'Unavailable',
+        body: 'No authenticated subscription lifecycle state is available.',
+        tone: 'red',
+      },
+      {
+        label: 'Device seats',
+        value: 'Not reported',
+        body: 'The portal does not invent a device limit without entitlement truth.',
         tone: 'gold',
       },
       {
-        label: 'Max',
-        value: '$20 / 15 devices',
-        body: 'Large family seat count, higher AI credits, and priority support intent.',
+        label: 'Billing actions',
+        value: 'Unavailable',
+        body: 'Change-plan and billing-portal actions require an authenticated handoff.',
         tone: 'purple',
-      },
-      {
-        label: 'Extra seats',
-        value: '$1 each draft',
-        body: 'Parent can add/remove seats without changing local-first safety guarantees.',
-        tone: 'cyan',
       },
     ];
   }
@@ -7467,27 +7956,27 @@ function manageWorkspaceCards(
       return [
         targetCard,
         {
-          label: 'Report export',
-          value: 'JSON first',
-          body: 'Daily, weekly, and monthly reports should save as structured JSON plus display render.',
+          label: 'Export service',
+          value: 'Unavailable',
+          body: 'No owner-backed export service is connected to this page.',
           tone: 'cyan',
         },
         {
-          label: 'Support message',
-          value: 'Parent reviewed',
-          body: 'Message preview precedes any email/cloud share.',
+          label: 'Destination',
+          value: 'Not reported',
+          body: 'No local folder or cloud destination is reported.',
           tone: 'gold',
         },
         {
           label: 'Drive sync',
-          value: 'Connector required',
-          body: 'Google Drive, OneDrive, and local folder targets need typed connectors.',
+          value: 'Unavailable',
+          body: 'No authenticated storage connector is connected.',
           tone: 'purple',
         },
         {
           label: 'Raw evidence',
-          value: 'Excluded default',
-          body: 'Screenshots, URLs, and content payloads require explicit data-class selection.',
+          value: 'Not reported',
+          body: 'No export data-class selection is reported.',
           tone: 'red',
         },
       ];
@@ -7496,27 +7985,27 @@ function manageWorkspaceCards(
       return [
         targetCard,
         {
-          label: 'Reports',
-          value: 'Parent policy',
-          body: 'Keep, export, or delete generated report files by cadence.',
+          label: 'Retention snapshot',
+          value: 'Not reported',
+          body: 'No owner-backed retention policy snapshot is connected.',
           tone: 'cyan',
         },
         {
-          label: 'Audit events',
-          value: 'Long lived',
-          body: 'Policy, pairing, billing, and support actions need retention history.',
+          label: 'Report retention',
+          value: 'Not reported',
+          body: 'No report retention window is reported.',
           tone: 'gold',
         },
         {
-          label: 'Evidence summaries',
-          value: 'Shorter window',
-          body: 'Derived summaries can expire separately from audit records.',
+          label: 'Evidence retention',
+          value: 'Not reported',
+          body: 'No evidence-summary retention window is reported.',
           tone: 'purple',
         },
         {
           label: 'Delete proof',
-          value: 'Audit entry',
-          body: 'Deletes should leave minimal custody proof without keeping private data.',
+          value: 'Not reported',
+          body: 'No deletion receipt or custody reference is reported.',
           tone: 'red',
         },
       ];
@@ -7525,27 +8014,27 @@ function manageWorkspaceCards(
       return [
         targetCard,
         {
-          label: 'Exports',
-          value: 'Logged',
-          body: 'Every export records destination, data class, and parent action.',
+          label: 'Audit history',
+          value: 'Not reported',
+          body: 'No typed custody audit history is connected to this page.',
           tone: 'gold',
         },
         {
-          label: 'Deletes',
-          value: 'Logged',
-          body: 'Delete class, time, and actor remain visible to parent.',
+          label: 'Recorded events',
+          value: '0 reported',
+          body: 'No audit event rows, timestamps, or identifiers were reported.',
           tone: 'red',
         },
         {
-          label: 'Connectors',
-          value: 'Logged',
-          body: 'Drive connect/disconnect and token expiry states stay auditable.',
+          label: 'Actor and source',
+          value: 'Not reported',
+          body: 'No authenticated actor, authority, or source is reported.',
           tone: 'cyan',
         },
         {
-          label: 'Support',
-          value: 'Logged',
-          body: 'Support message draft and send intent are separate audit events.',
+          label: 'Export and delete history',
+          value: 'Not reported',
+          body: 'No export, deletion, connector, or support event is inferred.',
           tone: 'purple',
         },
       ];
@@ -7553,27 +8042,27 @@ function manageWorkspaceCards(
     return [
       targetCard,
       {
-        label: 'Local store',
-        value: 'Primary',
-        body: 'Parent portal keeps the system useful without cloud storage.',
+        label: 'Connector state',
+        value: 'Unavailable',
+        body: 'No authenticated storage connector state is connected.',
         tone: 'cyan',
       },
       {
         label: 'Google Drive',
-        value: 'Planned connector',
-        body: 'OAuth and folder scope need Cloudflare/account wiring.',
+        value: 'Not reported',
+        body: 'No verified Google Drive connection is reported.',
         tone: 'gold',
       },
       {
         label: 'OneDrive',
-        value: 'Planned connector',
-        body: 'Microsoft connector follows the same parent-owned storage model.',
+        value: 'Not reported',
+        body: 'No verified OneDrive connection is reported.',
         tone: 'purple',
       },
       {
         label: 'Remote read',
-        value: 'Export only',
-        body: 'Away-from-home access reads parent-owned report exports, not child evidence streams.',
+        value: 'Unavailable',
+        body: 'No owner-backed remote storage reader is connected.',
         tone: 'cyan',
       },
     ];
@@ -7682,27 +8171,27 @@ function manageWorkspaceCards(
       return [
         targetCard,
         {
-          label: 'External API',
-          value: 'Opt-in',
-          body: 'OpenAI or other providers require parent-owned key and budget.',
+          label: 'Control state',
+          value: 'Unavailable',
+          body: 'No owner-backed provider registry, key, budget, or current policy was reported.',
+          tone: 'red',
+        },
+        {
+          label: 'Provider authority',
+          value: 'Required',
+          body: 'External AI requires a current parent-owned provider key and budget.',
           tone: 'purple',
         },
         {
           label: 'Raw evidence',
-          value: 'Blocked default',
+          value: 'Blocked by default',
           body: 'External AI does not receive raw child evidence unless future policy permits it.',
           tone: 'red',
         },
         {
-          label: 'Credits',
-          value: 'Plan gated',
-          body: 'Basic/Pro/Max credits are account state, not local safety behavior.',
-          tone: 'gold',
-        },
-        {
           label: 'Fallback',
-          value: 'Explicit',
-          body: 'API fallback is chosen by parent when local AI is unavailable.',
+          value: 'Unavailable',
+          body: 'No API fallback is offered until the parent-owned provider state is current.',
           tone: 'cyan',
         },
       ];
@@ -7711,15 +8200,21 @@ function manageWorkspaceCards(
       return [
         targetCard,
         {
+          label: 'Control state',
+          value: 'Unavailable',
+          body: 'No cited-memory registry, review state, export state, or audit state was reported.',
+          tone: 'red',
+        },
+        {
           label: 'Citations',
           value: 'Required',
           body: 'Memory-backed answers cite local sources or show unavailable.',
           tone: 'cyan',
         },
         {
-          label: 'Review',
-          value: 'Parent owned',
-          body: 'Parent can inspect, revoke, export, or delete memory records.',
+          label: 'Parent controls',
+          value: 'Not reported',
+          body: 'Inspect, revoke, export, and delete controls require current owner-backed memory state.',
           tone: 'gold',
         },
         {
@@ -7730,8 +8225,8 @@ function manageWorkspaceCards(
         },
         {
           label: 'Audit',
-          value: 'Required',
-          body: 'Memory creation, reuse, export, and deletion are auditable.',
+          value: 'Not reported',
+          body: 'No creation, reuse, export, or deletion audit state is available.',
           tone: 'red',
         },
       ];
@@ -7798,26 +8293,26 @@ function manageWorkspaceCards(
       targetCard,
       {
         label: 'Runtime',
-        value: 'llama.cpp',
-        body: 'Local model runtime is the primary child-device AI path.',
+        value: 'Not reported',
+        body: 'No service-reported local runtime is available in this overview.',
         tone: 'cyan',
       },
       {
         label: 'Family hub',
-        value: 'Queue',
-        body: 'A stronger family machine can serve queued jobs for weaker devices.',
+        value: 'Not reported',
+        body: 'No household AI job state is available in this overview.',
         tone: 'gold',
       },
       {
         label: 'Load state',
         value: 'Not reported',
-        body: 'Backend must report unloaded/loading/ready/degraded/failed states.',
+        body: 'Use the service-reported panel below for current runtime state.',
         tone: 'purple',
       },
       {
         label: 'Parent control',
-        value: 'Required',
-        body: 'Parent chooses model, provider, profile, and memory behavior.',
+        value: 'Unavailable',
+        body: 'No owner-backed AI runtime control is connected to this overview.',
         tone: 'red',
       },
     ];
@@ -8939,26 +9434,12 @@ function ManageSupportContactForm({
   w,
   h,
   cfg,
-  workspaceTarget,
-  disabled,
-  decisionChoice,
-  enforcementChoice,
-  onDecisionChange,
-  onEnforcementChange,
-  onInfoClick,
 }: {
   x: number;
   y: number;
   w: number;
   h: number;
   cfg: ParentPortalSvgControls;
-  workspaceTarget: ManageWorkspaceTarget;
-  disabled?: boolean;
-  decisionChoice: string;
-  enforcementChoice: string;
-  onDecisionChange: (value: string) => void;
-  onEnforcementChange: (value: string) => void;
-  onInfoClick?: () => void;
 }) {
   const color = toneColor('purple', cfg);
   const cyan = toneColor('cyan', cfg);
@@ -8977,12 +9458,12 @@ function ManageSupportContactForm({
   const messageY = fieldY + fieldH + 13;
   const messageH = Math.max(74, composerY + composerH - messageY - 16);
   const fields = [
-    { label: 'CATEGORY', value: 'Account / device / billing / safety' },
-    { label: 'REPLY EMAIL', value: 'Parent verified email' },
-    { label: 'SUBJECT', value: 'Short support subject' },
+    { label: 'CATEGORY', value: 'Unavailable' },
+    { label: 'REPLY EMAIL', value: 'Unavailable' },
+    { label: 'SUBJECT', value: 'Unavailable' },
   ] as const;
   return (
-    <g>
+    <g role="group" aria-label="Support connector unavailable" aria-disabled="true">
       <path
         d={cutRectPath(x, y, w, h, 10)}
         fill="rgba(3, 17, 31, 0.72)"
@@ -8995,7 +9476,7 @@ function ManageSupportContactForm({
         Support / Contact
       </text>
       <text x={x + w - pad} y={y + 27} textAnchor="end" fontSize={10.5} fontWeight={860} fill={cfg.colors.mutedText}>
-        Message form only
+        Read-only preview
       </text>
       <rect
         x={x + pad}
@@ -9009,13 +9490,13 @@ function ManageSupportContactForm({
         opacity={0.88}
       />
       <text x={x + pad + 16} y={y + 82} fontSize={11.2} fontWeight={940} fill={cyan}>
-        OCENTRA SUPPORT
+        SUPPORT CONNECTOR UNAVAILABLE
       </text>
       <text x={x + pad + 16} y={y + 104} fontSize={12.5} fontWeight={780} fill={cfg.colors.bodyText}>
-        Send a message to the support team. Replies come back by email when the connector is linked.
+        No authenticated support connector or parent-owned draft store is mounted for this route.
       </text>
       <text x={x + pad + 16} y={y + 126} fontSize={11.5} fontWeight={720} fill={cfg.colors.mutedText}>
-        Message-only contact form. Attachments are not collected from this screen.
+        Contact fields stay unavailable until the Account owner supplies both capabilities.
       </text>
 
       <path
@@ -9026,7 +9507,7 @@ function ManageSupportContactForm({
         opacity={0.94}
       />
       <text x={x + pad + 16} y={composerY + 25} fontSize={11.2} fontWeight={950} fill={gold}>
-        NEW MESSAGE
+        CONTACT PREVIEW
       </text>
       {fields.map((field, index) => {
         const fieldX = x + pad + index * (fieldW + 8);
@@ -9067,7 +9548,7 @@ function ManageSupportContactForm({
         MESSAGE
       </text>
       <text x={x + pad + 12} y={messageY + 43} fontSize={12.4} fontWeight={780} fill={cfg.colors.mutedText}>
-        Type the parent support message here...
+        No message can be drafted or sent from this unavailable surface.
       </text>
       <path
         d={`M ${x + pad + 12} ${messageY + 61} H ${x + w - pad - 12}`}
@@ -9098,7 +9579,7 @@ function ManageSupportContactForm({
         strokeWidth={0.9}
       />
       <text x={draftX + actionW / 2} y={buttonY + 18} textAnchor="middle" fontSize={11.2} fontWeight={950} fill={gold}>
-        SAVE DRAFT
+        DRAFT UNAVAILABLE
       </text>
       <rect
         x={sendX}
@@ -9109,7 +9590,7 @@ function ManageSupportContactForm({
         fill={colorAlpha(cyan, '32')}
         stroke={cyan}
         strokeWidth={1}
-        filter="url(#parentPortalGlow)"
+        opacity={0.5}
       />
       <text
         x={sendX + actionW / 2}
@@ -9119,7 +9600,7 @@ function ManageSupportContactForm({
         fontWeight={950}
         fill={cfg.colors.bodyText}
       >
-        SEND MESSAGE
+        SEND UNAVAILABLE
       </text>
     </g>
   );
@@ -9128,6 +9609,7 @@ function ManageSupportContactForm({
 type PolicyFirstPassRuleQuestionDefinition = {
   readonly id: string;
   readonly title: string;
+  readonly compactTitle: string;
   readonly selectionMode: 'single' | 'multi';
   readonly options: readonly BrowserRulesChoiceOption[];
 };
@@ -9158,6 +9640,14 @@ const POLICY_FIRST_PASS_COMMON_OPTIONS = {
 } as const;
 
 const POLICY_FIRST_PASS_AREA_TARGETS = {
+  Rules: [
+    { value: 'apps', label: 'Apps' },
+    { value: 'games', label: 'Games' },
+    { value: 'browser', label: 'Browser' },
+    { value: 'screen', label: 'Screen' },
+    { value: 'network', label: 'Network' },
+    { value: 'tracking', label: 'Tracking' },
+  ],
   Browser: [
     { value: 'site-domain', label: 'Site domain' },
     { value: 'page-title', label: 'Page title' },
@@ -9217,6 +9707,14 @@ const POLICY_FIRST_PASS_AREA_TARGETS = {
 } as const satisfies Record<string, readonly BrowserRulesChoiceOption[]>;
 
 const POLICY_FIRST_PASS_AREA_PROOF = {
+  Rules: [
+    { value: 'effective-policy', label: 'Effective policy' },
+    { value: 'parent-approval', label: 'Parent approval' },
+    { value: 'child-identity', label: 'Child identity' },
+    { value: 'capability-state', label: 'Capability state' },
+    { value: 'decision-audit', label: 'Decision audit' },
+    { value: 'enforcement-result', label: 'Enforcement result' },
+  ],
   Browser: [
     { value: 'url-title', label: 'URL/title' },
     { value: 'history-row', label: 'History row' },
@@ -9286,35 +9784,79 @@ function policyFirstPassRuleQuestions(area: string): readonly PolicyFirstPassRul
   const proof = isPolicyFirstPassProofArea(area)
     ? POLICY_FIRST_PASS_AREA_PROOF[area]
     : POLICY_FIRST_PASS_AREA_PROOF.Network;
+  if (area === 'Rules') {
+    return [
+      {
+        id: '1',
+        title: 'Should family rules be active?',
+        compactTitle: 'Family rules active?',
+        selectionMode: 'single',
+        options: POLICY_FIRST_PASS_COMMON_OPTIONS.active,
+      },
+      {
+        id: '2',
+        title: 'What should family rules do?',
+        compactTitle: 'Family rule actions',
+        selectionMode: 'multi',
+        options: POLICY_FIRST_PASS_COMMON_OPTIONS.behavior,
+      },
+      {
+        id: '3',
+        title: 'Which policy areas should family rules cover?',
+        compactTitle: 'Family policy areas',
+        selectionMode: 'multi',
+        options: targets,
+      },
+      {
+        id: '4',
+        title: 'What proof should count for family rules?',
+        compactTitle: 'Family rule evidence',
+        selectionMode: 'multi',
+        options: proof,
+      },
+      {
+        id: '5',
+        title: 'What if proof for family rules is weak or missing?',
+        compactTitle: 'Missing-proof response',
+        selectionMode: 'single',
+        options: POLICY_FIRST_PASS_COMMON_OPTIONS.fallback,
+      },
+    ];
+  }
   const areaName = area.toLowerCase();
   return [
     {
       id: '1',
       title: `Should ${areaName} policy be active?`,
+      compactTitle: `${area} policy active?`,
       selectionMode: 'single',
       options: POLICY_FIRST_PASS_COMMON_OPTIONS.active,
     },
     {
       id: '2',
       title: `What should controlled ${areaName} activity do?`,
+      compactTitle: `${area} policy actions`,
       selectionMode: 'multi',
       options: POLICY_FIRST_PASS_COMMON_OPTIONS.behavior,
     },
     {
       id: '3',
       title: `What should ${areaName} rules target?`,
+      compactTitle: `${area} targets`,
       selectionMode: 'multi',
       options: targets,
     },
     {
       id: '4',
       title: `What proof should count for ${areaName}?`,
+      compactTitle: `${area} evidence`,
       selectionMode: 'multi',
       options: proof,
     },
     {
       id: '5',
       title: `What if ${areaName} proof is weak or missing?`,
+      compactTitle: 'Missing-proof response',
       selectionMode: 'single',
       options: POLICY_FIRST_PASS_COMMON_OPTIONS.fallback,
     },
@@ -9422,6 +9964,7 @@ function GenericPolicyRulesGridGuide({
     return {
       id: question.id,
       header: `${question.id}. ${question.title}`,
+      compactHeader: `${question.id}. ${question.compactTitle}`,
       title: question.id,
       kind: 'multi',
       disabled: questionDisabled,
@@ -9462,6 +10005,11 @@ function GenericPolicyRulesGridGuide({
       <div style={{ width: w, height: h }}>
         <BrowserRulesQuestionnaire
           availableWidth={w}
+          guideLabel={
+            policyAreaLabel === 'Rules'
+              ? 'Open family rules guide'
+              : `Open ${policyAreaLabel.toLowerCase()} rules guide`
+          }
           {...(disabled === undefined ? {} : { disabled })}
           {...(onInfoClick === undefined ? {} : { onInfoClick })}
           questions={questions}
@@ -9519,6 +10067,7 @@ function BrowserRulesGridGuide({
     return {
       id: question.id,
       header: `${question.id}. ${question.title}`,
+      compactHeader: `${question.id}. ${question.compactTitle}`,
       title: question.id,
       kind: 'multi',
       disabled: questionDisabled,
@@ -9559,6 +10108,7 @@ function BrowserRulesGridGuide({
       <div style={{ width: w, height: h }}>
         <BrowserRulesQuestionnaire
           availableWidth={w}
+          guideLabel="Open browser rules guide"
           {...(disabled === undefined ? {} : { disabled })}
           {...(onInfoClick === undefined ? {} : { onInfoClick })}
           questions={questions}
@@ -9819,6 +10369,62 @@ function BrowserPolicyMatrixShell({
       ) : null}
       {children}
     </g>
+  );
+}
+
+function UnavailableReadModelSurface({
+  title,
+  subtitle,
+  statusLabel,
+  headline,
+  detail,
+  x,
+  y,
+  w,
+  h,
+  cfg,
+}: {
+  title: string;
+  subtitle: string;
+  statusLabel: string;
+  headline: string;
+  detail: string;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  cfg: ParentPortalSvgControls;
+}) {
+  const detailLines = wrapCardText(detail, w - 76, 12.2, 4);
+  return (
+    <BrowserPolicyMatrixShell x={x} y={y} w={w} h={h} title={title} subtitle={subtitle} cfg={cfg}>
+      <g role="status" aria-label={statusLabel}>
+        <rect
+          x={x + 18}
+          y={y + 54}
+          width={w - 36}
+          height={Math.max(132, h - 84)}
+          rx={5}
+          fill={PARENT_PORTAL_GLASS.panelFill}
+          stroke={cfg.colors.panelStroke}
+        />
+        <text x={x + 36} y={y + 88} fontSize={13} fontWeight={950} fill={cfg.colors.gold}>
+          {headline}
+        </text>
+        {detailLines.map((line, index) => (
+          <text
+            key={`policy-preview-unavailable:${index}`}
+            x={x + 36}
+            y={y + 118 + index * 18}
+            fontSize={12.2}
+            fontWeight={760}
+            fill={cfg.colors.mutedText}
+          >
+            {line}
+          </text>
+        ))}
+      </g>
+    </BrowserPolicyMatrixShell>
   );
 }
 
@@ -10226,7 +10832,6 @@ function ManageWorkspacePanel({
   runtimeDeviceSlots,
   sharedTargetSelection,
   onSharedTargetChange,
-  activityState,
   cfg,
 }: {
   x: number;
@@ -10243,14 +10848,20 @@ function ManageWorkspacePanel({
   runtimeDeviceSlots: readonly DeviceSlot[];
   sharedTargetSelection: ManageTargetSelection;
   onSharedTargetChange?: (selection: ManageTargetSelection) => void;
-  activityState?: ParentPortalActivityState | null;
   cfg: ParentPortalSvgControls;
 }) {
   const tabs = manageWorkspaceTabs(kind);
-  const targetOptions = useMemo(() => manageWorkspaceTargetOptions(kind), [kind]);
-  const workspaceScopeValues = targetOptions.some((option) => option.id === 'portal')
-    ? FAMILY_DEVICE_SCOPE_VALUES
-    : undefined;
+  const hasRuntimeDeviceSlots = runtimeDeviceSlots.length > 0;
+  const targetOptions = useMemo(
+    () =>
+      manageWorkspaceTargetOptions(kind).filter(
+        (targetOption) => targetOption.id !== 'perDevice' || hasRuntimeDeviceSlots
+      ),
+    [hasRuntimeDeviceSlots, kind]
+  );
+  const workspaceScopeValues = targetOptions.map((targetOption) =>
+    targetOption.id === 'perDevice' ? 'parent' : targetOption.id === 'portal' ? 'portal' : 'lan'
+  );
   const workspaceSelectionSlots = runtimeDeviceSlots;
   const [workspaceTarget, setWorkspaceTarget] = useState<ManageWorkspaceTarget>(() =>
     sharedWorkspaceTargetForOptions(targetOptions, sharedTargetSelection)
@@ -10259,7 +10870,9 @@ function ManageWorkspacePanel({
     reportSelectedSlotValue(workspaceSelectionSlots, sharedTargetSelection)
   );
   useEffect(() => {
-    setWorkspaceTarget(sharedWorkspaceTargetForOptions(targetOptions, sharedTargetSelection));
+    setWorkspaceTarget((currentTarget) =>
+      reconciledWorkspaceTargetForOptions(targetOptions, sharedTargetSelection, currentTarget)
+    );
     setWorkspaceSelectedDeviceValue(reportSelectedSlotValue(workspaceSelectionSlots, sharedTargetSelection));
   }, [activeNavLabel, kind, selectedControlName, sharedTargetSelection, targetOptions, workspaceSelectionSlots]);
   const activeTab =
@@ -10291,19 +10904,13 @@ function ManageWorkspacePanel({
     setPolicySecondaryChoice(policySecondaryOptions[0]?.value ?? '');
   }, [policySecondaryOptions]);
   const targetSurfaceEnabled = targetOptions.length > 0;
-  const workspaceSlots = useMemo(
-    () =>
-      workspaceSelectionSlots.length > 0
-        ? workspaceSelectionSlots
-        : reportPlanSeatSlots(ACTIVITY_REPORT_BASIC_CHILD_DEVICE_SEATS),
-    [workspaceSelectionSlots]
-  );
+  const workspaceSlots = workspaceSelectionSlots;
   const workspacePortalIds = useMemo(
     () => workspaceSlots.filter((slot) => slot.device).map((slot) => slot.value),
     [workspaceSlots]
   );
   const workspaceDeviceCount = Math.max(1, workspaceSlots.length);
-  const workspacePanelPadX = Math.max(18, Math.min(34, Math.round(w * 0.018)));
+  const workspacePanelPadX = w < 480 ? 8 : Math.max(18, Math.min(34, Math.round(w * 0.018)));
   const workspaceAvailableW = Math.max(1, w - workspacePanelPadX * 2);
   const workspaceAvailableH = Math.max(1, h);
   const compact = workspaceAvailableW < 760;
@@ -10334,13 +10941,37 @@ function ManageWorkspacePanel({
   const workspaceGridHostStyle: CSSProperties = {
     width: workspaceAvailableW,
     height: workspaceSelectorH,
+    position: 'relative',
   };
   const workspaceSelectedValue = workspaceTargetKey === 'perDevice' ? (workspaceSelectedDeviceValue ?? '') : '';
   const workspaceSelectedSlot = workspaceSlots.find((slot) => slot.value === workspaceSelectedValue) ?? null;
   const workspaceSelectedLabel = workspaceSelectedSlot?.label ?? null;
-  const tabColumns = compact ? Math.min(3, tabs.length) : Math.min(tabs.length, kind === 'ai' ? 4 : tabs.length);
+  const workspaceTargetStatus = manageWorkspaceTargetStatus(
+    workspaceTargetKey,
+    workspaceSelectedSlot,
+    hasRuntimeDeviceSlots
+  );
+  const workspaceTargetStatusStyle: CSSProperties = {
+    position: 'absolute',
+    inset: compact ? '76px 8px 42px' : '76px 24px 42px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'column',
+    gap: 6,
+    padding: compact ? '8px 10px' : '10px 18px',
+    border: `1px solid ${colorAlpha(targetColor, '40')}`,
+    borderRadius: 8,
+    background: compact ? 'rgba(3, 18, 32, 0.94)' : colorAlpha(targetColor, '12'),
+    color: cfg.colors.bodyText,
+    textAlign: 'center',
+    pointerEvents: 'none',
+  };
+  const tabColumns = compact
+    ? Math.min(workspaceBodyW < 480 ? 2 : 3, tabs.length)
+    : Math.min(tabs.length, kind === 'ai' ? 4 : tabs.length);
   const tabRows = Math.max(1, Math.ceil(tabs.length / tabColumns));
-  const tabInsetX = Math.max(16, Math.min(24, workspaceBodyW * 0.012));
+  const tabInsetX = workspaceBodyW < 480 ? 8 : Math.max(16, Math.min(24, workspaceBodyW * 0.012));
   const tabW = Math.max(compact ? 82 : 112, Math.min(168, (workspaceBodyW - tabInsetX * 2) / tabColumns));
   const tabH = compact ? 31 : 39;
   const tabGap = 0;
@@ -10377,12 +11008,27 @@ function ManageWorkspacePanel({
       ? managePolicySettingRows(policyAreaLabel, activeTabKey, workspaceTargetKey, workspaceSelectedLabel)
       : [];
   const cardGap = 10;
-  const cardColumns = workspaceBodyW > 1180 ? 4 : workspaceBodyW > 840 ? 3 : workspaceBodyW > 560 ? 2 : 1;
+  const sparsePortalCards = kind === 'portal' && cards.length <= 4;
+  const cardColumns = sparsePortalCards
+    ? workspaceBodyW > 560
+      ? 2
+      : 1
+    : workspaceBodyW > 1180
+      ? 4
+      : workspaceBodyW > 840
+        ? 3
+        : workspaceBodyW > 560
+          ? 2
+          : 1;
   const cardW = Math.max(1, (workspaceBodyW - 28 * 2 - cardGap * (cardColumns - 1)) / cardColumns);
   const cardRows = Math.ceil(cards.length / cardColumns);
   const cardsTop = bodyY + bodyHeaderH + 12;
   const availableCardH = Math.max(1, bodyY + bodyH - cardsTop - 18);
-  const cardH = clampValue((availableCardH - cardGap * Math.max(0, cardRows - 1)) / Math.max(1, cardRows), 70, 112);
+  const cardH = clampValue(
+    (availableCardH - cardGap * Math.max(0, cardRows - 1)) / Math.max(1, cardRows),
+    sparsePortalCards ? 96 : 70,
+    sparsePortalCards ? 172 : 112
+  );
   const policyChoiceBarY = bodyY + 12;
   const policyChoiceGap = 12;
   const policyChoicesStacked = compact && kind === 'policy';
@@ -10393,7 +11039,15 @@ function ManageWorkspacePanel({
     ? workspaceBodyX + 22
     : workspaceBodyX + 22 + policyChoiceW + policyChoiceGap;
   const policySecondaryY = policyChoicesStacked ? policyChoiceBarY + 58 : policyChoiceBarY;
-  const policyChoiceDisabled = workspaceTargetKey === 'perDevice' && !workspaceSelectedSlot;
+  const policyMutationUnavailable = kind === 'policy';
+  const policyMutationUnavailableLines = wrapCardText(
+    'This overview is read-only. Choose a section to open its guide; current policy appears only when the local service reports it in a supported policy view.',
+    workspaceBodyW - 44,
+    11.5,
+    compact ? 3 : 1
+  );
+  const policyChoiceDisabled =
+    policyMutationUnavailable || (workspaceTargetKey === 'perDevice' && !workspaceSelectedSlot);
   const policyContentTop = bodyY + bodyHeaderH + 10;
   const policySurfaceTop = policyContentTop;
   const browserRulesChoiceTop = policySurfaceTop;
@@ -10426,7 +11080,7 @@ function ManageWorkspacePanel({
                 parentRows={workspaceGridRows}
                 parentColumns={workspaceGridColumns}
                 deviceSelectionDisabled={workspaceTargetKey !== 'perDevice'}
-                {...(workspaceScopeValues ? { scopeValues: workspaceScopeValues } : {})}
+                scopeValues={workspaceScopeValues}
                 scopeIcons={FAMILY_DEVICE_SCOPE_ICONS}
                 onScopeChange={(nextScopeValue) => {
                   const nextTarget =
@@ -10468,6 +11122,23 @@ function ManageWorkspacePanel({
                   },
                 })}
               />
+              {workspaceTargetStatus ? (
+                <div role="status" aria-label={workspaceTargetStatus.ariaLabel} style={workspaceTargetStatusStyle}>
+                  <span
+                    style={{
+                      color: targetColor,
+                      fontSize: 13,
+                      fontWeight: 950,
+                      letterSpacing: '0.08em',
+                    }}
+                  >
+                    {workspaceTargetStatus.eyebrow}
+                  </span>
+                  <span style={{ maxWidth: 680, fontSize: 13.5, fontWeight: 760, lineHeight: 1.4 }}>
+                    {workspaceTargetStatus.detail}
+                  </span>
+                </div>
+              ) : null}
             </div>
           </foreignObject>
           <path
@@ -10484,9 +11155,9 @@ function ManageWorkspacePanel({
           />
         </>
       ) : null}
-      <g role="tablist" aria-label={`${manageWorkspaceTitle(kind)} tabs`}>
+      <g role={policyMutationUnavailable ? 'group' : 'tablist'} aria-label={`${manageWorkspaceTitle(kind)} tabs`}>
         {tabs.map((tab, index) => {
-          const selected = tab.id === activeTabKey;
+          const selected = !policyMutationUnavailable && tab.id === activeTabKey;
           const tabColor = toneColor(tab.tone, cfg);
           const column = index % tabColumns;
           const row = Math.floor(index / tabColumns);
@@ -10509,24 +11180,37 @@ function ManageWorkspacePanel({
           const tabGuideRoutePath = showTabGuideInfo
             ? guideRoutePathForManageTab(activeNavLabel, selectedControlName, tab.id)
             : '';
+          const tabGuideAriaLabel =
+            policyAreaLabel === 'Rules' && tab.id === 'rules'
+              ? 'Open Family Rules guide'
+              : `Open ${policyAreaLabel} ${tab.label} guide`;
+          const tabOpensGuide = policyMutationUnavailable && showTabGuideInfo;
           const tabFill = selected ? PARENT_PORTAL_TAB_SURFACE_FILL.lanActive : PARENT_PORTAL_TAB_SURFACE_FILL.lanIdle;
           const tabStrokeOpacity = selected ? 0.94 : 0.54;
           return (
             <g
               key={`manage-workspace-tab:${kind}:${tab.id}`}
               className="parent-portal-svg-clickable"
-              role="tab"
+              role={tabOpensGuide ? 'button' : 'tab'}
               tabIndex={0}
-              aria-label={`Show ${tab.label}`}
-              aria-selected={selected}
+              aria-label={tabOpensGuide ? tabGuideAriaLabel : `Show ${tab.label}`}
+              aria-selected={tabOpensGuide ? undefined : selected}
               onClick={(event) => {
                 event.stopPropagation();
+                if (tabOpensGuide) {
+                  onNavigate?.(tabGuideRoutePath);
+                  return;
+                }
                 onTabChange(tab.id);
               }}
               onKeyDown={(event) => {
                 if (event.key !== 'Enter' && event.key !== ' ') return;
                 event.preventDefault();
                 event.stopPropagation();
+                if (tabOpensGuide) {
+                  onNavigate?.(tabGuideRoutePath);
+                  return;
+                }
                 onTabChange(tab.id);
               }}
             >
@@ -10593,12 +11277,12 @@ function ManageWorkspacePanel({
               >
                 {tabText}
               </text>
-              {showTabGuideInfo ? (
+              {showTabGuideInfo && !tabOpensGuide ? (
                 <g
                   className="parent-portal-svg-clickable"
                   role="button"
                   tabIndex={0}
-                  aria-label={`Open ${policyAreaLabel} ${tab.label} guide`}
+                  aria-label={tabGuideAriaLabel}
                   onClick={(event) => {
                     event.preventDefault();
                     event.stopPropagation();
@@ -10642,8 +11326,27 @@ function ManageWorkspacePanel({
         fill={PARENT_PORTAL_GLASS.panelFill}
         stroke={activeColor}
         strokeWidth={1.12}
-        opacity={0.78}
+        opacity={PARENT_PORTAL_CONTENT_SURFACE_OPACITY}
       />
+      {policyCustomSurfaceMode ? (
+        <g role="status" aria-label="Policy changes unavailable">
+          <text x={workspaceBodyX + 22} y={bodyY + 28} fontSize={11.2} fontWeight={950} fill={cfg.colors.red}>
+            CHANGES ARE UNAVAILABLE
+          </text>
+          {policyMutationUnavailableLines.map((line, index) => (
+            <text
+              key={`policy-mutation-unavailable:${index}`}
+              x={workspaceBodyX + 22}
+              y={bodyY + 50 + index * 15}
+              fontSize={11.5}
+              fontWeight={760}
+              fill={cfg.colors.mutedText}
+            >
+              {line}
+            </text>
+          ))}
+        </g>
+      ) : null}
       <path
         d={`M ${workspaceBodyX + 10} ${bodyY} H ${workspaceBodyX + workspaceBodyW - 10}`}
         stroke={activeColor}
@@ -10705,18 +11408,19 @@ function ManageWorkspacePanel({
           w={workspaceBodyW - 56}
           h={Math.max(260, bodyY + bodyH - cardsTop - 18)}
           cfg={cfg}
-          workspaceTarget={workspaceTarget}
-          disabled={policyChoiceDisabled}
-          decisionChoice={policyPrimaryChoice}
-          enforcementChoice={browserRulesEnforcementChoice}
-          onDecisionChange={setPolicyPrimaryChoice}
-          onEnforcementChange={setBrowserRulesEnforcementChoice}
-          {...(onNavigate
-            ? {
-                onInfoClick: () =>
-                  onNavigate(guideRoutePathForManageTab(activeNavLabel, selectedControlName, activeTabKey)),
-              }
-            : {})}
+        />
+      ) : policyCustomSurfaceMode && policyMutationUnavailable ? (
+        <UnavailableReadModelSurface
+          title={`${policyAreaLabel}: policy overview`}
+          subtitle="Current state is never inferred"
+          statusLabel={`${policyAreaLabel} policy overview is read only`}
+          headline="CURRENT POLICY NOT SHOWN HERE"
+          detail="This visual overview does not receive current policy state. Current policy appears only in a supported service-reported policy view when it is available. No rule, approval, schedule, budget, or enforcement setting is inferred here."
+          x={workspaceBodyX + 6}
+          y={browserRulesChoiceTop}
+          w={workspaceBodyW - 16}
+          h={Math.min(240, Math.max(1, bodyY + bodyH - browserRulesChoiceTop - 18))}
+          cfg={cfg}
         />
       ) : policyRulesChoiceMode ? (
         <PolicyRulesGridGuide
@@ -10861,7 +11565,6 @@ function ManageTargetPanel({
   x,
   y,
   w,
-  h,
   activeNavLabel,
   selectedControlName,
   spec,
@@ -10875,7 +11578,6 @@ function ManageTargetPanel({
   x: number;
   y: number;
   w: number;
-  h: number;
   activeNavLabel: string;
   selectedControlName: string;
   spec: ManageControlSpec;
@@ -10919,6 +11621,25 @@ function ManageTargetPanel({
   const browserY = showDeviceGrid ? deviceY + deviceRows * 34 + 28 : y + 68;
   const browserCount = Math.max(1, Math.min(browserChoices.length, 4));
   const browserW = (w - 26 - (browserCount - 1) * 8) / browserCount;
+  const compactScopeHeader = w < 520;
+
+  if (assetKey(selectedControlName).includes('remote-access')) {
+    return (
+      <g role="status" aria-label="Remote access target unavailable">
+        <text x={x + 12} y={y + 32} fontSize={12.4} fontWeight={950} fill={color}>
+          REMOTE TARGET NOT REPORTED
+        </text>
+        <text x={x + 12} y={y + 60} fontSize={11.5} fontWeight={780} fill={cfg.colors.mutedText}>
+          {truncateTextForWidth(
+            'A target appears after an authenticated remote session reports its current child and route.',
+            w - 24,
+            11.5,
+            0.58
+          )}
+        </text>
+      </g>
+    );
+  }
 
   return (
     <g>
@@ -10997,16 +11718,16 @@ function ManageTargetPanel({
       ))}
 
       <text
-        x={x + w - 12}
-        y={scopeTrackY + 20}
-        textAnchor="end"
+        x={compactScopeHeader ? x + 12 : x + w - 12}
+        y={compactScopeHeader ? scopeTrackY + 50 : scopeTrackY + 20}
+        textAnchor={compactScopeHeader ? 'start' : 'end'}
         fontSize={11.5}
         fontWeight={900}
         fill={cfg.colors.bodyText}
       >
         {truncateTextForWidth(
           `${manageControlDisplayTitle(spec.title)} / ${targetSummary}`,
-          Math.max(180, w - scopeTrackW - 112),
+          compactScopeHeader ? w - 24 : Math.max(180, w - scopeTrackW - 112),
           11.5,
           0.58
         )}
@@ -11133,10 +11854,11 @@ function ManageControlPanel({
   const [lanPairingDeviceKindDraft, setLanPairingDeviceKindDraft] = useState<DeviceKind>('unknown');
   const [lanPairingPendingIdentities, setLanPairingPendingIdentities] = useState<LanPairingPendingDeviceIdentities>({});
   const [activityManageActiveTab, setActivityManageActiveTab] = useState<ActivityManageTabId>('reports');
-  const [activityReportFrequency, setActivityReportFrequency] = useState('daily');
+  const [activityReportFrequency, setActivityReportFrequency] = useState<string>(
+    PortalAgentActivityReportFrequency.Daily
+  );
   const [activityReportOverrideMode, setActivityReportOverrideMode] = useState('family-defaults');
   const [activityReportSelectedFileId, setActivityReportSelectedFileId] = useState<string | null>(null);
-  const [activityReportDraft, setActivityReportDraft] = useState<ParentPortalActivityReportView | null>(null);
   const [manageWorkspaceActiveTab, setManageWorkspaceActiveTab] = useState('');
   const specKey = `${lane}:${spec.title}:${spec.options.map((option) => option.label).join('|')}`;
   useEffect(() => {
@@ -11152,10 +11874,9 @@ function ManageControlPanel({
     setLanPairingDeviceKindDraft('unknown');
     setLanPairingPendingIdentities({});
     setActivityManageActiveTab('reports');
-    setActivityReportFrequency('daily');
+    setActivityReportFrequency(PortalAgentActivityReportFrequency.Daily);
     setActivityReportOverrideMode('family-defaults');
     setActivityReportSelectedFileId(null);
-    setActivityReportDraft(null);
     setManageWorkspaceActiveTab('');
   }, [specKey]);
   const compact = w < 560;
@@ -11187,20 +11908,33 @@ function ManageControlPanel({
   const manageWorkspaceDefaultTab = manageWorkspaceKind
     ? manageWorkspaceDefaultTabId(manageWorkspaceKind, activeNavLabel, selectedControlName)
     : '';
-  const overrideMode = targetSelection.scope;
   const globalTargetLabel = isPortalLane ? 'Parent profile' : isDeviceOpsLane ? 'All devices' : 'Family';
   const device = targetSelection.scope === 'global' ? globalTargetLabel : targetSelection.device;
   const targetLabel = isPortalLane ? 'Parent profile' : device;
   const selectionLabel = manageSelectionLabel(activeNavLabel, selectedControlName, lane, targetSelection);
-  const panelTitle = `${manageControlDisplayTitle(spec.title)} / ${selectionLabel}`;
+  const panelTitle = compact
+    ? manageControlDisplayTitle(spec.title)
+    : `${manageControlDisplayTitle(spec.title)} / ${selectionLabel}`;
   const titleSize = fitSingleLineTextSize(panelTitle, w - 40, 17, 26, 0.58);
   const targetLabelUpper = targetLabel.toUpperCase();
-  const applyHeaderLabel = isPortalLane ? 'APPLY' : `APPLY TO ${targetLabelUpper}`;
-  const applyLabel = isPortalLane ? 'Save portal' : isDeviceOpsLane ? `Send to ${targetLabel}` : `Sync ${targetLabel}`;
-  const controlsActive = isPortalLane || isDeviceOpsLane || overrideMode === 'perDevice';
+  const controlsActive = false;
+  const applyHeaderLabel = controlsActive
+    ? isPortalLane
+      ? 'APPLY'
+      : `APPLY TO ${targetLabelUpper}`
+    : 'CHANGES ARE UNAVAILABLE';
+  const applyLabel = controlsActive
+    ? isPortalLane
+      ? 'Save portal'
+      : isDeviceOpsLane
+        ? `Send to ${targetLabel}`
+        : `Sync ${targetLabel}`
+    : 'Apply unavailable';
   const isLanPairingPanel = isLanPairingManageTitle(spec.title);
   const isReportsPanel = isReportsManageTitle(spec.title);
   const isAppGameDashboardPanel = isAppGameDashboardManageContext(activeNavLabel, selectedControlName, spec.title);
+  const isRemoteScreenPolicyPanel = assetKey(selectedControlName).includes('remote-screen');
+  const isRemoteAccessPanel = assetKey(selectedControlName).includes('remote-access');
   const lanPairingReadModelSlots = useMemo(
     () => createParentPortalLanPairingUiSlots(parentPortalRows, activityState?.lanAddDeviceReadModel),
     [activityState?.lanAddDeviceReadModel, parentPortalRows]
@@ -11280,7 +12014,7 @@ function ManageControlPanel({
     setLastAction(`${nextName} identity saved`);
     setSyncStatus('LAN household decision sent');
   }, [lanPairingDeviceKindDraft, lanPairingEditSlot, lanPairingHouseholdNameDraft, onAgentCommand]);
-  const lanPairingPanelPadX = Math.max(18, Math.min(34, Math.round(w * 0.018)));
+  const lanPairingPanelPadX = w < 480 ? 8 : Math.max(18, Math.min(34, Math.round(w * 0.018)));
   const lanPairingPanelPadY = 0;
   const lanPairingAvailableW = Math.max(1, w - lanPairingPanelPadX * 2);
   const lanPairingAvailableH = Math.max(1, h - lanPairingPanelPadY * 2);
@@ -11312,13 +12046,16 @@ function ManageControlPanel({
   const lanPairingDetailH = Math.max(1, y + h - lanPairingDetailY - 8);
   const lanPairingTabH = Math.max(34, Math.min(42, Math.round(lanPairingDetailH * 0.15)));
   const lanPairingTabGap = 0;
-  const lanPairingTabInsetX = Math.max(16, Math.min(24, Math.round(lanPairingGridW * 0.012)));
-  const lanPairingTabW = Math.max(
-    112,
-    Math.min(180, (lanPairingGridW - lanPairingTabInsetX * 2) / Math.max(1, lanPairingDetailTabs.length))
-  );
+  const lanPairingTabsCompact = lanPairingGridW < 480;
+  const lanPairingTabColumns = lanPairingTabsCompact
+    ? Math.min(2, lanPairingDetailTabs.length)
+    : lanPairingDetailTabs.length;
+  const lanPairingTabRows = Math.max(1, Math.ceil(lanPairingDetailTabs.length / lanPairingTabColumns));
+  const lanPairingTabInsetX =
+    lanPairingGridW < 480 ? 8 : Math.max(16, Math.min(24, Math.round(lanPairingGridW * 0.012)));
+  const lanPairingTabW = Math.max(1, Math.min(180, (lanPairingGridW - lanPairingTabInsetX * 2) / lanPairingTabColumns));
   const lanPairingTabsX = lanPairingGridX + lanPairingTabInsetX;
-  const lanPairingBodyY = lanPairingDetailY + lanPairingTabH - 1;
+  const lanPairingBodyY = lanPairingDetailY + lanPairingTabRows * lanPairingTabH - 1;
   const lanPairingBodyH = Math.max(1, y + h - lanPairingBodyY - 8);
   const lanPairingBodyX = lanPairingGridX;
   const lanPairingBodyW = lanPairingGridW;
@@ -11374,6 +12111,12 @@ function ManageControlPanel({
     Math.floor(Math.max(1, lanPairingDetailRowsBottom - lanPairingDetailRowTop) / (lanPairingDetailRowH + 8)) *
       lanPairingDetailColumnCount
   );
+  const lanPairingUnavailableLines = wrapCardText(
+    'Connect the local service to scan and show current LAN devices.',
+    lanPairingGridW - 32,
+    11.5,
+    2
+  );
   const lanPairingVisibleRows = lanPairingDetailRows.slice(0, lanPairingDetailVisibleCount);
   const reportPlanSeatLimit = ACTIVITY_REPORT_BASIC_CHILD_DEVICE_SEATS;
   const activityUiIntent = useMemo(
@@ -11399,19 +12142,12 @@ function ManageControlPanel({
   const reportSelectedValue =
     reportScopeValue === 'device' ? (reportSelectedSlotValue(reportSlots, targetSelection) ?? '') : '';
   const reportSelectedDeviceSlot = reportSlots.find((slot) => slot.value === reportSelectedValue) ?? null;
+  const reportScopeStatus = activityReportScopeStatus(reportFamilyScope, reportSelectionSlots.length);
   const activityReportFiles = activityUiIntent.reportFiles;
   const activityReportSelectedFile =
     activityReportFiles.find((file) => file.id === activityReportSelectedFileId) ?? activityReportFiles[0] ?? null;
-  const activityReportViewerReport = activityReportDraft ?? activityReportSelectedFile?.report ?? null;
-  const activityGenerateReport = useCallback(() => {
-    setLastAction('Report command unavailable');
-    setSyncStatus('Report generation command not exposed');
-  }, []);
-  const activitySaveReportDraft = useCallback(() => {
-    setLastAction('Save unavailable');
-    setSyncStatus('No generated report to save');
-  }, []);
-  const reportPanelPadX = Math.max(18, Math.min(34, Math.round(w * 0.018)));
+  const activityReportViewerReport = activityReportSelectedFile?.report ?? null;
+  const reportPanelPadX = w < 480 ? 8 : Math.max(18, Math.min(34, Math.round(w * 0.018)));
   const reportPanelPadY = 0;
   const reportAvailableW = Math.max(1, w - reportPanelPadX * 2);
   const reportAvailableH = Math.max(1, h - reportPanelPadY * 2);
@@ -11438,24 +12174,41 @@ function ManageControlPanel({
   const reportGridHostStyle: CSSProperties = {
     width: reportAvailableW,
     height: reportSelectorH,
+    position: 'relative',
   };
   const activityManageTab =
     ACTIVITY_MANAGE_TABS.find((tab) => tab.id === activityManageActiveTab) ?? ACTIVITY_MANAGE_TABS[0];
-  const activityDetailTabsDisabled = reportFamilyScope;
   const effectiveActivityManageTab =
-    activityDetailTabsDisabled && activityTabRequiresDevice(activityManageTab.id)
+    activityDetailTabUnavailableReason(activityManageTab, reportFamilyScope, reportSelectedDeviceSlot) !== null
       ? ACTIVITY_MANAGE_TABS[0]
       : activityManageTab;
   const effectiveActivityManageTabId = effectiveActivityManageTab.id;
   const activityManageTabColor = toneColor(effectiveActivityManageTab.tone, cfg);
+  const reportScopeStatusStyle: CSSProperties = {
+    position: 'absolute',
+    inset: w < 480 ? '76px 8px 42px' : '76px 24px 42px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'column',
+    gap: 6,
+    padding: w < 480 ? '8px 10px' : '10px 18px',
+    border: `1px solid ${colorAlpha(activityManageTabColor, '40')}`,
+    borderRadius: 8,
+    background: w < 480 ? 'rgba(3, 18, 32, 0.94)' : colorAlpha(activityManageTabColor, '12'),
+    color: cfg.colors.bodyText,
+    textAlign: 'center',
+    pointerEvents: 'none',
+  };
   const activityBodyY = reportDividerY + 16;
   const activityBodyAvailableH = Math.max(1, y + h - activityBodyY - 8);
   const activityTabsCompact = reportAvailableW < 560;
-  const activityTabColumns = activityTabsCompact ? 3 : ACTIVITY_MANAGE_TABS.length;
+  const activityTabColumns = reportAvailableW < 480 ? 2 : activityTabsCompact ? 3 : ACTIVITY_MANAGE_TABS.length;
   const activityTabRows = Math.ceil(ACTIVITY_MANAGE_TABS.length / activityTabColumns);
   const activityTabH = activityTabsCompact ? 30 : Math.max(34, Math.min(42, Math.round(activityBodyAvailableH * 0.15)));
   const activityTabGap = 0;
-  const activityTabInsetX = Math.max(16, Math.min(24, Math.round(reportAvailableW * 0.012)));
+  const activityTabInsetX =
+    reportAvailableW < 480 ? 8 : Math.max(16, Math.min(24, Math.round(reportAvailableW * 0.012)));
   const activityTabMinW = reportAvailableW < 760 ? 74 : 92;
   const activityTabW = Math.max(
     activityTabsCompact ? 58 : activityTabMinW,
@@ -11471,8 +12224,10 @@ function ManageControlPanel({
   const activityReportInnerY = activityBodyPanelY + (activityReportsSelected ? 2 : 18);
   const activityReportInnerW = Math.max(1, activityBodyPanelW - 36);
   const activityReportInnerH = Math.max(1, activityBodyPanelY + activityBodyPanelH - activityReportInnerY - 16);
-  const activityReportFrequencyLabel =
-    ACTIVITY_REPORT_FREQUENCY_OPTIONS.find((option) => option.value === activityReportFrequency)?.label ?? 'Daily';
+  const activityReportFrequencyOption =
+    ACTIVITY_REPORT_FREQUENCY_OPTIONS.find((option) => option.value === activityReportFrequency) ??
+    ACTIVITY_REPORT_DAILY_OPTION;
+  const activityReportFrequencyLabel = activityReportFrequencyOption.label;
   const activityReportOverrideLabel = reportFamilyScope
     ? 'Family'
     : (ACTIVITY_REPORT_OVERRIDE_OPTIONS.find((option) => option.value === activityReportOverrideMode)?.label ??
@@ -11485,14 +12240,11 @@ function ManageControlPanel({
   const activityReportControlBarW = activityReportInnerW;
   const activityReportControlPadX = 14;
   const activityReportControlGap = 12;
-  const activityReportSingleToggleW = Math.max(
-    220,
-    Math.min(520, activityReportControlBarW - activityReportControlPadX * 2)
-  );
-  const activityReportSplitToggleW = Math.max(
-    220,
-    (activityReportControlBarW - activityReportControlPadX * 2 - activityReportControlGap) / 2
-  );
+  const activityReportToggleAvailableW = Math.max(1, activityReportControlBarW - activityReportControlPadX * 2);
+  const activityReportSingleToggleW = Math.min(520, activityReportToggleAvailableW);
+  const activityReportSplitToggleW = activityControlStacked
+    ? activityReportToggleAvailableW
+    : Math.max(1, (activityReportToggleAvailableW - activityReportControlGap) / 2);
   const activityReportOverrideToggleX = activityReportControlBarX + activityReportControlPadX;
   const activityReportFrequencyToggleX = reportFamilyScope
     ? activityReportControlBarX + (activityReportControlBarW - activityReportSingleToggleW) / 2
@@ -11506,26 +12258,44 @@ function ManageControlPanel({
       ? activityReportControlBarY + 49
       : activityReportControlBarY - 5;
   const activityReportFrequencyToggleW = reportFamilyScope ? activityReportSingleToggleW : activityReportSplitToggleW;
+  const activityReportFrequencyTitle = activityReportFrequencyToggleW < 220 ? 'Freq.' : 'Frequency';
   const activityReportFrequencyDisabled = !reportFamilyScope && !activityReportOverrideActive;
   const activityReportSplitY = activityReportInnerY + activityReportControlBarH;
   const activityReportSplitH = Math.max(1, activityReportInnerY + activityReportInnerH - activityReportSplitY);
-  const activityReportSidePanelW = Math.max(220, Math.min(360, activityReportInnerW * 0.28));
+  const activityReportStacked = activityReportInnerW < 620;
+  const activityReportStackListMaxH = Math.max(104, activityReportSplitH - 300);
+  const activityReportStackListH = activityReportStacked
+    ? Math.min(activityReportStackListMaxH, Math.max(104, Math.round(activityReportSplitH * 0.28)))
+    : activityReportSplitH;
+  const activityReportSidePanelW = activityReportStacked
+    ? activityReportInnerW
+    : Math.max(220, Math.min(360, activityReportInnerW * 0.28));
   const activityReportVerticalDividerX = activityReportInnerX + activityReportSidePanelW;
+  const activityReportHorizontalDividerY = activityReportSplitY + activityReportStackListH;
   const activityReportListX = activityReportInnerX + 12;
   const activityReportListY = activityReportSplitY + 16;
-  const activityReportListW = Math.max(1, activityReportSidePanelW - 24);
-  const activityReportViewerX = activityReportVerticalDividerX + 18;
-  const activityReportViewerY = activityReportSplitY + 16;
+  const activityReportListW = Math.max(
+    1,
+    activityReportStacked ? activityReportInnerW - 24 : activityReportSidePanelW - 24
+  );
+  const activityReportViewerX = activityReportStacked ? activityReportInnerX + 12 : activityReportVerticalDividerX + 18;
+  const activityReportViewerY = activityReportStacked
+    ? activityReportHorizontalDividerY + 16
+    : activityReportSplitY + 16;
   const activityReportViewerW = Math.max(1, activityReportInnerX + activityReportInnerW - activityReportViewerX - 12);
   const activityReportActionY = activityReportInnerY + activityReportInnerH - 40;
-  const activityReportGenerateButtonW = 156;
-  const activityReportSaveButtonW = 126;
   const activityReportActionGap = 10;
+  const activityReportGenerateButtonW = activityReportStacked
+    ? Math.max(1, (activityReportViewerW - activityReportActionGap) / 2)
+    : 156;
+  const activityReportSaveButtonW = activityReportStacked
+    ? Math.max(1, activityReportViewerW - activityReportGenerateButtonW - activityReportActionGap)
+    : 126;
   const activityReportRowH = 62;
   const activityReportRowGap = 10;
   const activityReportVisibleRows = activityReportFiles.slice(
     0,
-    Math.max(1, Math.floor(Math.max(1, activityReportSplitH - 52) / (activityReportRowH + activityReportRowGap)))
+    Math.max(1, Math.floor(Math.max(1, activityReportStackListH - 52) / (activityReportRowH + activityReportRowGap)))
   );
   const activityReportViewerTarget =
     activityReportViewerReport?.targetLabel ??
@@ -11536,6 +12306,28 @@ function ManageControlPanel({
       ? `Draft JSON: ${activityReportViewerReport.fileName}`
       : 'No saved report read model reported';
   const activityReportViewerSections = activityReportViewerReport?.sections ?? [];
+  const activityReportViewerSectionCount = Math.max(
+    0,
+    Math.min(2, Math.floor(Math.max(0, activityReportActionY - activityReportViewerY - 230) / 66))
+  );
+  const activityReportVisibleViewerSections = activityReportViewerSections.slice(0, activityReportViewerSectionCount);
+  const activityReportGeneratePayload = activityReportScopeCommandPayload(reportFamilyScope, reportSelectedDeviceSlot);
+  const activityReportSavePayload = activityReportSaveCommandPayload(activityUiIntent.reportDocument);
+  const activityReportGenerateEnabled = Boolean(onAgentCommand && activityReportGeneratePayload);
+  const activityReportSaveEnabled = Boolean(onAgentCommand && activityReportSavePayload);
+  const requestActivityReportGenerate = () => {
+    if (!onAgentCommand || !activityReportGeneratePayload) return;
+    setActivityReportSelectedFileId(null);
+    onAgentCommand(activityReportFrequencyOption.command, activityReportGeneratePayload);
+    setLastAction(`${activityReportFrequencyOption.label} report requested`);
+    setSyncStatus('Local service report request sent');
+  };
+  const requestActivityReportSave = () => {
+    if (!onAgentCommand || !activityReportSavePayload) return;
+    onAgentCommand(AgentCommand.ActivityReportSave, activityReportSavePayload);
+    setLastAction('Activity report save requested');
+    setSyncStatus('Local service save request sent');
+  };
   const activityMonitorPanelX = activityReportInnerX;
   const activityMonitorPanelY = activityReportInnerY + activityReportControlBarH;
   const activityMonitorPanelW = activityReportInnerW;
@@ -11574,7 +12366,20 @@ function ManageControlPanel({
 
   return (
     <g>
-      {isLanPairingPanel ? (
+      {isRemoteScreenPolicyPanel ? (
+        <UnavailableReadModelSurface
+          title="Remote Screen Policy"
+          subtitle="No live-view service read model is reported"
+          statusLabel="Remote screen policy unavailable"
+          headline="REMOTE SCREEN POLICY NOT AVAILABLE"
+          detail="No owner-backed live-view session, child capability, permission, route, custody, or current authority is connected. This page does not infer a mode or offer a remote-view request."
+          x={x}
+          y={y}
+          w={w}
+          h={Math.min(260, h)}
+          cfg={cfg}
+        />
+      ) : isLanPairingPanel ? (
         <>
           <foreignObject x={lanPairingGridX} y={lanPairingGridY} width={lanPairingGridW} height={lanPairingGridH}>
             <div style={lanPairingGridHostStyle}>
@@ -11631,6 +12436,34 @@ function ManageControlPanel({
               />
             </div>
           </foreignObject>
+          {lanPairingSlots.length === 0 ? (
+            <g role="status" aria-label="Device discovery unavailable" pointerEvents="none">
+              <text
+                x={lanPairingGridX + lanPairingGridW / 2}
+                y={lanPairingGridY + lanPairingGridH * 0.46}
+                textAnchor="middle"
+                fontSize={15.5}
+                fontWeight={950}
+                letterSpacing={0.8}
+                fill={cfg.colors.bodyText}
+              >
+                DEVICE DISCOVERY UNAVAILABLE
+              </text>
+              {lanPairingUnavailableLines.map((line, index) => (
+                <text
+                  key={`lan-pairing-unavailable:${index}`}
+                  x={lanPairingGridX + lanPairingGridW / 2}
+                  y={lanPairingGridY + lanPairingGridH * 0.46 + 24 + index * 15}
+                  textAnchor="middle"
+                  fontSize={11.5}
+                  fontWeight={760}
+                  fill={cfg.colors.mutedText}
+                >
+                  {line}
+                </text>
+              ))}
+            </g>
+          ) : null}
           <path
             d={`M ${lanPairingGridX} ${lanPairingDividerY} H ${lanPairingGridX + lanPairingGridW}`}
             stroke={color}
@@ -11663,7 +12496,7 @@ function ManageControlPanel({
               fill={PARENT_PORTAL_GLASS.panelFill}
               stroke={lanPairingDetailColor}
               strokeWidth={1.15}
-              opacity={0.78}
+              opacity={PARENT_PORTAL_CONTENT_SURFACE_OPACITY}
             />
             <path
               d={topRoundedRectPath(
@@ -11758,15 +12591,16 @@ function ManageControlPanel({
               );
             })}
             {lanPairingActionButtons.map((action, index) => {
+              const actionEnabled = action.enabled && Boolean(onAgentCommand);
               const actionColor = toneColor(action.tone, cfg);
               const column = index % lanPairingActionColumns;
               const rowIndex = Math.floor(index / lanPairingActionColumns);
               const actionX = lanPairingBodyX + 20 + column * (lanPairingActionW + lanPairingActionGap);
               const actionY = lanPairingActionY + rowIndex * (lanPairingActionRowH + 6);
-              const actionOpacity = action.enabled ? 0.96 : 0.42;
+              const actionOpacity = actionEnabled ? 0.96 : 0.42;
               const actionText = truncateTextForWidth(action.label, lanPairingActionW - 28, 11.2, 0.58);
               const handleLanAction = () => {
-                if (!action.enabled || !action.payload) {
+                if (!actionEnabled || !action.payload) {
                   setLastAction(`${action.label} unavailable`);
                   setSyncStatus('LAN proof missing');
                   return;
@@ -11778,10 +12612,10 @@ function ManageControlPanel({
               return (
                 <g
                   key={`lan-pairing-action:${action.id}`}
-                  className={action.enabled ? 'parent-portal-svg-clickable' : undefined}
+                  className={actionEnabled ? 'parent-portal-svg-clickable' : undefined}
                   role="button"
-                  tabIndex={0}
-                  aria-disabled={!action.enabled}
+                  tabIndex={actionEnabled ? 0 : -1}
+                  aria-disabled={!actionEnabled}
                   aria-label={`LAN ${action.label}`}
                   onClick={(event) => {
                     event.stopPropagation();
@@ -11797,8 +12631,8 @@ function ManageControlPanel({
                   <title>{action.status}</title>
                   <path
                     d={cutRectPath(actionX, actionY, lanPairingActionW, lanPairingActionRowH, 8)}
-                    fill={action.enabled ? colorAlpha(actionColor, '24') : 'rgba(2, 12, 22, 0.68)'}
-                    stroke={action.enabled ? actionColor : cfg.colors.panelStroke}
+                    fill={actionEnabled ? colorAlpha(actionColor, '24') : 'rgba(2, 12, 22, 0.68)'}
+                    stroke={actionEnabled ? actionColor : cfg.colors.panelStroke}
                     strokeWidth={0.9}
                     opacity={actionOpacity}
                   />
@@ -11808,7 +12642,7 @@ function ManageControlPanel({
                     y={actionY + 20}
                     fontSize={11.2}
                     fontWeight={900}
-                    fill={action.enabled ? cfg.colors.bodyText : cfg.colors.mutedText}
+                    fill={actionEnabled ? cfg.colors.bodyText : cfg.colors.mutedText}
                   >
                     {actionText}
                   </text>
@@ -11853,12 +12687,17 @@ function ManageControlPanel({
               const unavailableReason = lanPairingDetailTabUnavailableReason(tab.id, lanPairingSelectedSlot);
               const muted = Boolean(unavailableReason) && !selected;
               const tabColor = toneColor(tab.tone, cfg);
-              const tabX = lanPairingTabsX + index * (lanPairingTabW + lanPairingTabGap);
-              const tabY = selected ? lanPairingDetailY : lanPairingDetailY + 5;
-              const tabH = selected ? lanPairingTabH + 3 : lanPairingTabH - 5;
+              const tabColumn = index % lanPairingTabColumns;
+              const tabRow = Math.floor(index / lanPairingTabColumns);
+              const tabBaseY = lanPairingDetailY + tabRow * lanPairingTabH;
+              const tabX = lanPairingTabsX + tabColumn * (lanPairingTabW + lanPairingTabGap);
+              const tabY = selected ? tabBaseY : tabBaseY + 5;
+              const tabH = selected ? lanPairingTabH + (lanPairingTabsCompact ? 0 : 3) : lanPairingTabH - 5;
               const tabRadius = 0;
-              const tabIconSize = Math.max(17, Math.min(22, tabH - 12));
-              const tabTextSize = selected ? 13.8 : 12.8;
+              const tabIconSize = lanPairingTabsCompact
+                ? Math.max(15, Math.min(19, tabH - 14))
+                : Math.max(17, Math.min(22, tabH - 12));
+              const tabTextSize = lanPairingTabsCompact ? (selected ? 12.2 : 11.4) : selected ? 13.8 : 12.8;
               const tabText = truncateTextForWidth(tab.label, lanPairingTabW - tabIconSize - 28, tabTextSize, 0.58);
               const tabTextW = Math.min(lanPairingTabW - tabIconSize - 28, tabText.length * tabTextSize * 0.58);
               const tabGroupW = tabIconSize + 7 + tabTextW;
@@ -11901,9 +12740,9 @@ function ManageControlPanel({
                   <title>{unavailableReason ?? `${tab.label} detail`}</title>
                   <rect
                     x={tabX}
-                    y={lanPairingDetailY - 4}
+                    y={lanPairingTabsCompact ? tabBaseY : tabBaseY - 4}
                     width={lanPairingTabW}
-                    height={lanPairingTabH + 8}
+                    height={lanPairingTabsCompact ? lanPairingTabH : lanPairingTabH + 8}
                     fill="transparent"
                   />
                   {selected ? (
@@ -12007,6 +12846,19 @@ function ManageControlPanel({
           {...(themeColor === undefined ? {} : { themeColor })}
           cfg={cfg}
         />
+      ) : isRemoteAccessPanel ? (
+        <UnavailableReadModelSurface
+          title="Remote Access"
+          subtitle="No authenticated session is reported"
+          statusLabel="Remote access unavailable"
+          headline="REMOTE ACCESS NOT AVAILABLE"
+          detail="No owner-backed remote session, trusted target, transport route, or current authority is connected. This page does not infer a current selection or offer a local command draft."
+          x={x}
+          y={y}
+          w={w}
+          h={Math.min(260, h)}
+          cfg={cfg}
+        />
       ) : isReportsPanel ? (
         <>
           <foreignObject x={reportTopX} y={reportSelectorY} width={reportAvailableW} height={reportSelectorH}>
@@ -12042,6 +12894,23 @@ function ManageControlPanel({
                   },
                 })}
               />
+              {reportScopeStatus ? (
+                <div role="status" aria-label={reportScopeStatus.ariaLabel} style={reportScopeStatusStyle}>
+                  <span
+                    style={{
+                      color: activityManageTabColor,
+                      fontSize: 13,
+                      fontWeight: 950,
+                      letterSpacing: '0.08em',
+                    }}
+                  >
+                    {reportScopeStatus.eyebrow}
+                  </span>
+                  <span style={{ maxWidth: 680, fontSize: 13.5, fontWeight: 760, lineHeight: 1.4 }}>
+                    {reportScopeStatus.detail}
+                  </span>
+                </div>
+              ) : null}
             </div>
           </foreignObject>
 
@@ -12077,7 +12946,7 @@ function ManageControlPanel({
               fill={PARENT_PORTAL_GLASS.panelFill}
               stroke={activityManageTabColor}
               strokeWidth={1.15}
-              opacity={0.78}
+              opacity={PARENT_PORTAL_CONTENT_SURFACE_OPACITY}
             />
             <path
               d={topRoundedRectPath(
@@ -12108,7 +12977,6 @@ function ManageControlPanel({
                         options={ACTIVITY_REPORT_OVERRIDE_OPTIONS}
                         onChange={(nextValue, option) => {
                           setActivityReportOverrideMode(nextValue);
-                          setActivityReportDraft(null);
                           setActivityReportSelectedFileId(null);
                           setLastAction(option.label);
                           setSyncStatus('Report override changed');
@@ -12126,13 +12994,12 @@ function ManageControlPanel({
                 >
                   <div style={{ width: activityReportFrequencyToggleW, height: 66 }}>
                     <ScopeToggle
-                      title="Frequency"
+                      title={activityReportFrequencyTitle}
                       value={activityReportFrequency}
                       options={ACTIVITY_REPORT_FREQUENCY_OPTIONS}
                       disabled={activityReportFrequencyDisabled}
                       onChange={(nextValue, option) => {
                         setActivityReportFrequency(nextValue);
-                        setActivityReportDraft(null);
                         setActivityReportSelectedFileId(null);
                         setMode(option.label);
                         setLastAction(`${option.label} reports`);
@@ -12152,12 +13019,21 @@ function ManageControlPanel({
                   strokeWidth={1.15}
                   opacity={0.62}
                 />
-                <path
-                  d={`M ${activityReportVerticalDividerX} ${activityReportSplitY + 1} V ${activityReportInnerY + activityReportInnerH}`}
-                  stroke={activityManageTabColor}
-                  strokeWidth={1.05}
-                  opacity={0.52}
-                />
+                {activityReportStacked ? (
+                  <path
+                    d={`M ${activityReportInnerX} ${activityReportHorizontalDividerY} H ${activityReportInnerX + activityReportInnerW}`}
+                    stroke={activityManageTabColor}
+                    strokeWidth={1.05}
+                    opacity={0.52}
+                  />
+                ) : (
+                  <path
+                    d={`M ${activityReportVerticalDividerX} ${activityReportSplitY + 1} V ${activityReportInnerY + activityReportInnerH}`}
+                    stroke={activityManageTabColor}
+                    strokeWidth={1.05}
+                    opacity={0.52}
+                  />
+                )}
                 <text
                   x={activityReportListX}
                   y={activityReportListY - 4}
@@ -12188,7 +13064,7 @@ function ManageControlPanel({
                   </text>
                 ) : null}
                 {activityReportVisibleRows.map((row, index) => {
-                  const selected = !activityReportDraft && row.id === activityReportSelectedFile?.id;
+                  const selected = row.id === activityReportSelectedFile?.id;
                   const rowColor = selected ? activityManageTabColor : toneColor(row.saved ? 'cyan' : 'gold', cfg);
                   const rowY = activityReportListY + 10 + index * (activityReportRowH + activityReportRowGap);
                   return (
@@ -12200,7 +13076,6 @@ function ManageControlPanel({
                       aria-label={`Open ${row.fileName}`}
                       onClick={(event) => {
                         event.stopPropagation();
-                        setActivityReportDraft(null);
                         setActivityReportSelectedFileId(row.id);
                         setLastAction(row.fileName);
                         setSyncStatus('Historical report selected');
@@ -12209,7 +13084,6 @@ function ManageControlPanel({
                         if (event.key !== 'Enter' && event.key !== ' ') return;
                         event.preventDefault();
                         event.stopPropagation();
-                        setActivityReportDraft(null);
                         setActivityReportSelectedFileId(row.id);
                         setLastAction(row.fileName);
                         setSyncStatus('Historical report selected');
@@ -12349,7 +13223,7 @@ function ManageControlPanel({
                 >
                   {truncateTextForWidth(activityReportViewerState, activityReportViewerW, 12.4, 0.58)}
                 </text>
-                {activityReportViewerSections.slice(0, 2).map((section, index) => {
+                {activityReportVisibleViewerSections.map((section, index) => {
                   const sectionY = activityReportViewerY + 218 + index * 66;
                   return (
                     <g key={`activity-report-viewer-section:${section.title}`}>
@@ -12384,23 +13258,38 @@ function ManageControlPanel({
                   );
                 })}
                 <g
-                  className="parent-portal-svg-clickable"
+                  className={activityReportGenerateEnabled ? 'parent-portal-svg-clickable' : undefined}
                   role="button"
-                  tabIndex={0}
+                  tabIndex={activityReportGenerateEnabled ? 0 : -1}
                   aria-label={`Generate ${activityReportFrequencyLabel} activity report`}
-                  aria-disabled="true"
-                  opacity={0.58}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    activityGenerateReport();
-                  }}
-                  onKeyDown={(event) => {
-                    if (event.key !== 'Enter' && event.key !== ' ') return;
-                    event.preventDefault();
-                    event.stopPropagation();
-                    activityGenerateReport();
-                  }}
+                  aria-disabled={!activityReportGenerateEnabled}
+                  opacity={activityReportGenerateEnabled ? 1 : 0.44}
+                  onClick={
+                    activityReportGenerateEnabled
+                      ? (event) => {
+                          event.stopPropagation();
+                          requestActivityReportGenerate();
+                        }
+                      : undefined
+                  }
+                  onKeyDown={
+                    activityReportGenerateEnabled
+                      ? (event) => {
+                          if (event.key !== 'Enter' && event.key !== ' ') return;
+                          event.preventDefault();
+                          event.stopPropagation();
+                          requestActivityReportGenerate();
+                        }
+                      : undefined
+                  }
                 >
+                  <title>
+                    {activityReportGenerateEnabled
+                      ? `Generate ${activityReportFrequencyLabel} report from the local service`
+                      : reportFamilyScope
+                        ? 'Connect the local service to generate a report'
+                        : 'Select a current device to generate a report'}
+                  </title>
                   <rect
                     x={activityReportViewerX}
                     y={activityReportActionY}
@@ -12424,24 +13313,36 @@ function ManageControlPanel({
                   </text>
                 </g>
                 <g
-                  className={
-                    activityReportDraft && !activityReportDraft.saved ? 'parent-portal-svg-clickable' : undefined
-                  }
+                  className={activityReportSaveEnabled ? 'parent-portal-svg-clickable' : undefined}
                   role="button"
-                  tabIndex={activityReportDraft && !activityReportDraft.saved ? 0 : -1}
+                  tabIndex={activityReportSaveEnabled ? 0 : -1}
                   aria-label="Save generated activity report"
-                  opacity={activityReportDraft && !activityReportDraft.saved ? 1 : 0.44}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    activitySaveReportDraft();
-                  }}
-                  onKeyDown={(event) => {
-                    if (event.key !== 'Enter' && event.key !== ' ') return;
-                    event.preventDefault();
-                    event.stopPropagation();
-                    activitySaveReportDraft();
-                  }}
+                  aria-disabled={!activityReportSaveEnabled}
+                  opacity={activityReportSaveEnabled ? 1 : 0.44}
+                  onClick={
+                    activityReportSaveEnabled
+                      ? (event) => {
+                          event.stopPropagation();
+                          requestActivityReportSave();
+                        }
+                      : undefined
+                  }
+                  onKeyDown={
+                    activityReportSaveEnabled
+                      ? (event) => {
+                          if (event.key !== 'Enter' && event.key !== ' ') return;
+                          event.preventDefault();
+                          event.stopPropagation();
+                          requestActivityReportSave();
+                        }
+                      : undefined
+                  }
                 >
+                  <title>
+                    {activityReportSaveEnabled
+                      ? 'Save this report through the local service'
+                      : 'Generate a report before saving it'}
+                  </title>
                   <rect
                     x={activityReportViewerX + activityReportGenerateButtonW + activityReportActionGap}
                     y={activityReportActionY}
@@ -12539,7 +13440,12 @@ function ManageControlPanel({
               opacity={0.32}
             />
             {ACTIVITY_MANAGE_TABS.map((tab, index) => {
-              const disabledTab = activityDetailTabsDisabled && activityTabRequiresDevice(tab.id);
+              const unavailableReason = activityDetailTabUnavailableReason(
+                tab,
+                reportFamilyScope,
+                reportSelectedDeviceSlot
+              );
+              const disabledTab = unavailableReason !== null;
               const selected = tab.id === effectiveActivityManageTabId;
               const tabColor = toneColor(tab.tone, cfg);
               const tabPaintColor = disabledTab ? cfg.colors.mutedText : tabColor;
@@ -12573,15 +13479,13 @@ function ManageControlPanel({
                   className={disabledTab ? undefined : 'parent-portal-svg-clickable'}
                   role="tab"
                   tabIndex={disabledTab ? -1 : 0}
-                  aria-label={
-                    disabledTab ? `${tab.label} requires Per Device activity scope` : `Show activity ${tab.label}`
-                  }
+                  aria-label={unavailableReason ?? `Show activity ${tab.label}`}
                   aria-disabled={disabledTab}
                   aria-selected={selected}
                   onClick={(event) => {
                     event.stopPropagation();
                     if (disabledTab) {
-                      setLastAction(`${tab.label} requires Per Device`);
+                      setLastAction(unavailableReason);
                       return;
                     }
                     setActivityManageActiveTab(tab.id);
@@ -12592,7 +13496,7 @@ function ManageControlPanel({
                     event.preventDefault();
                     event.stopPropagation();
                     if (disabledTab) {
-                      setLastAction(`${tab.label} requires Per Device`);
+                      setLastAction(unavailableReason);
                       return;
                     }
                     setActivityManageActiveTab(tab.id);
@@ -12689,7 +13593,6 @@ function ManageControlPanel({
           runtimeDeviceSlots={runtimeDeviceSlots}
           sharedTargetSelection={targetSelection}
           {...(onTargetChange === undefined ? {} : { onSharedTargetChange: onTargetChange })}
-          {...(activityState === undefined ? {} : { activityState })}
           cfg={cfg}
         />
       ) : (
@@ -12708,7 +13611,7 @@ function ManageControlPanel({
             cfg={cfg}
           >
             <text x={x + 18} y={controlY + 28} fontSize={10} fontWeight={950} fill={activeModeColor}>
-              {isDeviceOpsLane ? 'COMMAND MODE' : 'SETTING MODE'}
+              {isDeviceOpsLane ? 'COMMAND PREVIEW' : 'SETTING PREVIEW'}
             </text>
             {spec.modes.map((item, index) => (
               <ManageModeButton
@@ -12719,6 +13622,7 @@ function ManageControlPanel({
                 h={36}
                 item={item}
                 selected={mode === item.label}
+                disabled={!controlsActive}
                 {...(themeColor === undefined ? {} : { themeColor })}
                 onSelect={() => {
                   setMode(item.label);
@@ -12780,6 +13684,7 @@ function ManageControlPanel({
                       h={26}
                       label={item.label}
                       selected={schedule === item.label}
+                      disabled={!controlsActive}
                       tone={item.tone}
                       {...(themeColor === undefined ? {} : { themeColor })}
                       onSelect={() => {
@@ -12814,6 +13719,7 @@ function ManageControlPanel({
               w={rightW - 36}
               h={38}
               action={{ label: 'Validate Draft', detail: '', tone: 'cyan' }}
+              disabled={!controlsActive}
               {...(themeColor === undefined ? {} : { themeColor })}
               onSelect={() => {
                 setLastAction('Draft validated');
@@ -12827,6 +13733,7 @@ function ManageControlPanel({
               w={rightW - 36}
               h={38}
               action={{ label: applyLabel, detail: '', tone: 'gold' }}
+              disabled={!controlsActive}
               {...(themeColor === undefined ? {} : { themeColor })}
               onSelect={() => {
                 setLastAction(applyLabel);
@@ -12840,6 +13747,7 @@ function ManageControlPanel({
               w={rightW - 36}
               h={38}
               action={{ label: 'Revert', detail: '', tone: 'red' }}
+              disabled={!controlsActive}
               {...(themeColor === undefined ? {} : { themeColor })}
               onSelect={() => {
                 setEnabled(new Set(spec.options.filter((option) => option.enabled).map((option) => option.label)));
@@ -12863,6 +13771,7 @@ function ManageControlPanel({
                     w={rightW - 36}
                     h={34}
                     action={{ ...action, detail: '' }}
+                    disabled={!controlsActive}
                     {...(themeColor === undefined ? {} : { themeColor })}
                     onSelect={() => {
                       setLastAction(action.label);
@@ -12898,7 +13807,12 @@ function ManageControlPanel({
                   fontWeight={760}
                   fill={cfg.colors.mutedText}
                 >
-                  {truncateTextForWidth(`${syncStatus}: ${lastAction}`, rightW - 36, 10.5, 0.58)}
+                  {truncateTextForWidth(
+                    controlsActive ? `${syncStatus}: ${lastAction}` : 'Connect the local service to make changes.',
+                    rightW - 36,
+                    10.5,
+                    0.58
+                  )}
                 </text>
               </>
             ) : null}
@@ -12918,9 +13832,12 @@ function AssistantModeBoard({
   selectedAction,
   selectedActionSequence,
   threadSequence,
+  commandAvailable,
+  response,
   onChoiceSelect,
   onAssistantMessage,
   onActionToggle,
+  onOpenSetup,
   onClose,
   cfg,
 }: {
@@ -12932,9 +13849,12 @@ function AssistantModeBoard({
   selectedAction: AssistantQuickAction | null;
   selectedActionSequence: number;
   threadSequence: number;
+  commandAvailable: boolean;
+  response: ParentPortalAssistantResponse | null;
   onChoiceSelect: (choice: AssistantQuickChoice) => void;
   onAssistantMessage: (payload: Record<string, string>) => void;
   onActionToggle: () => void;
+  onOpenSetup: () => void;
   onClose: () => void;
   cfg: ParentPortalSvgControls;
 }) {
@@ -12946,15 +13866,15 @@ function AssistantModeBoard({
   const [questionnaireSplitOffset, setQuestionnaireSplitOffset] = useState(0);
   const [resizingComposer, setResizingComposer] = useState(false);
   const [resizingQuestionnaire, setResizingQuestionnaire] = useState(false);
+  const [awaitingResponse, setAwaitingResponse] = useState(false);
   const messageSequenceRef = useRef(1);
   const handledActionSequenceRef = useRef(selectedActionSequence);
+  const handledResponseIdRef = useRef(response?.eventId ?? null);
   const chatClipId = useId().replace(/[^a-zA-Z0-9_-]/g, '');
+  const commandAvailableRef = useRef(commandAvailable);
+  commandAvailableRef.current = commandAvailable;
   const createReadyMessage = useCallback(
-    (): AssistantTranscriptMessage => ({
-      id: 'mia-ready',
-      sender: 'assistant',
-      text: ASSISTANT_READY_TEXT,
-    }),
+    (): AssistantTranscriptMessage => assistantReadyMessage(commandAvailableRef.current),
     []
   );
   const nextMessageId = useCallback((prefix: string) => `${prefix}-${messageSequenceRef.current++}`, []);
@@ -12969,7 +13889,31 @@ function AssistantModeBoard({
     setDraftPrompt('');
     setCollapsedMessages({});
     setQuestionnaireSplitOffset(0);
+    setAwaitingResponse(false);
   }, [createReadyMessage, threadSequence]);
+
+  useEffect(() => {
+    setMessages((current) =>
+      current.map((message) => (message.id === 'mia-ready' ? assistantReadyMessage(commandAvailable) : message))
+    );
+    if (!commandAvailable) {
+      setAwaitingResponse(false);
+    }
+  }, [commandAvailable]);
+
+  useEffect(() => {
+    if (response === null || response.eventId === handledResponseIdRef.current) return;
+    handledResponseIdRef.current = response.eventId;
+    setAwaitingResponse(false);
+    setMessages((current) => [
+      ...current,
+      {
+        id: nextMessageId(`mia-${response.kind}`),
+        sender: 'assistant',
+        text: response.text,
+      },
+    ]);
+  }, [nextMessageId, response]);
 
   useEffect(() => {
     if (!selectedAction || selectedActionSequence <= handledActionSequenceRef.current) return;
@@ -12979,7 +13923,8 @@ function AssistantModeBoard({
     setQuestionnaireSplitOffset(0);
   }, [selectedAction, selectedActionSequence]);
 
-  const headerH = 62;
+  const compactHeader = w < 640;
+  const headerH = compactHeader ? 104 : 62;
   const pad = 18;
   const composerMinH = 52;
   const composerBottomInset = 8;
@@ -12998,22 +13943,26 @@ function AssistantModeBoard({
   const composerH = Math.max(composerMinH, bottomReserve - composerBottomInset - composerDividerGap);
   const composerY = y + h - composerH - composerBottomInset;
   const chatH = Math.max(180, splitterY - chatY);
-  const headerCenterY = y + 34;
+  const headerCenterY = y + (compactHeader ? 30 : 34);
   const headerDividerY = y + headerH - 2;
-  const sideToggleSize = 36;
-  const sideToggleX = x + 32;
-  const sideToggleY = headerDividerY - sideToggleSize;
-  const closeButtonW = 78;
+  const sideToggleSize = compactHeader ? 30 : 36;
+  const sideToggleX = x + (compactHeader ? 18 : 32);
+  const sideToggleY = compactHeader ? y + 15 : headerDividerY - sideToggleSize;
+  const closeButtonW = compactHeader ? 64 : 78;
   const closeButtonH = 24;
-  const titleGroupW = 176;
+  const closeButtonX = compactHeader ? x + w - closeButtonW - 16 : x + w - closeButtonW - 42;
+  const closeButtonY = compactHeader ? y + 18 : headerDividerY - closeButtonH;
+  const recoveryButtonW = compactHeader ? Math.min(142, w - 32) : 142;
+  const recoveryButtonX = compactHeader ? x + (w - recoveryButtonW) / 2 : x + w - closeButtonW - recoveryButtonW - 54;
+  const recoveryButtonY = headerDividerY - closeButtonH;
+  const titleGroupW = compactHeader ? 92 : 176;
   const pageCenterX = cfg.canvas.width / 2;
-  const titleCenterX = clampNumber(
-    pageCenterX,
-    sideToggleX + sideToggleSize + titleGroupW / 2 + 28,
-    x + w - 96 - titleGroupW / 2
-  );
+  const titleCenterX = compactHeader
+    ? x + w / 2
+    : clampNumber(pageCenterX, sideToggleX + sideToggleSize + titleGroupW / 2 + 28, x + w - 96 - titleGroupW / 2);
+  const titleIconSize = compactHeader ? 28 : 32;
   const titleIconX = titleCenterX - titleGroupW / 2;
-  const titleTextX = titleIconX + 42;
+  const titleTextX = titleIconX + titleIconSize + (compactHeader ? 8 : 10);
   const titleUnderlineX = titleIconX - 2;
   const titleUnderlineW = titleGroupW + 4;
   const questionnaire = assistantQuestionnaireState(currentAction, currentChoice);
@@ -13092,12 +14041,13 @@ function AssistantModeBoard({
     action: AssistantQuickAction | null = currentAction
   ) => {
     const cleanedPrompt = prompt.trim();
-    if (!cleanedPrompt) return;
+    if (!cleanedPrompt || !commandAvailable) return;
     onAssistantMessage(assistantMessageCommandPayload(cleanedPrompt, action, choice, inputSource));
+    setAwaitingResponse(true);
   };
   const selectFollowUp = (option: AssistantQuestionnaireOption) => {
     const cleanedPrompt = option.prompt.trim();
-    if (!cleanedPrompt) return;
+    if (!cleanedPrompt || !commandAvailable) return;
     if (option.choice) {
       setCurrentChoice(option.choice);
       setQuestionnaireSplitOffset(0);
@@ -13117,6 +14067,7 @@ function AssistantModeBoard({
     }
   };
   const selectMainChoice = (choice: AssistantQuickChoice, action: AssistantQuickAction | null = currentAction) => {
+    if (!commandAvailable) return;
     const actionForChoice = action ?? currentAction;
     setCurrentAction(actionForChoice);
     setCurrentChoice(choice);
@@ -13130,30 +14081,18 @@ function AssistantModeBoard({
         text: choice.prompt,
         action: actionForChoice,
       },
-      {
-        id: nextMessageId('mia-choice'),
-        sender: 'assistant',
-        text: choice.reply,
-        action: actionForChoice,
-      },
     ]);
     emitAssistantMessage(choice.prompt, 'choice', choice, actionForChoice);
   };
   const sendDraftPrompt = () => {
     const cleanedPrompt = draftPrompt.trim();
-    if (!cleanedPrompt) return;
+    if (!cleanedPrompt || !commandAvailable) return;
     setMessages((current) => [
       ...current,
       {
         id: nextMessageId('you-typed'),
         sender: 'user',
         text: cleanedPrompt,
-        action: currentAction,
-      },
-      {
-        id: nextMessageId('mia-typed'),
-        sender: 'assistant',
-        text: 'I will pass this to MIA with the current chat context. The live AI runtime will fill the answer when connected.',
         action: currentAction,
       },
     ]);
@@ -13174,19 +14113,42 @@ function AssistantModeBoard({
             config={ASSISTANT_SIDE_PANEL_ICON_CONFIG}
           />
         </foreignObject>
-        <AiMemorySetBrainIcon x={titleIconX} y={headerCenterY - 16} width={32} height={32} color={cfg.colors.cyan} />
-        <text x={titleTextX} y={headerCenterY + 6} fontSize={17} fontWeight={980} fill={cfg.colors.bodyText}>
-          AI ASSISTANT
+        <AiMemorySetBrainIcon
+          x={titleIconX}
+          y={headerCenterY - titleIconSize / 2}
+          width={titleIconSize}
+          height={titleIconSize}
+          color={cfg.colors.cyan}
+        />
+        <text
+          x={titleTextX}
+          y={headerCenterY + 6}
+          fontSize={compactHeader ? 15 : 17}
+          fontWeight={980}
+          fill={cfg.colors.bodyText}
+          data-ocentra-assistant-header-title="true"
+        >
+          {compactHeader ? 'MIA' : 'AI ASSISTANT'}
         </text>
         <AssistantCloseButton
-          x={x + w - closeButtonW - 42}
-          y={headerDividerY - closeButtonH}
+          x={closeButtonX}
+          y={closeButtonY}
           w={closeButtonW}
           h={closeButtonH}
           ariaLabel="Close parent assistant"
           onSelect={onClose}
           cfg={cfg}
         />
+        {!commandAvailable ? (
+          <AssistantRecoveryButton
+            x={recoveryButtonX}
+            y={recoveryButtonY}
+            w={recoveryButtonW}
+            h={closeButtonH}
+            onSelect={onOpenSetup}
+            cfg={cfg}
+          />
+        ) : null}
 
         <rect
           x={chatX}
@@ -13254,6 +14216,7 @@ function AssistantModeBoard({
                 h={followUpPanelH}
                 question={questionnaire.question}
                 options={questionnaire.options}
+                disabled={!commandAvailable}
                 onSelect={selectFollowUp}
                 cfg={cfg}
               />
@@ -13312,6 +14275,8 @@ function AssistantModeBoard({
           w={composerW}
           h={composerH}
           prompt={draftPrompt}
+          disabled={!commandAvailable}
+          awaitingResponse={awaitingResponse}
           onPromptChange={setDraftPrompt}
           onSend={sendDraftPrompt}
           cfg={cfg}
@@ -13351,6 +14316,15 @@ type AssistantCloseButtonProps = {
   cfg: ParentPortalSvgControls;
 };
 
+type AssistantRecoveryButtonProps = {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  onSelect: () => void;
+  cfg: ParentPortalSvgControls;
+};
+
 type AssistantChatBubbleConfig =
   | typeof ASSISTANT_INCOMING_CHAT_BUBBLE_CONFIG
   | typeof ASSISTANT_OUTGOING_CHAT_BUBBLE_CONFIG;
@@ -13386,6 +14360,7 @@ type AssistantFollowUpPanelProps = {
   h: number;
   question: string;
   options: readonly AssistantQuestionnaireOption[];
+  disabled: boolean;
   onSelect: (option: AssistantQuestionnaireOption) => void;
   cfg: ParentPortalSvgControls;
 };
@@ -13409,6 +14384,8 @@ type AssistantComposerProps = {
   w: number;
   h: number;
   prompt: string;
+  disabled: boolean;
+  awaitingResponse: boolean;
   onPromptChange: (value: string) => void;
   onSend: () => void;
   cfg: ParentPortalSvgControls;
@@ -13421,6 +14398,7 @@ type ManagePillProps = {
   h: number;
   label: string;
   selected: boolean;
+  disabled?: boolean;
   tone: Tone;
   themeColor?: string;
   onSelect: () => void;
@@ -13434,6 +14412,7 @@ type ManageModeButtonProps = {
   h: number;
   item: ManageControlAction;
   selected: boolean;
+  disabled?: boolean;
   themeColor?: string;
   onSelect: () => void;
   cfg: ParentPortalSvgControls;
@@ -13458,6 +14437,7 @@ type ManageActionButtonProps = {
   w: number;
   h: number;
   action: ManageControlAction;
+  disabled?: boolean;
   themeColor?: string;
   onSelect: () => void;
   cfg: ParentPortalSvgControls;
@@ -13561,6 +14541,52 @@ function AssistantCloseButton({ x, y, w, h, ariaLabel, onSelect, cfg }: Assistan
         fill={cfg.colors.bodyText}
       >
         CLOSE
+      </text>
+    </g>
+  );
+}
+
+function AssistantRecoveryButton({ x, y, w, h, onSelect, cfg }: AssistantRecoveryButtonProps) {
+  const [hovered, setHovered] = useState(false);
+  const color = hovered ? cfg.colors.bodyText : cfg.colors.gold;
+  const selectWithKeyboard = (event: KeyboardEvent<SVGGElement>) => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault();
+    onSelect();
+  };
+  return (
+    <g
+      className="parent-portal-svg-clickable"
+      role="button"
+      tabIndex={0}
+      aria-label="Open Start Here to reconnect MIA"
+      onClick={onSelect}
+      onKeyDown={selectWithKeyboard}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onFocus={() => setHovered(true)}
+      onBlur={() => setHovered(false)}
+    >
+      <title>Open Start Here to reconnect MIA</title>
+      <rect
+        x={x}
+        y={y}
+        width={w}
+        height={h}
+        rx={7}
+        fill={colorAlpha(cfg.colors.gold, '24')}
+        stroke={color}
+        strokeWidth={hovered ? 1.25 : 0.85}
+      />
+      <text
+        x={x + w / 2}
+        y={y + h / 2 + 4}
+        textAnchor="middle"
+        fontSize={9.8}
+        fontWeight={950}
+        fill={cfg.colors.bodyText}
+      >
+        OPEN START HERE
       </text>
     </g>
   );
@@ -13797,7 +14823,17 @@ function assistantFollowUpPanelHeight(
   return Math.min(maxHeight, contentHeight);
 }
 
-function AssistantFollowUpPanel({ x, y, w, h, question, options, onSelect, cfg }: AssistantFollowUpPanelProps) {
+function AssistantFollowUpPanel({
+  x,
+  y,
+  w,
+  h,
+  question,
+  options,
+  disabled,
+  onSelect,
+  cfg,
+}: AssistantFollowUpPanelProps) {
   const layout = assistantFollowUpLayout(w - ASSISTANT_FOLLOW_UP_PAD_X * 2, options);
   const labelY = y + ASSISTANT_FOLLOW_UP_PAD_Y + 20;
   const listY = y + ASSISTANT_FOLLOW_UP_PAD_Y + ASSISTANT_FOLLOW_UP_HEADER_H;
@@ -13851,13 +14887,14 @@ function AssistantFollowUpPanel({ x, y, w, h, question, options, onSelect, cfg }
               key={item.option.label}
               type="button"
               aria-label={`Ask MIA: ${item.option.label}`}
+              disabled={disabled}
               onClick={() => onSelect(item.option)}
               style={{
                 background: colorAlpha(cfg.colors.cyan, '14'),
                 border: `1px solid ${colorAlpha(cfg.colors.panelStroke, '66')}`,
                 borderRadius: 6,
                 color: cfg.colors.bodyText,
-                cursor: 'pointer',
+                cursor: disabled ? 'not-allowed' : 'pointer',
                 flex: `0 0 ${item.w}px`,
                 font: 'inherit',
                 fontSize: 13,
@@ -13943,8 +14980,23 @@ function AssistantComposerSplitter({
   );
 }
 
-function AssistantComposer({ x, y, w, h, prompt, onPromptChange, onSend, cfg }: AssistantComposerProps) {
-  const displayPrompt = prompt || 'Ask MIA about activity, rules, reports, setup...';
+function AssistantComposer({
+  x,
+  y,
+  w,
+  h,
+  prompt,
+  disabled,
+  awaitingResponse,
+  onPromptChange,
+  onSend,
+  cfg,
+}: AssistantComposerProps) {
+  const displayPrompt = disabled
+    ? 'Connect the local service to use MIA.'
+    : awaitingResponse
+      ? 'Waiting for the service response...'
+      : prompt || 'Ask MIA about activity, rules, reports, setup...';
   const attachSize = 30;
   const sendW = 58;
   const sendH = 34;
@@ -13964,8 +15016,8 @@ function AssistantComposer({ x, y, w, h, prompt, onPromptChange, onSend, cfg }: 
         stroke={cfg.colors.cyan}
         strokeWidth={0.95}
       />
-      <g role="button" tabIndex={0} aria-label="Attach context to MIA" className="parent-portal-svg-clickable">
-        <title>Attach context to MIA</title>
+      <g role="button" tabIndex={-1} aria-label="Attach context to MIA" aria-disabled="true" opacity={0.46}>
+        <title>Attach context is unavailable</title>
         <rect
           x={x + 14}
           y={y + 9}
@@ -13988,6 +15040,7 @@ function AssistantComposer({ x, y, w, h, prompt, onPromptChange, onSend, cfg }: 
           aria-label="Message MIA"
           value={prompt}
           placeholder={displayPrompt}
+          disabled={disabled || awaitingResponse}
           onChange={(event) => onPromptChange?.(event.currentTarget.value)}
           onKeyDown={(event) => {
             if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
@@ -14017,8 +15070,8 @@ function AssistantComposer({ x, y, w, h, prompt, onPromptChange, onSend, cfg }: 
           }}
         />
       </foreignObject>
-      <g role="button" tabIndex={0} aria-label="Use voice input for MIA" className="parent-portal-svg-clickable">
-        <title>Use voice input for MIA</title>
+      <g role="button" tabIndex={-1} aria-label="Use voice input for MIA" aria-disabled="true" opacity={0.46}>
+        <title>Voice input is unavailable</title>
         <rect
           x={voiceX}
           y={y + 8}
@@ -14055,11 +15108,14 @@ function AssistantComposer({ x, y, w, h, prompt, onPromptChange, onSend, cfg }: 
       </g>
       <g
         role="button"
-        tabIndex={0}
+        tabIndex={disabled || awaitingResponse ? -1 : 0}
         aria-label="Send message to MIA"
-        className="parent-portal-svg-clickable"
-        onClick={onSend}
+        aria-disabled={disabled || awaitingResponse ? 'true' : undefined}
+        className={disabled || awaitingResponse ? undefined : 'parent-portal-svg-clickable'}
+        opacity={disabled || awaitingResponse ? 0.46 : 1}
+        onClick={disabled || awaitingResponse ? undefined : onSend}
         onKeyDown={(event) => {
+          if (disabled || awaitingResponse) return;
           if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault();
             onSend?.();
@@ -14105,18 +15161,41 @@ function AssistantComposer({ x, y, w, h, prompt, onPromptChange, onSend, cfg }: 
   );
 }
 
-function ManagePill({ x, y, w, h, label, selected, tone, themeColor, onSelect, cfg }: ManagePillProps) {
+function ManagePill({
+  x,
+  y,
+  w,
+  h,
+  label,
+  selected,
+  disabled = false,
+  tone,
+  themeColor,
+  onSelect,
+  cfg,
+}: ManagePillProps) {
   const [hovered, setHovered] = useState(false);
   const color = themeColor ?? toneColor(tone, cfg);
   return (
     <g
-      className="parent-portal-svg-clickable"
+      className={disabled ? undefined : 'parent-portal-svg-clickable'}
       role="button"
-      tabIndex={0}
+      tabIndex={disabled ? undefined : 0}
       aria-label={`Select ${label}`}
-      onMouseEnter={() => setHovered(true)}
+      aria-disabled={disabled || undefined}
+      opacity={disabled ? 0.46 : 1}
+      onMouseEnter={disabled ? undefined : () => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      onClick={onSelect}
+      onClick={disabled ? undefined : onSelect}
+      onKeyDown={
+        disabled
+          ? undefined
+          : (event) => {
+              if (event.key !== 'Enter' && event.key !== ' ') return;
+              event.preventDefault();
+              onSelect();
+            }
+      }
     >
       <title>{label}</title>
       <path
@@ -14140,19 +15219,43 @@ function ManagePill({ x, y, w, h, label, selected, tone, themeColor, onSelect, c
   );
 }
 
-function ManageModeButton({ x, y, w, h, item, selected, themeColor, onSelect, cfg }: ManageModeButtonProps) {
+function ManageModeButton({
+  x,
+  y,
+  w,
+  h,
+  item,
+  selected,
+  disabled = false,
+  themeColor,
+  onSelect,
+  cfg,
+}: ManageModeButtonProps) {
   const [hovered, setHovered] = useState(false);
   const color = themeColor ?? toneColor(item.tone, cfg);
   const titleText = item.detail ? `${item.label}: ${item.detail}` : item.label;
+  const labelFontSize = w < 76 ? 10 : 12;
+  const labelInset = w < 76 ? 6 : 10;
   return (
     <g
-      className="parent-portal-svg-clickable"
+      className={disabled ? undefined : 'parent-portal-svg-clickable'}
       role="button"
-      tabIndex={0}
+      tabIndex={disabled ? undefined : 0}
       aria-label={`Use ${item.label}`}
-      onMouseEnter={() => setHovered(true)}
+      aria-disabled={disabled || undefined}
+      opacity={disabled ? 0.46 : 1}
+      onMouseEnter={disabled ? undefined : () => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      onClick={onSelect}
+      onClick={disabled ? undefined : onSelect}
+      onKeyDown={
+        disabled
+          ? undefined
+          : (event) => {
+              if (event.key !== 'Enter' && event.key !== ' ') return;
+              event.preventDefault();
+              onSelect();
+            }
+      }
     >
       <title>{titleText}</title>
       <path
@@ -14162,8 +15265,14 @@ function ManageModeButton({ x, y, w, h, item, selected, themeColor, onSelect, cf
         strokeWidth={selected ? 1.25 : hovered ? 1 : 0.7}
         filter={selected || hovered ? 'url(#parentPortalGlow)' : undefined}
       />
-      <text x={x + 10} y={y + h / 2 + 4} fontSize={12} fontWeight={950} fill={selected ? cfg.colors.bodyText : color}>
-        {truncateTextForWidth(item.label, w - 20, 12, 0.58)}
+      <text
+        x={x + labelInset}
+        y={y + h / 2 + 4}
+        fontSize={labelFontSize}
+        fontWeight={950}
+        fill={selected ? cfg.colors.bodyText : color}
+      >
+        {truncateTextForWidth(item.label, w - labelInset * 2, labelFontSize, 0.58)}
       </text>
     </g>
   );
@@ -14195,6 +15304,15 @@ function ManageToggle({
       onMouseEnter={disabled ? undefined : () => setHovered(true)}
       onMouseLeave={disabled ? undefined : () => setHovered(false)}
       onClick={disabled ? undefined : onToggle}
+      onKeyDown={
+        disabled
+          ? undefined
+          : (event) => {
+              if (event.key !== 'Enter' && event.key !== ' ') return;
+              event.preventDefault();
+              onToggle();
+            }
+      }
     >
       <title>{option.detail ? `${option.label}: ${option.detail}` : option.label}</title>
       <path
@@ -14227,19 +15345,40 @@ function ManageToggle({
   );
 }
 
-function ManageActionButton({ x, y, w, h, action, themeColor, onSelect, cfg }: ManageActionButtonProps) {
+function ManageActionButton({
+  x,
+  y,
+  w,
+  h,
+  action,
+  disabled = false,
+  themeColor,
+  onSelect,
+  cfg,
+}: ManageActionButtonProps) {
   const [hovered, setHovered] = useState(false);
   const color = themeColor ?? toneColor(action.tone, cfg);
   return (
     <g
-      className="parent-portal-svg-clickable"
+      className={disabled ? undefined : 'parent-portal-svg-clickable'}
       role="button"
-      tabIndex={0}
+      tabIndex={disabled ? undefined : 0}
       aria-label={action.label}
-      onClick={onSelect}
-      onMouseEnter={() => setHovered(true)}
+      aria-disabled={disabled || undefined}
+      opacity={disabled ? 0.46 : 1}
+      onClick={disabled ? undefined : onSelect}
+      onKeyDown={
+        disabled
+          ? undefined
+          : (event) => {
+              if (event.key !== 'Enter' && event.key !== ' ') return;
+              event.preventDefault();
+              onSelect();
+            }
+      }
+      onMouseEnter={disabled ? undefined : () => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      onFocus={() => setHovered(true)}
+      onFocus={disabled ? undefined : () => setHovered(true)}
       onBlur={() => setHovered(false)}
     >
       <title>{action.detail ? `${action.label}: ${action.detail}` : action.label}</title>
@@ -14513,7 +15652,7 @@ function ParentPortalDetailPanel({
     );
   }
   const color = themeColor ?? toneColor(detail.tone, cfg);
-  const cardGap = 12;
+  const routeUnavailable = rows.length === 0;
   const usableH = Math.max(120, h);
   const title = activeNavLabel || detail.title;
   const bodyLines = wrapCardText(detail.summary, w - 40, 12, 2);
@@ -14526,8 +15665,8 @@ function ParentPortalDetailPanel({
     },
     {
       label: 'CURRENT AREA',
-      value: selectedControlName,
-      body: 'Open this area per child device, then wire real service state as each adapter lands.',
+      value: activeNavLabel,
+      body: 'Current status appears after the local service connects and reports this area.',
       tone: 'cyan',
     },
     {
@@ -14536,19 +15675,54 @@ function ParentPortalDetailPanel({
       body: 'No cloud sharing by default. Drive exports and support messages are parent opt-in.',
       tone: 'gold',
     },
-    ...rows.slice(0, 3).map((row) => ({
-      label: row.primaryArea.toUpperCase(),
-      value: row.label,
-      body: `${row.trend} / ${row.readiness}`,
-      tone: row.tone,
-    })),
+    ...(rows.length === 0
+      ? [
+          {
+            label: 'SERVICE SNAPSHOT',
+            value: 'UNAVAILABLE',
+            body: 'Connect the local service for current device status. Controls stay read-only.',
+            tone: 'muted' as const,
+          },
+        ]
+      : rows.slice(0, 3).map((row) => ({
+          label: row.primaryArea.toUpperCase(),
+          value: row.label,
+          body: `${row.trend} / ${row.readiness}`,
+          tone: row.tone,
+        }))),
+    ...(routeUnavailable
+      ? [
+          {
+            label: 'NEXT SAFE STEP',
+            value: 'CONNECT LOCAL SERVICE',
+            body: 'Open Start Here to restore the local service and load service-owned device state.',
+            tone: 'cyan' as const,
+            action: {
+              label: 'OPEN START HERE',
+              routePath: '#/start',
+            },
+          },
+          {
+            label: 'CONTROL AUTHORITY',
+            value: 'READ ONLY',
+            body: 'Controls stay off until the local service confirms the current device and permissions.',
+            tone: 'muted' as const,
+          },
+        ]
+      : []),
   ];
   const visibleCards = featureCards.slice(0, usableH < 300 ? 3 : 6);
   const columnCount = w > 1220 ? 3 : w > 760 ? 2 : 1;
   const rowCount = Math.max(1, Math.ceil(visibleCards.length / columnCount));
+  const denseSingleColumnGrid = columnCount === 1 && rowCount >= 5;
+  const cardGap = denseSingleColumnGrid ? 8 : 12;
   const headerH = bodyLines.length > 1 ? 78 : 62;
   const cardW = (w - cardGap * Math.max(0, columnCount - 1)) / columnCount;
-  const cardH = clampValue((usableH - headerH - cardGap * Math.max(0, rowCount - 1)) / rowCount, 74, 118);
+  const cardH = clampValue(
+    (usableH - headerH - cardGap * Math.max(0, rowCount - 1)) / rowCount,
+    denseSingleColumnGrid ? 64 : 74,
+    routeUnavailable ? 140 : 118
+  );
   const titleSize = fitSingleLineTextSize(title, w - 40, 16, 26, 0.58);
   return (
     <g>
@@ -14580,7 +15754,14 @@ function ParentPortalDetailPanel({
         const cardY = y + headerH + row * (cardH + cardGap);
         const cardColor = themeColor ?? toneColor(card.tone, cfg);
         const valueSize = fitSingleLineTextSize(card.value, cardW - 34, 12, 17, 0.58);
-        const cardBodyLines = wrapCardText(card.body, cardW - 34, 10.5, cardH > 92 ? 2 : 1);
+        const compactCard = cardH < 96;
+        const cardBodyLines = wrapCardText(card.body, cardW - 34, 10.5, compactCard ? 1 : 2);
+        const cardAction = card.action;
+        const labelY = cardY + (compactCard ? 18 : 25);
+        const valueY = cardY + (compactCard ? 37 : 49);
+        const bodyY = cardY + (compactCard ? 57 : 70);
+        const actionH = compactCard ? 22 : 32;
+        const actionY = compactCard ? cardY + cardH - actionH - 5 : cardY + 70;
         return (
           <SurfacePanel
             key={`${card.label}:${index}`}
@@ -14592,24 +15773,37 @@ function ParentPortalDetailPanel({
             {...(themeColor === undefined ? {} : { accentColor: themeColor })}
             cfg={cfg}
           >
-            <text x={cardX + 16} y={cardY + 25} fontSize={9.8} fontWeight={900} fill={cardColor}>
+            <text x={cardX + 16} y={labelY} fontSize={9.8} fontWeight={900} fill={cardColor}>
               {card.label}
             </text>
-            <text x={cardX + 16} y={cardY + 49} fontSize={valueSize} fontWeight={950} fill={cfg.colors.bodyText}>
+            <text x={cardX + 16} y={valueY} fontSize={valueSize} fontWeight={950} fill={cfg.colors.bodyText}>
               {truncateTextForWidth(card.value, cardW - 34, valueSize, 0.58)}
             </text>
-            {cardBodyLines.map((line, lineIndex) => (
-              <text
-                key={`${line}:${lineIndex}`}
+            {cardAction ? (
+              <ManageActionButton
                 x={cardX + 16}
-                y={cardY + 70 + lineIndex * 15}
-                fontSize={10.5}
-                fontWeight={720}
-                fill={cfg.colors.mutedText}
-              >
-                {line}
-              </text>
-            ))}
+                y={actionY}
+                w={Math.min(174, cardW - 32)}
+                h={actionH}
+                action={{ label: cardAction.label, detail: card.body, tone: card.tone }}
+                themeColor={cardColor}
+                onSelect={() => onNavigate?.(cardAction.routePath)}
+                cfg={cfg}
+              />
+            ) : (
+              cardBodyLines.map((line, lineIndex) => (
+                <text
+                  key={`${line}:${lineIndex}`}
+                  x={cardX + 16}
+                  y={bodyY + lineIndex * 15}
+                  fontSize={10.5}
+                  fontWeight={720}
+                  fill={cfg.colors.mutedText}
+                >
+                  {line}
+                </text>
+              ))
+            )}
           </SurfacePanel>
         );
       })}
@@ -14827,15 +16021,19 @@ function GuideTopicDetailPanel({
   const gap = compact ? 10 : 14;
   const sideW = compact ? w : clampValue(w * 0.25, 235, 330);
   const mainW = compact ? w : Math.max(280, w - sideW - gap);
-  const mainH = compact ? Math.max(210, h * 0.62) : h;
+  const mainH = compact ? Math.max(240, h * 0.68) : h;
   const sideX = compact ? x : x + mainW + gap;
   const sideY = compact ? y + mainH + gap : y;
   const sideH = compact ? Math.max(160, h - mainH - gap) : h;
-  const titleSize = fitSingleLineTextSize(topic.title, mainW - 36, 17, 25, 0.58);
+  const titleSize = fitSingleLineTextSize(topic.title, mainW - 36, compact ? 12.5 : 17, compact ? 18 : 25, 0.58);
   const subtitleLines = wrapCardText(topic.subtitle, mainW - 36, 12, 2);
-  const bodyLines = wrapCardText(currentPage.body, mainW - 44, 13.2, compact ? 6 : 8);
-  const stepStartY = y + 158 + bodyLines.length * 19;
-  const stepGap = compact ? 38 : 42;
+  const pageTitleSize = compact ? 14.5 : 17;
+  const pageTitleLineHeight = compact ? 17 : 19;
+  const pageTitleLines = wrapCardText(currentPage.title, mainW - 36, pageTitleSize, compact ? 4 : 1);
+  const bodyStartY = y + 151 + Math.max(0, pageTitleLines.length - 1) * pageTitleLineHeight;
+  const bodyLines = wrapCardText(currentPage.body, mainW - 44, 13.2, compact ? 2 : 8);
+  const stepStartY = bodyStartY + 7 + bodyLines.length * 19;
+  const stepGap = compact ? 22 : 42;
   const maxSteps = Math.max(2, Math.min(currentPage.steps.length, Math.floor((y + mainH - 44 - stepStartY) / stepGap)));
   const visibleSteps = currentPage.steps.slice(0, maxSteps);
   const quickNotes = quickPanelMode === 'action' ? topic.actions : topic.tips;
@@ -14874,14 +16072,25 @@ function GuideTopicDetailPanel({
           </text>
         ))}
         <path d={`M ${x + 18} ${y + 104} H ${x + mainW - 18}`} stroke={color} strokeWidth={0.9} opacity={0.45} />
-        <text x={x + 18} y={y + 127} fontSize={17} fontWeight={950} fill={cfg.colors.bodyText}>
-          {truncateTextForWidth(currentPage.title, mainW - 36, 17, 0.58)}
-        </text>
+        <g role="heading" aria-level={3} aria-label={currentPage.title}>
+          {pageTitleLines.map((line, index) => (
+            <text
+              key={`${topic.id}:page-title:${index}`}
+              x={x + 18}
+              y={y + 127 + index * pageTitleLineHeight}
+              fontSize={pageTitleSize}
+              fontWeight={950}
+              fill={cfg.colors.bodyText}
+            >
+              {line}
+            </text>
+          ))}
+        </g>
         {bodyLines.map((line, index) => (
           <text
             key={`${topic.id}:body:${index}`}
             x={x + 18}
-            y={y + 151 + index * 19}
+            y={bodyStartY + index * 19}
             fontSize={13.2}
             fontWeight={720}
             fill={cfg.colors.mutedText}
@@ -14889,37 +16098,39 @@ function GuideTopicDetailPanel({
             {line}
           </text>
         ))}
-        {visibleSteps.map((step, index) => {
-          const stepY = stepStartY + index * stepGap;
-          const stepLines = wrapCardText(step, mainW - 72, 12.2, 2);
-          return (
-            <g key={`${topic.id}:step:${index}`}>
-              <circle
-                cx={x + 30}
-                cy={stepY - 4}
-                r={10}
-                fill={colorAlpha(color, '22')}
-                stroke={color}
-                strokeWidth={0.85}
-              />
-              <text x={x + 30} y={stepY} textAnchor="middle" fontSize={10.5} fontWeight={950} fill={color}>
-                {index + 1}
-              </text>
-              {stepLines.map((line, lineIndex) => (
-                <text
-                  key={`${topic.id}:step:${index}:${lineIndex}`}
-                  x={x + 52}
-                  y={stepY + lineIndex * 15}
-                  fontSize={12.2}
-                  fontWeight={760}
-                  fill={lineIndex === 0 ? cfg.colors.bodyText : cfg.colors.mutedText}
-                >
-                  {line}
+        <g role="list" aria-label={`${topic.title} guide steps`}>
+          {visibleSteps.map((step, index) => {
+            const stepY = stepStartY + index * stepGap;
+            const stepLines = wrapCardText(step, mainW - 72, 12.2, compact ? 1 : 2);
+            return (
+              <g key={`${topic.id}:step:${index}`} role="listitem" aria-label={`Guide step ${index + 1}: ${step}`}>
+                <circle
+                  cx={x + 30}
+                  cy={stepY - 4}
+                  r={10}
+                  fill={colorAlpha(color, '22')}
+                  stroke={color}
+                  strokeWidth={0.85}
+                />
+                <text x={x + 30} y={stepY} textAnchor="middle" fontSize={10.5} fontWeight={950} fill={color}>
+                  {index + 1}
                 </text>
-              ))}
-            </g>
-          );
-        })}
+                {stepLines.map((line, lineIndex) => (
+                  <text
+                    key={`${topic.id}:step:${index}:${lineIndex}`}
+                    x={x + 52}
+                    y={stepY + lineIndex * 15}
+                    fontSize={12.2}
+                    fontWeight={760}
+                    fill={lineIndex === 0 ? cfg.colors.bodyText : cfg.colors.mutedText}
+                  >
+                    {line}
+                  </text>
+                ))}
+              </g>
+            );
+          })}
+        </g>
         {pageCount > 1 ? (
           <g>
             {topic.pages.map((item, index) => {
@@ -15068,6 +16279,7 @@ function GuideOverviewDashboard({
           role="button"
           tabIndex={0}
           aria-label={`Open ${setupTopic.title}`}
+          aria-pressed={normalizeSelectionId(setupTopic.id) === normalizeSelectionId(selectedTopicId)}
           onClick={(event) => {
             event.stopPropagation();
             onSelect(setupTopic);
@@ -15258,6 +16470,7 @@ function wrapCardText(text: string, width: number, fontSize: number, maxLines: n
   const words = text.trim().split(/\s+/).filter(Boolean);
   const lines: string[] = [];
   let current = '';
+  let truncated = false;
   for (const word of words) {
     const next = current ? `${current} ${word}` : word;
     if (next.length * fontSize * 0.55 <= width || !current) {
@@ -15266,11 +16479,14 @@ function wrapCardText(text: string, width: number, fontSize: number, maxLines: n
     }
     lines.push(current);
     current = word;
-    if (lines.length >= maxLines) break;
+    if (lines.length >= maxLines) {
+      truncated = true;
+      break;
+    }
   }
   if (current && lines.length < maxLines) lines.push(current);
   return lines.map((line, index) =>
-    index === maxLines - 1 ? truncateTextForWidth(line, width, fontSize, 0.55) : line
+    index === maxLines - 1 ? truncateTextForWidth(truncated ? `${line}...` : line, width, fontSize, 0.55) : line
   );
 }
 
@@ -15309,17 +16525,20 @@ function ParentPortalTopCarouselCard({
   const controlClipId = `parent-control-card-${rawControlClipId.replace(/:/g, '')}`;
   const color = item.themeColor ?? toneColor(item.tone, cfg);
   const active = selected || hovered;
-  const rowFrameHref = useMemo(() => {
-    if (item.kind !== 'row') return '';
-    const frameConfig = createGoldenFrameVariantConfig({
+  const rowFrameConfig = useMemo(() => {
+    if (item.kind !== 'row') return null;
+    return createGoldenFrameVariantConfig({
       rank: String(item.row.order),
       name: item.row.label,
       statName: 'Global',
       statValue: item.row.signal,
       tone: rowFrameTone(),
     });
-    return createGoldenFrameFrameOnlySvgDataUri(frameConfig);
   }, [item]);
+  const [rowFrameHref, setRowFrameHref] = useState('');
+  useEffect(() => {
+    setRowFrameHref(rowFrameConfig === null ? '' : createGoldenFrameFrameOnlySvgDataUri(rowFrameConfig));
+  }, [rowFrameConfig]);
   const compactControlCard = item.kind === 'control' && !hovered;
   const controlW = item.kind === 'control' ? (hovered ? Math.min(w + 28, w * 1.08) : w) : w;
   const controlH =
@@ -15463,17 +16682,19 @@ function ParentPortalTopCarouselCard({
               />
             </>
           ) : null}
-          <image
-            href={rowFrameHref}
-            xlinkHref={rowFrameHref}
-            x={rowDrawFrameX}
-            y={rowDrawFrameY}
-            width={rowDrawFrameW}
-            height={rowDrawFrameH}
-            preserveAspectRatio="xMidYMid meet"
-            filter={active ? 'url(#parentPortalGlow)' : undefined}
-            pointerEvents="none"
-          />
+          {rowFrameHref ? (
+            <image
+              href={rowFrameHref}
+              xlinkHref={rowFrameHref}
+              x={rowDrawFrameX}
+              y={rowDrawFrameY}
+              width={rowDrawFrameW}
+              height={rowDrawFrameH}
+              preserveAspectRatio="xMidYMid meet"
+              filter={active ? 'url(#parentPortalGlow)' : undefined}
+              pointerEvents="none"
+            />
+          ) : null}
           <text
             x={rowDrawFrameX + rowDrawFrameW * 0.13}
             y={rowDrawFrameY + rowDrawFrameH * 0.36}
@@ -16211,7 +17432,6 @@ function MainBoard({
   activeTab,
   rows,
   parentPortalRows,
-  tabs,
   tabDetails,
   controlAreas,
   quickControls,
@@ -16231,8 +17451,10 @@ function MainBoard({
   onControlSelect,
   onNavigate,
   onAgentCommand,
+  onReconnectLocalService,
   onSelectNavLabel,
   activityState,
+  sourceRowsUnavailable,
   lanPairingAutoScanSequence,
   cfg,
   mainX,
@@ -16246,7 +17468,6 @@ function MainBoard({
   activeTab: ParentPortalTabId;
   rows: DisplayRow[];
   parentPortalRows: ParentPortalRow[];
-  tabs: ParentPortalContentData['tabs'];
   tabDetails: ParentPortalContentData['tabDetails'];
   controlAreas: ControlArea[];
   quickControls: QuickControl[];
@@ -16266,8 +17487,10 @@ function MainBoard({
   onControlSelect: (controlId: string) => void;
   onNavigate?: (routePath: string) => void;
   onAgentCommand?: (command: AgentCommandName, payload: Record<string, string>) => void;
+  onReconnectLocalService: () => void;
   onSelectNavLabel: (navLabel: string) => void;
   activityState?: ParentPortalActivityState | null;
+  sourceRowsUnavailable: boolean;
   lanPairingAutoScanSequence: number;
   cfg: ParentPortalSvgControls;
   mainX: number;
@@ -16275,7 +17498,7 @@ function MainBoard({
   mainY: number;
   mainH: number;
 }) {
-  const detail = detailForNav(activeNavLabel, tabDetails[activeTab]);
+  const detail = detailForNav(activeNavLabel, tabDetails[activeTab], activeNavItem);
   const activeNavKey = assetKey(activeNavLabel);
   const guideOverviewMode = activeNavKey.includes('start-here');
   const guideEligible = activeNavGroupId === 'guide';
@@ -16289,6 +17512,7 @@ function MainBoard({
     [activeNavKey, guideEligible, guideOverviewMode, guideTopics]
   );
   const guideMode = guideTopicPool.length > 0;
+  const guideDefaultTopicId = guideTopicPool[0]?.id ?? '';
   const [selectedGuideTopicId, setSelectedGuideTopicId] = useState(() => guideTopicPool[0]?.id ?? '');
   const [guidePage, setGuidePage] = useState(0);
   const [guideQuickPanelMode, setGuideQuickPanelMode] = useState<'read' | 'action'>('read');
@@ -16312,10 +17536,13 @@ function MainBoard({
     setGuidePage(0);
   }, [guideTopicPool, selectedGuideTopicId]);
   useEffect(() => {
+    if (guideDefaultTopicId) {
+      setSelectedGuideTopicId(guideDefaultTopicId);
+    }
     setGuideDashboardDrilldown(false);
     setGuidePage(0);
     setGuideQuickPanelMode('read');
-  }, [activeNavKey]);
+  }, [activeNavKey, guideDefaultTopicId]);
   useEffect(() => {
     if (!guideMode || !guideRouteFocusTopicId) return;
     const targetTopic = guideTopicPool.find(
@@ -16617,27 +17844,37 @@ function MainBoard({
   const setFocusedSection = (section: ParentPortalFocusSection) =>
     setFocusState({ contextKey: focusContextKey, section });
   const tableFocused = focusedSection === 'table';
-  const detailPanelAriaLabel = tableFocused ? 'Expanded parent detail panel' : 'Expand parent detail panel';
-  const showTopSection = !tableFocused && manageTopSelectorRequired;
+  const showTopSection =
+    !tableFocused &&
+    manageTopSelectorRequired &&
+    !(sourceRowsUnavailable && isOverviewContext && topItems.length === 0);
+  const compactProofPanelSelector = activeNavKey === 'proof-panels' && mainW < 680;
+  const compactDeveloperStatusPanel = activeNavKey === 'events' || activeNavKey === 'logs';
   const sectionGap = Math.max(8, Math.min(cfg.layout.gap, 14));
   const expandedTopPanelH = Math.max(276, Math.min(mainH - 210, clampValue(mainH * 0.46, 276, 334)));
   const hoverTopPanelH = Math.max(242, Math.min(mainH - 210, clampValue(mainH * 0.4, 242, 292)));
   const compactTopPanelH = Math.max(178, Math.min(mainH - 250, clampValue(mainH * 0.29, 178, 214)));
   const topPanelH = !showTopSection
     ? 0
-    : manageMode
-      ? clampValue(mainH * 0.23, 178, 228)
-      : guideDashboardMode
-        ? mainH
-        : guideMode
-          ? clampValue(mainH * 0.24, 164, 220)
-          : controlBrowserMode
-            ? hoveredTopControlKey
-              ? Math.max(hoverTopPanelH, expandedControlCategory ? expandedTopPanelH : 0)
-              : expandedControlCategory
-                ? expandedTopPanelH
-                : compactTopPanelH
-            : clampValue(mainH * 0.39, 260, 294);
+    : compactProofPanelSelector
+      ? 72
+      : compactDeveloperStatusPanel
+        ? mainW < 680
+          ? 104
+          : 154
+        : manageMode
+          ? clampValue(mainH * 0.23, 178, 228)
+          : guideDashboardMode
+            ? mainH
+            : guideMode
+              ? clampValue(mainH * 0.24, 164, 220)
+              : controlBrowserMode
+                ? hoveredTopControlKey
+                  ? Math.max(hoverTopPanelH, expandedControlCategory ? expandedTopPanelH : 0)
+                  : expandedControlCategory
+                    ? expandedTopPanelH
+                    : compactTopPanelH
+                : clampValue(mainH * 0.39, 260, 294);
   const bottomPanelY = showTopSection ? mainY + topPanelH + sectionGap : mainY;
   const bottomPanelH = showTopSection ? mainH - topPanelH - sectionGap : mainH;
   const selectorHandleGutter = PARENT_PORTAL_SIDE_HANDLE_W;
@@ -16673,7 +17910,7 @@ function MainBoard({
     !guideDashboardMode &&
     (fullTopFramePageCount > 1 || (controlBrowserMode && fullCategoryPageCount > 1));
   const selectorX = mainX + (topFrameUsesHandleGutter ? selectorHandleGutter : 0);
-  const selectorW = Math.max(320, mainW - (topFrameUsesHandleGutter ? selectorHandleGutter * 2 : 0));
+  const selectorW = Math.max(1, mainW - (topFrameUsesHandleGutter ? selectorHandleGutter * 2 : 0));
   const selectorInnerW = Math.max(1, selectorW - 36);
   const categoryTrackW = Math.max(1, selectorInnerW - rowHandleReserve);
   const categoryVisibleCount = Math.max(
@@ -16795,7 +18032,8 @@ function MainBoard({
   const tableHeaderButtonY = bottomPanelY + 13;
   const manageGuideRoutePath =
     manageMode && manageCurrentSpec ? guideRoutePathForManageKey(activeNavLabel, selectedControlName) : null;
-  const manageDeviceGridScanAction = manageDeviceGridMode ? (
+  const lanPairingScanAvailable = onAgentCommand !== undefined;
+  const manageDeviceGridScanAction = lanPairingDeviceGridMode ? (
     <ParentPortalHeaderAction
       x={mainX + mainW - 154}
       y={bottomPanelY + 18}
@@ -16805,23 +18043,28 @@ function MainBoard({
       accentColor={activeGroupThemeColor}
       active
       label={
-        lanPairingDeviceGridMode && lanPairingScanRequestedAtMs !== null
-          ? PortalLanPairingScan.Text.Scanning
-          : PortalLanPairingScan.Text.Scan
+        lanPairingScanAvailable
+          ? lanPairingScanRequestedAtMs !== null
+            ? PortalLanPairingScan.Text.Scanning
+            : PortalLanPairingScan.Text.Scan
+          : resolvePortalDevText(PortalDevTextToken.RetryStatus)
       }
       iconHref={PortalAssets.LanPairingScanIcon}
       onClick={() => {
-        if (lanPairingDeviceGridMode) {
-          setLanPairingScanRequestedAtMs(Date.now());
+        if (!onAgentCommand) {
+          onReconnectLocalService();
+          return;
         }
-        onAgentCommand?.(
-          lanPairingDeviceGridMode ? AgentCommand.LanPairingBrowserDiscoveryScan : AgentCommand.LanPairingStatusGet,
-          {
-            [PortalAgentProtocolField.LanRouteId]: PortalAgentTargetDefaults.LocalNetworkWindowsAgent.route,
-          }
-        );
+        setLanPairingScanRequestedAtMs(Date.now());
+        onAgentCommand(AgentCommand.LanPairingBrowserDiscoveryScan, {
+          [PortalAgentProtocolField.LanRouteId]: PortalAgentTargetDefaults.LocalNetworkWindowsAgent.route,
+        });
       }}
-      ariaLabel={PortalLanPairingScan.Text.ScanLocalAreaNetwork}
+      ariaLabel={
+        lanPairingScanAvailable
+          ? PortalLanPairingScan.Text.ScanLocalAreaNetwork
+          : resolvePortalDevText(PortalDevTextToken.RetryStatus)
+      }
       cfg={cfg}
     />
   ) : null;
@@ -16860,6 +18103,19 @@ function MainBoard({
         ariaLabel="Show highlights section"
         cfg={cfg}
       />
+    ) : detailPanelCanFocus ? (
+      <ParentPortalHeaderAction
+        x={mainX + mainW - 118}
+        y={tableHeaderButtonY + 2}
+        w={98}
+        h={25}
+        tone="cyan"
+        accentColor={activeGroupThemeColor}
+        label="EXPAND"
+        onClick={() => setFocusedSection('table')}
+        ariaLabel="Expand parent detail panel"
+        cfg={cfg}
+      />
     ) : guideOverviewMode && guideDashboardDrilldown ? (
       <ParentPortalHeaderAction
         x={mainX + mainW - 118}
@@ -16876,7 +18132,11 @@ function MainBoard({
       />
     ) : null;
   return (
-    <g className="parent-portal-study-main-board">
+    <g
+      className="parent-portal-study-main-board"
+      data-ocentra-proof-panels-layout={compactProofPanelSelector ? 'compact' : undefined}
+      data-ocentra-developer-status-layout={compactDeveloperStatusPanel ? 'compact' : undefined}
+    >
       {showTopSection ? (
         <ParentPortalSectionFrame
           x={selectorX}
@@ -16898,7 +18158,6 @@ function MainBoard({
           {...(activeGroupThemeColor === undefined ? {} : { accentColor: activeGroupThemeColor })}
           headerH={manageMode ? 44 : controlBrowserMode ? 48 : 40}
           footerH={topFrameFooterH}
-          {...(manageMode || controlBrowserMode ? { innerStrokeOpacity: manageMode ? 0.34 : 0.24 } : {})}
           {...(manageMode || controlBrowserMode ? { bodyStrokeOpacity: 0 } : {})}
           {...(manageMode || controlBrowserMode ? { bodyFill: PARENT_PORTAL_FRAME_MATERIAL.transparentFill } : {})}
           {...(topFramePaged && !controlBrowserMode ? {} : { footerLineOpacity: 0 })}
@@ -16908,8 +18167,6 @@ function MainBoard({
           onPrevious={() => shiftFramePage(-1)}
           onNext={() => shiftFramePage(1)}
           selected={focusedSection === 'highlights'}
-          onSelect={() => setFocusedSection('highlights')}
-          ariaLabel="Focus parent control selector"
           footer={(footerRect) => (
             <>
               {topFramePaged ? (
@@ -16977,7 +18234,6 @@ function MainBoard({
                     x={contentX + 8}
                     y={contentY + 10}
                     w={contentW - 16}
-                    h={contentH - 12}
                     activeNavLabel={activeNavLabel}
                     selectedControlName={selectedControlName}
                     spec={manageCurrentSpec}
@@ -17110,8 +18366,6 @@ function MainBoard({
           bodyFill={PARENT_PORTAL_FRAME_MATERIAL.transparentFill}
           {...(manageSharedWorkspaceFrameMode ? { footerLineOpacity: 0 } : {})}
           selected={detailPanelCanFocus ? tableFocused : false}
-          {...(detailPanelCanFocus ? { onSelect: () => setFocusedSection('table') } : {})}
-          {...(detailPanelCanFocus ? { ariaLabel: detailPanelAriaLabel } : {})}
           cfg={cfg}
         >
           {(body) => {
@@ -17397,11 +18651,13 @@ function Defs() {
 
 export function ParentPortalSvgSurface({
   pageMode,
+  controlCode,
   parentPortalRows,
   userEntry,
   controlId,
   loading = false,
   error = null,
+  statusMessage = null,
   controls,
   content,
   initialNavLabel,
@@ -17409,8 +18665,11 @@ export function ParentPortalSvgSurface({
   assistantRouteActive = false,
   assistantRoutePath = '#/assistant',
   assistantReturnRoutePath = '#/overview',
+  assistantCommandAvailable = false,
+  assistantResponse = null,
   activityState = null,
   lanPairingAutoScanSequence = 0,
+  workspaceVisible = true,
   onRefreshParentPortal,
   onNavigate,
   onAssistantCommand,
@@ -17419,7 +18678,6 @@ export function ParentPortalSvgSurface({
   const mainRef = useRef<HTMLElement | null>(null);
   const baseCfg = useMemo(() => normalizeParentPortalSvgControls(controls), [controls]);
   const pageContent = useMemo(() => normalizeParentPortalContent(content), [content]);
-  const tabs = pageContent.tabs;
   const tabDetails = pageContent.tabDetails;
   const navItems = useMemo<NavItem[]>(
     () =>
@@ -17466,6 +18724,7 @@ export function ParentPortalSvgSurface({
   const routeRenderTimerRef = useRef<number | undefined>(undefined);
   const previousRenderTransitionKeyRef = useRef(renderTransitionKey);
   const initialLayoutReadyReportedRef = useRef(false);
+  const mobileLayout = isParentPortalMobileSurface(surfaceSize);
   const canvasSize = useMemo(
     () => parentPortalCanvasSizeForSurface(baseCfg, surfaceSize),
     [baseCfg, surfaceSize.height, surfaceSize.width]
@@ -17484,11 +18743,12 @@ export function ParentPortalSvgSurface({
       },
       layout: {
         ...baseCfg.layout,
+        gap: mobileLayout ? 0 : baseCfg.layout.gap,
         leftW: columns.leftW,
         rightW: columns.rightW,
       },
     }),
-    [baseCfg, canvasSize.height, canvasSize.width, columns.leftW, columns.rightW]
+    [baseCfg, canvasSize.height, canvasSize.width, columns.leftW, columns.rightW, mobileLayout]
   );
   const pageModeTab = initialTabForPageMode(pageMode, pageContent);
   const initialSelectedControlIdForRoute = initialControlIdForPageMode(pageMode, pageContent, controlId);
@@ -17496,7 +18756,9 @@ export function ParentPortalSvgSurface({
     navItems,
     pageContent,
     initialNavLabel,
-    initialSelectedControlId ?? initialSelectedControlIdForRoute
+    initialSelectedControlId ?? initialSelectedControlIdForRoute,
+    pageModeTab,
+    preferredNavGroupIdForPageMode(pageMode)
   );
   const initialTab = initialNavItem?.tabId ?? pageModeTab;
   const [activeTab, setActiveTab] = useState<ParentPortalTabId>(initialTab);
@@ -17515,12 +18777,16 @@ export function ParentPortalSvgSurface({
     initialSelectedControlId ?? initialSelectedControlIdForRoute
   );
   const selectedControl = findSelectedControl(pageContent, selectedControlId);
-  const selectedControlName = selectedControl?.name ?? formatRouteScope(controlId);
+  const selectedControlName = selectedControl?.name ?? formatRouteScope(selectedControlId);
   const baseSourceRows = useMemo(
     () => rowSourceForPageMode(pageContent, pageMode, parentPortalRows),
     [parentPortalRows, pageContent, pageMode]
   );
-  const sourceRows = activeTab === 'aiStatus' ? pageContent.aiBenchmarkRows : baseSourceRows;
+  const configuredRowSource = pageContent.modes[pageMode]?.rowSource ?? 'api';
+  const sourceRows =
+    activeTab === 'aiStatus' && configuredRowSource === 'aiBenchmarkRows'
+      ? pageContent.aiBenchmarkRows
+      : baseSourceRows;
   const rows = useMemo(
     () => toDisplayRows(sourceRows, pageMode, selectedControlName, controlId),
     [controlId, pageMode, selectedControlName, sourceRows]
@@ -17547,7 +18813,14 @@ export function ParentPortalSvgSurface({
   useEffect(() => {
     const nextSelectedControlId =
       initialSelectedControlId ?? initialControlIdForPageMode(pageMode, pageContent, controlId);
-    const nextNavItem = initialNavItemForContext(navItems, pageContent, initialNavLabel, nextSelectedControlId);
+    const nextNavItem = initialNavItemForContext(
+      navItems,
+      pageContent,
+      initialNavLabel,
+      nextSelectedControlId,
+      pageModeTab,
+      preferredNavGroupIdForPageMode(pageMode)
+    );
     const nextTab = nextNavItem?.tabId ?? pageModeTab;
     const nextNavLabel = nextNavItem?.label ?? initialNavLabelForTab(navItems, nextTab);
     const nextNavRouteKey = nextNavItem ? navItemKey(nextNavItem) : '';
@@ -17680,7 +18953,7 @@ export function ParentPortalSvgSurface({
     rows.find((row) => row.id === selectedRowId) ??
     (activeTab === 'aiStatus' ? null : userDisplayRow) ??
     rows[0] ??
-    toDisplayRows(pageContent.fallbackRows, pageMode, selectedControlName, controlId)[0];
+    unavailableDisplayRow(selectedControlName);
   if (!selectedRow) return null;
   const leftX = cfg.layout.outerPad;
   const sideMainGap = Math.max(1, Math.round(cfg.layout.gap * 0.5));
@@ -17693,6 +18966,13 @@ export function ParentPortalSvgSurface({
   const assistantMainW = assistantMode && !assistantActionsVisible ? rightX - leftX : mainW;
   const mainH = cfg.canvas.height - boardY - 2;
   const assistantMainH = cfg.canvas.height - assistantBoardY - 2;
+  const serviceErrorBannerVisible = Boolean(error) && !assistantMode;
+  const serviceStatusBannerVisible = Boolean(statusMessage) && !assistantMode && !serviceErrorBannerVisible;
+  const serviceFeedbackBannerH = serviceErrorBannerVisible || serviceStatusBannerVisible ? 68 : 0;
+  const fixtureSourceBannerVisible = workspaceVisible && !assistantMode && configuredRowSource === 'aiBenchmarkRows';
+  const fixtureSourceBannerH = fixtureSourceBannerVisible ? 58 : 0;
+  const contentBoardY = boardY + serviceFeedbackBannerH + fixtureSourceBannerH;
+  const contentMainH = Math.max(1, mainH - serviceFeedbackBannerH - fixtureSourceBannerH);
   const activeNavItem = activeNavRouteKey
     ? (navItems.find((item) => navItemKey(item) === activeNavRouteKey) ?? null)
     : (navItems.find((item) => item.label === activeNavLabel) ?? null);
@@ -17740,6 +19020,9 @@ export function ParentPortalSvgSurface({
     setPage(1);
   };
   const selectNavItem = (item: NavItem) => {
+    if (isHashRoutePath(item.routePath) && onNavigate?.(item.routePath) === false) {
+      return;
+    }
     setActiveTab(item.tabId);
     activateNavItem(item);
     const routeControlId = routeControlIdForRoutePath(pageContent, item.routePath);
@@ -17749,9 +19032,14 @@ export function ParentPortalSvgSurface({
     setSelectedAssistantChoice(null);
     setDetailMode(null);
     setPage(1);
-    if (isHashRoutePath(item.routePath)) {
-      onNavigate?.(item.routePath);
+  };
+  const openAssistantSetupRoute = () => {
+    const startItem = navItems.find((item) => item.routePath === '#/start');
+    if (startItem) {
+      selectNavItem(startItem);
+      return;
     }
+    closeAssistantRoute();
   };
   const toggleNavGroup = (groupId: string) => {
     setOpenNavGroupIds((current) => toggleOpenNavGroupId(current, navGroups, groupId));
@@ -17761,8 +19049,11 @@ export function ParentPortalSvgSurface({
     setDetailMode(null);
   };
   const selectControl = (controlIdValue: string) => {
-    setSelectedControlId(controlIdValue);
     const control = findSelectedControl(pageContent, controlIdValue);
+    if (isHashRoutePath(control?.routePath) && onNavigate?.(control.routePath) === false) {
+      return;
+    }
+    setSelectedControlId(controlIdValue);
     const tab =
       control?.routePath === '#/ai-runtime' || assetKey(control?.category ?? '').includes('ai')
         ? 'aiStatus'
@@ -17788,9 +19079,6 @@ export function ParentPortalSvgSurface({
     if (pageMode === 'parentManage' && typeof control?.controlCode === 'number') {
       onRefreshParentPortal(control.controlCode);
     }
-    if (isHashRoutePath(control?.routePath)) {
-      onNavigate?.(control.routePath);
-    }
   };
   const transitionSpinnerLabel = loading
     ? pageContent.uiCopy.loadingTitle
@@ -17805,21 +19093,35 @@ export function ParentPortalSvgSurface({
             : null;
   return (
     <main ref={mainRef} className="parent-portal-svg-main" aria-busy={Boolean(transitionSpinnerLabel)}>
+      {workspaceVisible ? (
+        <h1 className="parent-portal-visually-hidden">{`${activeNavLabel} parent controls`}</h1>
+      ) : null}
+      {mobileLayout ? (
+        <ParentPortalMobileNavigation
+          activeNavRouteKey={activeNavRouteKey}
+          assistantActive={assistantMode}
+          assistantRoutePath={assistantRoutePath}
+          navGroups={navGroups}
+          onAssistantOpen={openAssistantRoute}
+          onSelect={selectNavItem}
+        />
+      ) : null}
       <svg
         viewBox={`0 0 ${cfg.canvas.width} ${cfg.canvas.height}`}
         className="parent-portal-svg-surface"
-        role="img"
+        role="group"
         aria-label="Ocentra parent dashboard"
         preserveAspectRatio="xMidYMin meet"
       >
         <Defs />
-        {!assistantMode || assistantActionsVisible ? (
+        {!mobileLayout && (!assistantMode || assistantActionsVisible) ? (
           <NavPanel
             activeNavLabel={activeNavLabel}
             activeNavRouteKey={activeNavRouteKey}
             navGroups={navGroups}
             openGroupIds={openNavGroupIds}
             assistantOpen={assistantMode}
+            assistantCommandAvailable={assistantCommandAvailable}
             selectedAssistantActionId={selectedAssistantActionId}
             onAssistantNewChat={() => {
               setSelectedAssistantActionId(null);
@@ -17849,102 +19151,138 @@ export function ParentPortalSvgSurface({
             cfg={cfg}
           />
         ) : null}
-        {assistantMode ? (
-          <AssistantModeBoard
-            x={assistantMainX}
-            y={assistantBoardY}
-            w={assistantMainW}
-            h={assistantMainH}
-            actionsVisible={assistantActionsVisible}
-            selectedAction={assistantQuickActionById(selectedAssistantActionId)}
-            selectedActionSequence={assistantActionSequence}
-            threadSequence={assistantThreadSequence}
-            onChoiceSelect={setSelectedAssistantChoice}
-            onAssistantMessage={(payload) => {
-              onAssistantCommand?.(AgentCommand.ParentAssistantMessageSend, payload);
-            }}
-            onActionToggle={() => setAssistantActionsVisible((visible) => !visible)}
-            onClose={() => {
-              closeAssistantRoute();
-            }}
-            cfg={cfg}
-          />
-        ) : (
-          <MainBoard
-            activeNavLabel={activeNavLabel}
-            {...(activeNavItem === null ? {} : { activeNavItem })}
-            activeNavGroupId={activeNavGroupId}
-            activeTab={activeTab}
-            rows={rows}
-            parentPortalRows={parentPortalRows}
-            tabs={tabs}
-            tabDetails={tabDetails}
-            controlAreas={controlAreas}
-            quickControls={quickControls}
-            guideTopics={pageContent.guideTopics}
-            season={pageContent.season}
-            uiCopy={pageContent.uiCopy}
-            selectedControlId={selectedControlId}
-            selectedRowId={selectedRow.id}
-            selectedRow={selectedRow}
-            selectedControlName={selectedControlName}
-            rowsPerPage={rowsPerPage}
-            detailMode={detailMode}
-            onTabChange={changeTab}
-            onRowSelect={selectRow}
-            onPageChange={setPage}
-            onDetailClose={() => setDetailMode(null)}
-            onControlSelect={selectControl}
-            {...(onNavigate === undefined ? {} : { onNavigate })}
-            {...(onAssistantCommand === undefined ? {} : { onAgentCommand: onAssistantCommand })}
-            onSelectNavLabel={(navLabel) => {
-              const item = navItems.find((entry) => entry.label === navLabel);
-              if (item) {
-                selectNavItem(item);
-                return;
-              }
-              activateNavLabel(navLabel);
-            }}
-            {...(activityState === undefined ? {} : { activityState })}
-            lanPairingAutoScanSequence={lanPairingAutoScanSequence}
-            cfg={cfg}
-            mainX={mainX}
-            mainW={mainW}
-            mainY={boardY}
-            mainH={mainH}
-          />
-        )}
-        {error ? (
+        {workspaceVisible ? (
+          assistantMode ? (
+            <AssistantModeBoard
+              x={assistantMainX}
+              y={assistantBoardY}
+              w={assistantMainW}
+              h={assistantMainH}
+              actionsVisible={assistantActionsVisible}
+              selectedAction={assistantQuickActionById(selectedAssistantActionId)}
+              selectedActionSequence={assistantActionSequence}
+              threadSequence={assistantThreadSequence}
+              commandAvailable={assistantCommandAvailable}
+              response={assistantResponse}
+              onChoiceSelect={setSelectedAssistantChoice}
+              onAssistantMessage={(payload) => {
+                onAssistantCommand?.(AgentCommand.ParentAssistantMessageSend, payload);
+              }}
+              onActionToggle={() => setAssistantActionsVisible((visible) => !visible)}
+              onOpenSetup={openAssistantSetupRoute}
+              onClose={() => {
+                closeAssistantRoute();
+              }}
+              cfg={cfg}
+            />
+          ) : (
+            <MainBoard
+              activeNavLabel={activeNavLabel}
+              {...(activeNavItem === null ? {} : { activeNavItem })}
+              activeNavGroupId={activeNavGroupId}
+              activeTab={activeTab}
+              rows={rows}
+              parentPortalRows={parentPortalRows}
+              tabDetails={tabDetails}
+              controlAreas={controlAreas}
+              quickControls={quickControls}
+              guideTopics={pageContent.guideTopics}
+              season={pageContent.season}
+              uiCopy={pageContent.uiCopy}
+              selectedControlId={selectedControlId}
+              selectedRowId={selectedRow.id}
+              selectedRow={selectedRow}
+              selectedControlName={selectedControlName}
+              rowsPerPage={rowsPerPage}
+              detailMode={detailMode}
+              onTabChange={changeTab}
+              onRowSelect={selectRow}
+              onPageChange={setPage}
+              onDetailClose={() => setDetailMode(null)}
+              onControlSelect={selectControl}
+              {...(onNavigate === undefined ? {} : { onNavigate })}
+              {...(onAssistantCommand === undefined ? {} : { onAgentCommand: onAssistantCommand })}
+              onReconnectLocalService={() => onRefreshParentPortal(controlCode)}
+              onSelectNavLabel={(navLabel) => {
+                const item = navItems.find((entry) => entry.label === navLabel);
+                if (item) {
+                  selectNavItem(item);
+                  return;
+                }
+                activateNavLabel(navLabel);
+              }}
+              {...(activityState === undefined ? {} : { activityState })}
+              sourceRowsUnavailable={configuredRowSource !== 'aiBenchmarkRows' && sourceRows.length === 0}
+              lanPairingAutoScanSequence={lanPairingAutoScanSequence}
+              cfg={cfg}
+              mainX={mainX}
+              mainW={mainW}
+              mainY={contentBoardY}
+              mainH={contentMainH}
+            />
+          )
+        ) : null}
+        {fixtureSourceBannerVisible ? (
+          <g
+            role="status"
+            aria-label="Demo fixture, not runtime data, no product readiness claim"
+            data-ocentra-parent-row-source="fixture"
+          >
+            <path
+              d={cutRectPath(mainX + 4, boardY + serviceFeedbackBannerH + 4, mainW - 8, 48, 9)}
+              fill="rgba(8, 17, 34, 0.92)"
+              stroke={cfg.colors.gold}
+              strokeWidth={1.2}
+            />
+            <text
+              x={mainX + 24}
+              y={boardY + serviceFeedbackBannerH + 24}
+              fontSize={12.5}
+              fontWeight={950}
+              fill={cfg.colors.gold}
+            >
+              DEMO FIXTURE · NOT RUNTIME
+            </text>
+            <text
+              x={mainX + 24}
+              y={boardY + serviceFeedbackBannerH + 42}
+              fontSize={10.5}
+              fontWeight={760}
+              fill={cfg.colors.mutedText}
+            >
+              NO PRODUCT READINESS CLAIM
+            </text>
+          </g>
+        ) : null}
+        {workspaceVisible && serviceStatusBannerVisible && statusMessage ? (
+          <g aria-live="polite" role="status">
+            <path
+              d={cutRectPath(mainX + 4, boardY + 4, mainW - 8, 56, 9)}
+              fill="rgba(3, 17, 30, 0.92)"
+              stroke={cfg.colors.cyan}
+              strokeWidth={1.2}
+            />
+            <text x={mainX + 24} y={boardY + 26} fontSize={13.5} fontWeight={950} fill={cfg.colors.bodyText}>
+              STATUS UPDATE
+            </text>
+            <text x={mainX + 24} y={boardY + 45} fontSize={11} fontWeight={760} fill={cfg.colors.mutedText}>
+              {truncateTextForWidth(statusMessage, mainW - 48, 11, 0.56)}
+            </text>
+          </g>
+        ) : null}
+        {workspaceVisible && serviceErrorBannerVisible && error ? (
           <g role="alert">
-            <rect
-              x={mainX + 28}
-              y={boardY + 120}
-              width={mainW - 56}
-              height={82}
-              rx={6}
+            <path
+              d={cutRectPath(mainX + 4, boardY + 4, mainW - 8, 56, 9)}
               fill="rgba(3, 7, 18, 0.66)"
               stroke={cfg.colors.red}
               strokeWidth={1.2}
             />
-            <text
-              x={mainX + mainW / 2}
-              y={boardY + 154}
-              textAnchor="middle"
-              fontSize={16}
-              fontWeight={950}
-              fill={cfg.colors.bodyText}
-            >
+            <text x={mainX + 24} y={boardY + 26} fontSize={13.5} fontWeight={950} fill={cfg.colors.bodyText}>
               {pageContent.uiCopy.errorTitle}
             </text>
-            <text
-              x={mainX + mainW / 2}
-              y={boardY + 180}
-              textAnchor="middle"
-              fontSize={11}
-              fontWeight={760}
-              fill={cfg.colors.mutedText}
-            >
-              {error}
+            <text x={mainX + 24} y={boardY + 45} fontSize={11} fontWeight={760} fill={cfg.colors.mutedText}>
+              {truncateTextForWidth(error, mainW - 48, 11, 0.56)}
             </text>
           </g>
         ) : null}

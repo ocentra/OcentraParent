@@ -13,7 +13,7 @@ use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanBrow
 use ocentra_parent_agent_protocol::transport::{AgentEventEnvelope, AgentEventName};
 use ocentra_schema::parent_ui_bridge::ParentRouteEventSnapshot;
 
-pub(super) fn lan_snapshot_from_result(
+pub(crate) fn lan_snapshot_from_result(
     result: AgentServiceCommandResult,
 ) -> Result<LanAgentServiceSnapshot, String> {
     let AgentServiceCommandResult {
@@ -57,7 +57,7 @@ pub(super) fn lan_snapshot_from_result(
     })
 }
 
-pub(super) fn lan_runtime_replay_events_from_result(
+pub(crate) fn lan_runtime_replay_events_from_result(
     result: AgentServiceCommandResult,
 ) -> Result<LanRuntimeReplaySnapshot, String> {
     let AgentServiceCommandResult {
@@ -107,7 +107,7 @@ pub(crate) fn network_flow_snapshot_from_parts(
     })
 }
 
-pub(super) fn network_flow_snapshot_from_result(
+pub(crate) fn network_flow_snapshot_from_result(
     result: AgentServiceCommandResult,
 ) -> Result<NetworkFlowAgentServiceSnapshot, String> {
     let AgentServiceCommandResult {
@@ -118,7 +118,7 @@ pub(super) fn network_flow_snapshot_from_result(
     network_flow_snapshot_from_parts(&response_event, &events)
 }
 
-pub(super) fn network_runtime_event_chain_snapshot_from_result(
+pub(crate) fn network_runtime_event_chain_snapshot_from_result(
     result: AgentServiceCommandResult,
 ) -> Result<NetworkRuntimeEventChainAgentServiceSnapshot, String> {
     let AgentServiceCommandResult {
@@ -142,7 +142,7 @@ pub(super) fn network_runtime_event_chain_snapshot_from_result(
     })
 }
 
-pub(super) fn policy_preview_snapshot_from_result(
+pub(crate) fn policy_preview_snapshot_from_result(
     result: AgentServiceCommandResult,
 ) -> Result<PolicyPreviewAgentServiceSnapshot, String> {
     let AgentServiceCommandResult {

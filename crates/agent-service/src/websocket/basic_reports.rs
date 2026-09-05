@@ -1,8 +1,3 @@
-use std::{
-    path::PathBuf,
-    sync::atomic::{AtomicU64, Ordering},
-};
-
 use ocentra_parent_agent_protocol::{
     constants,
     logging::{LogFieldValue, LogLevel},
@@ -13,20 +8,6 @@ use super::health_nonce::health_event_id_suffix;
 use crate::{
     event_builder::build_event, fields::fields_from_pairs, snapshot::build_dev_log_snapshot,
 };
-
-const TEST_RUNTIME_STORE_FILE_PREFIX: &str = "ocentra-parent-agent-service-";
-const TEST_RUNTIME_STORE_FILE_EXTENSION: &str = ".json";
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub(crate) struct TempRuntimeStorePrefix(pub(crate) &'static str);
-
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub(crate) struct TempRuntimeStorePath(pub(crate) PathBuf);
-
-pub(crate) const BROWSER_POLICY_TEST_STORE_PREFIX: TempRuntimeStorePrefix =
-    TempRuntimeStorePrefix(constants::browser_policy::TEST_STORE_FILE_PREFIX);
-pub(crate) const SCREEN_SETTINGS_TEST_STORE_PREFIX: TempRuntimeStorePrefix =
-    TempRuntimeStorePrefix(constants::screen_settings::TEST_STORE_FILE_PREFIX);
 
 pub(crate) fn build_dev_echo_report(command: AgentCommandEnvelope) -> AgentEventEnvelope {
     build_event(
@@ -131,18 +112,4 @@ pub(crate) fn maybe_basic_report(command: AgentCommandEnvelope) -> Option<AgentE
         }
         _ => None,
     }
-}
-
-pub(crate) fn temp_runtime_store_path(prefix: TempRuntimeStorePrefix) -> TempRuntimeStorePath {
-    static TEST_RUNTIME_COUNTER: AtomicU64 = AtomicU64::new(0);
-
-    let sequence = TEST_RUNTIME_COUNTER.fetch_add(1, Ordering::Relaxed);
-    let mut file_name = String::from(TEST_RUNTIME_STORE_FILE_PREFIX);
-    file_name.push_str(prefix.0);
-    file_name.push('-');
-    file_name.push_str(&std::process::id().to_string());
-    file_name.push('-');
-    file_name.push_str(&sequence.to_string());
-    file_name.push_str(TEST_RUNTIME_STORE_FILE_EXTENSION);
-    TempRuntimeStorePath(std::env::temp_dir().join(file_name))
 }

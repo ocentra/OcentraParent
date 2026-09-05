@@ -58,7 +58,7 @@ fn broker_session_state_rejects_missing_currentness_epochs() -> Result<(), Proto
 fn broker_session_expiry_must_be_current_and_bounded() -> Result<(), ProtocolError> {
     let now = 1_000_000;
     let session = broker_session(now)?;
-    assert!(matches!(session.try_new(now), Ok(_)));
+    let _current_session = session.try_new(now)?;
 
     let mut expired = session;
     expired.session_expires_at_unix_millis = now;
@@ -83,10 +83,7 @@ fn broker_hello_binds_client_identity_and_session_lifetime() -> Result<(), Proto
     let hello = ocentra_protected_capability_custody_protocol::handshake::
         UntrustedBrokerHello::authenticate_wire(&client, broker_session(now)?, now)?;
 
-    assert!(matches!(
-        hello.verify_authenticated_provenance(&client, now + 1),
-        Ok(_)
-    ));
+    hello.verify_authenticated_provenance(&client, now + 1)?;
 
     let drifted_client = UntrustedClientHello::try_new(
         client.nonce(),

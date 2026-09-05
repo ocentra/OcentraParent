@@ -36,18 +36,30 @@ export async function assertActivityManageRouteSurface(page: Page, surface: Loca
 }
 
 export async function assertAppGameDashboardRouteSurface(page: Page, surface: Locator): Promise<void> {
-  await expect(surface.locator('text').filter({ hasText: 'APP/GAME READ MODEL DASHBOARD' }).first()).toBeVisible();
+  const dashboardHeading = surface.locator('text').filter({ hasText: /^APP\/GAME READ MODEL DASHBOARD$/u });
+  await expect(dashboardHeading).toHaveCount(1);
+  await expect(dashboardHeading).toBeVisible();
+  await expect(page.locator('section[aria-label="App inventory and running sessions"]')).toHaveCount(0);
   await expect(surface.locator('text').filter({ hasText: 'SERVICE ROWS' }).first()).toBeVisible();
   await expect(surface.locator('text').filter({ hasText: 'CAPABILITY MATRIX' }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'SOURCE FRESHNESS' }).first()).toBeVisible();
   await expect(surface.locator('text').filter({ hasText: 'EVIDENCE DRAWER' }).first()).toBeVisible();
-  await expect(surface.locator('text').filter({ hasText: 'GAME BUDGETS' }).first()).toBeVisible();
   const visibleText = await surfaceText(surface);
-  expect(visibleText).toMatch(/\b(?:INVENTORY|Inventory)\b/);
-  expect(visibleText).toMatch(/\b(?:RUNNING|Running)\b/);
-  expect(visibleText).toMatch(/\b(?:FOREGROUND|Foreground)\b/);
-  expect(visibleText).toMatch(/\b(?:LAUNCHER|Launcher)\b/);
-  expect(visibleText).toMatch(/\bSOURCE ROWS\b/);
-  expect(visibleText).toMatch(/\bFRESH SOURCES\b/);
+  if (visibleText.includes('No app/game read model rows reported by the local service.')) {
+    expect(visibleText).toContain('MEASURED TOTALS UNAVAILABLE');
+    expect(visibleText).not.toMatch(/\b(?:INVENTORY|Inventory)\s+\d+\b/u);
+    expect(visibleText).not.toMatch(/\b(?:RUNNING|Running)\s+\d+\b/u);
+    expect(visibleText).not.toMatch(/\b(?:FOREGROUND|Foreground)\s+\d+\b/u);
+    expect(visibleText).not.toMatch(/\b(?:LAUNCHER|Launcher)\s+\d+\b/u);
+    expect(visibleText).not.toMatch(/\bGAME BUDGETS\b/u);
+  } else {
+    expect(visibleText).toMatch(/\b(?:INVENTORY|Inventory)\b/u);
+    expect(visibleText).toMatch(/\b(?:RUNNING|Running)\b/u);
+    expect(visibleText).toMatch(/\b(?:FOREGROUND|Foreground)\b/u);
+    expect(visibleText).toMatch(/\b(?:LAUNCHER|Launcher)\b/u);
+    expect(visibleText).toMatch(/\bSOURCE ROWS\b/u);
+    expect(visibleText).toMatch(/\bFRESH SOURCES\b/u);
+  }
   await expect(page.getByRole('button', { name: 'Select Aarav laptop' })).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Select Mina tablet' })).toHaveCount(0);
   await expect(surface.locator('text').filter({ hasText: 'D001' })).toHaveCount(0);

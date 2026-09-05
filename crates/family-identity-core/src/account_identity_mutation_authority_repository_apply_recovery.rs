@@ -17,7 +17,7 @@ pub(super) fn apply(
             params![envelope.target_id, envelope.household_id],
             |row| row.get::<_, i64>(0),
         )
-        .map_err(|_| AccountIdentityMutationAuthorityError::TargetNotCurrent)?;
+        .map_err(|_error| AccountIdentityMutationAuthorityError::TargetNotCurrent)?;
     let transition_at = now.max(
         last_transition
             .checked_add(1)
@@ -33,7 +33,7 @@ pub(super) fn apply(
                AND identity_proof_expires_at_epoch_millis > ?3",
             params![envelope.target_id, envelope.household_id, transition_at],
         )
-        .map_err(|_| AccountIdentityMutationAuthorityError::RepositoryUnavailable)?;
+        .map_err(|_error| AccountIdentityMutationAuthorityError::RepositoryUnavailable)?;
     if changed != 1 {
         return Err(AccountIdentityMutationAuthorityError::TargetNotCurrent);
     }
@@ -44,7 +44,7 @@ pub(super) fn apply(
                AND state IN ('pending','in-flight')",
             params![envelope.target_id, envelope.household_id],
         )
-        .map_err(|_| AccountIdentityMutationAuthorityError::RepositoryUnavailable)?;
+        .map_err(|_error| AccountIdentityMutationAuthorityError::RepositoryUnavailable)?;
     let remaining = transaction
         .query_row(
             "SELECT COUNT(*) FROM account_identity_recovery_custody_handoff
@@ -52,7 +52,7 @@ pub(super) fn apply(
             params![envelope.target_id, envelope.household_id],
             |row| row.get::<_, i64>(0),
         )
-        .map_err(|_| AccountIdentityMutationAuthorityError::RepositoryUnavailable)?;
+        .map_err(|_error| AccountIdentityMutationAuthorityError::RepositoryUnavailable)?;
     if remaining != 0 {
         return Err(AccountIdentityMutationAuthorityError::TargetNotCurrent);
     }

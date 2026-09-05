@@ -28,9 +28,8 @@ pub(super) fn after_release(
         &structured_extraction,
         &authority.evidence_refs.target_ref,
     )
-    .map_err(|error| {
+    .inspect_err(|_error| {
         super::checks::invalidate(authority);
-        error
     })
 }
 
@@ -136,16 +135,16 @@ fn bind_capture_extraction(
     let signal_digest = preflight.payload.signal_digest.clone();
     let body_digest = preflight.payload.body_digest.clone();
     let sensitivity_digest = preflight.payload.sensitivity_digest.clone();
-    let extraction = structured::bind_extraction(
-        &authority.launch_authority,
-        &authority.target_id,
-        &live_target.snapshot,
-        authority.capability_revoked.clone(),
+    let extraction = structured::bind_extraction(structured::BindingInput {
+        binding: &authority.launch_authority,
+        target_id: &authority.target_id,
+        snapshot: &live_target.snapshot,
+        capability_revoked: std::sync::Arc::clone(&authority.capability_revoked),
         captured_at_epoch_ms,
         captured_at_monotonic,
-        Some(&preflight.document_identity),
-        preflight.payload,
-    );
+        document_identity: Some(&preflight.document_identity),
+        payload: preflight.payload,
+    });
     let matches_postflight = extraction.is_fresh()
         && !extraction.protected_content_skipped()
         && extraction.structured_signal_digest() == signal_digest

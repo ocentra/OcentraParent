@@ -1,4 +1,3 @@
-use std::net::UdpSocket;
 use std::time::{Duration, Instant};
 
 use super::super::{

@@ -28,7 +28,7 @@ impl ParentBackupRuntime {
         self.journal.append_record(event.clone(), phase).await?;
         self.ledger
             .apply_event(&event)
-            .map_err(|_| BackupRuntimeError::ScheduleJob)?;
+            .map_err(BackupRuntimeError::schedule_job)?;
         Ok(())
     }
 

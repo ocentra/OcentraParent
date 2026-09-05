@@ -21,7 +21,7 @@ pub(super) fn account_authority(
             presented_account_authority.provider(),
             presented_account_authority.provider_subject(),
         )
-        .map_err(map_account_authority_error)
+        .map_err(|error| map_account_authority_error(&error))
 }
 
 pub(super) fn capability(
@@ -67,7 +67,7 @@ pub(super) fn parent_step_up(
 }
 
 fn map_account_authority_error(
-    error: AccountIdentityAuthorityServiceError,
+    error: &AccountIdentityAuthorityServiceError,
 ) -> HouseholdAuthorityRuntimeFailure {
     match error {
         AccountIdentityAuthorityServiceError::Repository(_) => {

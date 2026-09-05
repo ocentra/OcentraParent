@@ -1,4 +1,4 @@
-use chrono::{DateTime, FixedOffset, Utc};
+use chrono::{format::ParseErrorKind, DateTime, FixedOffset, Utc};
 use ocentra_parent_agent_protocol::transport::AgentRoute;
 use ocentra_schema::parent_ui_bridge::{
     ParentServiceHealthAuthenticationState, ParentServiceHealthReason, ParentServiceHealthRoute,
@@ -201,8 +201,16 @@ pub(crate) fn response_timestamp_is_current(
 }
 
 fn parse_timestamp(value: &str) -> Result<DateTime<FixedOffset>, ParentAgentServiceHealthReason> {
-    DateTime::parse_from_rfc3339(value)
-        .map_err(|_| ParentAgentServiceHealthReason::ResponseTimestampMissing)
+    DateTime::parse_from_rfc3339(value).map_err(timestamp_parse_reason)
+}
+
+fn timestamp_parse_reason(error: chrono::ParseError) -> ParentAgentServiceHealthReason {
+    match error.kind() {
+        ParseErrorKind::TooShort | ParseErrorKind::NotEnough => {
+            ParentAgentServiceHealthReason::ResponseTimestampMissing
+        }
+        _ => ParentAgentServiceHealthReason::ResponseSchemaMismatch,
+    }
 }
 
 fn enum_label<T: Serialize>(value: &T) -> String {

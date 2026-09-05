@@ -8,11 +8,11 @@ use super::super::{CustodyError, Decision, TransitionPhase};
 use crate::authority::AuthorityError;
 use crate::platform::{PlatformError, TransitionFailure};
 
-pub(super) fn map_platform_error(error: PlatformError) -> CustodyError {
+pub(super) fn map_platform_error(error: &PlatformError) -> CustodyError {
     platform::platform_error(error)
 }
 
-pub(super) fn map_authority_error(error: AuthorityError) -> CustodyError {
+pub(super) fn map_authority_error(error: &AuthorityError) -> CustodyError {
     platform::authority_error(error)
 }
 
@@ -35,6 +35,6 @@ pub(super) fn terminal_phase(decision: Decision) -> TransitionPhase {
     phase::terminal(decision)
 }
 
-pub(super) fn map_storage_error(error: crate::storage::StorageError) -> CustodyError {
+pub(super) fn map_storage_error(error: &crate::storage::StorageError) -> CustodyError {
     storage::error(error)
 }

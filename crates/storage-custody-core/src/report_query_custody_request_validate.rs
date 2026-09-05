@@ -12,15 +12,13 @@ use ocentra_schema::report_query_custody as contracts;
 
 use super::ReportQueryCustodyDerivationError;
 
+#[path = "report_query_custody_request_validate/citations.rs"]
+mod citations;
+#[path = "report_query_custody_request_validate/scope.rs"]
+mod scope;
+
 #[path = "report_query_custody_page_size_validate.rs"]
 mod report_query_custody_page_size_validate;
-
-pub(super) fn validate_report_query_custody_request(
-    request: &contracts::ReportQueryCustodyRequest,
-    authority: &VerifiedAccountIdentityAuthority,
-) -> Result<(), ReportQueryCustodyDerivationError> {
-    validate_report_query_custody_request_at(request, authority, Utc::now())
-}
 
 pub(super) fn validate_report_query_custody_request_at(
     request: &contracts::ReportQueryCustodyRequest,
@@ -40,65 +38,8 @@ pub(super) fn validate_report_query_custody_request_at(
     {
         return Err(ReportQueryCustodyDerivationError::ParentAuthorityIdentityMismatch);
     }
-    if request.raw_child_evidence_requested {
-        return Err(ReportQueryCustodyDerivationError::RawChildEvidenceRequested);
-    }
-    report_query_custody_page_size_validate::validate_report_query_custody_page_size(
-        request.page_size,
-    )?;
-    if request.requested_data_classes.is_empty() || request.allowed_source_data_classes.is_empty() {
-        return Err(ReportQueryCustodyDerivationError::EmptyRequestScope);
-    }
-    if request.source_citation_refs.is_empty() || request.assistant_citation_refs.is_empty() {
-        return Err(ReportQueryCustodyDerivationError::MissingCitationRefs);
-    }
-    if request.notification_payload_boundary
-        != contracts::ReportQueryCustodyBoundary::ParentOwnedCitationsOnly
-    {
-        return Err(ReportQueryCustodyDerivationError::InvalidNotificationBoundary);
-    }
-    if request
-        .requested_data_classes
-        .iter()
-        .any(|data_class| !request.allowed_source_data_classes.contains(data_class))
-    {
-        return Err(ReportQueryCustodyDerivationError::DisallowedSourceDataClass);
-    }
-    if request
-        .source_citation_refs
-        .iter()
-        .chain(request.assistant_citation_refs.iter())
-        .any(|citation| citation.kind != contracts::ParentEvidenceReferenceKind::QueryStoreSummary)
-    {
-        return Err(ReportQueryCustodyDerivationError::InvalidCitationKind);
-    }
-    if request
-        .source_citation_refs
-        .iter()
-        .chain(request.assistant_citation_refs.iter())
-        .any(|citation| {
-            citation.family_id != request.family.family_id
-                || citation.child_profile_id != request.device.child_profile_id
-        })
-    {
-        return Err(ReportQueryCustodyDerivationError::CitationIdentityMismatch);
-    }
-    if request
-        .source_citation_refs
-        .iter()
-        .chain(request.assistant_citation_refs.iter())
-        .any(|citation| {
-            !request
-                .requested_data_classes
-                .contains(&citation.source_data_class)
-                || !request
-                    .allowed_source_data_classes
-                    .contains(&citation.source_data_class)
-        })
-    {
-        return Err(ReportQueryCustodyDerivationError::CitationSourceClassMismatch);
-    }
-    Ok(())
+    scope::validate(request)?;
+    citations::validate(request)
 }
 
 fn validate_report_query_custody_schema_version(
@@ -130,7 +71,7 @@ fn validate_parent_authority_snapshot(
     );
     let action_decision = resolve_target_action_from_verified_authority(authority, &target_request)
         .map(|resolution| resolution.decision())
-        .map_err(|_| ReportQueryCustodyDerivationError::ParentAuthorityActionRejected)?;
+        .map_err(|_error| ReportQueryCustodyDerivationError::ParentAuthorityActionRejected)?;
     (action_decision.authorization_state == HouseholdAuthorizationState::Authorized)
         .then_some(())
         .ok_or(ReportQueryCustodyDerivationError::ParentAuthorityActionRejected)?;
@@ -161,7 +102,7 @@ fn validate_parent_authority_snapshot(
         .then_some(())
         .ok_or(ReportQueryCustodyDerivationError::ParentAuthorityGenerationMismatch)?;
     let session_expires_at = DateTime::parse_from_rfc3339(authority.session_expires_at())
-        .map_err(|_| ReportQueryCustodyDerivationError::ParentAuthorityExpired)?
+        .map_err(|_error| ReportQueryCustodyDerivationError::ParentAuthorityExpired)?
         .with_timezone(&Utc);
     (session_expires_at > now)
         .then_some(())
@@ -185,24 +126,5 @@ fn request_actor_role_matches_authority(
     )
 }
 
-#[cfg(test)]
-mod tests {
-    use super::validate_report_query_custody_schema_version;
-    use crate::report_query_custody::ReportQueryCustodyDerivationError;
-    use ocentra_schema::report_query_custody as contracts;
-
-    #[test]
-    fn schema_version_requires_the_canonical_non_empty_contract_identifier() {
-        let mut request = contracts::sample_report_query_custody_contract_proof().request;
-
-        assert!(validate_report_query_custody_schema_version(&request).is_ok());
-
-        for invalid_version in [String::new(), String::from("0"), String::from("unsupported")] {
-            request.schema_version = invalid_version;
-            assert_eq!(
-                validate_report_query_custody_schema_version(&request),
-                Err(ReportQueryCustodyDerivationError::InvalidContractVersion)
-            );
-        }
-    }
-}
+#[path = "../tests/unit/report_query_custody_request_validate.rs"]
+mod report_query_custody_request_validate_tests;

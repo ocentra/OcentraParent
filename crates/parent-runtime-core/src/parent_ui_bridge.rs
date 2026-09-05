@@ -2,7 +2,9 @@ mod action_dispatch;
 mod action_result_app_game;
 pub mod lan_replay_rejection_episode;
 mod lan_route;
+mod parent_desktop_distribution;
 mod presentation;
+pub mod projection;
 pub(crate) mod route_metadata;
 #[path = "parent_ui_bridge/route_requirements.rs"]
 mod route_requirements;
@@ -165,17 +167,42 @@ fn load_parent_subscription_event_with_state(
         .filter(|health| !health.is_ready())
         .map(|health| LanRouteQuery::Unavailable(health.redacted_detail()))
         .unwrap_or_else(|| lan_route_query_for_load(&route, context));
-    let replay_attempted = matches!(&lan_route_query, LanRouteQuery::Available(_));
-    let (mut events, replay_rejected) = if replay_attempted {
+    let replay = if matches!(&lan_route_query, LanRouteQuery::Available(_)) {
         match load_lan_runtime_event_chain_replay_events() {
-            Ok(replay) if lan_replay_is_bound_to_status(&replay, &lan_route_query) => {
-                (replay.events, false)
-            }
-            Ok(_unbound_replay) => (Vec::new(), true),
-            Err(_redacted_error) => (Vec::new(), true),
+            Ok(replay) => ParentSubscriptionReplay::Reported(replay),
+            Err(_redacted_error) => ParentSubscriptionReplay::Rejected,
         }
     } else {
-        (Vec::new(), false)
+        ParentSubscriptionReplay::NotRequested
+    };
+    let snapshot =
+        build_parent_route_snapshot(route.clone(), &lan_route_query, None, None, service_health);
+    build_parent_subscription_event_from_parts(state, route, &lan_route_query, replay, snapshot)
+}
+
+pub(super) enum ParentSubscriptionReplay {
+    NotRequested,
+    Reported(LanRuntimeReplaySnapshot),
+    Rejected,
+}
+
+pub(super) fn build_parent_subscription_event_from_parts(
+    state: &mut ParentRouteSubscriptionLoadState,
+    route: ParentRouteId,
+    lan_route_query: &LanRouteQuery,
+    replay: ParentSubscriptionReplay,
+    snapshot: ParentRouteSnapshot,
+) -> ParentSubscriptionEvent {
+    let (mut events, replay_rejected) = match replay {
+        ParentSubscriptionReplay::Reported(replay)
+            if lan_replay_is_bound_to_status(&replay, lan_route_query) =>
+        {
+            (replay.events, false)
+        }
+        ParentSubscriptionReplay::Reported(_) | ParentSubscriptionReplay::Rejected => {
+            (Vec::new(), true)
+        }
+        ParentSubscriptionReplay::NotRequested => (Vec::new(), false),
     };
     events.extend_from_slice(lan_route_query.events());
     if replay_rejected {
@@ -184,8 +211,6 @@ fn load_parent_subscription_event_with_state(
         state.complete_replay_rejection_episode();
     }
     let events = dedupe_route_events_by_event_id(&events);
-    let snapshot =
-        build_parent_route_snapshot(route.clone(), &lan_route_query, None, None, service_health);
     ParentSubscriptionEvent {
         schema_version: PARENT_UI_BRIDGE_SCHEMA_VERSION,
         route,

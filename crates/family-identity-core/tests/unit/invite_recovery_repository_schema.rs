@@ -6,15 +6,47 @@ use ocentra_family_identity_core::account_identity_authority_repository::invite_
     INVITE_RECOVERY_SCHEMA_SQL;
 use rusqlite::Connection;
 
+struct TestFailure {
+    context: &'static str,
+    detail: String,
+}
+
+impl TestFailure {
+    fn new(context: &'static str, error: impl std::fmt::Debug) -> Self {
+        Self {
+            context,
+            detail: format!("{error:?}"),
+        }
+    }
+}
+
+impl std::fmt::Debug for TestFailure {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(formatter, "{}: {}", self.context, self.detail)
+    }
+}
+
+trait TestContext<T> {
+    fn test_context(self, context: &'static str) -> Result<T, TestFailure>;
+}
+
+impl<T, E: std::fmt::Debug> TestContext<T> for Result<T, E> {
+    fn test_context(self, context: &'static str) -> Result<T, TestFailure> {
+        self.map_err(|error| TestFailure::new(context, error))
+    }
+}
+
+type TestResult = Result<(), TestFailure>;
+
 #[test]
-fn invite_recovery_schema_contains_only_the_expected_owned_objects() {
-    let connection = Connection::open_in_memory().expect("open in-memory SQLite database");
+fn invite_recovery_schema_contains_only_the_expected_owned_objects() -> TestResult {
+    let connection = Connection::open_in_memory().test_context("open in-memory SQLite database")?;
     connection
         .execute_batch("PRAGMA foreign_keys = ON;")
-        .expect("enable foreign-key enforcement");
+        .test_context("enable foreign-key enforcement")?;
     connection
         .execute_batch(INVITE_RECOVERY_SCHEMA_SQL)
-        .expect("create invite/recovery schema");
+        .test_context("create invite/recovery schema")?;
 
     let mut statement = connection
         .prepare(
@@ -22,8 +54,8 @@ fn invite_recovery_schema_contains_only_the_expected_owned_objects() {
              WHERE name LIKE 'account_identity_%' AND type IN ('table', 'index')
              ORDER BY type, name",
         )
-        .expect("prepare owned object catalog query");
-    let actual = statement
+        .test_context("prepare owned object catalog query")?;
+    let rows = statement
         .query_map([], |row| {
             Ok(format!(
                 "{}:{}",
@@ -31,9 +63,10 @@ fn invite_recovery_schema_contains_only_the_expected_owned_objects() {
                 row.get::<_, String>(1)?
             ))
         })
-        .expect("query owned object catalog")
+        .test_context("query owned object catalog")?;
+    let actual = rows
         .collect::<Result<BTreeSet<_>, _>>()
-        .expect("collect owned object catalog");
+        .test_context("collect owned object catalog")?;
     let expected = [
         "table:account_identity_invite_rate_limit",
         "table:account_identity_mutation_effect",
@@ -53,28 +86,29 @@ fn invite_recovery_schema_contains_only_the_expected_owned_objects() {
     .collect::<BTreeSet<_>>();
 
     assert_eq!(actual, expected);
+    Ok(())
 }
 
 #[test]
-fn repository_open_validates_and_reuses_the_same_schema_contract() {
+fn repository_open_validates_and_reuses_the_same_schema_contract() -> TestResult {
+    let elapsed = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .test_context("system clock is after the Unix epoch")?;
     let path = std::env::temp_dir().join(format!(
         "ocentra-account-wp04-schema-{}-{}.sqlite",
         std::process::id(),
-        std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .expect("system clock is after the Unix epoch")
-            .as_nanos()
+        elapsed.as_nanos()
     ));
     {
         SqliteAccountIdentityAuthorityRepository::open(&path)
-            .expect("repository should validate its fresh schema");
+            .test_context("repository should validate its fresh schema")?;
     }
     {
         SqliteAccountIdentityAuthorityRepository::open(&path)
-            .expect("repository should validate its schema after restart");
+            .test_context("repository should validate its schema after restart")?;
     }
 
-    let connection = Connection::open(&path).expect("reopen repository schema");
+    let connection = Connection::open(&path).test_context("reopen repository schema")?;
     for table in [
         "account_identity_runtime_clock",
         "account_identity_mutation_effect",
@@ -91,7 +125,7 @@ fn repository_open_validates_and_reuses_the_same_schema_contract() {
                 [table],
                 |row| row.get(0),
             )
-            .expect("read strict table definition");
+            .test_context("read strict table definition")?;
         assert!(
             definition
                 .trim_end_matches(';')
@@ -103,17 +137,18 @@ fn repository_open_validates_and_reuses_the_same_schema_contract() {
 
     drop(connection);
     let _ = std::fs::remove_file(&path);
+    Ok(())
 }
 
 #[test]
-fn schema_rejects_invalid_clock_rows_and_orphaned_data_custody_handoffs() {
-    let connection = Connection::open_in_memory().expect("open in-memory SQLite database");
+fn schema_rejects_invalid_clock_rows_and_orphaned_data_custody_handoffs() -> TestResult {
+    let connection = Connection::open_in_memory().test_context("open in-memory SQLite database")?;
     connection
         .execute_batch("PRAGMA foreign_keys = ON;")
-        .expect("enable foreign-key enforcement");
+        .test_context("enable foreign-key enforcement")?;
     connection
         .execute_batch(INVITE_RECOVERY_SCHEMA_SQL)
-        .expect("create invite/recovery schema");
+        .test_context("create invite/recovery schema")?;
 
     assert!(connection
         .execute(
@@ -138,22 +173,25 @@ fn schema_rejects_invalid_clock_rows_and_orphaned_data_custody_handoffs() {
             [],
         )
         .is_err());
+    Ok(())
 }
 
 #[test]
-fn schema_stores_invite_digests_without_a_bearer_token_column() {
-    let connection = Connection::open_in_memory().expect("open in-memory SQLite database");
+fn schema_stores_invite_digests_without_a_bearer_token_column() -> TestResult {
+    let connection = Connection::open_in_memory().test_context("open in-memory SQLite database")?;
     connection
         .execute_batch(INVITE_RECOVERY_SCHEMA_SQL)
-        .expect("create invite/recovery schema");
+        .test_context("create invite/recovery schema")?;
     let mut statement = connection
         .prepare("PRAGMA table_info('account_identity_setup_invite')")
-        .expect("inspect invite columns");
-    let columns = statement
+        .test_context("inspect invite columns")?;
+    let rows = statement
         .query_map([], |row| row.get::<_, String>(1))
-        .expect("query invite columns")
+        .test_context("query invite columns")?;
+    let columns = rows
         .collect::<Result<Vec<_>, _>>()
-        .expect("collect invite columns");
+        .test_context("collect invite columns")?;
     assert!(columns.iter().any(|column| column == "token_digest"));
     assert!(!columns.iter().any(|column| column == "token"));
+    Ok(())
 }

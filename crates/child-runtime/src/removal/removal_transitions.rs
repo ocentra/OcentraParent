@@ -14,14 +14,15 @@ impl ChildAgentRemovalBoundary {
     ) -> io::Result<ChildAgentRemovalStatus> {
         self.with_locked_record(|record| {
             self.require_identity(&authorization, ChildAgentRemovalAuthorizationAction::Revoke)?;
+            let (authorization_ref, identity) = authorization.into_audit_parts();
             if record.trust_state == ChildAgentTrustState::Revoked {
                 return Ok(status_from_record(record));
             }
             append_audit(
                 record,
                 ChildAgentRemovalAction::Revoked,
-                authorization.reference().to_owned(),
-                authorization.identity().clone(),
+                authorization_ref,
+                identity,
             )?;
             record.trust_state = ChildAgentTrustState::Revoked;
             record.cleanup_state = ChildAgentCleanupState::ManualPlatformRemovalRequired;
@@ -38,6 +39,7 @@ impl ChildAgentRemovalBoundary {
                 &authorization,
                 ChildAgentRemovalAuthorizationAction::Reauthorize,
             )?;
+            let (authorization_ref, identity) = authorization.into_audit_parts();
             if !record.tamper_signals.is_empty() {
                 return Err(io::Error::new(
                     io::ErrorKind::PermissionDenied,
@@ -47,8 +49,8 @@ impl ChildAgentRemovalBoundary {
             append_audit(
                 record,
                 ChildAgentRemovalAction::Reauthorized,
-                authorization.reference().to_owned(),
-                authorization.identity().clone(),
+                authorization_ref,
+                identity,
             )?;
             record.trust_state = ChildAgentTrustState::Active;
             record.cleanup_state = ChildAgentCleanupState::NotRequired;

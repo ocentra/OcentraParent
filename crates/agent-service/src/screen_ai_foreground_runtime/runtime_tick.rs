@@ -22,13 +22,12 @@ use crate::{
         ScreenAiServiceCaptureRecord,
     },
     screen_ai_foreground_runtime::{
-        ScreenAiForegroundQueueJobId, ScreenAiForegroundTickClock, ScreenAiForegroundTickOutcome,
+        types::{ScreenAiForegroundKey, ScreenAiForegroundTickClock},
+        ScreenAiForegroundQueueJobId, ScreenAiForegroundTickOutcome,
     },
     screen_ai_foreground_runtime_config::ScreenAiForegroundRuntimeConfig,
     screen_ai_foreground_runtime_config::{foreground_key, pending_queue_record_count},
 };
-
-use super::ScreenAiForegroundKey;
 
 pub(super) fn record_screen_ai_foreground_tick(
     config: &ScreenAiForegroundRuntimeConfig,

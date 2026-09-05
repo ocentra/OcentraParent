@@ -101,7 +101,8 @@ fn audit_history_jsonl_is_deterministic_and_includes_blocked_rows(
 }
 
 #[test]
-fn audit_history_rebuild_is_idempotent_and_handoff_identity_is_current() -> Result<(), Box<dyn std::error::Error>> {
+fn audit_history_rebuild_is_idempotent_and_handoff_identity_is_current(
+) -> Result<(), Box<dyn std::error::Error>> {
     let source = source_bridge()?;
     let first = build_app_game_notification_audit_history_bridge(audit_options(), source.clone())?;
     let second = build_app_game_notification_audit_history_bridge(audit_options(), source)?;
@@ -110,9 +111,18 @@ fn audit_history_rebuild_is_idempotent_and_handoff_identity_is_current() -> Resu
     let mut newer_options = audit_options();
     newer_options.handoff_id = "audit-handoff-60-newer".to_owned();
     let newer = build_app_game_notification_audit_history_bridge(newer_options, source_bridge()?)?;
-    assert_ne!(first.entries[0].audit_entry_id, newer.entries[0].audit_entry_id);
-    assert_eq!(first.entries[0].source_bridge_record_id, newer.entries[0].source_bridge_record_id);
-    assert_eq!(first.entries[0].source_readiness_row_id, newer.entries[0].source_readiness_row_id);
+    assert_ne!(
+        first.entries[0].audit_entry_id,
+        newer.entries[0].audit_entry_id
+    );
+    assert_eq!(
+        first.entries[0].source_bridge_record_id,
+        newer.entries[0].source_bridge_record_id
+    );
+    assert_eq!(
+        first.entries[0].source_readiness_row_id,
+        newer.entries[0].source_readiness_row_id
+    );
     Ok(())
 }
 
@@ -121,12 +131,33 @@ fn audit_history_rejects_malformed_context_jsonl_and_conflicting_status_counts(
 ) -> Result<(), Box<dyn std::error::Error>> {
     let mut missing_handoff = audit_options();
     missing_handoff.handoff_id.clear();
-    assert!(build_app_game_notification_audit_history_bridge(missing_handoff, source_bridge()?).is_err());
-    assert!(parse_app_game_notification_audit_history_jsonl("{not-json}").is_err());
+    assert_eq!(
+        build_app_game_notification_audit_history_bridge(missing_handoff, source_bridge()?)
+            .err()
+            .expect_value("missing handoff context must be rejected"),
+        ocentra_eventing::error::EventingError::InvalidValue {
+            field: "app_game.notification_audit_history.context",
+            value: String::new(),
+        }
+    );
+    assert_eq!(
+        parse_app_game_notification_audit_history_jsonl("{not-json}")
+            .err()
+            .expect_value("malformed audit history JSONL must be rejected")
+            .classify(),
+        serde_json::error::Category::Syntax
+    );
 
-    let mut tampered = build_app_game_notification_audit_history_bridge(audit_options(), source_bridge()?)?;
+    let mut tampered =
+        build_app_game_notification_audit_history_bridge(audit_options(), source_bridge()?)?;
     tampered.queued_local_count = 0;
-    assert!(serialize_app_game_notification_audit_history_jsonl(&tampered).is_err());
+    assert_eq!(
+        serialize_app_game_notification_audit_history_jsonl(&tampered)
+            .err()
+            .expect_value("conflicting audit history status counts must be rejected")
+            .to_string(),
+        "invalid eventing value for app_game.notification_audit_history.read_model: audit-handoff-60"
+    );
     Ok(())
 }
 
@@ -148,18 +179,19 @@ fn audit_history_bridge_rejects_tampered_refs_claims_and_identities(
 }
 
 #[test]
-fn audit_history_serializer_rejects_tampered_read_model(
-) -> Result<(), Box<dyn std::error::Error>> {
+fn audit_history_serializer_rejects_tampered_read_model() -> Result<(), Box<dyn std::error::Error>>
+{
     let mut model =
         build_app_game_notification_audit_history_bridge(audit_options(), source_bridge()?)?;
     model.production_durable_history_claimed = true;
 
     let error = serialize_app_game_notification_audit_history_jsonl(&model)
         .err()
-        .expect("tampered audit-history read model must not serialize");
-    assert!(error
-        .to_string()
-        .contains("app_game.notification_audit_history.read_model"));
+        .expect_value("tampered audit-history read model must not serialize");
+    assert_eq!(
+        error.to_string(),
+        "invalid eventing value for app_game.notification_audit_history.read_model: audit-handoff-60"
+    );
     Ok(())
 }
 

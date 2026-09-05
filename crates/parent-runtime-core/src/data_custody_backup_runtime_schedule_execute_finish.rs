@@ -3,7 +3,7 @@ use ocentra_schema::export_import_backup_recovery as contracts;
 use super::data_custody_backup_runtime::{
     BackupExecutionResult, BackupRuntimeError, ParentBackupRuntime,
 };
-use super::data_custody_backup_runtime_ports::{ProviderBackupError, ProviderOperationReceipt};
+use super::data_custody_backup_runtime_ports::ProviderBackupError;
 use super::data_custody_backup_runtime_schedule::{
     manual_required_job, succeed_job, ProviderJobOutcome,
 };
@@ -16,7 +16,7 @@ pub(super) async fn finish_job(
 ) -> Result<BackupExecutionResult, BackupRuntimeError> {
     match outcome {
         ProviderJobOutcome::ManualRequired(error) => {
-            persist_manual_required(runtime, running, provider_error_note(error)).await
+            persist_manual_required(runtime, running, provider_error_note(&error)).await
         }
         ProviderJobOutcome::Succeeded(receipt) => {
             let succeeded = succeed_job(running, runtime.journal.next_recorded_at()?, &receipt)?;
@@ -48,7 +48,7 @@ pub(super) async fn persist_manual_required(
     Ok(BackupExecutionResult::ManualRequired(manual))
 }
 
-fn provider_error_note(error: ProviderBackupError) -> &'static str {
+fn provider_error_note(error: &ProviderBackupError) -> &'static str {
     match error {
         ProviderBackupError::Unavailable => {
             "No trusted provider adapter is mounted for this parent runtime."

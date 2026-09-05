@@ -697,7 +697,9 @@ function decodeBillingInvoiceSummary(value: unknown, scope: string): BillingInvo
     periodStart: decodeTimestamp(generated.periodStart, `${scope}-period-start`),
     periodEnd: decodeTimestamp(generated.periodEnd, `${scope}-period-end`),
     updatedAt: decodeTimestamp(generated.updatedAt, `${scope}-updated-at`),
-    auditReference: decodeCanonicalValue(scope, () => parseUnknown(BillingAuditReferenceSchema, generated.auditReference)),
+    auditReference: decodeCanonicalValue(scope, () =>
+      parseUnknown(BillingAuditReferenceSchema, generated.auditReference)
+    ),
   };
 }
 
@@ -797,7 +799,9 @@ function decodeBillingStatusSummary(value: unknown, scope: string, expectedSubje
   }
   const failureState = decodeFailureState(record.failureState, `${scope}-failure-state`);
   const warnings = decodeArray(record.warnings, decodeNonEmptyString, `${scope}-warnings`);
-  const auditReference = decodeCanonicalValue(scope, () => parseUnknown(BillingAuditReferenceSchema, record.auditReference));
+  const auditReference = decodeCanonicalValue(scope, () =>
+    parseUnknown(BillingAuditReferenceSchema, record.auditReference)
+  );
   const updatedAt = decodeTimestamp(record.updatedAt, `${scope}-updated-at`);
 
   if (plan.deviceLimit !== seatComposition.effectiveLimit || deviceUsageLimit !== seatComposition.effectiveLimit) {
@@ -2221,7 +2225,10 @@ class LocalBillingD1Database implements D1Database {
   }
 }
 
-function buildLocalFixtureBillingState(subject: string, env: Env): {
+function buildLocalFixtureBillingState(
+  subject: string,
+  env: Env
+): {
   status: BillingStatusSummary;
   snapshot: BillingEntitlementSnapshotSummary;
 } {

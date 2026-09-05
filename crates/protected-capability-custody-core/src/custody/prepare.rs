@@ -6,7 +6,7 @@ use super::scope::OperationScope;
 use super::support::sqlite::{finish_step, lock_connection, map_error as map_storage_error};
 use super::support::{
     attest_path, local_replica_failure, map_transition_failure, prepared, transition,
-    validate_transition,
+    validate_transition, TransitionStep,
 };
 use super::{CustodyError, CustodyStore, PreparedCapability, TransitionPhase};
 use crate::binding::BindingLocator;
@@ -33,10 +33,12 @@ pub(super) fn run(
         &record_id,
         &lookup_digest,
         &binding_digest,
-        SealedState::Prepared,
-        1,
         attestation,
-        attestation.watermark_floor,
+        &TransitionStep {
+            state: SealedState::Prepared,
+            sequence: 1,
+            minimum_watermark: attestation.watermark_floor,
+        },
     );
     let broker = store
         .platform
@@ -55,7 +57,7 @@ pub(super) fn run(
 
 fn random_record_id() -> Result<[u8; 32], CustodyError> {
     let mut record_id = [0_u8; 32];
-    fill(&mut record_id).map_err(|_| CustodyError::Unavailable)?;
+    fill(&mut record_id).map_err(|_random_error| CustodyError::Unavailable)?;
     if record_id == [0_u8; 32] {
         return Err(CustodyError::Unavailable);
     }
@@ -66,22 +68,24 @@ fn persist(store: &CustodyStore, record: &storage::Record) -> Result<(), Custody
     store
         .secured_path
         .revalidate()
-        .map_err(super::support::map_path_error)?;
+        .map_err(|error| super::support::map_path_error(&error))?;
     let mut connection = lock_connection(store)?;
     let result = (|| {
         storage::validate_all(&connection, store.secured_path.identity())
-            .map_err(map_storage_error)?;
+            .map_err(|error| map_storage_error(&error))?;
         let transaction = connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
-            .map_err(|_| CustodyError::Database)?;
+            .map_err(|_sqlite_error| CustodyError::Database)?;
         if storage::load_by_lookup(&transaction, &record.lookup_digest)
-            .map_err(map_storage_error)?
+            .map_err(|error| map_storage_error(&error))?
             .is_some()
         {
             return Err(CustodyError::Conflict);
         }
-        storage::insert(&transaction, record).map_err(map_storage_error)?;
-        transaction.commit().map_err(|_| CustodyError::Database)
+        storage::insert(&transaction, record).map_err(|error| map_storage_error(&error))?;
+        transaction
+            .commit()
+            .map_err(|_sqlite_error| CustodyError::Database)
     })();
     drop(connection);
     finish_step(store, result)

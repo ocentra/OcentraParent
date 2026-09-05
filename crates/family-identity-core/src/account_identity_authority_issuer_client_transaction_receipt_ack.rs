@@ -14,7 +14,7 @@ use super::super::{
 
 impl<'a> AccountIdentityAuthorityIssuerTransaction<'a> {
     pub(crate) fn acknowledge_receipt(
-        &mut self,
+        &self,
         currentness: &AccountIdentityIssuerCurrentness,
         claim: &AccountIdentityIssuerOutboxClaim,
         protected_receipt_wire: &[u8],
@@ -22,7 +22,7 @@ impl<'a> AccountIdentityAuthorityIssuerTransaction<'a> {
     {
         self.transaction
             .execute_batch("SAVEPOINT account_identity_issuer_ack")
-            .map_err(|_| AccountIdentityAuthorityIssuerClientError::ReceiptUnavailable)?;
+            .map_err(|_error| AccountIdentityAuthorityIssuerClientError::ReceiptUnavailable)?;
         let receipt =
             match self.acknowledge_receipt_inner(currentness, claim, protected_receipt_wire) {
                 Ok(receipt) => receipt,
@@ -44,7 +44,7 @@ impl<'a> AccountIdentityAuthorityIssuerTransaction<'a> {
     }
 
     fn acknowledge_receipt_inner(
-        &mut self,
+        &self,
         currentness: &AccountIdentityIssuerCurrentness,
         claim: &AccountIdentityIssuerOutboxClaim,
         protected_receipt_wire: &[u8],
@@ -155,7 +155,7 @@ fn update_receipt_row(
                 stored_wire,
             ],
         )
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::ReceiptUnavailable)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::ReceiptUnavailable)?;
     if changed == 1 {
         Ok(())
     } else {
@@ -228,7 +228,7 @@ fn update_outbox_row(
                 receipt.payload_digest,
             ],
         )
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::ReceiptUnavailable)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::ReceiptUnavailable)?;
     if changed == 1 {
         Ok(())
     } else {

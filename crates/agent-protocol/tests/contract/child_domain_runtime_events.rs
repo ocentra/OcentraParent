@@ -9,12 +9,11 @@ use ocentra_parent_agent_protocol::child_domain_runtime::{
     child_domain_notification_requested_event, child_domain_observation_id_from_subject_ref,
     child_domain_observed_event, child_domain_policy_evaluation_requested_from_ai_result_event,
     child_domain_policy_request_id_from_fact_ref, child_domain_policy_violation_detected_event,
-    child_domain_policy_violation_id_from_policy_request_id, ChildDomainEventType,
-    ChildDomainAiAnalysisCompletedEvent, ChildDomainAiAnalysisRequestedEvent,
-    ChildDomainEvidenceRecordedEvent, ChildDomainNotificationRequestedEvent,
-    ChildDomainObservedEvent, ChildDomainPolicyEvaluationRequestedEvent,
-    ChildDomainPolicyViolationDetectedEvent, ChildRuntimeDomain,
-    CHILD_DOMAIN_RUNTIME_SCHEMA_VERSION,
+    child_domain_policy_violation_id_from_policy_request_id, ChildDomainAiAnalysisCompletedEvent,
+    ChildDomainAiAnalysisRequestedEvent, ChildDomainEventType, ChildDomainEvidenceRecordedEvent,
+    ChildDomainNotificationRequestedEvent, ChildDomainObservedEvent,
+    ChildDomainPolicyEvaluationRequestedEvent, ChildDomainPolicyViolationDetectedEvent,
+    ChildRuntimeDomain, CHILD_DOMAIN_RUNTIME_SCHEMA_VERSION,
 };
 use ocentra_parent_agent_protocol::constants;
 
@@ -153,10 +152,7 @@ fn child_domain_event_payloads_round_trip_and_reject_unknown_fields() {
     assert_child_domain_payload_shape!(evidence, ChildDomainEvidenceRecordedEvent);
     assert_child_domain_payload_shape!(ai_requested, ChildDomainAiAnalysisRequestedEvent);
     assert_child_domain_payload_shape!(ai_completed, ChildDomainAiAnalysisCompletedEvent);
-    assert_child_domain_payload_shape!(
-        policy_requested,
-        ChildDomainPolicyEvaluationRequestedEvent
-    );
+    assert_child_domain_payload_shape!(policy_requested, ChildDomainPolicyEvaluationRequestedEvent);
     assert_child_domain_payload_shape!(violation, ChildDomainPolicyViolationDetectedEvent);
     assert_child_domain_payload_shape!(notification, ChildDomainNotificationRequestedEvent);
 }

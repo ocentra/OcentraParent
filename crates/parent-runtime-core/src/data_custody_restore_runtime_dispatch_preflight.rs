@@ -11,7 +11,9 @@ use super::data_custody_restore_runtime_executor::{
     ProviderNeutralRestorePort, RestoreExecutorMount,
 };
 use super::data_custody_restore_runtime_ledger::RestoreLedgerError;
-use super::data_custody_restore_runtime_receipts::restore_receipt_from_dispatch;
+use super::data_custody_restore_runtime_receipts::{
+    restore_receipt_from_dispatch, RestoreReceiptDispatch,
+};
 use super::data_custody_restore_runtime_reconciliation_validation::restore_receipt_matches_plan;
 use super::data_custody_runtime_eventing::DataCustodyRuntimeEventKind;
 
@@ -84,7 +86,7 @@ impl ParentRestoreRuntime {
             .cloned()
             .ok_or(RestoreRuntimeError::PlanNotDurablyPending)?;
         if !restore_receipt_matches_plan(plan, &existing_restore) {
-            return Err(RestoreRuntimeError::Ledger(
+            return Err(RestoreRuntimeError::from(
                 RestoreLedgerError::IdentityMismatch,
             ));
         }
@@ -163,17 +165,19 @@ fn blocked_restore_after_restart(
 ) -> Result<contracts::ExportImportRestoreReceipt, RestoreRuntimeError> {
     restore_receipt_from_dispatch(
         plan,
-        contracts::ExportImportRestoreApplyState::Blocked,
-        Vec::new(),
-        plan.rejected_sections().to_vec(),
-        PartialWriteCompensation::NotRequired,
-        None,
-        None,
-        runtime.next_recorded_at()?,
-        Some(
-            "Restore was pending before restart; provider status reconciliation is required."
-                .to_owned(),
-        ),
+        RestoreReceiptDispatch {
+            state: contracts::ExportImportRestoreApplyState::Blocked,
+            applied_sections: Vec::new(),
+            rejected_sections: plan.rejected_sections().to_vec(),
+            compensation: PartialWriteCompensation::NotRequired,
+            provider_operation: None,
+            rollback_provider_operation: None,
+            recorded_at: runtime.next_recorded_at()?,
+            note: Some(
+                "Restore was pending before restart; provider status reconciliation is required."
+                    .to_owned(),
+            ),
+        },
     )
     .map_err(RestoreRuntimeError::Plan)
 }
@@ -184,14 +188,18 @@ fn blocked_restore_without_provider(
 ) -> Result<contracts::ExportImportRestoreReceipt, RestoreRuntimeError> {
     restore_receipt_from_dispatch(
         plan,
-        contracts::ExportImportRestoreApplyState::Blocked,
-        Vec::new(),
-        plan.rejected_sections().to_vec(),
-        PartialWriteCompensation::NotRequired,
-        None,
-        None,
-        runtime.next_recorded_at()?,
-        Some("Restore executor is not mounted; local truth remains unchanged.".to_owned()),
+        RestoreReceiptDispatch {
+            state: contracts::ExportImportRestoreApplyState::Blocked,
+            applied_sections: Vec::new(),
+            rejected_sections: plan.rejected_sections().to_vec(),
+            compensation: PartialWriteCompensation::NotRequired,
+            provider_operation: None,
+            rollback_provider_operation: None,
+            recorded_at: runtime.next_recorded_at()?,
+            note: Some(
+                "Restore executor is not mounted; local truth remains unchanged.".to_owned(),
+            ),
+        },
     )
     .map_err(RestoreRuntimeError::Plan)
 }

@@ -1,9 +1,9 @@
 use ocentra_protected_capability_custody_client::account_issuer::{
     AcknowledgeReceiptRequest, AcknowledgeReceiptWire, IssueCurrentAuthorityRequest,
 };
-use ocentra_protected_capability_custody_client::account_issuer_rpc::{
-    AccountIssuerClientError, AccountIssuerRpc,
-};
+use ocentra_protected_capability_custody_client::account_issuer_rpc::AccountIssuerClientError;
+#[cfg(not(windows))]
+use ocentra_protected_capability_custody_client::account_issuer_rpc::AccountIssuerRpc;
 use ocentra_protected_capability_custody_protocol::account_issuer::ACCOUNT_ISSUER_MAX_PROTECTED_RECEIPT_BYTES;
 use ocentra_protected_capability_custody_protocol::account_issuer_contract::AccountIssuerField;
 use ocentra_protected_capability_custody_protocol::types::ProtocolError;

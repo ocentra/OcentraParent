@@ -216,17 +216,13 @@ fn encoded_parent_and_child_packets_round_trip_through_mdns_discovery_contracts(
     let parsed_parent = discovery
         .service_instances
         .iter()
-        .find(|instance| {
-            instance.service_type == constants::lan_pairing::MDNS_PARENT_SERVICE_TYPE
-        })
+        .find(|instance| instance.service_type == constants::lan_pairing::MDNS_PARENT_SERVICE_TYPE)
         .and_then(|instance| instance.parent_advertisement.as_ref())
         .value_or_unreachable();
     let parsed_child = discovery
         .service_instances
         .iter()
-        .find(|instance| {
-            instance.service_type == constants::lan_pairing::MDNS_CHILD_SERVICE_TYPE
-        })
+        .find(|instance| instance.service_type == constants::lan_pairing::MDNS_CHILD_SERVICE_TYPE)
         .and_then(|instance| instance.child_advertisement.as_ref())
         .value_or_unreachable();
 

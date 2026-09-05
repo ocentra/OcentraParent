@@ -14,7 +14,8 @@ pub(crate) fn revalidate(
     if digest.as_slice() != expected_digest {
         return Err(PathSecurityError::Replaced);
     }
-    let metadata = std::fs::metadata(&path).map_err(|_| PathSecurityError::Unavailable)?;
+    let metadata = std::fs::metadata(&path)
+        .map_err(|_journal_metadata_error| PathSecurityError::Unavailable)?;
     if metadata.len() != 0 {
         return Err(PathSecurityError::UnsafePath);
     }

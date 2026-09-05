@@ -11,11 +11,16 @@ use crate::device_trust_lifecycle_authority_fence::AuthorityTransition;
 use crate::device_trust_lifecycle_current_authority::redacted_binding;
 use crate::device_trust_lifecycle_schema;
 use crate::device_trust_signer_registration::{self, CurrentSignerAuthority};
-use rusqlite::{Connection, OptionalExtension, TransactionBehavior, params};
+use rusqlite::{params, Connection, OptionalExtension, TransactionBehavior};
 use serde::{Deserialize, Serialize};
 
-const TRUSTED: &str = "trusted";
-const PENDING: &str = "pending";
+pub(crate) struct DeviceTrustLifecycleRow {
+    pub(crate) state: String,
+    pub(crate) lifecycle_generation: u64,
+    pub(crate) installation_id: String,
+    pub(crate) installation_binding_generation: u64,
+    pub(crate) authority_generation: u64,
+}
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -91,47 +96,6 @@ impl fmt::Debug for SealingCustodyAuthorization {
 }
 
 impl SealingCustodyAuthorization {
-    /// Issue only after the family-owned platform custody adapter has durably
-    /// sealed the exact pending installation and consumed its proof.
-    pub(crate) fn from_verified_platform_custody(
-        family_id: &str,
-        trust_subject: &str,
-        device_ref: &str,
-        installation_id: &str,
-        lifecycle_generation: u64,
-        installation_binding_generation: u64,
-        authority_generation: u64,
-        correlation_id: &str,
-    ) -> Result<Self, DeviceTrustLifecycleError> {
-        for identity in [
-            family_id,
-            trust_subject,
-            device_ref,
-            installation_id,
-            correlation_id,
-        ] {
-            crate::device_trust_signer_registration_validation::validate_canonical_identity(
-                identity,
-            )?;
-        }
-        if lifecycle_generation == 0
-            || installation_binding_generation == 0
-            || authority_generation == 0
-        {
-            return Err(DeviceTrustLifecycleError::InvalidGeneration);
-        }
-        Ok(Self {
-            family_id: family_id.to_owned(),
-            trust_subject: trust_subject.to_owned(),
-            device_ref: device_ref.to_owned(),
-            installation_id: installation_id.to_owned(),
-            lifecycle_generation,
-            installation_binding_generation,
-            authority_generation,
-            correlation_id: correlation_id.to_owned(),
-        })
-    }
-
     pub(crate) fn into_parts(self) -> (String, String, String, String, u64, u64, u64, String) {
         (
             self.family_id,
@@ -237,77 +201,6 @@ impl DeviceTrustLifecycleRepository {
         })
     }
 
-    /// Create the pending row that a later, opaque platform-custody proof may
-    /// activate.  This is deliberately crate-private: a pending row is still
-    /// durable trust state and must not be created by a downstream caller that
-    /// can supply identity strings without an authenticated enrollment owner.
-    ///
-    /// Account/device binding and the authenticated enrollment ceremony are
-    /// upstream contracts.  Until those owners provide a verified caller,
-    /// keeping this operation inside the family-identity owner preserves the
-    /// fail-closed boundary without inventing WP03 authority.
-    pub(crate) fn register_parent_device(
-        &mut self,
-        family_id: &str,
-        trust_subject: &str,
-        device_ref: &str,
-        installation_id: &str,
-        installation_binding_generation: u64,
-        correlation_id: &str,
-    ) -> Result<(), DeviceTrustLifecycleError> {
-        self.validate_identifiers(family_id, trust_subject, device_ref, correlation_id)?;
-        self.validate_identifiers(family_id, trust_subject, installation_id, correlation_id)?;
-        self.require_generation(installation_binding_generation)?;
-        let authority_transition = self.external_authority.begin_transition(
-            &self.connection,
-            family_id,
-            trust_subject,
-            device_ref,
-            None,
-            1,
-        )?;
-        let database_result = (|| {
-            let transaction = self.transaction()?;
-            let existing = transaction.query_row(
-                "SELECT lifecycle_state FROM device_trust_lifecycle WHERE family_id = ?1 AND trust_subject = ?2 AND device_ref = ?3",
-                params![family_id, trust_subject, device_ref], |row| row.get::<_, String>(0),
-            ).optional().map_err(|_error| DeviceTrustLifecycleError::Unavailable)?;
-            if existing.is_some() {
-                return Err(DeviceTrustLifecycleError::DuplicateRegistration);
-            }
-            transaction.execute(
-                "INSERT INTO device_trust_lifecycle (family_id, trust_subject, device_ref, installation_id, lifecycle_state, lifecycle_generation, installation_binding_generation, authority_generation) VALUES (?1, ?2, ?3, ?4, ?5, 1, ?6, 1)",
-                params![
-                    family_id,
-                    trust_subject,
-                    device_ref,
-                    installation_id,
-                    PENDING,
-                    to_sql_generation(installation_binding_generation)?
-                ],
-            ).map_err(|_error| DeviceTrustLifecycleError::Unavailable)?;
-            Self::insert_event(
-                &transaction,
-                &LifecycleEventInput {
-                    family_id,
-                    trust_subject,
-                    device_ref,
-                    correlation_id,
-                    event_binding: None,
-                    kind: DeviceTrustLifecycleEventKind::Registered,
-                    state: DeviceTrustLifecycleState::Pending,
-                    lifecycle_generation: 1,
-                    installation_binding_generation,
-                },
-            )?;
-            authority_transition.record(&transaction)?;
-            transaction
-                .commit()
-                .map_err(|_error| DeviceTrustLifecycleError::Unavailable)
-        })();
-        self.finish_authority_transition(authority_transition, database_result)
-    }
-
     pub fn pending_events(
         &self,
     ) -> Result<Vec<DeviceTrustLifecycleEvent>, DeviceTrustLifecycleError> {
@@ -371,7 +264,7 @@ impl DeviceTrustLifecycleRepository {
         family_id: &str,
         subject: &str,
         device: &str,
-    ) -> Result<Option<(String, u64, String, u64, u64)>, DeviceTrustLifecycleError> {
+    ) -> Result<Option<DeviceTrustLifecycleRow>, DeviceTrustLifecycleError> {
         let row = connection
             .query_row(
                 "SELECT lifecycle_state, lifecycle_generation, installation_id,
@@ -393,13 +286,13 @@ impl DeviceTrustLifecycleRepository {
             .map_err(|_error| DeviceTrustLifecycleError::Unavailable)?;
         row.map(
             |(state, generation, installation_id, installation, authority_generation)| {
-                Ok((
+                Ok(DeviceTrustLifecycleRow {
                     state,
-                    from_sql_generation(generation)?,
+                    lifecycle_generation: from_sql_generation(generation)?,
                     installation_id,
-                    from_sql_generation(installation)?,
-                    from_sql_generation(authority_generation)?,
-                ))
+                    installation_binding_generation: from_sql_generation(installation)?,
+                    authority_generation: from_sql_generation(authority_generation)?,
+                })
             },
         )
         .transpose()
@@ -461,15 +354,6 @@ impl DeviceTrustLifecycleRepository {
             )?;
         }
         Ok(())
-    }
-
-    pub(crate) fn require_generation(
-        &self,
-        generation: u64,
-    ) -> Result<(), DeviceTrustLifecycleError> {
-        (generation > 0)
-            .then_some(())
-            .ok_or(DeviceTrustLifecycleError::InvalidGeneration)
     }
 
     pub(crate) fn finish_authority_transition(

@@ -37,6 +37,7 @@ impl AccountIdentityAuthorityIssuerClient {
             correlation_id,
             idempotency_key,
         )?;
+        drop(admission);
         issue_with_transaction(
             transaction,
             &currentness,
@@ -80,7 +81,7 @@ where
             let recorded = AccountIdentityIssuerRecordedTransport::from_verified_currentness(
                 currentness,
                 &key,
-                transport,
+                *transport,
                 true,
             );
             transaction.commit()?;
@@ -88,7 +89,7 @@ where
         }
         super::super::AccountIdentityIssuerIssuePreparation::Prepared(prepared) => prepared,
     };
-    let (request, reservation) = prepared.into_parts();
+    let (request, reservation) = (*prepared).into_parts();
     let (transaction, signature) = super::issue_signer_failure::sign_or_record_failure(
         transaction,
         &request,

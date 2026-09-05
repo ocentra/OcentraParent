@@ -57,7 +57,7 @@ enum ReceiveStep {
     Failed(super::super::super::super::LanPassiveDiscoveryUdpListenerIssue),
 }
 
-pub(super) fn receive_one(
+fn receive_one(
     listener: &LanPassiveDiscoveryUdpListener,
     buffer: &mut [u8],
     datagrams: &mut Vec<LanPassiveDiscoveryUdpDatagram>,

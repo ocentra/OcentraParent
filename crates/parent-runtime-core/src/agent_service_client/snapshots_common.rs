@@ -87,7 +87,7 @@ pub(super) fn list_field(payload: &LogFields, key: &'static str) -> Vec<String> 
         .unwrap_or_default()
 }
 
-pub(super) fn parent_route_event_snapshot(event: &AgentEventEnvelope) -> ParentRouteEventSnapshot {
+pub(crate) fn parent_route_event_snapshot(event: &AgentEventEnvelope) -> ParentRouteEventSnapshot {
     ParentRouteEventSnapshot {
         event: Some(serialized_enum_label(&event.event)),
         event_id: ParentRouteEventId::parse(event.event_id.clone()),

@@ -26,7 +26,7 @@ impl AccountIdentityAuthorityProducerV2Request {
         signature: [u8; ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SIGNATURE_BYTES],
     ) -> Result<
         AccountIdentityAuthorityProducerV2Transport,
-        (Self, AccountIdentityAuthorityProducerV2Error),
+        (Box<Self>, AccountIdentityAuthorityProducerV2Error),
     > {
         let (request, signature) = self.verify_preserving(signature)?;
         let wire = match crate::account_identity_authority_envelope_v2::wire(
@@ -34,7 +34,7 @@ impl AccountIdentityAuthorityProducerV2Request {
             signature,
         ) {
             Ok(wire) => wire,
-            Err(error) => return Err((request, error)),
+            Err(error) => return Err((Box::new(request), error)),
         };
         Ok(transport_from_request(request, wire))
     }
@@ -47,7 +47,7 @@ impl AccountIdentityAuthorityProducerV2Request {
             Self,
             [u8; ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SIGNATURE_BYTES],
         ),
-        (Self, AccountIdentityAuthorityProducerV2Error),
+        (Box<Self>, AccountIdentityAuthorityProducerV2Error),
     > {
         match account_identity_authority_producer_v2_verify::verify_signature(
             &self.public_key,
@@ -55,7 +55,7 @@ impl AccountIdentityAuthorityProducerV2Request {
             &signature,
         ) {
             Ok(()) => Ok((self, signature)),
-            Err(error) => Err((self, error)),
+            Err(error) => Err((Box::new(self), error)),
         }
     }
 }

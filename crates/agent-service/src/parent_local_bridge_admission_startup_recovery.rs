@@ -24,7 +24,7 @@ pub(super) fn complete(
         require_elapsed_budget(&started)?;
         let recovery = account_owner
             .recover_parent_local_bridge_startup(current_authority)
-            .map_err(|_| ParentLocalBridgeAdmissionError::StartupRecoveryRejected)?;
+            .map_err(|_error| ParentLocalBridgeAdmissionError::StartupRecoveryRejected)?;
         recovered_rows = add_recovered_rows(recovered_rows, &recovery)?;
         if recovered_rows > MAX_RECOVERED_ROWS {
             return Err(ParentLocalBridgeAdmissionError::StartupRecoveryRejected);

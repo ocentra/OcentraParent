@@ -11,7 +11,7 @@ use crate::{
     activity_surface_report_store::{history_list, save_report_document},
     activity_surface_request::{report_document_from_command, report_request_from_command},
     activity_surface_store::{
-        load_app_game_model, load_browser_model, load_network_model, load_screen_summary,
+        app_game::load_app_game_model, load_browser_model, load_network_model, load_screen_summary,
         local_store_snapshot,
     },
 };

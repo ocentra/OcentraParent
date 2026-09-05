@@ -212,9 +212,8 @@ fn accepts_approved_dispatch_ready_states_with_valid_approval_reference() -> Tes
             EnforcementPolicyDispatchTimerState::Active,
         )]);
         read_model.entries[0].approval_state = approval_state;
-        read_model.entries[0].intent.approval_ref = Some(approval_reference(
-            dispatch::TEST_SUFFIX_DISPATCH_READY,
-        ));
+        read_model.entries[0].intent.approval_ref =
+            Some(approval_reference(dispatch::TEST_SUFFIX_DISPATCH_READY));
 
         let validation = ok(
             validate_enforcement_policy_dispatch_read_model(&read_model),

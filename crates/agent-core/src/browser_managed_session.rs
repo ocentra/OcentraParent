@@ -114,20 +114,6 @@ impl BrowserManagedLaunchError {
     }
 }
 
-pub(crate) fn load_managed_browser_profile_store() -> Result<(), BrowserManagedProfileStoreError> {
-    store::load_managed_browser_profile_store()
-}
-
-pub(crate) fn create_or_repair_managed_browser_profile_store(
-) -> Result<(), BrowserManagedProfileStoreError> {
-    store::create_or_repair_managed_browser_profile_store()
-}
-
-pub(crate) fn delete_managed_browser_profile_store() -> Result<(), BrowserManagedProfileStoreError>
-{
-    store::delete_managed_browser_profile_store()
-}
-
 pub fn reserve_managed_browser_bridge_port(
 ) -> Result<BrowserManagedBridgePortReservation, BrowserManagedLaunchError> {
     launch::reserve_managed_browser_bridge_port()

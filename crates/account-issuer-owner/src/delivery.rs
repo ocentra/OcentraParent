@@ -40,7 +40,7 @@ impl DeliveryClaim {
     /// still consumes this exact claim and revalidates it transactionally.
     pub fn receipt_id(&self) -> Result<AccountIssuerField, AccountIssuerDeliveryError> {
         AccountIssuerField::from_wire(self.inner.receipt_id().as_bytes().to_vec())
-            .map_err(|_| AccountIssuerDeliveryError::Rejected)
+            .map_err(|_error| AccountIssuerDeliveryError::Rejected)
     }
 }
 
@@ -55,11 +55,11 @@ pub enum DeliveryFailureCode {
 }
 
 impl DeliveryFailure {
-    pub fn from_bytes(detail: Vec<u8>) -> Result<Self, AccountIssuerDeliveryError> {
+    pub fn from_bytes(detail: &[u8]) -> Result<Self, AccountIssuerDeliveryError> {
         if detail.is_empty() || detail.len() > 1_024 {
             return Err(AccountIssuerDeliveryError::Rejected);
         }
-        let value = digest(&SHA256, detail.as_slice());
+        let value = digest(&SHA256, detail);
         let mut hex = String::with_capacity(value.as_ref().len() * 2);
         for byte in value.as_ref() {
             hex.push(char::from(
@@ -84,7 +84,10 @@ pub struct PreparedAcknowledgeReceipt {
 }
 
 impl PreparedAcknowledgeReceipt {
-    pub(crate) fn signing_bytes(&self) -> &[u8] {
+    /// Return the exact owner-prepared bytes that the protected adapter must
+    /// sign. The wrapper has no public constructor, so callers cannot mint or
+    /// replace the Account-owned request.
+    pub fn signing_bytes(&self) -> &[u8] {
         self.request.signing_bytes()
     }
 }
@@ -104,7 +107,7 @@ impl ProtectedAccountIssuerReceipt {
         Ok(Self { wire })
     }
 
-    pub(crate) fn wire(&self) -> &[u8] {
-        self.wire.as_slice()
+    pub(crate) fn into_wire(self) -> Vec<u8> {
+        self.wire
     }
 }

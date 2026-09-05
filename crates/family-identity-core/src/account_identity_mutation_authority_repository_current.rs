@@ -26,7 +26,7 @@ pub(super) fn validate_issue_current(
         authority,
         now,
     )
-    .map_err(|_| AccountIdentityMutationAuthorityError::InvalidAuthority)?;
+    .map_err(|_error| AccountIdentityMutationAuthorityError::InvalidAuthority)?;
     let authority_json = transaction
         .query_row(
             "SELECT authority_json FROM account_identity_current_authority
@@ -38,11 +38,11 @@ pub(super) fn validate_issue_current(
             |row| row.get::<_, String>(0),
         )
         .optional()
-        .map_err(|_| AccountIdentityMutationAuthorityError::RepositoryUnavailable)?
+        .map_err(|_error| AccountIdentityMutationAuthorityError::RepositoryUnavailable)?
         .ok_or(AccountIdentityMutationAuthorityError::InvalidAuthority)?;
     let current: AccountIdentityCurrentMemberDeviceAuthorityHandoff =
         serde_json::from_str(&authority_json)
-            .map_err(|_| AccountIdentityMutationAuthorityError::InvalidAuthority)?;
+            .map_err(|_error| AccountIdentityMutationAuthorityError::InvalidAuthority)?;
     if current.member.support_receipt.as_ref() != authority.support_receipt() {
         return Err(AccountIdentityMutationAuthorityError::InvalidAuthority);
     }
@@ -58,7 +58,7 @@ pub(super) fn validate_consumed_current(
         load_handoff(transaction, envelope)?;
     handoff
         .validate_shape()
-        .map_err(|_| AccountIdentityMutationAuthorityError::InvalidAuthority)?;
+        .map_err(|_error| AccountIdentityMutationAuthorityError::InvalidAuthority)?;
     if status != "active"
         || handoff.mapping.status != AccountIdentityMappingStatus::Active
         || generation != envelope.authority_generation
@@ -103,14 +103,14 @@ fn load_handoff(
             },
         )
         .optional()
-        .map_err(|_| AccountIdentityMutationAuthorityError::RepositoryUnavailable)?
+        .map_err(|_error| AccountIdentityMutationAuthorityError::RepositoryUnavailable)?
         .ok_or(AccountIdentityMutationAuthorityError::InvalidAuthority)?;
     let handoff = serde_json::from_str(&row.4)
-        .map_err(|_| AccountIdentityMutationAuthorityError::InvalidAuthority)?;
+        .map_err(|_error| AccountIdentityMutationAuthorityError::InvalidAuthority)?;
     let generation = u64::try_from(row.1)
-        .map_err(|_| AccountIdentityMutationAuthorityError::InvalidAuthority)?;
+        .map_err(|_error| AccountIdentityMutationAuthorityError::InvalidAuthority)?;
     let session_generation = u64::try_from(row.3)
-        .map_err(|_| AccountIdentityMutationAuthorityError::InvalidAuthority)?;
+        .map_err(|_error| AccountIdentityMutationAuthorityError::InvalidAuthority)?;
     Ok((row.0, generation, row.2, session_generation, handoff))
 }
 
@@ -183,7 +183,7 @@ fn validate_temporal_authority(
 fn parse_epoch_millis(value: &str) -> Result<i64, AccountIdentityMutationAuthorityError> {
     DateTime::parse_from_rfc3339(value)
         .map(|value| value.with_timezone(&Utc).timestamp_millis())
-        .map_err(|_| AccountIdentityMutationAuthorityError::InvalidAuthority)
+        .map_err(|_error| AccountIdentityMutationAuthorityError::InvalidAuthority)
 }
 
 fn provider_label(value: &str) -> Result<&'static str, AccountIdentityMutationAuthorityError> {

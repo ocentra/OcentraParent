@@ -34,7 +34,7 @@ pub(super) struct PeerObservation {
 }
 
 pub(super) struct AuthorizedPeer {
-    _peer: PeerObservation,
+    peer: PeerObservation,
 }
 
 impl VerifiedBrokerProcess {
@@ -172,7 +172,13 @@ impl PeerObservation {
         {
             return Err(PlatformError::InvalidAttestation);
         }
-        Ok(AuthorizedPeer { _peer: self })
+        Ok(AuthorizedPeer { peer: self })
+    }
+}
+
+impl AuthorizedPeer {
+    pub(super) fn revalidate(&self, enrollment: &VerifiedEnrollment) -> Result<(), PlatformError> {
+        self.peer.revalidate(enrollment)
     }
 }
 

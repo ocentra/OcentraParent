@@ -10,7 +10,8 @@ use crate::agent_service_client::{
 };
 use crate::parent_ui_bridge::route_requirements::{
     route_requires_browser_activity_read_model, route_requires_browser_evidence_read_model,
-    route_requires_browser_inventory_read_model, route_requires_browser_read_models,
+    route_requires_browser_inventory_read_model, route_requires_browser_managed_status,
+    route_requires_browser_read_models,
 };
 use crate::parent_ui_bridge::route_snapshot::dependencies::DependencyFailures;
 use crate::parent_ui_bridge::ParentRouteId;
@@ -67,8 +68,7 @@ pub(super) fn load_status(
     route: &ParentRouteId,
     failures: &mut DependencyFailures,
 ) -> BrowserStatusDependencies {
-    let browser_required = route_requires_browser_read_models(route);
-    let managed_status_snapshot = if browser_required {
+    let managed_status_snapshot = if route_requires_browser_managed_status(route) {
         failures.capture(
             "browser-managed-status",
             load_browser_managed_status_snapshot(None),
@@ -76,7 +76,7 @@ pub(super) fn load_status(
     } else {
         None
     };
-    let intervention_read_model_snapshot = if browser_required {
+    let intervention_read_model_snapshot = if route_requires_browser_read_models(route) {
         failures.capture(
             "browser-intervention-read-model",
             load_browser_intervention_read_model_snapshot(None),

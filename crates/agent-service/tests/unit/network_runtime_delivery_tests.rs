@@ -1,5 +1,11 @@
 use std::string::String as TestString;
 
+use crate::network_runtime_test_support::{
+    deliver_network_runtime_for_read_model_for_test, lock_activity_report_env_for_test,
+    network_runtime_event_chain_stream_payload_for_test, network_runtime_journal_path_for_test,
+    seed_network_runtime_for_test, stream_network_runtime_event_chain_for_read_model_for_test,
+    NetworkRuntimeTestError,
+};
 use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::network_flow::{
@@ -8,22 +14,17 @@ use ocentra_parent_agent_protocol::network_flow::{
     NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE,
 };
 use ocentra_parent_agent_protocol::NETWORK_FLOW_SCHEMA_VERSION;
-use ocentra_parent_agent_service::test_support::{
-    deliver_network_runtime_for_read_model_for_test, lock_activity_report_env_for_test,
-    network_runtime_event_chain_stream_payload_for_test, network_runtime_journal_path_for_test,
-    seed_network_runtime_for_test, stream_network_runtime_event_chain_for_read_model_for_test,
-};
 use serde_json::Value;
 
 #[tokio::test]
-async fn service_network_read_model_delivers_local_runtime_chain() -> Result<(), serde_json::Error>
-{
+async fn service_network_read_model_delivers_local_runtime_chain(
+) -> Result<(), Box<dyn std::error::Error>> {
     let _guard = lock_activity_report_env_for_test().await;
     let model = read_model(vec![full_metadata_row()]);
-    seed_network_runtime_for_test(&model).await;
-    let before_projection = journal_line_count();
-    let report = deliver_network_runtime_for_read_model_for_test(&model).await;
-    let stream_report = stream_network_runtime_event_chain_for_read_model_for_test(&model).await;
+    seed_network_runtime_for_test(&model).await?;
+    let before_projection = journal_line_count()?;
+    let report = deliver_network_runtime_for_read_model_for_test(&model).await?;
+    let stream_report = stream_network_runtime_event_chain_for_read_model_for_test(&model).await?;
     let entries = stream_entries(&network_runtime_event_chain_stream_payload_for_test(
         &stream_report,
     ));
@@ -36,7 +37,7 @@ async fn service_network_read_model_delivers_local_runtime_chain() -> Result<(),
     assert_eq!(report.enforcement_command_events, 0);
     assert_eq!(report.publish_reports, 0);
     assert_eq!(report.stored_events, 3);
-    assert_eq!(before_projection, journal_line_count());
+    assert_eq!(before_projection, journal_line_count()?);
     let event_types = event_types(&entries);
     assert_eq!(
         event_types,
@@ -54,12 +55,12 @@ async fn service_network_read_model_delivers_local_runtime_chain() -> Result<(),
 
 #[tokio::test]
 async fn service_network_read_model_keeps_partial_metadata_manual_required(
-) -> Result<(), serde_json::Error> {
+) -> Result<(), Box<dyn std::error::Error>> {
     let _guard = lock_activity_report_env_for_test().await;
     let model = read_model(vec![partial_metadata_row()]);
-    seed_network_runtime_for_test(&model).await;
-    let report = deliver_network_runtime_for_read_model_for_test(&model).await;
-    let stream_report = stream_network_runtime_event_chain_for_read_model_for_test(&model).await;
+    seed_network_runtime_for_test(&model).await?;
+    let report = deliver_network_runtime_for_read_model_for_test(&model).await?;
+    let stream_report = stream_network_runtime_event_chain_for_read_model_for_test(&model).await?;
     let entries = stream_entries(&network_runtime_event_chain_stream_payload_for_test(
         &stream_report,
     ));
@@ -86,36 +87,44 @@ async fn service_network_read_model_keeps_partial_metadata_manual_required(
 }
 
 #[tokio::test]
-async fn empty_service_network_read_model_does_not_invent_runtime_events() {
+async fn empty_service_network_read_model_does_not_invent_runtime_events(
+) -> Result<(), Box<dyn std::error::Error>> {
     let _guard = lock_activity_report_env_for_test().await;
-    let report = deliver_network_runtime_for_read_model_for_test(&read_model(Vec::new())).await;
+    let report = deliver_network_runtime_for_read_model_for_test(&read_model(Vec::new())).await?;
 
     assert_eq!(report.observed_rows, 0);
     assert_eq!(report.delivered_rows, 0);
     assert_eq!(report.failed_rows, 0);
     assert_eq!(report.publish_reports, 0);
     assert_eq!(report.stored_events, 0);
+
+    Ok(())
 }
 
 #[tokio::test]
-async fn invalid_source_event_id_fails_closed_without_projection_events() {
+async fn invalid_source_event_id_fails_closed_without_projection_events(
+) -> Result<(), Box<dyn std::error::Error>> {
     let _guard = lock_activity_report_env_for_test().await;
     let mut invalid = full_metadata_row();
     invalid.event_id = "invalid event id".to_string();
-    let report = deliver_network_runtime_for_read_model_for_test(&read_model(vec![invalid])).await;
+    let report =
+        deliver_network_runtime_for_read_model_for_test(&read_model(vec![invalid])).await?;
 
     assert_eq!(report.observed_rows, 1);
     assert_eq!(report.delivered_rows, 0);
     assert_eq!(report.failed_rows, 1);
     assert_eq!(report.stored_events, 0);
+
+    Ok(())
 }
 
 #[tokio::test]
-async fn malformed_persisted_network_rows_fail_closed_without_journal_mutation() {
+async fn malformed_persisted_network_rows_fail_closed_without_journal_mutation(
+) -> Result<(), Box<dyn std::error::Error>> {
     let _guard = lock_activity_report_env_for_test().await;
     let valid_model = read_model(vec![full_metadata_row()]);
-    seed_network_runtime_for_test(&valid_model).await;
-    let before = journal_line_count();
+    seed_network_runtime_for_test(&valid_model).await?;
+    let before = journal_line_count()?;
 
     let mut malformed_rows = Vec::new();
     let mut unknown_status = full_metadata_row();
@@ -140,11 +149,13 @@ async fn malformed_persisted_network_rows_fail_closed_without_journal_mutation()
 
     for malformed in malformed_rows {
         let report =
-            deliver_network_runtime_for_read_model_for_test(&read_model(vec![malformed])).await;
+            deliver_network_runtime_for_read_model_for_test(&read_model(vec![malformed])).await?;
         assert_eq!(report.failed_rows, 1);
         assert_eq!(report.stored_events, 0);
-        assert_eq!(journal_line_count(), before);
+        assert_eq!(journal_line_count()?, before);
     }
+
+    Ok(())
 }
 
 fn read_model(rows: Vec<ActivityNetworkFlowObservation>) -> ActivityNetworkFlowReadModel {
@@ -179,20 +190,6 @@ fn full_metadata_row() -> ActivityNetworkFlowObservation {
 
 fn partial_metadata_row() -> ActivityNetworkFlowObservation {
     row_with_event_id("network-flow-event-partial-1", None, None, None, Some(0))
-}
-
-fn row(
-    destination_domain: Option<TestString>,
-    process_name: Option<TestString>,
-    process_id: Option<u64>,
-) -> ActivityNetworkFlowObservation {
-    row_with_event_id(
-        constants::activity_store::TEST_NETWORK_EVENT_ID,
-        destination_domain,
-        process_name,
-        process_id,
-        Some(1),
-    )
 }
 
 fn row_with_event_id(
@@ -243,10 +240,12 @@ fn row_with_event_id(
     }
 }
 
-fn journal_line_count() -> usize {
-    std::fs::read_to_string(network_runtime_journal_path_for_test().as_path())
-        .map(|text| text.lines().count())
-        .unwrap_or_default()
+fn journal_line_count() -> Result<usize, NetworkRuntimeTestError> {
+    Ok(
+        std::fs::read_to_string(network_runtime_journal_path_for_test()?.as_path())
+            .map(|text| text.lines().count())
+            .unwrap_or_default(),
+    )
 }
 
 fn stream_entries(payload: &ocentra_parent_agent_protocol::logging::LogFields) -> Vec<Value> {

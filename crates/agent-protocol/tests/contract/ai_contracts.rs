@@ -8,8 +8,9 @@ use ocentra_ai_contracts::ai_contracts::{
     AiAuthorityBoundary, AiCustodyState, AiDegradedState, AiDurabilityState, AiRedactionState,
     AiRetentionState, AiValidationState, AI_CONTRACT_SCHEMA_VERSION,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::ai_contracts::{
-    decode_work_request, encode_work_request, AiProtocolContractError,
+    decode_work_request, encode_work_request, AiProtocolContractError, AiProtocolWorkRequestError,
     AI_PROTOCOL_CONTRACT_SCHEMA_VERSION,
 };
 use serde_json::{json, Value};
@@ -38,17 +39,17 @@ fn work_request_fixture() -> Value {
 }
 
 fn encoded(value: &Value) -> Vec<u8> {
-    serde_json::to_vec(value).expect("AI protocol fixture must encode")
+    serde_json::to_vec(value).expect_value("AI protocol fixture must encode")
 }
 
 #[test]
 fn current_work_request_round_trips_through_the_protocol_adapter() {
     let request = decode_work_request(&encoded(&work_request_fixture()))
-        .expect("current AI work request must decode");
+        .expect_value("current AI work request must decode");
     let encoded_request =
-        encode_work_request(&request).expect("decoded AI work request must re-encode");
-    let value: Value =
-        serde_json::from_slice(&encoded_request).expect("encoded AI work request must be JSON");
+        encode_work_request(&request).expect_value("decoded AI work request must re-encode");
+    let value: Value = serde_json::from_slice(&encoded_request)
+        .expect_value("encoded AI work request must be JSON");
 
     assert_eq!(
         value["identity"]["schemaVersion"],
@@ -105,7 +106,7 @@ fn current_work_request_round_trips_through_the_protocol_adapter() {
 fn object_keys(value: &Value) -> BTreeSet<String> {
     value
         .as_object()
-        .expect("AI contract value must be an object")
+        .expect_value("AI contract value must be an object")
         .keys()
         .cloned()
         .collect()
@@ -113,31 +114,34 @@ fn object_keys(value: &Value) -> BTreeSet<String> {
 
 #[test]
 fn malformed_protocol_bytes_fail_before_contract_decoding() {
-    assert_eq!(
+    assert!(matches!(
         decode_work_request(b"{not-json"),
-        Err(AiProtocolContractError::InvalidEncoding)
-    );
+        Err(AiProtocolContractError::InvalidEncoding(error))
+            if error.classify() == serde_json::error::Category::Syntax
+    ));
 }
 
 #[test]
 fn stale_or_missing_schema_versions_fail_closed() {
     let mut stale = work_request_fixture();
     stale["identity"]["schemaVersion"] = json!("ai-contracts-v0");
-    assert_eq!(
+    assert!(matches!(
         decode_work_request(&encoded(&stale)),
         Err(AiProtocolContractError::StaleSchemaVersion)
-    );
+    ));
 
     let mut missing = work_request_fixture();
     missing
         .get_mut("identity")
         .and_then(Value::as_object_mut)
-        .expect("fixture identity must be an object")
+        .expect_value("fixture identity must be an object")
         .remove("schemaVersion");
-    assert_eq!(
+    assert!(matches!(
         decode_work_request(&encoded(&missing)),
-        Err(AiProtocolContractError::InvalidWorkRequest)
-    );
+        Err(AiProtocolContractError::InvalidWorkRequest(
+            AiProtocolWorkRequestError::MissingSchemaVersion
+        ))
+    ));
 }
 
 #[test]
@@ -149,9 +153,11 @@ fn caller_supplied_prompt_and_runtime_attachments_are_rejected() {
         let mut value = work_request_fixture();
         value[field] = attachment;
 
-        assert_eq!(
-            decode_work_request(&encoded(&value)),
-            Err(AiProtocolContractError::OwnerResolvedAttachment),
+        assert!(
+            matches!(
+                decode_work_request(&encoded(&value)),
+                Err(AiProtocolContractError::OwnerResolvedAttachment)
+            ),
             "caller-supplied {field} must not cross the protocol boundary"
         );
     }
@@ -162,34 +168,44 @@ fn unknown_wire_fields_are_rejected_by_the_protocol_shape() {
     let mut value = work_request_fixture();
     value["callerAuthority"] = json!("not-an-owner-issued-capability");
 
-    assert_eq!(
+    assert!(matches!(
         decode_work_request(&encoded(&value)),
-        Err(AiProtocolContractError::InvalidWorkRequest)
-    );
+        Err(AiProtocolContractError::InvalidWorkRequest(
+            AiProtocolWorkRequestError::Encoding(error)
+        )) if error.classify() == serde_json::error::Category::Data
+    ));
 }
 
 #[test]
 fn invalid_timestamp_deadline_and_retry_values_are_rejected() {
     let mut invalid_timestamp = work_request_fixture();
     invalid_timestamp["requestedAt"] = json!("2026-08-28T09:00:00");
-    assert_eq!(
+    assert!(matches!(
         decode_work_request(&encoded(&invalid_timestamp)),
-        Err(AiProtocolContractError::InvalidWorkRequest)
-    );
+        Err(AiProtocolContractError::InvalidWorkRequest(
+            AiProtocolWorkRequestError::Encoding(error)
+        )) if error.classify() == serde_json::error::Category::Data
+    ));
 
     let mut invalid_deadline = work_request_fixture();
     invalid_deadline["deadlineAt"] = json!("2026-08-28T08:59:59Z");
-    assert_eq!(
+    assert!(matches!(
         decode_work_request(&encoded(&invalid_deadline)),
-        Err(AiProtocolContractError::InvalidWorkRequest)
-    );
+        Err(AiProtocolContractError::InvalidWorkRequest(
+            AiProtocolWorkRequestError::Contract(
+                "AI work request has an invalid requested/deadline timestamp"
+            )
+        ))
+    ));
 
     let mut invalid_retry = work_request_fixture();
     invalid_retry["retryPolicy"]["maxAttempts"] = json!(0);
-    assert_eq!(
+    assert!(matches!(
         decode_work_request(&encoded(&invalid_retry)),
-        Err(AiProtocolContractError::InvalidWorkRequest)
-    );
+        Err(AiProtocolContractError::InvalidWorkRequest(
+            AiProtocolWorkRequestError::Encoding(error)
+        )) if error.classify() == serde_json::error::Category::Data
+    ));
 }
 
 #[test]
@@ -275,6 +291,10 @@ fn canonical_ai_enum_values_match_the_shared_wire_contract() {
         (AiEvidenceKind::ParentRule, "parent-rule"),
         (AiEvidenceKind::Audit, "audit"),
     ]);
+    assert_ai_workflow_wire_values();
+}
+
+fn assert_ai_workflow_wire_values() {
     assert_wire_values([
         (AiProvenanceKind::DirectObservation, "direct-observation"),
         (
@@ -355,7 +375,7 @@ where
 {
     for (value, expected) in values {
         assert_eq!(
-            serde_json::to_value(value).expect("AI enum must serialize"),
+            serde_json::to_value(value).expect_value("AI enum must serialize"),
             Value::String(expected.to_owned())
         );
     }
@@ -365,15 +385,19 @@ where
 fn unknown_work_kind_and_owner_authority_values_fail_closed() {
     let mut unknown_kind = work_request_fixture();
     unknown_kind["workKind"] = json!("caller-minted-authority");
-    assert_eq!(
+    assert!(matches!(
         decode_work_request(&encoded(&unknown_kind)),
-        Err(AiProtocolContractError::InvalidWorkRequest)
-    );
+        Err(AiProtocolContractError::InvalidWorkRequest(
+            AiProtocolWorkRequestError::Encoding(error)
+        )) if error.classify() == serde_json::error::Category::Data
+    ));
 
     let mut unknown_boundary = work_request_fixture();
     unknown_boundary["authorityBoundary"] = json!("manual-review-required");
-    assert_eq!(
+    assert!(matches!(
         decode_work_request(&encoded(&unknown_boundary)),
-        Err(AiProtocolContractError::InvalidWorkRequest)
-    );
+        Err(AiProtocolContractError::InvalidWorkRequest(
+            AiProtocolWorkRequestError::Encoding(error)
+        )) if error.classify() == serde_json::error::Category::Data
+    ));
 }

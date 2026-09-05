@@ -30,7 +30,7 @@ pub(super) fn capture(
             .map_err(|_error| ManagedBrowserCdpCaptureError::ScreenshotSafetyGuardUnavailable)?;
     let mut frozen = match session.freeze(
         &authority.launch_authority,
-        authority.capability_revoked.clone(),
+        std::sync::Arc::clone(&authority.capability_revoked),
     ) {
         Ok(frozen) => frozen,
         Err(error) => {

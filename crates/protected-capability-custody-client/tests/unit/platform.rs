@@ -4,7 +4,8 @@ use ocentra_protected_capability_custody_protocol::account_issuer::ACCOUNT_ISSUE
 use ocentra_protected_capability_custody_protocol::types::ProtocolError;
 
 #[test]
-fn protected_receipt_wire_rejects_empty_and_oversized_inputs() {
+fn protected_receipt_wire_rejects_empty_and_oversized_inputs(
+) -> Result<(), AccountIssuerClientError> {
     assert!(matches!(
         AcknowledgeReceiptWire::try_from(Vec::new()),
         Err(AccountIssuerClientError::Protocol(
@@ -17,7 +18,8 @@ fn protected_receipt_wire_rejects_empty_and_oversized_inputs() {
             ProtocolError::FieldTooLarge
         ))
     ));
-    assert!(matches!(AcknowledgeReceiptWire::try_from(vec![0]), Ok(_)));
+    let _accepted = AcknowledgeReceiptWire::try_from(vec![0])?;
+    Ok(())
 }
 
 #[cfg(not(windows))]

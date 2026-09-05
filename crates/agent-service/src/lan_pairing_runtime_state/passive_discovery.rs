@@ -86,14 +86,8 @@ pub(crate) struct LanPassiveDiscoveryServiceRuntime {
     _owner: Arc<LanPassiveDiscoveryServiceOwner>,
 }
 
-pub(crate) fn spawn_lan_passive_discovery_runtime(
-    runtime: LanPairingRuntime,
-) -> std::io::Result<LanPassiveDiscoveryServiceRuntime> {
-    start_lan_passive_discovery_service_runtime(runtime)
-}
-
 pub(crate) fn start_lan_passive_discovery_service_runtime(
-    runtime: LanPairingRuntime,
+    runtime: &LanPairingRuntime,
 ) -> std::io::Result<LanPassiveDiscoveryServiceRuntime> {
     start::start(runtime)
 }

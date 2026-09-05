@@ -21,7 +21,7 @@ impl ParentRestoreRuntime {
         for record in report.records {
             let event = DataCustodyRuntimeEventJournal::decode(&record.envelope)
                 .map_err(RestoreRuntimeError::ReplayDecode)?;
-            apply_replayed_event(self, event)?;
+            apply_replayed_event(self, &event)?;
         }
         self.restart_pending_restore = self
             .ledger
@@ -45,9 +45,9 @@ impl ParentRestoreRuntime {
 
 fn apply_replayed_event(
     runtime: &mut ParentRestoreRuntime,
-    event: DataCustodyRuntimeEvent,
+    event: &DataCustodyRuntimeEvent,
 ) -> Result<(), RestoreRuntimeError> {
-    match event.kind {
+    match &event.kind {
         DataCustodyRuntimeEventKind::RollbackBeforeDispatch => {
             runtime
                 .restart_pending_rollback
@@ -60,7 +60,7 @@ fn apply_replayed_event(
         }
         _ => {}
     }
-    runtime.ledger.apply_event(&event)?;
+    runtime.ledger.apply_event(event)?;
     Ok(())
 }
 

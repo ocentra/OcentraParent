@@ -66,9 +66,8 @@ fn probe_service_identity_on_target_until(
     let ip_address = ip_address.parse::<Ipv4Addr>().ok()?;
     let endpoint = SocketAddr::new(ip_address.into(), target.port);
     for path in target.request_paths {
-        let connect_deadline = deadline.min(
-            Instant::now() + Duration::from_millis(SERVICE_IDENTITY_PROBE_CONNECT_TIMEOUT_MS),
-        );
+        let connect_deadline = deadline
+            .min(Instant::now() + Duration::from_millis(SERVICE_IDENTITY_PROBE_CONNECT_TIMEOUT_MS));
         let stream = connect_until(endpoint, connect_deadline, cancellation)?;
         let probe_match = match target.transport {
             ProbeTransport::Http => probe_service_identity_over_http_until(

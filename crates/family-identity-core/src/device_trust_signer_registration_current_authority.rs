@@ -1,4 +1,6 @@
-use crate::device_trust_current_binding::CurrentChildDeviceTrustBinding;
+use crate::device_trust_current_binding::{
+    CurrentChildDeviceTrustBinding, CurrentChildDeviceTrustBindingInput,
+};
 
 use super::{CurrentSignerAuthority, DeviceTrustLifecycleState};
 
@@ -8,17 +10,19 @@ impl CurrentSignerAuthority {
     /// strings or deserialized wire data by downstream callers.
     pub fn into_current_child_device_trust_binding(self) -> CurrentChildDeviceTrustBinding {
         CurrentChildDeviceTrustBinding::from_current_signer_authority(
-            self.family_id,
-            self.trust_subject,
-            self.parent_device_id,
-            self.child_device_id,
-            self.installation_id,
-            self.signer_key_id,
-            self.signer_key_sha256,
-            self.lifecycle_generation,
-            self.installation_binding_generation,
-            self.authority_generation,
-            self.state,
+            CurrentChildDeviceTrustBindingInput {
+                family_id: self.family_id,
+                trust_subject: self.trust_subject,
+                parent_device_id: self.parent_device_id,
+                child_device_id: self.child_device_id,
+                installation_id: self.installation_id,
+                signer_key_id: self.signer_key_id,
+                signer_key_sha256: self.signer_key_sha256,
+                lifecycle_generation: self.lifecycle_generation,
+                installation_binding_generation: self.installation_binding_generation,
+                authority_generation: self.authority_generation,
+                state: self.state,
+            },
         )
     }
 }
@@ -82,26 +86,5 @@ impl CurrentSignerAuthority {
 
     pub fn credential_sign_count(&self) -> u32 {
         self.credential_sign_count
-    }
-
-    pub(crate) fn matches_registration(
-        &self,
-        parent_intent_digest: &str,
-        parent_presence_receipt: &str,
-        parent_route_id: &str,
-        signer_public_key: [u8; 32],
-        installation_id: &str,
-        credential_id: &str,
-        credential_algorithm: i32,
-        credential_sign_count: u32,
-    ) -> bool {
-        self.parent_intent_digest == parent_intent_digest
-            && self.parent_presence_receipt == parent_presence_receipt
-            && self.parent_route_id == parent_route_id
-            && self.signer_public_key == signer_public_key
-            && self.installation_id == installation_id
-            && self.credential_id == credential_id
-            && self.credential_algorithm == credential_algorithm
-            && self.credential_sign_count == credential_sign_count
     }
 }

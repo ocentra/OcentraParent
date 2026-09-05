@@ -1,5 +1,4 @@
 use std::ffi::OsString;
-use std::sync::Mutex;
 
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::DeviceRoleRuntimeReadModel;
@@ -12,9 +11,7 @@ use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeRouteState;
 use ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeSurface;
 use ocentra_parent_agent_protocol::lan_pairing_authority::LanPairingParentAuthority;
 
-use crate::{app::lan_pairing::LanPairingRuntime, test_invariants::require_ok};
-
-static ENV_LOCK: Mutex<()> = Mutex::new(());
+use crate::{app::lan_pairing::LanPairingRuntime, test_require_ok::require_ok};
 
 #[test]
 fn device_role_read_model_reports_dual_role_without_duplicate_ai_runtime_claims() {
@@ -82,7 +79,7 @@ fn assert_child_mobile_surface_defaults(expected_surface: &DeviceRuntimeSurface)
             )
         };
     let _guard = require_ok(
-        ENV_LOCK.lock(),
+        crate::LAN_RUNTIME_ENV_LOCK.lock(),
         "lan device-role env lock remains available",
     );
     let previous_registry_path =

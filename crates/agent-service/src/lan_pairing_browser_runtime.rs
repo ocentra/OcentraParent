@@ -39,13 +39,12 @@ pub(crate) fn browser_discovery_scan_event(
     if let Err(reason) = start_background_browser_discovery_scan(runtime, scan_command) {
         return rejection_event(command, &reason, None, &LanPairingOptionalText(None));
     }
-    let event = retag_lan_pairing_event(
+    retag_lan_pairing_event(
         pairing_status_event(runtime, browser_discovery_scan_ack_command(command)),
         &LanPairingEventIdRef(constants::lan_pairing::EVENT_BROWSER_DISCOVERY_REPORTED),
         AgentEventName::AgentLanPairingBrowserDiscoveryReported,
         LogLevel::Info,
-    );
-    event
+    )
 }
 
 fn start_background_browser_discovery_scan(
@@ -53,7 +52,7 @@ fn start_background_browser_discovery_scan(
     command: AgentCommandEnvelope,
 ) -> Result<(), LanPairingRejectionReason> {
     let cancellation = Arc::new(AtomicBool::new(false));
-    let worker_slot = runtime.browser_discovery_scan_worker.clone();
+    let worker_slot = Arc::clone(&runtime.browser_discovery_scan_worker);
     let mut worker_slot_guard = worker_slot
         .lock()
         .map_err(|_error| LanPairingRejectionReason::SignedChildAgentContextUnavailable)?;
@@ -65,7 +64,7 @@ fn start_background_browser_discovery_scan(
             worker_slot_guard.replace(worker);
             LanPairingRejectionReason::SignedChildAgentContextUnavailable
         })?;
-    let worker_cancellation = cancellation.clone();
+    let worker_cancellation = Arc::clone(&cancellation);
     let worker_runtime = runtime.clone_for_background_scan();
     let join = thread::Builder::new()
         .name(LAN_BROWSER_DISCOVERY_SCAN_THREAD_NAME.to_string())

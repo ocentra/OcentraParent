@@ -59,7 +59,7 @@ pub(super) fn mark_signing(
                 SIGNER_NOT_STARTED,
             ],
         )
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)?;
     if changed == 1 {
         return Ok(());
     }
@@ -106,7 +106,7 @@ pub(super) fn mark_signing_failure(
                 SIGNER_IN_FLIGHT,
             ],
         )
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)?;
     if changed == 1 {
         return Ok(());
     }
@@ -131,7 +131,7 @@ pub(super) fn mark_issued(
                 SIGNER_IN_FLIGHT,
             ],
         )
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)?;
     (changed == 1)
         .then_some(())
         .ok_or(AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)
@@ -149,7 +149,7 @@ fn reservation_state_error(
             |row| row.get(0),
         )
         .optional()
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)?;
     match state.as_deref() {
         Some(RESERVATION_MANUAL_REQUIRED) => {
             Err(AccountIdentityAuthorityIssuerClientError::ManualRequired)
@@ -176,5 +176,5 @@ pub(super) fn mark_manual_required(
             ],
         )
         .map(|_| ())
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)
 }

@@ -26,7 +26,7 @@ impl AccountIdentityAuthorityIssuerClient {
         currentness: &AccountIdentityIssuerCurrentness,
         registration: &ProtectedAccountIssuerKeyRegistration,
     ) -> Result<AccountIdentityIssuerV2KeyRecord, AccountIdentityAuthorityIssuerClientError> {
-        let mut transaction = self.begin_transaction()?;
+        let transaction = self.begin_transaction()?;
         let result = transaction.register_protected_key(currentness, registration)?;
         transaction.commit()?;
         Ok(result)
@@ -51,7 +51,7 @@ impl AccountIdentityAuthorityIssuerClient {
         protected_receipt_wire: &[u8],
     ) -> Result<AccountIdentityAuthorityProducerV2Receipt, AccountIdentityAuthorityIssuerClientError>
     {
-        let mut transaction = self.begin_transaction()?;
+        let transaction = self.begin_transaction()?;
         let receipt =
             transaction.acknowledge_receipt(currentness, claim, protected_receipt_wire)?;
         transaction.commit()?;

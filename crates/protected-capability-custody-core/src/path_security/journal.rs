@@ -57,7 +57,7 @@ impl JournalGuard {
             .handle
             .as_file()
             .metadata()
-            .map_err(|_| PathSecurityError::Unavailable)?;
+            .map_err(|_journal_metadata_error| PathSecurityError::Unavailable)?;
         if metadata.len() != 0 {
             return Err(PathSecurityError::UnsafePath);
         }

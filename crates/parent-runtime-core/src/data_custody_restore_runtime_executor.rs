@@ -3,7 +3,7 @@ use ocentra_schema::export_import_backup_recovery as contracts;
 use ocentra_storage_custody_core::export_import_backup_recovery::{
     export_import_backup_recovery_bundle_preflight_binding::custody_port::ImportCustodyCapabilityPort,
     export_import_backup_recovery_bundle_preflight_binding::execution_binding::{
-        RestoreDispatchReservation, RestoreExecutionBinding, RestoreExecutionStage,
+        DispatchReservationError, RestoreDispatchReservation, RestoreExecutionStage,
     },
     export_import_backup_recovery_compensation::{
         decide_partial_write_compensation, PartialWriteCompensation, PartialWriteObservation,
@@ -40,6 +40,7 @@ pub enum RestoreExecutorError {
 
 #[derive(Debug)]
 pub enum RestoreExecutorOperationError {
+    Reservation(DispatchReservationError),
     Executor(RestoreExecutorError),
     Receipt(RestoreExecutionPlanError),
     Migration(MigrationExecutionError),
@@ -165,7 +166,7 @@ pub(crate) fn execute_restore_operation<'a>(
     let reservation = plan
         .execution_binding()
         .reserve_dispatch(plan.execution_ref(), RestoreExecutionStage::Restore)
-        .map_err(|_| RestoreExecutorOperationError::Executor(RestoreExecutorError::Failed))?;
+        .map_err(RestoreExecutorOperationError::Reservation)?;
     let receipt = provider
         .execute_restore(plan, reservation)
         .map_err(RestoreExecutorOperationError::Executor)?;

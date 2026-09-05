@@ -5,15 +5,12 @@ use std::net::SocketAddr;
 
 pub async fn run_agent_service() {
     let network = NetworkPolicy::from_environment();
-    let Some(parent_local_bridge_admission) =
+    let parent_local_bridge_admission =
         crate::parent_local_bridge_admission::ParentLocalBridgeAdmission::mount_for_service(
             &network,
-        )
-    else {
-        return;
-    };
+        );
     if let Err(error) = initialize_network_runtime().await {
-        let reason = super::startup_error::network_runtime_startup_reason(error);
+        let reason = super::startup_error::network_runtime_startup_reason(&error);
         let _ = crate::dev_log::write_agent_error(
             constants::error::AGENT_SERVICE_RUNS,
             super::startup_error_log_fields(&network, reason),
@@ -34,7 +31,7 @@ pub async fn run_agent_service() {
         constants::dev_log_message::AGENT_SERVICE_STARTED,
         super::startup_log_fields(&network),
     );
-    crate::network_runtime_delivery::spawn_recurring_capture_loop();
+    crate::network_runtime_capture_loop::spawn_recurring_capture_loop();
     crate::screen_ai_cadence_runtime::spawn_screen_ai_cadence_runtime();
     crate::screen_ai_foreground_runtime::spawn_screen_ai_foreground_runtime();
     crate::screen_ai_analysis_runtime::spawn_screen_ai_analysis_runtime();

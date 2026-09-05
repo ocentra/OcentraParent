@@ -24,7 +24,8 @@ use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
 
 use super::*;
 use crate::lan_pairing_browser_add_device_state::scan_history::write_lock::scan_history_write_lock;
-use crate::test_invariants::{require_ok, require_some};
+use crate::test_require_ok::require_ok;
+use crate::test_require_some::require_some;
 
 #[test]
 fn persistent_runtime_saves_and_loads_scan_history_sidecar() {

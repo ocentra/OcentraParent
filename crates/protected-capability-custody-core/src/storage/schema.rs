@@ -79,7 +79,7 @@ pub(super) fn validate_integrity(connection: &Connection) -> Result<(), StorageE
 
 fn initialize(connection: &mut Connection) -> Result<(), StorageError> {
     let mut database_instance_id = [0_u8; 32];
-    fill(&mut database_instance_id).map_err(|_| StorageError::Unavailable)?;
+    fill(&mut database_instance_id).map_err(|_random_source_error| StorageError::Unavailable)?;
     if database_instance_id == [0_u8; 32] {
         return Err(StorageError::Unavailable);
     }
@@ -227,7 +227,9 @@ fn load_instance_id(connection: &Connection) -> Result<[u8; 32], StorageError> {
     if namespace.len() > MAX_METADATA_BYTES || instance.len() > MAX_METADATA_BYTES {
         return Err(StorageError::Tampered);
     }
-    let instance: [u8; 32] = instance.try_into().map_err(|_| StorageError::Tampered)?;
+    let instance: [u8; 32] = instance
+        .try_into()
+        .map_err(|_instance_id_length_error| StorageError::Tampered)?;
     if namespace != crate::RECORD_NAMESPACE
         || schema_version != i64::from(crate::STORAGE_SCHEMA_VERSION)
         || instance == [0_u8; 32]

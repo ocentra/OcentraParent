@@ -52,12 +52,9 @@ pub(super) fn cancel_pending_requests(
         .into_iter()
         .filter_map(|request_id| {
             let entry = state.entries.get_mut(&request_id)?;
-            entry
-                .sender
-                .take()
-                .map(|sender| {
-                    let _ = sender.send(super::RequestCompletionSignal::Cancelled);
-                });
+            if let Some(sender) = entry.sender.take() {
+                let _ = sender.send(super::RequestCompletionSignal::Cancelled);
+            }
             Some(super::completion_report(
                 request_id,
                 super::RequestCompletionOutcome::Cancelled,

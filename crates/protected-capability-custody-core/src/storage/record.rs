@@ -64,10 +64,12 @@ pub(super) fn from_raw(raw: RawRecord) -> Result<Record, StorageError> {
         writer_epoch: positive(raw.writer_epoch)?,
         anti_rollback_watermark: positive(raw.anti_rollback_watermark)?,
         sealed: raw.sealed,
-        schema_version: u32::try_from(raw.schema_version).map_err(|_| StorageError::Tampered)?,
-        binding_version: u16::try_from(raw.binding_version).map_err(|_| StorageError::Tampered)?,
+        schema_version: u32::try_from(raw.schema_version)
+            .map_err(|_schema_version_error| StorageError::Tampered)?,
+        binding_version: u16::try_from(raw.binding_version)
+            .map_err(|_binding_version_error| StorageError::Tampered)?,
         database_identity: DatabaseIdentity::from_bytes(&raw.database_identity)
-            .map_err(|_| StorageError::Tampered)?,
+            .map_err(|_database_identity_error| StorageError::Tampered)?,
         cas_digest: array(raw.cas_digest)?,
     };
     validate(&value)?;
@@ -136,7 +138,8 @@ pub(super) fn validate(value: &Record) -> Result<(), StorageError> {
         return Err(StorageError::Tampered);
     }
     transition::validate_state_sequence(value.state, value.sequence)?;
-    let binding = Binding::decode(&value.canonical_binding).map_err(|_| StorageError::Tampered)?;
+    let binding = Binding::decode(&value.canonical_binding)
+        .map_err(|_binding_decode_error| StorageError::Tampered)?;
     if binding.digest() != value.binding_digest
         || binding.locator().lookup_digest() != value.lookup_digest
         || cas_digest(value) != value.cas_digest
@@ -176,11 +179,14 @@ fn frame(hasher: &mut Sha256, value: &[u8]) {
 }
 
 fn array(value: Vec<u8>) -> Result<[u8; 32], StorageError> {
-    value.try_into().map_err(|_| StorageError::Tampered)
+    value
+        .try_into()
+        .map_err(|_array_length_error| StorageError::Tampered)
 }
 
 fn positive(value: i64) -> Result<u64, StorageError> {
-    let converted = u64::try_from(value).map_err(|_| StorageError::Tampered)?;
+    let converted =
+        u64::try_from(value).map_err(|_integer_conversion_error| StorageError::Tampered)?;
     if converted == 0 {
         return Err(StorageError::Tampered);
     }

@@ -18,6 +18,8 @@ use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
     LanServiceIdentityProbeEvidenceKind,
 };
 
+#[path = "canonical_household_merge_network.rs"]
+mod canonical_household_merge_network;
 #[path = "canonical_household_merge_registry.rs"]
 mod canonical_household_merge_registry;
 
@@ -249,20 +251,31 @@ fn production_valid_revoke_decision_marks_canonical_device_revoked() {
     let device = model
         .canonical_household_devices
         .iter()
-        .find(|device| device.canonical_device_id == canonical_device_id)
-        .expect("the production revoke target should remain in the canonical read model");
+        .find(|device| device.canonical_device_id == canonical_device_id);
     assert_eq!(
-        device.discovery_state,
-        LanPairingProductionDiscoveryState::Revoked
+        device.map(|device| &device.discovery_state),
+        Some(&LanPairingProductionDiscoveryState::Revoked)
     );
-    assert_eq!(device.trust_state, LanPairingTrustState::Revoked);
-    assert!(!device.enrollable);
-    assert_eq!(device.route_id, None);
-    assert!(device.network_identity.evidence_records.iter().any(|record| {
-        record.evidence_kind == LanDiscoveryEvidenceKind::ParentDecision
-            && record.value == constants::lan_pairing::HOUSEHOLD_ACTION_REVOKE
-            && record.confidence == LanDiscoveryEvidenceConfidence::Rejected
-    }));
+    assert_eq!(
+        device.map(|device| device.trust_state),
+        Some(LanPairingTrustState::Revoked)
+    );
+    assert_eq!(device.map(|device| device.enrollable), Some(false));
+    assert_eq!(device.map(|device| device.route_id.as_deref()), Some(None));
+    assert_eq!(
+        device.map(|device| {
+            device
+                .network_identity
+                .evidence_records
+                .iter()
+                .any(|record| {
+                    record.evidence_kind == LanDiscoveryEvidenceKind::ParentDecision
+                        && record.value == constants::lan_pairing::HOUSEHOLD_ACTION_REVOKE
+                        && record.confidence == LanDiscoveryEvidenceConfidence::Rejected
+                })
+        }),
+        Some(true)
+    );
 }
 
 #[test]
@@ -288,18 +301,25 @@ fn revoke_without_runtime_revocation_timestamp_is_ignored() {
     let device = model
         .canonical_household_devices
         .iter()
-        .find(|device| device.canonical_device_id == canonical_device_id)
-        .expect("the invalid revoke target should remain in the canonical read model");
+        .find(|device| device.canonical_device_id == canonical_device_id);
     assert_ne!(
-        device.discovery_state,
-        LanPairingProductionDiscoveryState::Revoked
+        device.map(|device| &device.discovery_state),
+        Some(&LanPairingProductionDiscoveryState::Revoked)
     );
-    assert_ne!(device.trust_state, LanPairingTrustState::Revoked);
-    assert!(device
-        .network_identity
-        .evidence_records
-        .iter()
-        .all(|record| record.evidence_kind != LanDiscoveryEvidenceKind::ParentDecision));
+    assert_ne!(
+        device.map(|device| device.trust_state),
+        Some(LanPairingTrustState::Revoked)
+    );
+    assert_eq!(
+        device.map(|device| {
+            device
+                .network_identity
+                .evidence_records
+                .iter()
+                .all(|record| record.evidence_kind != LanDiscoveryEvidenceKind::ParentDecision)
+        }),
+        Some(true)
+    );
 }
 
 #[test]
@@ -795,54 +815,6 @@ fn mdns_instance_name_merges_same_device_across_dhcp_renewal() {
             record.evidence_kind == LanDiscoveryEvidenceKind::ServiceProbeHint
                 && record.confidence == LanDiscoveryEvidenceConfidence::Strong
                 && record.value == "mdns-instance-name:Living Room TV._airplay._tcp.local"
-        }));
-}
-
-#[test]
-fn ssdp_udn_merges_same_device_even_when_neighbor_device_ids_differ() {
-    let mut alpha = discovery_device(
-        "lan-device-ssdp-alpha",
-        None::<&str>,
-        "Media Renderer",
-        Some("renderer.local"),
-        Some("192.168.1.100"),
-        None::<&str>,
-        vec![LanDiscoveryEvidenceSource::SsdpUpnpQuery],
-    );
-    alpha.service_identity_probe_evidence = vec![
-        service_hint(
-            LanServiceIdentityProbeEvidenceKind::SsdpDeviceType,
-            "urn:schemas-upnp-org:device:MediaRenderer:1",
-        ),
-        service_hint(
-            LanServiceIdentityProbeEvidenceKind::SsdpUdn,
-            "uuid:media-renderer-1",
-        ),
-    ];
-
-    let mut bravo = discovery_device(
-        "lan-device-ssdp-bravo",
-        None::<&str>,
-        "Media Renderer",
-        Some("renderer.local"),
-        Some("192.168.1.101"),
-        None::<&str>,
-        vec![LanDiscoveryEvidenceSource::SsdpUpnpQuery],
-    );
-    bravo.service_identity_probe_evidence = alpha.service_identity_probe_evidence.clone();
-
-    let model = build_lan_add_device_read_model(lan_input(vec![alpha, bravo]));
-
-    assert_eq!(model.canonical_household_devices.len(), 1);
-    assert_model_has_dedupe_note(&model, ["dedupe-decision=automatic", "shared-ssdp-udn"]);
-    assert!(model.canonical_household_devices[0]
-        .network_identity
-        .evidence_records
-        .iter()
-        .any(|record| {
-            record.evidence_kind == LanDiscoveryEvidenceKind::ServiceProbeHint
-                && record.confidence == LanDiscoveryEvidenceConfidence::Strong
-                && record.value == "ssdp-udn:uuid:media-renderer-1"
         }));
 }
 

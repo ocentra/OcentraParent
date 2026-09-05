@@ -5,7 +5,9 @@
 use ocentra_schema::account_identity_parent_local_bridge::AccountIdentityParentLocalBridgeHandshake;
 use rusqlite::{params, TransactionBehavior};
 
-use crate::session_lifecycle_custody::authenticated_parent_local_bridge::AuthenticatedParentLocalBridgeSession;
+use crate::session_lifecycle_custody::authenticated_parent_local_bridge::{
+    AuthenticatedParentLocalBridgeSession, AuthenticatedParentLocalBridgeSessionInput,
+};
 use crate::session_lifecycle_custody::parent_local_bridge::{
     connection_nonce_digest, ParentLocalBridgeSessionCapability,
 };
@@ -23,7 +25,7 @@ impl super::super::SqliteAccountIdentityAuthorityRepository {
     ) -> Result<AuthenticatedParentLocalBridgeSession, SessionLifecycleRepositoryError> {
         handshake
             .validate_shape()
-            .map_err(|_| SessionLifecycleRepositoryError::InvalidParentLocalBridgeHandshake)?;
+            .map_err(|_error| SessionLifecycleRepositoryError::InvalidParentLocalBridgeHandshake)?;
         let capability_digest =
             ParentLocalBridgeSessionCapability::digest_presented(&handshake.capability)
                 .ok_or(SessionLifecycleRepositoryError::InvalidParentLocalBridgeHandshake)?;
@@ -32,7 +34,7 @@ impl super::super::SqliteAccountIdentityAuthorityRepository {
         let transaction = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+            .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
         let now_epoch_millis = clock::trusted_now_in_transaction(&transaction)?;
         let record = super::storage::read_record(
             &transaction,
@@ -70,20 +72,22 @@ impl super::super::SqliteAccountIdentityAuthorityRepository {
         audit::cleanup(&transaction, &record.binding.account_id, now_epoch_millis)?;
         transaction
             .commit()
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+            .map_err(|_error| SessionLifecycleRepositoryError::Unavailable)?;
         Ok(AuthenticatedParentLocalBridgeSession::new(
-            record.capability_digest,
-            record.binding.account_id,
-            record.binding.member_id,
-            record.binding.household_id,
-            record.binding.device_id,
-            role,
-            record.binding.authority_session_id,
-            record.binding.authority_session_generation,
-            record.binding.authority_generation,
-            record.audience,
-            handshake.connection_nonce.clone(),
-            record.expires_at_epoch_millis,
+            AuthenticatedParentLocalBridgeSessionInput {
+                capability_digest: record.capability_digest,
+                account_id: record.binding.account_id,
+                actor_id: record.binding.member_id,
+                household_id: record.binding.household_id,
+                controller_device_id: record.binding.device_id,
+                role,
+                session_id: record.binding.authority_session_id,
+                session_generation: record.binding.authority_session_generation,
+                authority_generation: record.binding.authority_generation,
+                audience: record.audience,
+                connection_nonce: handshake.connection_nonce.clone(),
+                expires_at_epoch_millis: record.expires_at_epoch_millis,
+            },
         ))
     }
 }
@@ -108,7 +112,7 @@ fn consume_record(
                 record.last_transition_at_epoch_millis,
             ],
         )
-        .map_err(|_| SessionLifecycleRepositoryError::CurrentnessConflict)?;
+        .map_err(|_error| SessionLifecycleRepositoryError::CurrentnessConflict)?;
     (changed == 1)
         .then_some(())
         .ok_or(SessionLifecycleRepositoryError::ReplayRejected)

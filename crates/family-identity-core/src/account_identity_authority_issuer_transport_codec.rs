@@ -1,11 +1,8 @@
 use chrono::{DateTime, Duration, SecondsFormat, Utc};
 use sha2::{Digest, Sha256};
 
-use super::super::key_registry::RegisteredIssuerKey;
-use super::super::service_binding::AccountIdentityIssuerServiceBinding;
 use super::super::AccountIdentityIssuerError;
 use super::ParsedTransport;
-use crate::account_identity_authority::VerifiedAccountIdentityAuthority;
 use ocentra_schema::account_identity_authority_producer::{
     ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_MAX_FUTURE_ISSUED_SKEW_SECONDS,
     ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_MAX_LIFETIME_SECONDS,
@@ -26,6 +23,18 @@ pub(super) const MAX_OUTER_WIRE_BYTES: usize = DOMAIN_SEPARATOR.len()
     + ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_MAX_WIRE_BYTES
     + SIGNATURE_BYTES;
 
+#[derive(Clone, Copy)]
+struct TransportReceiptParts<'a> {
+    binding_id: &'a str,
+    account_id: &'a str,
+    household_id: &'a str,
+    authority_generation: u64,
+    key_id: &'a str,
+    key_version: u64,
+    nonce: &'a [u8; NONCE_BYTES],
+    signing_bytes: &'a [u8],
+}
+
 pub(super) fn parse(
     wire: &[u8],
     now: DateTime<Utc>,
@@ -36,7 +45,7 @@ pub(super) fn parse(
     let signing_length = wire.len() - SIGNATURE_BYTES;
     let signing_bytes = wire[..signing_length].to_vec();
     let signature = <[u8; SIGNATURE_BYTES]>::try_from(&wire[signing_length..])
-        .map_err(|_| AccountIdentityIssuerError::InvalidTransport)?;
+        .map_err(|_error| AccountIdentityIssuerError::InvalidTransport)?;
     if !signing_bytes.starts_with(DOMAIN_SEPARATOR) {
         return Err(AccountIdentityIssuerError::InvalidTransport);
     }
@@ -78,16 +87,16 @@ pub(super) fn parse(
     {
         return Err(AccountIdentityIssuerError::TransportExpired);
     }
-    let receipt_id = receipt_id_from_parts(
-        &binding_id,
-        &account_id,
-        &household_id,
+    let receipt_id = receipt_id_from_parts(TransportReceiptParts {
+        binding_id: &binding_id,
+        account_id: &account_id,
+        household_id: &household_id,
         authority_generation,
-        &key_id,
+        key_id: &key_id,
         key_version,
-        &nonce,
-        &signing_bytes,
-    );
+        nonce: &nonce,
+        signing_bytes: &signing_bytes,
+    });
     Ok(ParsedTransport {
         signing_bytes,
         signature,
@@ -111,110 +120,29 @@ fn validate_inner_wire(inner_wire: &[u8]) -> Result<(), AccountIdentityIssuerErr
         .ok_or(AccountIdentityIssuerError::InvalidTransport)
 }
 
-pub(super) fn encode(
-    binding: &AccountIdentityIssuerServiceBinding,
-    authority: &VerifiedAccountIdentityAuthority,
-    registered: &RegisteredIssuerKey,
-    issued_at: DateTime<Utc>,
-    expires_at: DateTime<Utc>,
-    nonce: &[u8; NONCE_BYTES],
-    inner_wire: &[u8],
-) -> Result<Vec<u8>, AccountIdentityIssuerError> {
-    if inner_wire.len() > ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_MAX_WIRE_BYTES {
-        return Err(AccountIdentityIssuerError::InvalidTransport);
-    }
-    let mut bytes = DOMAIN_SEPARATOR.to_vec();
-    append_string(&mut bytes, VERSION)?;
-    append_string(&mut bytes, AUDIENCE)?;
-    append_string(&mut bytes, binding.service().label())?;
-    append_string(&mut bytes, binding.binding_id())?;
-    append_string(&mut bytes, &authority.account_id().to_string())?;
-    append_string(&mut bytes, &authority.household_id().to_string())?;
-    append_string(&mut bytes, &authority.authority_generation().to_string())?;
-    append_string(&mut bytes, registered.handle.key_id())?;
-    append_string(&mut bytes, &registered.handle.key_version().to_string())?;
-    append_string(
-        &mut bytes,
-        &issued_at.to_rfc3339_opts(SecondsFormat::Millis, true),
-    )?;
-    append_string(
-        &mut bytes,
-        &expires_at.to_rfc3339_opts(SecondsFormat::Millis, true),
-    )?;
-    bytes.extend_from_slice(nonce);
-    append_bytes(&mut bytes, inner_wire)?;
-    if bytes.len() > MAX_OUTER_WIRE_BYTES - SIGNATURE_BYTES {
-        return Err(AccountIdentityIssuerError::InvalidTransport);
-    }
-    Ok(bytes)
-}
-
-pub(super) fn receipt_id(
-    binding: &AccountIdentityIssuerServiceBinding,
-    authority: &VerifiedAccountIdentityAuthority,
-    registered: &RegisteredIssuerKey,
-    nonce: &[u8; NONCE_BYTES],
-    signing_bytes: &[u8],
-) -> String {
-    receipt_id_from_parts(
-        binding.binding_id(),
-        &authority.account_id().to_string(),
-        &authority.household_id().to_string(),
-        authority.authority_generation(),
-        registered.handle.key_id(),
-        registered.handle.key_version(),
-        nonce,
-        signing_bytes,
-    )
-}
-
-fn append_string(bytes: &mut Vec<u8>, value: &str) -> Result<(), AccountIdentityIssuerError> {
-    if value.is_empty() || value.len() > MAX_FIELD_BYTES {
-        return Err(AccountIdentityIssuerError::InvalidTransport);
-    }
-    append_bytes(bytes, value.as_bytes())
-}
-
-fn append_bytes(bytes: &mut Vec<u8>, value: &[u8]) -> Result<(), AccountIdentityIssuerError> {
-    let length =
-        u32::try_from(value.len()).map_err(|_| AccountIdentityIssuerError::InvalidTransport)?;
-    bytes.extend_from_slice(&length.to_be_bytes());
-    bytes.extend_from_slice(value);
-    Ok(())
-}
-
-fn receipt_id_from_parts(
-    binding_id: &str,
-    account_id: &str,
-    household_id: &str,
-    authority_generation: u64,
-    key_id: &str,
-    key_version: u64,
-    nonce: &[u8; NONCE_BYTES],
-    signing_bytes: &[u8],
-) -> String {
+fn receipt_id_from_parts(parts: TransportReceiptParts<'_>) -> String {
     let mut digest = Sha256::new();
     digest.update(b"ocentra.account-issuer.transport-receipt.v1\0");
     for value in [
-        binding_id.as_bytes(),
-        account_id.as_bytes(),
-        household_id.as_bytes(),
-        key_id.as_bytes(),
+        parts.binding_id.as_bytes(),
+        parts.account_id.as_bytes(),
+        parts.household_id.as_bytes(),
+        parts.key_id.as_bytes(),
     ] {
         digest.update((value.len() as u32).to_be_bytes());
         digest.update(value);
     }
-    digest.update(authority_generation.to_be_bytes());
-    digest.update(key_version.to_be_bytes());
-    digest.update(nonce);
-    digest.update(Sha256::digest(signing_bytes));
+    digest.update(parts.authority_generation.to_be_bytes());
+    digest.update(parts.key_version.to_be_bytes());
+    digest.update(parts.nonce);
+    digest.update(Sha256::digest(parts.signing_bytes));
     format!("sha256:{:x}", digest.finalize())
 }
 
 fn parse_timestamp(value: &str) -> Result<DateTime<Utc>, AccountIdentityIssuerError> {
     let parsed = DateTime::parse_from_rfc3339(value)
         .map(|value| value.with_timezone(&Utc))
-        .map_err(|_| AccountIdentityIssuerError::InvalidTransport)?;
+        .map_err(|_error| AccountIdentityIssuerError::InvalidTransport)?;
     if parsed.to_rfc3339_opts(SecondsFormat::Millis, true) != value {
         return Err(AccountIdentityIssuerError::InvalidTransport);
     }
@@ -233,8 +161,8 @@ impl<'a> Cursor<'a> {
 
     fn read_string(&mut self) -> Result<String, AccountIdentityIssuerError> {
         let bytes = self.read_bytes()?;
-        let value =
-            String::from_utf8(bytes).map_err(|_| AccountIdentityIssuerError::InvalidTransport)?;
+        let value = String::from_utf8(bytes)
+            .map_err(|_error| AccountIdentityIssuerError::InvalidTransport)?;
         if value.is_empty() || value.len() > MAX_FIELD_BYTES {
             return Err(AccountIdentityIssuerError::InvalidTransport);
         }
@@ -245,7 +173,7 @@ impl<'a> Cursor<'a> {
         let value = self.read_string()?;
         let parsed = value
             .parse::<u64>()
-            .map_err(|_| AccountIdentityIssuerError::InvalidTransport)?;
+            .map_err(|_error| AccountIdentityIssuerError::InvalidTransport)?;
         if parsed.to_string() != value {
             return Err(AccountIdentityIssuerError::InvalidTransport);
         }
@@ -264,7 +192,7 @@ impl<'a> Cursor<'a> {
         self.offset = end;
         value
             .try_into()
-            .map_err(|_| AccountIdentityIssuerError::InvalidTransport)
+            .map_err(|_error| AccountIdentityIssuerError::InvalidTransport)
     }
 
     fn read_bytes(&mut self) -> Result<Vec<u8>, AccountIdentityIssuerError> {

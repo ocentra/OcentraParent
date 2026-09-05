@@ -1,6 +1,8 @@
 #![cfg(windows)]
 
-use ocentra_storage_custody_core::windows_device_trust_custody::WindowsDeviceTrustCustody;
+use ocentra_storage_custody_core::windows_device_trust_custody::{
+    Error, WindowsDeviceTrustCustody,
+};
 use sha2::{Digest, Sha256};
 use std::fs;
 use winreg::{enums::HKEY_CURRENT_USER, RegKey};
@@ -52,6 +54,35 @@ fn invalid_sealed_binding_anchor_rotates_to_a_fresh_generation() -> Result<(), S
     let _cleanup = fs::remove_dir_all(root);
     drop(reopened);
     drop(custody);
+    Ok(())
+}
+
+#[test]
+fn over_bound_active_record_scan_fails_closed_during_public_custody_open() -> Result<(), String> {
+    const EXPECTED_ACTIVE_RECORD_SCAN_LIMIT: usize = 1024;
+
+    let root = std::env::temp_dir().join(format!(
+        "ocentra-wp02-record-scan-bound-{}",
+        std::process::id()
+    ));
+    let _cleanup = fs::remove_dir_all(&root);
+    let custody = WindowsDeviceTrustCustody::open(&root)
+        .map_err(|error| format!("open initial custody: {error:?}"))?;
+    let generation = install_generation(&root)?;
+    set_sealed_install_generation(&root, &generation, &"a".repeat(64))?;
+    for index in 0..=EXPECTED_ACTIVE_RECORD_SCAN_LIMIT {
+        fs::write(root.join(format!("{index}.sealed")), b"{}")
+            .map_err(|error| format!("write bounded-scan fixture {index}: {error}"))?;
+    }
+    drop(custody);
+
+    assert!(matches!(
+        WindowsDeviceTrustCustody::open(&root),
+        Err(Error::Platform)
+    ));
+
+    let _cleanup = remove_install_generation(&root);
+    let _cleanup = fs::remove_dir_all(root);
     Ok(())
 }
 

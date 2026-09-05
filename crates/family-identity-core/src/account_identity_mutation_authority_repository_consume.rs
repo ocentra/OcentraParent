@@ -15,7 +15,7 @@ pub(super) fn consume_and_apply(
 ) -> Result<AccountIdentityMutationOutcome, AccountIdentityMutationAuthorityError> {
     let transaction = connection
         .transaction_with_behavior(TransactionBehavior::Immediate)
-        .map_err(|_| AccountIdentityMutationAuthorityError::RepositoryUnavailable)?;
+        .map_err(|_error| AccountIdentityMutationAuthorityError::RepositoryUnavailable)?;
     let parsed = parse_wire(wire)?;
     let verifying_key = custody.verification_key(&parsed.envelope.key_id)?;
     if expected_key_id(&verifying_key) != parsed.envelope.key_id {
@@ -26,11 +26,11 @@ pub(super) fn consume_and_apply(
             &parsed.payload,
             &ed25519_dalek::Signature::from_bytes(&parsed.signature),
         )
-        .map_err(|_| AccountIdentityMutationAuthorityError::SignatureInvalid)?;
+        .map_err(|_error| AccountIdentityMutationAuthorityError::SignatureInvalid)?;
     let (now, _) = super::super::invite_recovery_repository::authority::trusted_now_in_transaction(
         &transaction,
     )
-    .map_err(|_| AccountIdentityMutationAuthorityError::ClockUnavailable)?;
+    .map_err(|_error| AccountIdentityMutationAuthorityError::ClockUnavailable)?;
     super::effect::purge_expired(&transaction, now)?;
     let digest = payload_digest(&parsed.payload);
     if parsed.envelope.action == AccountIdentityMutationAction::RevokeChildDevice.as_str() {
@@ -39,7 +39,7 @@ pub(super) fn consume_and_apply(
     if let Some(result) = super::effect::recorded_result(&transaction, &parsed.envelope, &digest)? {
         transaction
             .commit()
-            .map_err(|_| AccountIdentityMutationAuthorityError::RepositoryUnavailable)?;
+            .map_err(|_error| AccountIdentityMutationAuthorityError::RepositoryUnavailable)?;
         return Ok(AccountIdentityMutationOutcome::recorded(result));
     }
     let token_expires_at =
@@ -57,7 +57,7 @@ pub(super) fn consume_and_apply(
     super::effect::complete(&transaction, &parsed.envelope, result, now)?;
     transaction
         .commit()
-        .map_err(|_| AccountIdentityMutationAuthorityError::RepositoryUnavailable)?;
+        .map_err(|_error| AccountIdentityMutationAuthorityError::RepositoryUnavailable)?;
     Ok(AccountIdentityMutationOutcome::committed(result))
 }
 
@@ -67,10 +67,10 @@ fn validate_times(
     now: i64,
 ) -> Result<i64, AccountIdentityMutationAuthorityError> {
     let issued_at = DateTime::parse_from_rfc3339(issued_at)
-        .map_err(|_| AccountIdentityMutationAuthorityError::InvalidEnvelope)?
+        .map_err(|_error| AccountIdentityMutationAuthorityError::InvalidEnvelope)?
         .with_timezone(&Utc);
     let expires_at = DateTime::parse_from_rfc3339(expires_at)
-        .map_err(|_| AccountIdentityMutationAuthorityError::InvalidEnvelope)?
+        .map_err(|_error| AccountIdentityMutationAuthorityError::InvalidEnvelope)?
         .with_timezone(&Utc);
     crate::account_identity_mutation_authority::validation::validate_lifetime(
         issued_at, expires_at, now,

@@ -63,7 +63,7 @@ pub(super) fn reconcile_issue_reservations(
             COMPACT_ISSUED_SQL,
             params![RESERVATION_ISSUED, SIGNER_SUCCEEDED, RECOVERY_BATCH_SIZE],
         )
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)?;
     let candidates = load_recovery_candidates(transaction, now_text.as_str())?;
     for candidate in candidates {
         if validation::validate_recovery_reservation(transaction, &candidate, now)? {
@@ -93,7 +93,7 @@ pub(super) fn reconcile_issue_reservations(
             params![RESERVATION_PREPARED, now_text, RESERVATION_SIGNING],
             |row| row.get(0),
         )
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)
 }
 
 fn load_recovery_candidates(
@@ -113,7 +113,7 @@ fn load_recovery_candidates(
               ORDER BY reservation_id
               LIMIT ?4",
         )
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)?;
     let rows = statement
         .query_map(
             params![
@@ -147,9 +147,9 @@ fn load_recovery_candidates(
                 })
             },
         )
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)?;
     rows.collect::<Result<Vec<_>, _>>()
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)
 }
 
 pub(super) struct CurrentAuthorityRow {
@@ -185,7 +185,7 @@ pub(super) fn load_current_authority(
             },
         )
         .optional()
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::CurrentnessUnavailable)
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::CurrentnessUnavailable)
 }
 
 pub(super) fn current_matches(
@@ -260,7 +260,7 @@ pub(super) fn load_active_key(
             },
         )
         .optional()
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::KeyUnavailable)
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::KeyUnavailable)
 }
 
 pub(super) fn key_matches(

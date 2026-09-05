@@ -13,17 +13,3 @@ pub(crate) fn profile_store_error_reason(error: &BrowserManagedProfileStoreError
         }
     }
 }
-
-pub(crate) fn load_managed_browser_profile_store() -> Result<(), BrowserManagedProfileStoreError> {
-    Err(BrowserManagedProfileStoreError::ProtectedCustodyAdapterUnavailable)
-}
-
-pub(crate) fn create_or_repair_managed_browser_profile_store(
-) -> Result<(), BrowserManagedProfileStoreError> {
-    Err(BrowserManagedProfileStoreError::ProtectedCustodyAdapterUnavailable)
-}
-
-pub(crate) fn delete_managed_browser_profile_store() -> Result<(), BrowserManagedProfileStoreError>
-{
-    Err(BrowserManagedProfileStoreError::ProtectedCustodyAdapterUnavailable)
-}

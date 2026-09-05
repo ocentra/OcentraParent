@@ -13,7 +13,7 @@ pub(super) fn stage(
         .as_str()
         .ok_or_else(|| "policy preview draft payload is missing".to_string())?;
     let draft: PolicyPreviewAuthoringDraftInput = serde_json::from_str(draft_text)
-        .map_err(|_| "policy preview draft payload is invalid".to_string())?;
+        .map_err(|error| format!("policy preview draft payload is invalid: {error}"))?;
     let target_value = draft.target_value.trim();
     if target_value.is_empty() || target_value.len() > 256 {
         return Err("policy preview draft target is invalid".to_string());
@@ -28,7 +28,7 @@ pub(super) fn stage(
 
     let mut authoring_store = store()
         .lock()
-        .map_err(|_| "policy preview authoring store is unavailable".to_string())?;
+        .map_err(|error| format!("policy preview authoring store is unavailable: {error}"))?;
     let now = Instant::now();
     authoring_store
         .entries

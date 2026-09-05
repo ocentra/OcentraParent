@@ -2556,6 +2556,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "ocentra-app-game-windows-local-policy-ffi"
+version = "0.1.1"
+dependencies = [
+ "serde",
+ "serde_json",
+ "windows-sys 0.61.2",
+]
+
+[[package]]
 name = "ocentra-billing-core"
 version = "0.1.1"
 dependencies = [
@@ -2658,16 +2667,10 @@ dependencies = [
 name = "ocentra-entitlement-core"
 version = "0.1.1"
 dependencies = [
- "atomicwrites",
  "chrono",
- "ed25519-dalek",
- "fs2",
  "ocentra-eventing",
- "ocentra-family-identity-core",
- "ocentra-schema",
  "serde",
  "serde_json",
- "sha2",
 ]
 
 [[package]]
@@ -2731,6 +2734,20 @@ dependencies = [
  "socket2",
  "thiserror 2.0.18",
  "x509-parser",
+]
+
+[[package]]
+name = "ocentra-logging-local-artifact-provider"
+version = "0.1.1"
+dependencies = [
+ "base64",
+ "getrandom 0.3.4",
+ "interprocess",
+ "ocentra-parent-logging-core",
+ "ocentra-parent-logging-local-artifact-windows-ffi",
+ "serde",
+ "serde_json",
+ "sha2",
 ]
 
 [[package]]
@@ -2854,10 +2871,23 @@ version = "0.1.1"
 dependencies = [
  "chrono",
  "getrandom 0.3.4",
+ "ocentra-parent-logging-local-artifact-windows-ffi",
  "ocentra-schema",
  "serde",
  "serde_json",
  "sha2",
+]
+
+[[package]]
+name = "ocentra-parent-logging-local-artifact-windows-ffi"
+version = "0.1.1"
+dependencies = [
+ "fs2",
+ "interprocess",
+ "serde",
+ "serde_json",
+ "sha2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -2904,16 +2934,13 @@ name = "ocentra-policy-control-core"
 version = "0.1.1"
 dependencies = [
  "chrono",
- "ed25519-dalek",
  "ocentra-eventing",
  "ocentra-evidence",
- "ocentra-family-identity-core",
  "ocentra-parent-agent-protocol",
  "ocentra-schema",
  "serde",
  "serde_json",
  "sha2",
- "tokio",
 ]
 
 [[package]]

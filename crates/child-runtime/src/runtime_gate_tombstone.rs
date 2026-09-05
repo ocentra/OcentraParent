@@ -48,33 +48,6 @@ pub enum ChildRuntimeTombstonePublicationOutcome {
     PendingJournalRetry(ChildRuntimeTombstonePublicationReport),
 }
 
-/// Persists the terminal-publish obligation before journaling the typed custody
-/// delete action. If the journal append fails, the durable outbox remains for a
-/// restart to replay the same idempotent action.
-pub(crate) async fn persist_child_runtime_tombstone_action(
-    journal: &NdjsonEventJournal,
-    store: &RetentionDeleteTombstoneStore,
-    executor: &RetentionDeleteTombstoneExecutor,
-    envelope: &StoredEventEnvelope,
-    action: &StorageCustodyActionPlannedEvent,
-) -> std::io::Result<JournalAppend> {
-    match persist_child_runtime_tombstone_action_with_milestones(
-        journal, store, executor, envelope, action,
-    )
-    .await?
-    {
-        ChildRuntimeTombstonePublicationOutcome::Journaled(report) => report
-            .append
-            .ok_or_else(|| std::io::Error::other("journaled tombstone publication omitted append")),
-        ChildRuntimeTombstonePublicationOutcome::PendingJournalRetry(_) => {
-            Err(std::io::Error::new(
-                std::io::ErrorKind::Interrupted,
-                "child-runtime tombstone journal append requires retry",
-            ))
-        }
-    }
-}
-
 /// Persists the delete intent before journal append and exposes the exact
 /// correlated boundary reached. A journal failure leaves a durable retry
 /// obligation and returns `PendingJournalRetry`; callers must not treat it as
@@ -88,7 +61,7 @@ pub(crate) async fn persist_child_runtime_tombstone_action_with_milestones(
 ) -> std::io::Result<ChildRuntimeTombstonePublicationOutcome> {
     let journaled = envelope
         .decode::<StorageCustodyActionPlannedEvent>()
-        .map_err(std::io::Error::other)?;
+        .map_err(|error| std::io::Error::new(std::io::ErrorKind::InvalidInput, error))?;
     if journaled.payload() != action
         || journaled.aggregate_key() != &action.aggregate_key().map_err(std::io::Error::other)?
         || journaled.idempotency_key()
@@ -99,13 +72,8 @@ pub(crate) async fn persist_child_runtime_tombstone_action_with_milestones(
             "child-runtime tombstone journal envelope must match the typed custody action identity",
         ));
     }
-    persist_durable_tombstone_intent(
-        store.clone(),
-        executor.clone(),
-        envelope.clone(),
-        action.clone(),
-    )
-    .await?;
+    persist_durable_tombstone_intent(store.clone(), *executor, envelope.clone(), action.clone())
+        .await?;
     let correlation_id = envelope.correlation_id.clone();
     let mut milestones = vec![ChildRuntimeTombstoneMilestone::DurableOutboxWritten];
     match journal.append_idempotent(envelope).await {
@@ -151,7 +119,7 @@ pub(crate) async fn acknowledge_child_runtime_tombstone_publication(
     action: &StorageCustodyActionPlannedEvent,
 ) -> std::io::Result<()> {
     let store = store.clone();
-    let executor = executor.clone();
+    let executor = *executor;
     let terminal_effect = *terminal_effect;
     let deletion_ref = format!(
         "storage-custody-delete:{}",

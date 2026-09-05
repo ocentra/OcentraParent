@@ -54,16 +54,14 @@ pub(super) fn typed_confirm_payload(draft: &StagedPolicyPreviewDraft) -> Result<
         "actor state",
     )?)?;
     let audit_reference_ids = actor::audit_reference_ids(context)?;
-    let request = request::build(
-        draft,
-        context,
-        preview_id,
+    let parts = request::ConfirmationRequestParts::new(
         target_kind,
         target_reference_id,
         requested_action,
         actor_role,
         actor_state,
         audit_reference_ids,
-    )?;
-    request::serialize(request)
+    );
+    let request = request::build(draft, context, preview_id, parts)?;
+    request::serialize(&request)
 }

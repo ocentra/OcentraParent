@@ -38,7 +38,7 @@ function runScript(
   return { stdout: result.stdout, stderr: result.stderr, status: result.status };
 }
 
-describe('retention-logs script', () => {
+describe.skipIf(process.platform !== 'win32')('retention-logs script', () => {
   it('reports and removes both valid log families', () => {
     const tempDir = makeTempDir();
     try {

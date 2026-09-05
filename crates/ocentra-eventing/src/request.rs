@@ -136,33 +136,32 @@ impl RequestRegistry {
 
     pub(crate) fn timeout(&self, request_id: &RequestId) {
         let mut state = self.state.lock().expect_value("request registry lock");
-        if let Some(entry) = state.entries.get_mut(request_id) {
-            if entry.state == RequestState::Pending {
-                entry.state = RequestState::TimedOut;
-                if let Some(sender) = entry.sender.take() {
-                    let _ = sender.send(RequestCompletionSignal::TimedOut);
-                }
-                request_helpers::mark_terminal(&mut state, request_id);
-            }
+        let Some(entry) = state.entries.get_mut(request_id) else {
+            request_helpers::trim_terminal_requests(&mut state);
+            return;
+        };
+        if entry.state != RequestState::Pending {
+            request_helpers::trim_terminal_requests(&mut state);
+            return;
         }
+        entry.state = RequestState::TimedOut;
+        if let Some(sender) = entry.sender.take() {
+            let _ = sender.send(RequestCompletionSignal::TimedOut);
+        }
+        request_helpers::mark_terminal(&mut state, request_id);
         request_helpers::trim_terminal_requests(&mut state);
     }
 
     pub(crate) fn cancel(&self, request_id: &RequestId) -> bool {
         let mut state = self.state.lock().expect_value("request registry lock");
         let removed = state.entries.remove(request_id).is_some();
-        if removed {
-            state
-                .terminal_order
-                .retain(|terminal_id| terminal_id != request_id);
-        }
+        state
+            .terminal_order
+            .retain(|terminal_id| terminal_id != request_id);
         removed
     }
 
-    pub(crate) fn cancel_pending(
-        &self,
-        request_id: &RequestId,
-    ) -> Option<RequestCompletionReport> {
+    pub(crate) fn cancel_pending(&self, request_id: &RequestId) -> Option<RequestCompletionReport> {
         let mut state = self.state.lock().expect_value("request registry lock");
         let is_pending = matches!(
             state.entries.get(request_id),
@@ -172,10 +171,7 @@ impl RequestRegistry {
             return None;
         }
         state.entries.remove(request_id)?;
-        let report = completion_report(
-            request_id.clone(),
-            RequestCompletionOutcome::Cancelled,
-        );
+        let report = completion_report(request_id.clone(), RequestCompletionOutcome::Cancelled);
         request_helpers::record_cancellation_report(&mut state, report.clone());
         Some(report)
     }

@@ -1,7 +1,7 @@
 use super::constants;
 use crate::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
 use crate::app_game::*;
-use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_eventing::expect_value::{ExpectErrValue, ExpectValue};
 
 #[test]
 fn app_game_identity_serializes_deterministic_identity_contract_shape() {
@@ -41,19 +41,23 @@ fn app_game_identity_requires_evidence_and_rejects_display_only_promotion() {
         .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
     missing_evidence["evidence"] = serde_json::json!([]);
 
-    assert!(serde_json::from_value::<AppGameIdentity>(missing_evidence).is_err());
+    assert_json_rejected(
+        serde_json::from_value::<AppGameIdentity>(missing_evidence),
+        "must cite at least one evidence ref",
+    );
 
     let display_only = display_only_identity();
     let accepted = serde_json::to_value(display_only.clone())
-        .and_then(serde_json::from_value::<AppGameIdentity>);
-    assert!(accepted.is_ok());
+        .and_then(serde_json::from_value::<AppGameIdentity>)
+        .expect_value("display-only identity remains weak and round trips");
+    assert_eq!(accepted, display_only);
 
     let mut promoted = display_only;
     promoted.confidence = APP_GAME_IDENTITY_CONFIDENCE_DETERMINISTIC.to_string();
     promoted.classification_state = APP_GAME_CLASSIFICATION_KNOWN_GAME.to_string();
     let promoted =
         serde_json::to_value(promoted).and_then(serde_json::from_value::<AppGameIdentity>);
-    assert!(promoted.is_err());
+    assert_json_rejected(promoted, "must remain weak and unknown");
 }
 
 #[test]
@@ -74,25 +78,28 @@ fn app_game_identity_keeps_launcher_claims_separate_from_child_games() {
     launcher.catalog_ref = None;
     launcher.child_game_evidence_claim_id = None;
 
-    let accepted =
-        serde_json::to_value(launcher.clone()).and_then(serde_json::from_value::<AppGameIdentity>);
-    assert!(accepted.is_ok());
+    let accepted = serde_json::to_value(launcher.clone())
+        .and_then(serde_json::from_value::<AppGameIdentity>)
+        .expect_value("launcher identity remains separate and round trips");
+    assert_eq!(accepted, launcher);
 
     let mut launcher_as_game = launcher.clone();
     launcher_as_game.product_kind = APP_GAME_PRODUCT_NATIVE_GAME.to_string();
+    launcher_as_game.confidence = APP_GAME_IDENTITY_CONFIDENCE_CANDIDATE.to_string();
     launcher_as_game.classification_state = APP_GAME_CLASSIFICATION_KNOWN_GAME.to_string();
     let rejected =
         serde_json::to_value(launcher_as_game).and_then(serde_json::from_value::<AppGameIdentity>);
-    assert!(rejected.is_err());
+    assert_json_rejected(rejected, "launcher-only app game identity");
 
     let mut child_game = launcher;
     child_game.product_kind = APP_GAME_PRODUCT_NATIVE_GAME.to_string();
     child_game.classification_state = APP_GAME_CLASSIFICATION_KNOWN_GAME.to_string();
     child_game.executable_path_ref = Some("path-ref-child-game".to_string());
     child_game.child_game_evidence_claim_id = Some("claim-child-game-proof-2".to_string());
-    let accepted =
-        serde_json::to_value(child_game).and_then(serde_json::from_value::<AppGameIdentity>);
-    assert!(accepted.is_ok());
+    let accepted = serde_json::to_value(child_game.clone())
+        .and_then(serde_json::from_value::<AppGameIdentity>)
+        .expect_value("child-game proof identity round trips");
+    assert_eq!(accepted, child_game);
 }
 
 #[test]
@@ -164,14 +171,14 @@ fn app_game_identity_merge_rejects_weak_or_conflicting_identity_proofs() {
 
     let rejected = serde_json::to_value(merge.clone())
         .and_then(serde_json::from_value::<AppGameIdentityMergeProof>);
-    assert!(rejected.is_err());
+    assert_json_rejected(rejected, "must share deterministic refs");
 
     merge.shared_deterministic_refs =
         vec![APP_GAME_IDENTITY_DETERMINISTIC_REF_FILE_HASH_REF.to_string()];
     merge.conflicting_file_hash_refs = true;
     let rejected =
         serde_json::to_value(merge).and_then(serde_json::from_value::<AppGameIdentityMergeProof>);
-    assert!(rejected.is_err());
+    assert_json_rejected(rejected, "conflicting file hashes");
 }
 
 #[test]
@@ -203,7 +210,7 @@ fn app_game_identity_merge_parent_label_preserves_raw_identity() {
 
     let parsed = serde_json::to_value(merge)
         .and_then(serde_json::from_value::<AppGameIdentityMergeProof>)
-        .expect("app game identity merge deserializes");
+        .expect_value("app game identity merge deserializes");
     assert_eq!(parsed.target_identity.identity_id, expected_identity_id);
     assert_eq!(parsed.target_identity.file_hash_ref, expected_file_hash_ref);
     assert_eq!(
@@ -217,17 +224,26 @@ fn app_game_identity_rejects_unknown_or_empty_contract_fields() {
     let mut unknown_kind = serde_json::to_value(deterministic_game_identity())
         .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
     unknown_kind["productKind"] = serde_json::json!("caller-defined-app");
-    assert!(serde_json::from_value::<AppGameIdentity>(unknown_kind).is_err());
+    assert_json_rejected(
+        serde_json::from_value::<AppGameIdentity>(unknown_kind),
+        "product kind is unsupported",
+    );
 
     let mut empty_reference = serde_json::to_value(deterministic_game_identity())
         .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
     empty_reference["fileHashRef"] = serde_json::json!("");
-    assert!(serde_json::from_value::<AppGameIdentity>(empty_reference).is_err());
+    assert_json_rejected(
+        serde_json::from_value::<AppGameIdentity>(empty_reference),
+        "reference must not be empty",
+    );
 
     let mut unknown_field = serde_json::to_value(deterministic_game_identity())
         .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
     unknown_field["callerAuthority"] = serde_json::json!("accepted");
-    assert!(serde_json::from_value::<AppGameIdentity>(unknown_field).is_err());
+    assert_json_rejected(
+        serde_json::from_value::<AppGameIdentity>(unknown_field),
+        "unknown field",
+    );
 }
 
 #[test]
@@ -254,16 +270,19 @@ fn app_game_identity_rejects_whitespace_only_required_fields_and_evidence_ids() 
         let mut payload = serde_json::to_value(deterministic_game_identity())
             .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
         payload[field] = value;
-        assert!(
-            serde_json::from_value::<AppGameIdentity>(payload).is_err(),
-            "whitespace-only {field} must be rejected"
+        assert_json_rejected(
+            serde_json::from_value::<AppGameIdentity>(payload),
+            "must not be empty",
         );
     }
 
     let mut evidence = serde_json::to_value(deterministic_game_identity())
         .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
     evidence["evidence"][0]["evidenceId"] = serde_json::json!(" \t");
-    assert!(serde_json::from_value::<AppGameIdentity>(evidence).is_err());
+    assert_json_rejected(
+        serde_json::from_value::<AppGameIdentity>(evidence),
+        "evidence ref id must not be empty",
+    );
 }
 
 #[test]
@@ -271,12 +290,18 @@ fn app_game_identity_rejects_unknown_nested_evidence_fields() {
     let mut identity = serde_json::to_value(deterministic_game_identity())
         .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
     identity["evidence"][0]["callerAuthority"] = serde_json::json!("accepted");
-    assert!(serde_json::from_value::<AppGameIdentity>(identity).is_err());
+    assert_json_rejected(
+        serde_json::from_value::<AppGameIdentity>(identity),
+        "unknown field",
+    );
 
     let mut merge = serde_json::to_value(valid_merge_proof())
         .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
     merge["evidence"][0]["callerAuthority"] = serde_json::json!("accepted");
-    assert!(serde_json::from_value::<AppGameIdentityMergeProof>(merge).is_err());
+    assert_json_rejected(
+        serde_json::from_value::<AppGameIdentityMergeProof>(merge),
+        "unknown field",
+    );
 }
 
 #[test]
@@ -288,21 +313,27 @@ fn app_game_identity_merge_rejects_whitespace_only_ids_and_references() {
         let mut payload = serde_json::to_value(valid_merge_proof())
             .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
         payload[field] = value;
-        assert!(
-            serde_json::from_value::<AppGameIdentityMergeProof>(payload).is_err(),
-            "whitespace-only {field} must be rejected"
+        assert_json_rejected(
+            serde_json::from_value::<AppGameIdentityMergeProof>(payload),
+            "app game identity merge",
         );
     }
 
     let mut source = serde_json::to_value(valid_merge_proof())
         .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
     source["sourceIdentityIds"][0] = serde_json::json!(" \t");
-    assert!(serde_json::from_value::<AppGameIdentityMergeProof>(source).is_err());
+    assert_json_rejected(
+        serde_json::from_value::<AppGameIdentityMergeProof>(source),
+        "source id must not be empty",
+    );
 
     let mut evidence = serde_json::to_value(valid_merge_proof())
         .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
     evidence["evidence"][0]["evidenceId"] = serde_json::json!("\n");
-    assert!(serde_json::from_value::<AppGameIdentityMergeProof>(evidence).is_err());
+    assert_json_rejected(
+        serde_json::from_value::<AppGameIdentityMergeProof>(evidence),
+        "evidence ref id must not be empty",
+    );
 }
 
 #[test]
@@ -314,7 +345,7 @@ fn app_game_identity_merge_rejects_duplicate_or_target_sources() {
     ];
     let rejected = serde_json::to_value(duplicate)
         .and_then(serde_json::from_value::<AppGameIdentityMergeProof>);
-    assert!(rejected.is_err());
+    assert_json_rejected(rejected, "source ids must be distinct");
 
     let mut target = valid_merge_proof();
     target.source_identity_ids = vec![
@@ -323,7 +354,7 @@ fn app_game_identity_merge_rejects_duplicate_or_target_sources() {
     ];
     let rejected =
         serde_json::to_value(target).and_then(serde_json::from_value::<AppGameIdentityMergeProof>);
-    assert!(rejected.is_err());
+    assert_json_rejected(rejected, "sources must not include the target");
 }
 
 #[test]
@@ -377,7 +408,7 @@ fn app_game_evidence_claim_serializes_inventory_without_use_claims() {
     assert!(serialized["processIdentity"].is_null());
 
     let parsed = serde_json::from_value::<AppGameEvidenceClaim>(serialized)
-        .expect("valid inventory evidence claim round-trips through serde");
+        .expect_value("valid inventory evidence claim round-trips through serde");
     assert_eq!(parsed, claim);
 }
 
@@ -461,31 +492,38 @@ fn app_game_evidence_claim_rejects_unlinked_promotions_and_use_claims() {
     display_only.inventory_entry_id = None;
     display_only.launcher_ref = None;
     display_only.catalog_ref = None;
-    assert!(serde_json::to_value(display_only)
-        .and_then(serde_json::from_value::<AppGameEvidenceClaim>)
-        .is_err());
+    assert_json_rejected(
+        serde_json::to_value(display_only).and_then(serde_json::from_value::<AppGameEvidenceClaim>),
+        "must remain weak and unlinked",
+    );
 
     let mut inventory_as_runtime = inventory_evidence_claim();
     inventory_as_runtime.runtime_state = APP_GAME_RUNTIME_RUNNING.to_string();
     inventory_as_runtime.foreground_state = APP_GAME_FOREGROUND_FOREGROUND.to_string();
-    assert!(serde_json::to_value(inventory_as_runtime)
-        .and_then(serde_json::from_value::<AppGameEvidenceClaim>)
-        .is_err());
+    assert_json_rejected(
+        serde_json::to_value(inventory_as_runtime)
+            .and_then(serde_json::from_value::<AppGameEvidenceClaim>),
+        "must not claim runtime or foreground use",
+    );
 
     let mut launcher_as_game = launcher_evidence_claim();
     launcher_as_game.classification_state = APP_GAME_CLASSIFICATION_KNOWN_GAME.to_string();
-    assert!(serde_json::to_value(launcher_as_game)
-        .and_then(serde_json::from_value::<AppGameEvidenceClaim>)
-        .is_err());
+    assert_json_rejected(
+        serde_json::to_value(launcher_as_game)
+            .and_then(serde_json::from_value::<AppGameEvidenceClaim>),
+        "must cite child-game proof",
+    );
 }
 
 #[test]
 fn app_game_evidence_claim_rejects_unknown_states_and_blank_evidence_refs() {
     let mut unknown_state = inventory_evidence_claim();
     unknown_state.claim_kind = "caller-defined-claim".to_string();
-    assert!(serde_json::to_value(unknown_state)
-        .and_then(serde_json::from_value::<AppGameEvidenceClaim>)
-        .is_err());
+    assert_json_rejected(
+        serde_json::to_value(unknown_state)
+            .and_then(serde_json::from_value::<AppGameEvidenceClaim>),
+        "claim kind is unsupported",
+    );
 
     let mut blank_evidence = inventory_evidence_claim();
     blank_evidence.evidence = vec![ActivityEvidenceRef {
@@ -494,9 +532,19 @@ fn app_game_evidence_claim_rejects_unknown_states_and_blank_evidence_refs() {
         digest: None,
         uri: None,
     }];
-    assert!(serde_json::to_value(blank_evidence)
-        .and_then(serde_json::from_value::<AppGameEvidenceClaim>)
-        .is_err());
+    assert_json_rejected(
+        serde_json::to_value(blank_evidence)
+            .and_then(serde_json::from_value::<AppGameEvidenceClaim>),
+        "evidence ref id must not be empty",
+    );
+}
+
+fn assert_json_rejected<T: Debug>(result: serde_json::Result<T>, expected_message: &str) {
+    let error = result.expect_err_value("invalid app-game wire value must be rejected");
+    assert!(
+        error.to_string().contains(expected_message),
+        "expected error containing {expected_message:?}, got {error}"
+    );
 }
 
 fn inventory_evidence_claim() -> AppGameEvidenceClaim {
@@ -610,3 +658,4 @@ fn identity_evidence() -> ActivityEvidenceRef {
         uri: None,
     }
 }
+use std::fmt::Debug;

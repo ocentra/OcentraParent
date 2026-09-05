@@ -9,7 +9,7 @@ use ocentra_parent_agent_protocol::constants;
 use std::{net::SocketAddr, sync::Arc};
 
 use crate::{
-    activity_api::app_game_platform_probe_cache::PlatformProbeRuntimeOwner,
+    activity_api::app_game_platform_probe_runtime::PlatformProbeRuntimeOwner,
     activity_api::app_game_platform_proof_status_transport::platform_probe_dispatcher,
     browser_intervention_page::serve_browser_intervention_page,
     browser_policy_runtime::BrowserPolicyRuntime,
@@ -29,6 +29,9 @@ use crate::{
         WebsocketPlatformProbeDispatcher,
     },
 };
+
+#[path = "app/health.rs"]
+mod health;
 
 #[derive(Clone)]
 pub struct AppState {
@@ -51,7 +54,7 @@ pub(crate) fn router(
     let lan_pairing = LanPairingRuntime::from_env();
     let passive_discovery_runtime = if lan_pairing.durable_pairing_registry_available() {
         spawn_lan_mdns_advertisement_runtime(lan_pairing.clone());
-        start_lan_passive_discovery_service_runtime(lan_pairing.clone()).ok()
+        start_lan_passive_discovery_service_runtime(&lan_pairing).ok()
     } else {
         None
     };
@@ -68,7 +71,7 @@ pub(crate) fn router(
         _passive_discovery_runtime: passive_discovery_runtime,
     };
     Router::new()
-        .route(constants::endpoint::HEALTH, get(health))
+        .route(constants::endpoint::HEALTH, get(health::handle))
         .route(
             constants::endpoint::BROWSER_INTERVENTION_PAGE,
             get(serve_browser_intervention_page),
@@ -76,13 +79,6 @@ pub(crate) fn router(
         .route(constants::endpoint::DEV_WS, get(websocket))
         .with_state(state)
         .layer(cors_layer)
-}
-
-async fn health(State(state): State<AppState>) -> impl IntoResponse {
-    if !state.parent_local_bridge_admission.is_ready() {
-        return StatusCode::SERVICE_UNAVAILABLE.into_response();
-    }
-    StatusCode::NO_CONTENT.into_response()
 }
 
 async fn websocket(
@@ -109,14 +105,18 @@ async fn websocket(
     ws.on_upgrade(move |socket| {
         handle_socket(
             socket,
-            state.lan_pairing,
-            state.browser_policy,
-            state.browser_runtime,
-            state.screen_settings,
-            WebsocketCommandOrigin(origin),
-            state.platform_probe_dispatcher,
-            provenance,
-            state.parent_local_bridge_admission,
+            crate::websocket::WebsocketSocketRuntime {
+                command: crate::websocket::WebsocketCommandRuntime {
+                    lan_pairing: state.lan_pairing,
+                    browser_policy: state.browser_policy,
+                    browser_runtime: state.browser_runtime,
+                    screen_settings: state.screen_settings,
+                    origin: WebsocketCommandOrigin(origin),
+                    probe_dispatcher: state.platform_probe_dispatcher,
+                    provenance,
+                },
+                admission: state.parent_local_bridge_admission,
+            },
         )
     })
 }

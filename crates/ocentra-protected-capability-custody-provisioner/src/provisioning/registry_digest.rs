@@ -11,8 +11,8 @@ pub(super) fn security_digest(
     let mut digest = Sha256::new();
     digest.update((REGISTRY_SECURITY_DOMAIN.len() as u32).to_be_bytes());
     digest.update(REGISTRY_SECURITY_DOMAIN.as_bytes());
-    let count =
-        u32::try_from(observations.len()).map_err(|_| ProvisioningError::ExistingStateRejected)?;
+    let count = u32::try_from(observations.len())
+        .map_err(|_error| ProvisioningError::ExistingStateRejected)?;
     digest_field(&mut digest, &count.to_be_bytes());
     for observation in observations {
         digest_field(&mut digest, observation.path().as_str().as_bytes());

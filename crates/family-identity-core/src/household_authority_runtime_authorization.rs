@@ -1,12 +1,10 @@
 use std::fmt;
 
 use super::{
-    ConsumedParentStepUp, CurrentChildDeviceTrustBinding, CurrentHouseholdCapability,
-    CurrentHouseholdControllerLease, HouseholdAuthorityRuntimeAuthorization,
+    ConsumedParentStepUp, HouseholdAuthorityRuntimeAuthorization,
     HouseholdAuthorityRuntimeConsumedEffect, HouseholdAuthorityRuntimeEffectAuthorization,
     HouseholdAuthorityRuntimeEffectTarget, HouseholdAuthorityRuntimeFailure,
 };
-use crate::account_identity_authority::VerifiedAccountIdentityAuthority;
 
 impl fmt::Debug for HouseholdAuthorityRuntimeAuthorization {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -42,18 +40,6 @@ impl HouseholdAuthorityRuntimeAuthorization {
         self.session_generation
     }
 
-    pub(crate) fn device_binding(&self) -> &CurrentChildDeviceTrustBinding {
-        &self.device_binding
-    }
-
-    pub(crate) fn capability(&self) -> Option<&CurrentHouseholdCapability> {
-        self.capability.as_ref()
-    }
-
-    pub(crate) fn controller_lease(&self) -> Option<&CurrentHouseholdControllerLease> {
-        self.controller_lease.as_ref()
-    }
-
     pub(crate) fn parent_step_up(&self) -> Option<&ConsumedParentStepUp> {
         self.parent_step_up.as_ref()
     }
@@ -63,47 +49,7 @@ impl HouseholdAuthorityRuntimeAuthorization {
     }
 }
 
-impl HouseholdAuthorityRuntimeAuthorization {
-    /// Issue the final effect receipt only from the owner-side current snapshots already
-    /// revalidated immediately before the CAS fence. The private authorization nonce is carried
-    /// into the receipt; the caller-provided nonce argument on the trait is intentionally not a
-    /// source of receipt authority.
-    pub(super) fn issue_effect_receipt(
-        self,
-        current_account: VerifiedAccountIdentityAuthority,
-        current_device: CurrentChildDeviceTrustBinding,
-        current_capability: Option<CurrentHouseholdCapability>,
-        current_controller_lease: Option<CurrentHouseholdControllerLease>,
-        current_parent_step_up: Option<ConsumedParentStepUp>,
-    ) -> Result<HouseholdAuthorityRuntimeEffectAuthorization, HouseholdAuthorityRuntimeFailure>
-    {
-        self.validate_current_account(&current_account)?;
-        self.validate_current_device(&current_device)?;
-        self.validate_current_capability(current_capability.as_ref())?;
-        self.validate_current_controller_lease(current_controller_lease.as_ref())?;
-        match (
-            self.parent_step_up.as_ref(),
-            current_parent_step_up.as_ref(),
-        ) {
-            (None, None) => {}
-            (Some(expected), Some(current)) if expected.same_current(current) => {}
-            _ => return Err(HouseholdAuthorityRuntimeFailure::ParentStepUpBindingMismatch),
-        }
-
-        let target = HouseholdAuthorityRuntimeEffectTarget::from_owner_current(
-            self.action,
-            &current_account,
-            &current_device,
-            current_capability.as_ref(),
-            current_controller_lease.as_ref(),
-            current_parent_step_up.as_ref(),
-        );
-        Ok(HouseholdAuthorityRuntimeEffectAuthorization {
-            target,
-            consumption_nonce: self.consumption_nonce,
-        })
-    }
-}
+impl HouseholdAuthorityRuntimeAuthorization {}
 
 impl HouseholdAuthorityRuntimeEffectAuthorization {
     /// Consume an already revalidated Account receipt for one exact Data Custody operation.
@@ -127,10 +73,7 @@ impl HouseholdAuthorityRuntimeEffectAuthorization {
         {
             return Err(HouseholdAuthorityRuntimeFailure::EffectTargetMismatch);
         }
-        Ok(HouseholdAuthorityRuntimeConsumedEffect {
-            target: self.target,
-            consumption_nonce: self.consumption_nonce,
-        })
+        Ok(HouseholdAuthorityRuntimeConsumedEffect {})
     }
 
     /// Consume this receipt exactly once with an owner-issued target. Both values move by value,
@@ -143,62 +86,12 @@ impl HouseholdAuthorityRuntimeEffectAuthorization {
         if !self.target.matches(&target) {
             return Err(HouseholdAuthorityRuntimeFailure::EffectTargetMismatch);
         }
-        Ok(HouseholdAuthorityRuntimeConsumedEffect {
-            target,
-            consumption_nonce: self.consumption_nonce,
-        })
+        drop(target);
+        Ok(HouseholdAuthorityRuntimeConsumedEffect {})
     }
 }
 
 impl HouseholdAuthorityRuntimeEffectTarget {
-    pub(super) fn from_owner_current(
-        action: super::HouseholdAuthorityAction,
-        authority: &VerifiedAccountIdentityAuthority,
-        device_binding: &CurrentChildDeviceTrustBinding,
-        capability: Option<&CurrentHouseholdCapability>,
-        controller_lease: Option<&CurrentHouseholdControllerLease>,
-        parent_step_up: Option<&ConsumedParentStepUp>,
-    ) -> Self {
-        let account_binding = authority.current_binding();
-        Self {
-            action,
-            household_id: authority.household_id().to_string(),
-            account_id: authority.account_id().to_string(),
-            parent_device_id: authority.device_id().as_str().to_owned(),
-            child_profile_id: authority.child_profile_id().to_string(),
-            child_device_id: authority.child_device_id().as_str().to_owned(),
-            provider: authority.provider().clone(),
-            provider_subject: authority.provider_subject().as_str().to_owned(),
-            session_id: authority.session_id().as_str().to_owned(),
-            session_expires_at: authority.session_expires_at().to_owned(),
-            session_generation: authority.session_generation(),
-            account_authority_generation: authority.authority_generation(),
-            account_binding_authority_generation: account_binding.authority_generation,
-            installation_id: account_binding.installation_id.as_str().to_owned(),
-            pairing_id: account_binding.pairing_id.as_str().to_owned(),
-            route_id: account_binding.selected_route_id.as_str().to_owned(),
-            device_trust_subject: device_binding.trust_subject().to_owned(),
-            device_signer_key_id: device_binding.signer_key_id().to_owned(),
-            device_signer_key_sha256: device_binding.signer_key_sha256().to_owned(),
-            device_state: device_binding.state(),
-            device_lifecycle_generation: device_binding.lifecycle_generation(),
-            device_installation_binding_generation: device_binding
-                .installation_binding_generation(),
-            device_authority_generation: device_binding.authority_generation(),
-            capability_authority_generation: capability.map(|value| value.authority_generation),
-            capability_expires_at: capability.map(|value| value.expires_at.clone()),
-            capability_revocation_epoch: capability.map(|value| value.revocation_epoch),
-            controller_lease_authority_generation: controller_lease
-                .map(|value| value.authority_generation),
-            controller_lease_expires_at: controller_lease.map(|value| value.expires_at.clone()),
-            controller_lease_revocation_epoch: controller_lease.map(|value| value.revocation_epoch),
-            parent_step_up_authority_generation: parent_step_up
-                .map(|value| value.authority_generation),
-            parent_step_up_expires_at: parent_step_up.map(|value| value.expires_at.clone()),
-            parent_step_up_receipt_epoch: parent_step_up.map(|value| value.receipt_epoch),
-        }
-    }
-
     fn matches(&self, other: &Self) -> bool {
         self.action == other.action
             && self.household_id == other.household_id

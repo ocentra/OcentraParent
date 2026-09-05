@@ -18,7 +18,7 @@ pub(super) fn validate(connection: &Connection, legacy_v2: bool) -> Result<(), (
                     [kind, name],
                     |row| row.get::<_, String>(0),
                 )
-                .map_err(|_| ())?;
+                .map_err(|_error| ())?;
             let expected = expected_statement(kind, name, legacy_v2).ok_or(())?;
             if normalize_sql(&actual) != normalize_sql(&expected) {
                 return Err(());
@@ -42,7 +42,7 @@ pub(super) fn validate(connection: &Connection, legacy_v2: bool) -> Result<(), (
             [],
             |row| row.get::<_, i64>(0),
         )
-        .map_err(|_| ())?;
+        .map_err(|_error| ())?;
     (unknown == 0).then_some(()).ok_or(())
 }
 

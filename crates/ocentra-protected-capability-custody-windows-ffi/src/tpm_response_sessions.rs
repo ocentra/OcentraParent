@@ -21,7 +21,8 @@ pub(crate) fn decode_nv_read(response: &[u8]) -> Result<(u64, SessionResponse)> 
     if data.len() != usize::from(FIXED_COUNTER_BYTES) || !parameters.is_empty() {
         return Err(Error::MalformedTpm);
     }
-    let value = u64::from_be_bytes(<[u8; 8]>::try_from(data).map_err(|_| Error::MalformedTpm)?);
+    let value =
+        u64::from_be_bytes(<[u8; 8]>::try_from(data).map_err(|_error| Error::MalformedTpm)?);
     Ok((value, decoded))
 }
 

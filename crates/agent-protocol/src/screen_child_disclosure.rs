@@ -1,7 +1,6 @@
 use serde::Serialize;
 
 use crate::activity_capture::ActivityCaptureCapabilityStatus;
-use crate::screen_settings::ScreenAnalysisParentSetting;
 
 #[path = "screen_child_disclosure_copy.rs"]
 mod copy;
@@ -62,15 +61,6 @@ impl ActivityScreenChildDisclosure {
             ActivityScreenChildDisclosureState::ManualRequired,
             None,
         )
-    }
-
-    fn from_current_authority(
-        schema_version: u16,
-        setting: &ScreenAnalysisParentSetting,
-        capability_status: ActivityCaptureCapabilityStatus,
-    ) -> Self {
-        let state = state_for_current_authority(setting, capability_status);
-        Self::from_owner_state(schema_version, state, Some(capability_status))
     }
 
     fn from_owner_state(
@@ -141,31 +131,5 @@ impl ActivityScreenChildDisclosure {
 
     pub fn child_agent_delivery_claimed(&self) -> bool {
         self.child_agent_delivery_claimed
-    }
-}
-
-fn state_for_current_authority(
-    setting: &ScreenAnalysisParentSetting,
-    capability_status: ActivityCaptureCapabilityStatus,
-) -> ActivityScreenChildDisclosureState {
-    if !setting.screen_analysis_enabled {
-        ActivityScreenChildDisclosureState::Disabled
-    } else {
-        state_for_capability(capability_status)
-    }
-}
-
-fn state_for_capability(
-    capability_status: ActivityCaptureCapabilityStatus,
-) -> ActivityScreenChildDisclosureState {
-    match capability_status {
-        ActivityCaptureCapabilityStatus::Available => ActivityScreenChildDisclosureState::Enabled,
-        ActivityCaptureCapabilityStatus::Unavailable
-        | ActivityCaptureCapabilityStatus::AccessDenied
-        | ActivityCaptureCapabilityStatus::NoActiveWindow
-        | ActivityCaptureCapabilityStatus::NoNetworkObservations
-        | ActivityCaptureCapabilityStatus::AdapterError => {
-            ActivityScreenChildDisclosureState::Unavailable
-        }
     }
 }

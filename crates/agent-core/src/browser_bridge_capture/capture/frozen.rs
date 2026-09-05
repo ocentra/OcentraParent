@@ -31,9 +31,7 @@ pub(super) fn run(
         .map_err(structured::capture_error)
         .map_err(|error| checks::release_or(error, authority, session, frozen))?;
     let checks = checks_for(authority, live_target, &preflight, &postflight, &png_bytes);
-    if let Err(error) = checks::release(authority, frozen, session) {
-        return Err(error);
-    }
+    checks::release(authority, frozen, session)?;
     if let Some(error) = checks.error() {
         checks::invalidate(authority);
         return Err(error);

@@ -19,7 +19,7 @@ pub(crate) fn next_apply_lease_owner() -> String {
 }
 
 impl ChildStorageCustodyRuntime {
-    pub(crate) fn local_apply_lease_id(&self, record: &StorageCustodyEffectRecord) -> String {
+    pub(super) fn local_apply_lease_id(&self, record: &StorageCustodyEffectRecord) -> String {
         format!(
             "{}:authority-generation:{}:session-generation:{}:{}",
             self.apply_lease_owner,

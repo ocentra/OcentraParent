@@ -43,7 +43,7 @@ pub(super) fn extract_on_session(
     let result = session
         .call(
             CDP_METHOD_RUNTIME_EVALUATE,
-            json!({
+            &json!({
                 (CDP_PARAM_EXPRESSION): STRUCTURED_EXTRACTION_EXPRESSION,
                 (CDP_PARAM_RETURN_BY_VALUE): true,
                 (CDP_PARAM_AWAIT_PROMISE): true,
@@ -69,7 +69,7 @@ fn create_isolated_world(session: &mut CdpSession, frame_id: &str) -> Result<u64
     session
         .call(
             CDP_METHOD_CREATE_ISOLATED_WORLD,
-            json!({
+            &json!({
                 (CDP_PARAM_FRAME_ID): frame_id,
                 (CDP_PARAM_WORLD_NAME): ISOLATED_WORLD_NAME,
                 (CDP_PARAM_GRANT_UNIVERSAL_ACCESS): false,
@@ -83,7 +83,7 @@ fn create_isolated_world(session: &mut CdpSession, frame_id: &str) -> Result<u64
 
 fn frame_identity(session: &mut CdpSession) -> Result<DocumentIdentity, ExtractionError> {
     let result = session
-        .call(CDP_METHOD_GET_FRAME_TREE, json!({}))
+        .call(CDP_METHOD_GET_FRAME_TREE, &json!({}))
         .map_err(map_transport_error)?;
     let frame = result
         .get(CDP_FIELD_FRAME_TREE)

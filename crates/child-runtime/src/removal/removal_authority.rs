@@ -65,17 +65,16 @@ impl VerifiedParentRemovalAuthorization {
             target_device_id: non_empty_ref(binding.target_device_id())?,
         };
         let reference = non_empty_ref(&reference.into())?;
+        let authority_nonce = authority.proof_nonce().to_owned();
+        let authority_generation = authority.family_revocation_epoch();
+        drop(authority);
         Ok(Self {
             reference,
             action,
             identity,
-            authority_nonce: authority.proof_nonce().to_owned(),
-            authority_generation: authority.family_revocation_epoch(),
+            authority_nonce,
+            authority_generation,
         })
-    }
-
-    pub fn reference(&self) -> &str {
-        &self.reference
     }
 
     pub fn action(&self) -> ChildAgentRemovalAuthorizationAction {
@@ -84,5 +83,9 @@ impl VerifiedParentRemovalAuthorization {
 
     pub(super) fn identity(&self) -> &ChildAgentServiceIdentity {
         &self.identity
+    }
+
+    pub(super) fn into_audit_parts(self) -> (String, ChildAgentServiceIdentity) {
+        (self.reference, self.identity)
     }
 }

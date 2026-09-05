@@ -23,10 +23,12 @@ pub(super) struct AuditJournalRow {
 pub(super) enum RetryJournalState {
     Empty,
     Incomplete,
-    Complete {
-        before: AuditJournalRow,
-        completed: AuditJournalRow,
-    },
+    Complete(Box<CompletedRetryJournal>),
+}
+
+pub(super) struct CompletedRetryJournal {
+    pub(super) before: AuditJournalRow,
+    pub(super) completed: AuditJournalRow,
 }
 
 pub(super) async fn read_retry_journal_state(
@@ -44,10 +46,10 @@ pub(super) async fn read_retry_journal_state(
     Ok(match (before.first(), completed.first()) {
         (None, None) => RetryJournalState::Empty,
         (Some(before), Some(completed)) if before.sequence < completed.sequence => {
-            RetryJournalState::Complete {
+            RetryJournalState::Complete(Box::new(CompletedRetryJournal {
                 before: (*before).clone(),
                 completed: (*completed).clone(),
-            }
+            }))
         }
         (Some(_), Some(_)) => return Err(EnforcementRetryRecoveryError::ReconciliationRequired),
         _ => RetryJournalState::Incomplete,

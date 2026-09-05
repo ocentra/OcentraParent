@@ -32,7 +32,7 @@ impl SqliteAccountIdentityAuthorityRepository {
         let transaction = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
-            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
+            .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)?;
         let (now, _) = trusted_now_in_transaction(&transaction)?;
         validate_begin_expiry(proof, support_authorization, now)?;
         enforce_recovery_rate_limit(&transaction, &proof.provider, &proof.provider_subject, now)?;
@@ -45,7 +45,7 @@ impl SqliteAccountIdentityAuthorityRepository {
         )?;
         transaction
             .commit()
-            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
+            .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)?;
         Ok(recovery_id)
     }
 }
@@ -138,5 +138,5 @@ fn persist_recovery(
             ],
         )
         .map(|_| ())
-        .map_err(|_| InviteRecoveryRepositoryError::Unavailable)
+        .map_err(|_error| InviteRecoveryRepositoryError::Unavailable)
 }

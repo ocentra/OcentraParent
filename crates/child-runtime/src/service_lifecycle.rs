@@ -1,6 +1,6 @@
 use super::{
     ChildAgentRemovalStatus, ChildAgentService, ChildAgentServiceError, ChildAgentTamperSignalKind,
-    ChildRuntimeTombstoneEventFlow, VerifiedParentRemovalAuthorization,
+    VerifiedParentRemovalAuthorization,
 };
 
 impl ChildAgentService {
@@ -46,17 +46,11 @@ impl ChildAgentService {
     }
 
     pub async fn run_until_shutdown(self) -> Result<(), ChildAgentServiceError> {
-        super::service_supervision::run_until_shutdown(self).await
-    }
-
-    pub(crate) fn tombstone_flow(&self) -> &ChildRuntimeTombstoneEventFlow {
-        &self.tombstone_flow
+        Box::pin(super::service_supervision::run_until_shutdown(self)).await
     }
 }
 
 pub async fn run_child_agent_service() -> Result<(), ChildAgentServiceError> {
-    ChildAgentService::initialize()
-        .await?
-        .run_until_shutdown()
-        .await
+    let service = ChildAgentService::initialize().await?;
+    Box::pin(service.run_until_shutdown()).await
 }

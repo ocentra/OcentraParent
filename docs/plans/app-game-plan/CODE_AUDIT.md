@@ -4,9 +4,11 @@
 
 Canonical reviewed integration: WP120 source/tests `edaf153f8`; WP150 durable
 outbox source/tests `4d6d8c3f1`; WP163/WP164 dashboard test depth `712704a38`.
-WP165-WP220 are modern source/test audits only, not DONE or proof. WP167's
-standalone surface is superseded by WP168's live preflight chain. Open source
-owners are WP193/WP203 Windows authority sampler, WP195/WP205 upstream proof
+WP165-WP220 are modern source/test audits only unless a later bounded proof is
+named below. WP203 now has a retained real-Windows observer and strict protocol
+proof, while Agent Service composition and enforcement authority remain open.
+WP167's standalone surface is superseded by WP168's live preflight chain. Open
+source owners are the WP193 Windows authority preflight, WP195/WP205 upstream proof
 refs, WP204 OS-custody/test owner, and WP207/WP211/WP216/WP217/WP220
 authenticated child writer/transport/ingress. Physical Android, WSL, and Apple
 proof remains open. Canonical `101995347c8` integrates WP130/WP132 mounted
@@ -348,7 +350,7 @@ Semantic Enforcer ledger evidence for this checkpoint: WP53
 | WP200 App/game Android UsageEvents count sample | Real Robolectric UsageStats/AppOps sample plus durable count-only replay test | **Complete for bounded source/test-writing phase; execution open** | Canonical `f2d485b20` covers in-window/out-of-window reduction, foreground counts, durable readback, and the exact six app-private preference keys without raw package/activity custody. Execution, physical grant proof, CI, READY, and DONE remain open. |
 | WP201 App/game Android UsageEvents package runtime proof | Manifest package/runtime topology plus WP190/WP200 real behavioral tests | **Complete for bounded source/test-writing phase; physical proof open** | Independent review at canonical `f2d485b20` found no missing owned source/test behavior. The remaining Samsung S9 Wi-Fi ADB install/launch, AppOps state, and redacted UI capture are physical proof only. |
 | WP202 App/Game Android Accessibility Runtime Proof | Manifest-declared Accessibility runtime plus focused lifecycle/privacy/durable-state tests | **Complete for bounded source/test-writing phase; execution open** | The WP194 canonical service/test packet at `7339e7476` also covers WP202's bounded runtime source/test intent. Physical settings/event observation, overlay execution, proof, CI, READY, and DONE remain open. |
-| WP203 App/Game Windows Local Policy Evidence Proof | Rust platform status models and tests; no Windows policy adapter | **Incomplete / owner-blocked** | No shipped AppLocker, AppIDSvc, or Device Guard sampler/caller exists. Current rows represent conservative status only; the retired TypeScript/proof-runner path is not implementation. |
+| WP203 App/Game Windows Local Policy Evidence Proof | Rust Windows FFI observer, strict protocol contract, retained Windows proof | **Complete for bounded observer/protocol proof; service integration open** | The no-argument observer and parser/protocol negatives passed on Windows with retained evidence under `output/app-game-plan-proof/203-app-game-windows-local-policy-evidence-proof/`. Agent Service still supplies no observer evidence, so readiness, enforcement, rollback, audit, provider, and child delivery remain unclaimed. |
 | WP204 App/Game Linux Active-Window Tool Proof | Rust platform status/host probes plus Android Java runtime sources | **Incomplete / owner-blocked** | xprop/xdotool execution remains deliberately unavailable; the exact three expected test roots are blocked on a real FD/process-custody owner and cannot be replaced by mock OS processes or source-text tests. |
 | WP205 App/Game Platform Proof Status Runtime Detail Refs | Rust protocol/service/parent/portal status spine and real tests | **Complete for bounded model source/test phase; upstream evidence open** | Current code preserves refs, gaps, and non-claims without fabricating Android, Windows, or Linux evidence. Platform producers/proof remain owner work. |
 | WP206 App/Game Child-Device Delivery Readiness | Rust receipt surface plus Android Java child-runtime sources | **Complete for bounded Phase 1** | No source/test-writing gap found in the deliberately bounded scope; focused execution and proof remain later phases. |

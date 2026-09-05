@@ -4,6 +4,7 @@ use crate::child_agent::child_agent_events::{
     ChildCommandKind, ChildCommandReceivedEvent, ChildCommandRejectedEvent,
     ChildRuntimeHealthUpdatedEvent,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[path = "child_agent_event_fixtures.rs"]
 mod child_agent_event_fixtures;
@@ -134,7 +135,7 @@ fn child_agent_contracts_validate_schema_and_owned_refs() {
 #[test]
 fn child_agent_contracts_reject_schema_skew_blank_text_and_unknown_fields() {
     let valid = serde_json::to_value(child_command_received_event())
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     let mut schema_skew = valid.clone();
     schema_skew["schemaVersion"] =

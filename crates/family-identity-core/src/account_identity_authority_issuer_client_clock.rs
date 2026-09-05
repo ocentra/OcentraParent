@@ -10,7 +10,7 @@ pub(super) fn now(
     transaction: &Transaction<'_>,
 ) -> Result<(i64, String), AccountIdentityAuthorityIssuerClientError> {
     crate::account_identity_authority_repository::trusted_runtime_now_in_transaction(transaction)
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::ClockUnavailable)
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::ClockUnavailable)
 }
 
 pub(super) fn parse_timestamp(
@@ -18,5 +18,5 @@ pub(super) fn parse_timestamp(
 ) -> Result<DateTime<chrono::Utc>, AccountIdentityAuthorityIssuerClientError> {
     DateTime::parse_from_rfc3339(value)
         .map(|parsed| parsed.with_timezone(&chrono::Utc))
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)
 }

@@ -75,6 +75,7 @@ export function ScopeToggleText({
             role="button"
             tabIndex={disabled ? -1 : 0}
             aria-label={`Select ${option.label}`}
+            aria-disabled={disabled || undefined}
             onClick={(event) => {
               event.stopPropagation();
               onOptionSelect(option, index);

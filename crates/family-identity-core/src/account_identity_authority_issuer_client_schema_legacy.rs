@@ -9,7 +9,7 @@ pub(super) fn rebuild_legacy(
     backup_legacy_tables(connection)?;
     connection
         .execute_batch(CANONICAL_SCHEMA_SQL)
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
     drop_legacy_tables(connection)
 }
 
@@ -28,7 +28,7 @@ fn preflight_empty_legacy(
                 .query_row(&format!("SELECT COUNT(*) FROM {table}"), [], |row| {
                     row.get::<_, i64>(0)
                 })
-                .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
+                .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
             has_data |= count != 0;
         }
     }
@@ -46,7 +46,7 @@ fn preflight_empty_legacy(
                 [],
                 |row| row.get::<_, i64>(0),
             )
-            .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?
+            .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?
     } else {
         0
     };
@@ -61,7 +61,7 @@ fn preflight_empty_legacy(
                 [],
                 |row| row.get::<_, i64>(0),
             )
-            .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?
+            .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?
     } else {
         0
     };
@@ -95,7 +95,7 @@ fn backup_legacy_tables(
                 .execute_batch(&format!(
                     "CREATE TABLE {legacy} AS SELECT * FROM {table}; DROP TABLE {table};"
                 ))
-                .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
+                .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
         }
     }
     Ok(())
@@ -110,5 +110,5 @@ fn drop_legacy_tables(
              DROP TABLE IF EXISTS account_identity_issuer_v2_receipt_legacy;
              DROP TABLE IF EXISTS account_identity_issuer_v2_outbox_legacy;",
         )
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::InvalidSchema)
 }

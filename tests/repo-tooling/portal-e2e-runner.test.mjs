@@ -12,6 +12,10 @@ import {
   PortalNetworkActivitySeed,
   seedPortalNetworkActivityStore,
 } from '../../scripts/test/portal-network-activity-seed.mjs';
+import {
+  PortalAgentHealthPreflightMode,
+  resolvePortalAgentHealthPreflight,
+} from '../../scripts/test/portal-agent-health-preflight.mjs';
 
 function readEnforcerProfileProofScript(relativePath) {
   const candidateRoots = [
@@ -107,14 +111,16 @@ test('portal network activity seed persists evidence before Rust service startup
       const row = database
         .prepare(
           `
-SELECT evidence_json
+SELECT fields_json, evidence_json
 FROM activity_events
 WHERE event_id = ?;
 `
         )
         .get(PortalNetworkActivitySeed.EventId);
+      const fields = JSON.parse(row.fields_json);
 
       assert.equal(String(Object.values(journalMode)[0]), 'wal');
+      assert.equal(fields.associatedPidCount, 1);
       assert.equal(typeof row.evidence_json, 'string');
       assert.equal(row.evidence_json.includes(PortalNetworkActivitySeed.EvidenceId), true);
       assert.equal(row.evidence_json.includes(PortalNetworkActivitySeed.JournalEvidenceId), true);
@@ -124,6 +130,45 @@ WHERE event_id = ?;
   } finally {
     await rm(runRoot, { recursive: true, force: true });
   }
+});
+
+test('portal e2e distinguishes authenticated readiness from exact fail-closed degraded health', () => {
+  assert.equal(
+    resolvePortalAgentHealthPreflight({
+      state: 'ready',
+      route: 'localhost',
+      protocolSchemaVersion: 1,
+      serviceVersion: '0.1.1',
+      transport: 'websocket',
+      authenticationState: 'authenticated',
+      reason: 'ready',
+      trace: {},
+    }),
+    PortalAgentHealthPreflightMode.Authenticated
+  );
+  assert.equal(
+    resolvePortalAgentHealthPreflight({
+      state: 'degraded',
+      route: 'localhost',
+      protocolSchemaVersion: 1,
+      serviceVersion: '0.1.1',
+      transport: null,
+      authenticationState: 'unavailable',
+      reason: 'route-dependency-unavailable',
+      trace: {},
+    }),
+    PortalAgentHealthPreflightMode.DegradedUnavailable
+  );
+  assert.throws(
+    () =>
+      resolvePortalAgentHealthPreflight({
+        state: 'degraded',
+        transport: 'websocket',
+        authenticationState: 'unavailable',
+        reason: 'route-dependency-unavailable',
+      }),
+    /neither authenticated-ready nor the known fail-closed degraded state/
+  );
 });
 
 test('portal network activity seed commits while a concurrent reader holds the activity database open', async () => {

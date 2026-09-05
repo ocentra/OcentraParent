@@ -42,8 +42,6 @@ use ocentra_parent_agent_service::test_support::{
     save_activity_report_document_to_dir_for_test,
 };
 
-mod activity_surface_report_command_tests;
-
 static TEMP_PATH_COUNTER: AtomicU64 = AtomicU64::new(0);
 
 struct TempPath {

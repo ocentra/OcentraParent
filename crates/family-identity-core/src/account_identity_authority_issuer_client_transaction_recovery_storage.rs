@@ -25,7 +25,7 @@ pub(super) fn delete_valid_prepared(
                 AND attempt_token = ?19 AND lease_expires_at <= ?20",
             reservation_params(candidate, now_text),
         )
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)?;
     (changed == 1)
         .then_some(())
         .ok_or(AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)
@@ -92,7 +92,7 @@ fn mark_manual_with_exact_row(
                 candidate.signer_status,
             ],
         )
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)?;
+        .map_err(|_error| AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)?;
     (changed == 1)
         .then_some(())
         .ok_or(AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)
@@ -101,7 +101,7 @@ fn mark_manual_with_exact_row(
 fn reservation_params<'a>(
     candidate: &'a RecoveryReservation,
     now_text: &'a str,
-) -> rusqlite::ParamsFromIter<std::array::IntoIter<rusqlite::types::Value, 20>> {
+) -> rusqlite::ParamsFromIter<[rusqlite::types::Value; 20]> {
     let values: [rusqlite::types::Value; 20] = [
         candidate.reservation_id.clone().into(),
         candidate.account_id.clone().into(),
@@ -124,5 +124,5 @@ fn reservation_params<'a>(
         candidate.attempt_token.clone().into(),
         now_text.to_owned().into(),
     ];
-    rusqlite::params_from_iter(values.into_iter())
+    rusqlite::params_from_iter(values)
 }

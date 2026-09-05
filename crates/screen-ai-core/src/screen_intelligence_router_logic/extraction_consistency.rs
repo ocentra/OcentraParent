@@ -8,10 +8,6 @@ pub(super) fn is_consistent(value: &ScreenManagedBrowserStructuredExtraction) ->
         && !value.evidence_refs().is_empty()
 }
 
-pub(super) fn protected_content_skipped(value: &ScreenManagedBrowserStructuredExtraction) -> bool {
-    value.protected_content_skipped()
-}
-
 pub(super) fn is_ready_for_structured_route(
     value: &ScreenManagedBrowserStructuredExtraction,
 ) -> bool {

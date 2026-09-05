@@ -23,6 +23,8 @@ use ocentra_eventing::queue::policy::NoSubscriberQueuePolicy;
 
 #[path = "queue/dead_letter.rs"]
 mod dead_letter;
+#[path = "queue/dead_letter_identity.rs"]
+mod dead_letter_identity;
 #[path = "queue/no_subscriber.rs"]
 mod no_subscriber;
 #[path = "queue/no_subscriber_journal.rs"]

@@ -11,6 +11,8 @@ use crate::{
 };
 
 pub mod broker_delivery;
+#[path = "network_flow_event_contracts.rs"]
+mod network_flow_event_contracts;
 #[path = "network_flow_eventing.rs"]
 mod network_flow_eventing;
 pub mod remote_delivery_reports;
@@ -625,23 +627,6 @@ pub struct NetworkFlowObservedEvent {
     pub claim_boundary: NetworkClaimBoundary,
 }
 
-impl NetworkRuntimeEventContract for NetworkFlowObservedEvent {
-    const EVENT_TYPE: &'static str = crate::constants::network_flow::EVENT_NETWORK_FLOW_OBSERVED;
-
-    fn validate(&self) -> Result<(), EventingError> {
-        validate_network_event(
-            self.schema_version,
-            &[
-                (&self.flow_event_ref, "flow_event_ref"),
-                (&self.observed_at, "observed_at"),
-                (&self.device_ref, "device_ref"),
-                (&self.flow_evidence_ref, "flow_evidence_ref"),
-                (&self.custody, "custody"),
-            ],
-        )
-    }
-}
-
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 #[serde(deny_unknown_fields)]
@@ -661,23 +646,6 @@ pub struct NetworkDomainObservedEvent {
     #[serde(deserialize_with = "deserialize_network_text_vec")]
     pub uncertainty_codes: Vec<String>,
     pub claim_boundary: NetworkClaimBoundary,
-}
-
-impl NetworkRuntimeEventContract for NetworkDomainObservedEvent {
-    const EVENT_TYPE: &'static str = crate::constants::network_flow::EVENT_NETWORK_DOMAIN_OBSERVED;
-
-    fn validate(&self) -> Result<(), EventingError> {
-        validate_network_event(
-            self.schema_version,
-            &[
-                (&self.domain_event_ref, "domain_event_ref"),
-                (&self.previous_event_ref, "previous_event_ref"),
-                (&self.flow_evidence_ref, "flow_evidence_ref"),
-                (&self.domain_evidence_ref, "domain_evidence_ref"),
-            ],
-        )
-        .and_then(|_| validate_network_texts(&self.uncertainty_codes, "uncertainty_codes", false))
-    }
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -700,31 +668,6 @@ pub struct NetworkActivityClassifiedEvent {
     pub uncertainty_codes: Vec<String>,
 }
 
-impl NetworkRuntimeEventContract for NetworkActivityClassifiedEvent {
-    const EVENT_TYPE: &'static str =
-        crate::constants::network_flow::EVENT_NETWORK_ACTIVITY_CLASSIFIED;
-
-    fn validate(&self) -> Result<(), EventingError> {
-        validate_network_event(
-            self.schema_version,
-            &[
-                (&self.classification_event_ref, "classification_event_ref"),
-                (&self.previous_event_ref, "previous_event_ref"),
-            ],
-        )
-        .and_then(|_| validate_network_texts(&self.evidence_refs, "evidence_refs", true))
-        .and_then(|_| validate_network_texts(&self.uncertainty_codes, "uncertainty_codes", false))
-        .and_then(|_| {
-            (self.confidence.is_finite() && (0.0..=1.0).contains(&self.confidence))
-                .then_some(())
-                .ok_or_else(|| EventingError::InvalidValue {
-                    field: "confidence",
-                    value: self.confidence.to_string(),
-                })
-        })
-    }
-}
-
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 #[serde(deny_unknown_fields)]
@@ -743,31 +686,6 @@ pub struct NetworkAiAnalysisRequestedEvent {
     pub custody: String,
     #[serde(deserialize_with = "deserialize_network_redacted_bool")]
     pub raw_packet_payload_included: bool,
-}
-
-impl NetworkRuntimeEventContract for NetworkAiAnalysisRequestedEvent {
-    const EVENT_TYPE: &'static str = crate::constants::network_flow::EVENT_AI_ANALYSIS_REQUESTED;
-
-    fn validate(&self) -> Result<(), EventingError> {
-        validate_network_event(
-            self.schema_version,
-            &[
-                (&self.ai_request_ref, "ai_request_ref"),
-                (&self.previous_event_ref, "previous_event_ref"),
-                (&self.prompt_template_ref, "prompt_template_ref"),
-                (&self.custody, "custody"),
-            ],
-        )
-        .and_then(|_| validate_network_texts(&self.evidence_refs, "evidence_refs", true))
-        .and_then(|_| {
-            (!self.raw_packet_payload_included)
-                .then_some(())
-                .ok_or_else(|| EventingError::InvalidValue {
-                    field: "raw_packet_payload_included",
-                    value: "true".to_string(),
-                })
-        })
-    }
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -789,23 +707,6 @@ pub struct NetworkAiAnalysisCompletedEvent {
     pub unsupported_claims: Vec<String>,
 }
 
-impl NetworkRuntimeEventContract for NetworkAiAnalysisCompletedEvent {
-    const EVENT_TYPE: &'static str = crate::constants::network_flow::EVENT_AI_ANALYSIS_COMPLETED;
-
-    fn validate(&self) -> Result<(), EventingError> {
-        validate_network_event(
-            self.schema_version,
-            &[
-                (&self.ai_analysis_ref, "ai_analysis_ref"),
-                (&self.ai_request_ref, "ai_request_ref"),
-                (&self.previous_event_ref, "previous_event_ref"),
-            ],
-        )
-        .and_then(|_| validate_network_texts(&self.evidence_refs, "evidence_refs", true))
-        .and_then(|_| validate_network_texts(&self.unsupported_claims, "unsupported_claims", false))
-    }
-}
-
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 #[serde(deny_unknown_fields)]
@@ -823,26 +724,6 @@ pub struct NetworkPolicyEvaluationRequestedEvent {
     #[serde(deserialize_with = "deserialize_network_non_empty_text_vec")]
     pub parent_rule_refs: Vec<String>,
     pub dry_run: bool,
-}
-
-impl NetworkRuntimeEventContract for NetworkPolicyEvaluationRequestedEvent {
-    const EVENT_TYPE: &'static str =
-        crate::constants::network_flow::EVENT_POLICY_EVALUATION_REQUESTED;
-
-    fn validate(&self) -> Result<(), EventingError> {
-        validate_network_event(
-            self.schema_version,
-            &[
-                (&self.policy_evaluation_ref, "policy_evaluation_ref"),
-                (&self.previous_event_ref, "previous_event_ref"),
-            ],
-        )
-        .and_then(|_| validate_network_texts(&self.evidence_refs, "evidence_refs", true))
-        .and_then(|_| validate_network_texts(&self.parent_rule_refs, "parent_rule_refs", true))
-        .and_then(|_| {
-            validate_network_optional_text(self.ai_analysis_ref.as_deref(), "ai_analysis_ref")
-        })
-    }
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -865,24 +746,6 @@ pub struct NetworkPolicyDecisionCompletedEvent {
     pub adapter_capability_required: bool,
 }
 
-impl NetworkRuntimeEventContract for NetworkPolicyDecisionCompletedEvent {
-    const EVENT_TYPE: &'static str =
-        crate::constants::network_flow::EVENT_POLICY_DECISION_COMPLETED;
-
-    fn validate(&self) -> Result<(), EventingError> {
-        validate_network_event(
-            self.schema_version,
-            &[
-                (&self.policy_decision_ref, "policy_decision_ref"),
-                (&self.policy_evaluation_ref, "policy_evaluation_ref"),
-                (&self.previous_event_ref, "previous_event_ref"),
-            ],
-        )
-        .and_then(|_| validate_network_texts(&self.evidence_refs, "evidence_refs", true))
-        .and_then(|_| validate_network_texts(&self.parent_rule_refs, "parent_rule_refs", true))
-    }
-}
-
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 #[serde(deny_unknown_fields)]
@@ -902,25 +765,6 @@ pub struct NetworkEnforcementCommandIssuedEvent {
     pub evidence_refs: Vec<String>,
     #[serde(deserialize_with = "deserialize_network_optional_non_empty_text")]
     pub rollback_ref: Option<String>,
-}
-
-impl NetworkRuntimeEventContract for NetworkEnforcementCommandIssuedEvent {
-    const EVENT_TYPE: &'static str =
-        crate::constants::network_flow::EVENT_ENFORCEMENT_COMMAND_ISSUED;
-
-    fn validate(&self) -> Result<(), EventingError> {
-        validate_network_event(
-            self.schema_version,
-            &[
-                (&self.enforcement_command_ref, "enforcement_command_ref"),
-                (&self.previous_event_ref, "previous_event_ref"),
-                (&self.policy_decision_ref, "policy_decision_ref"),
-                (&self.adapter_capability_ref, "adapter_capability_ref"),
-            ],
-        )
-        .and_then(|_| validate_network_texts(&self.evidence_refs, "evidence_refs", true))
-        .and_then(|_| validate_network_optional_text(self.rollback_ref.as_deref(), "rollback_ref"))
-    }
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -964,16 +808,23 @@ impl NetworkRuntimeEventContract for NetworkEnforcementResultObservedEvent {
             )
         })
         .and_then(|_| {
-            if self.result_status == NetworkEnforcementResultStatus::Unavailable
-                && self.unavailable_reason_code.is_none()
-            {
-                return Err(EventingError::EmptyValue {
-                    field: "unavailable_reason_code",
-                });
-            }
-            Ok(())
+            validate_network_enforcement_result_status(
+                self.result_status == NetworkEnforcementResultStatus::Unavailable,
+                self.unavailable_reason_code.is_some(),
+            )
         })
     }
+}
+
+fn validate_network_enforcement_result_status(
+    unavailable_result: bool,
+    has_unavailable_reason: bool,
+) -> Result<(), EventingError> {
+    (!unavailable_result || has_unavailable_reason)
+        .then_some(())
+        .ok_or(EventingError::EmptyValue {
+            field: "unavailable_reason_code",
+        })
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -1365,14 +1216,14 @@ impl DomainEvent for NetworkRuntimeEventPayload {
     }
 
     fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
-        AggregateKey::parse(network_runtime_aggregate_key(self))
+        AggregateKey::parse(network_flow_event_contracts::runtime_aggregate_key(self))
     }
 
     fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
         let mut value = String::from(constants::network_flow::IDEMPOTENCY_NETWORK_RUNTIME_PREFIX);
         value.push_str(self.phase.event_type());
         value.push(constants::delimiter::HYPHEN);
-        value.push_str(&network_runtime_aggregate_key(self));
+        value.push_str(&network_flow_event_contracts::runtime_aggregate_key(self));
         value.push(constants::delimiter::HYPHEN);
         value.push_str(&self.observed_at);
         IdempotencyKey::parse(value)
@@ -1462,34 +1313,4 @@ fn expected_runtime_evidence_grade(
     .find(|(selected, _)| *selected)
     .map(|(_, grade)| grade)
     .unwrap_or(NetworkRuntimeEvidenceGrade::AdapterUnavailable)
-}
-
-fn network_runtime_aggregate_key(payload: &NetworkRuntimeEventPayload) -> String {
-    payload.destination_domain.as_ref().map_or_else(
-        || {
-            payload.destination_ip.as_ref().map_or_else(
-                || {
-                    let mut value =
-                        String::from(constants::network_flow::AGGREGATE_NETWORK_FLOW_PREFIX);
-                    value.push_str(payload.capability_status.as_protocol_str());
-                    value
-                },
-                |ip| {
-                    let mut value =
-                        String::from(constants::network_flow::AGGREGATE_NETWORK_FLOW_PREFIX);
-                    value.push_str(ip);
-                    let port_suffix = payload.destination_port.map_or_else(String::new, |port| {
-                        format!("{}{}", constants::delimiter::HYPHEN, port)
-                    });
-                    value.push_str(&port_suffix);
-                    value
-                },
-            )
-        },
-        |domain| {
-            let mut value = String::from(constants::network_flow::AGGREGATE_NETWORK_FLOW_PREFIX);
-            value.push_str(domain);
-            value
-        },
-    )
 }

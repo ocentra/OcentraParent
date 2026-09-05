@@ -34,8 +34,8 @@ pub(super) fn verify_broker(
     }
     platform
         .open_and_verify(broker.seal_context(), &broker.sealed)
-        .map_err(super::map_platform_error)?;
-    storage::from_broker(broker).map_err(super::sqlite::map_error)
+        .map_err(|error| super::map_platform_error(&error))?;
+    storage::from_broker(broker).map_err(|error| super::sqlite::map_error(&error))
 }
 
 pub(super) fn validate_transition(

@@ -1,7 +1,7 @@
 use ocentra_schema::export_import_backup_recovery as contracts;
 use ocentra_storage_custody_core::export_import_backup_recovery::
     export_import_backup_recovery_backup_job_state::{
-        advance_backup_job, BackupJobStateError, BackupJobTransition,
+        advance_backup_job, BackupJobTransition,
     };
 
 use super::{BackupJobLedger, BackupJobLedgerError};

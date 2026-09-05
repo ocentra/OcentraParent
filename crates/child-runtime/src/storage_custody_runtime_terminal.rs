@@ -27,7 +27,7 @@ impl ChildStorageCustodyRuntime {
         self.finish_record(&record).await
     }
 
-    pub(crate) async fn finish_record(
+    pub(super) async fn finish_record(
         &self,
         record: &StorageCustodyEffectRecord,
     ) -> Result<ChildStorageCustodyOutcome, ChildAgentServiceError> {

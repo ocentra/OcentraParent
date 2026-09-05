@@ -13,7 +13,7 @@ use ocentra_schema::report_query_custody as contracts;
 
 use super::{
     report_query_custody_request_validate, report_query_custody_row_validate,
-    ReportQueryCustodyDerivationError, ReportQueryCustodyDerivationInput, ReportQueryCustodySignal,
+    ReportQueryCustodyDerivationError, ReportQueryCustodyDerivationInput,
 };
 
 #[path = "report_query_custody_state_projection.rs"]
@@ -133,7 +133,7 @@ pub enum ReportQueryCustodySourceStateEvidence {
         next_cursor_ref: contracts::ReportQueryCustodyCursorRef,
     },
     Deleted {
-        tombstone: ReportQueryCustodyTombstoneEvidence,
+        tombstone: Box<ReportQueryCustodyTombstoneEvidence>,
     },
     Conflict {
         next_cursor_ref: contracts::ReportQueryCustodyCursorRef,
@@ -176,27 +176,34 @@ pub struct ReportQueryCustodySourceOwnerRow {
     input: ReportQueryCustodyDerivationInput,
 }
 
+/// Typed producer row metadata. Authority remains outside this value and is
+/// bound from [`ReportQueryCustodySourceOwnerEvidence`] during construction.
+#[derive(Debug, Eq, PartialEq)]
+pub struct ReportQueryCustodySourceRowInput {
+    pub row_id: contracts::ReportQueryCustodySourceRef,
+    pub source_data_class: contracts::ReportQueryCustodySourceDataClass,
+    pub cursor_ref: contracts::ReportQueryCustodyCursorRef,
+    pub source_cursor_ref: contracts::ReportQueryCustodyCursorRef,
+    pub page_index: u32,
+    pub stable_sort_key: contracts::ReportQueryCustodySortKey,
+    pub state: ReportQueryCustodySourceStateEvidence,
+}
+
 impl ReportQueryCustodySourceOwnerRow {
     pub fn from_owner_snapshot(
         owner: &ReportQueryCustodySourceOwnerEvidence,
-        row_id: contracts::ReportQueryCustodySourceRef,
-        source_data_class: contracts::ReportQueryCustodySourceDataClass,
-        cursor_ref: contracts::ReportQueryCustodyCursorRef,
-        source_cursor_ref: contracts::ReportQueryCustodyCursorRef,
-        page_index: u32,
-        stable_sort_key: contracts::ReportQueryCustodySortKey,
-        state: ReportQueryCustodySourceStateEvidence,
+        input: ReportQueryCustodySourceRowInput,
     ) -> Result<Self, ReportQueryCustodyDerivationError> {
-        let projection = ReportQueryCustodySourceStateProjection::from_state(owner, state)?;
+        let projection = ReportQueryCustodySourceStateProjection::from_state(owner, input.state)?;
         Ok(Self {
             authority: owner.authority.clone(),
             input: projection.into_input(
-                row_id,
-                source_data_class,
-                cursor_ref,
-                source_cursor_ref,
-                page_index,
-                stable_sort_key,
+                input.row_id,
+                input.source_data_class,
+                input.cursor_ref,
+                input.source_cursor_ref,
+                input.page_index,
+                input.stable_sort_key,
             ),
         })
     }

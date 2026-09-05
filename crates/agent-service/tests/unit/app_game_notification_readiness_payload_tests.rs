@@ -35,9 +35,10 @@ use ocentra_parent_agent_protocol::app_game_notification_readiness::{
 use ocentra_parent_agent_protocol::constants;
 use std::primitive::str as TestStr;
 
-use crate::test_invariants::{
-    require_json_decode, require_log_string_field, require_ok, require_some,
-};
+use crate::test_require_json_decode::require_json_decode;
+use crate::test_require_log_string_field::require_log_string_field;
+use crate::test_require_ok::require_ok;
+use crate::test_require_some::require_some;
 
 use super::app_game_notification_readiness_payload::{
     app_game_notification_readiness_from_service_model, app_game_notification_readiness_payload,
@@ -139,7 +140,10 @@ fn app_game_notification_readiness_marks_explicit_unknown_classification_for_man
     let read_model = app_game_notification_readiness_from_service_model(model);
 
     assert_eq!(read_model.returned, 2);
-    assert_eq!(read_model.capability_status, APP_GAME_NOTIFICATION_READINESS_STATUS_PARTIAL);
+    assert_eq!(
+        read_model.capability_status,
+        APP_GAME_NOTIFICATION_READINESS_STATUS_PARTIAL
+    );
     assert_eq!(read_model.ready_intent_count, 0);
     assert_eq!(read_model.manual_required_count, 2);
     assert_eq!(read_model.unavailable_count, 0);
@@ -161,7 +165,7 @@ fn app_game_notification_readiness_marks_explicit_unknown_classification_for_man
     );
 }
 
-fn service_model() -> AppGameServiceReadModel {
+pub(super) fn service_model() -> AppGameServiceReadModel {
     AppGameServiceReadModel {
         schema_version: APP_GAME_SCHEMA_VERSION,
         generated_at: APP_GAME_TEST_TIMESTAMP.to_string(),
@@ -198,8 +202,7 @@ fn unknown_inventory_row() -> AppGameInventoryEvidenceRow {
     AppGameInventoryEvidenceRow {
         schema_version: APP_GAME_SCHEMA_VERSION,
         inventory_entry_id:
-            constants::value::APP_GAME_TEST_POLICY_READINESS_UNKNOWN_INVENTORY_ENTRY_ID
-                .to_string(),
+            constants::value::APP_GAME_TEST_POLICY_READINESS_UNKNOWN_INVENTORY_ENTRY_ID.to_string(),
         observed_at: APP_GAME_TEST_TIMESTAMP.to_string(),
         source_kind: APP_GAME_INVENTORY_SOURCE_UNKNOWN.to_string(),
         source_ref: APP_GAME_TEST_UNKNOWN_SOURCE_REF.to_string(),

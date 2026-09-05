@@ -65,17 +65,17 @@ fn validate_index(
 ) -> Result<(), ()> {
     let mut statement = connection
         .prepare(&format!("PRAGMA index_list('{table}')"))
-        .map_err(|_| ())?;
-    let mut rows = statement.query([]).map_err(|_| ())?;
+        .map_err(|_error| ())?;
+    let mut rows = statement.query([]).map_err(|_error| ())?;
     let mut found = false;
-    while let Some(row) = rows.next().map_err(|_| ())? {
-        let name = row.get::<_, String>(1).map_err(|_| ())?;
+    while let Some(row) = rows.next().map_err(|_error| ())? {
+        let name = row.get::<_, String>(1).map_err(|_error| ())?;
         if name == index {
             found = true;
             validate_index_shape(
                 connection,
                 &name,
-                row.get::<_, i64>(2).map_err(|_| ())?,
+                row.get::<_, i64>(2).map_err(|_error| ())?,
                 unique,
                 columns,
             )?;
@@ -127,11 +127,11 @@ fn validate_index_shape(
     }
     let mut statement = connection
         .prepare(&format!("PRAGMA index_info('{index}')"))
-        .map_err(|_| ())?;
-    let mut rows = statement.query([]).map_err(|_| ())?;
+        .map_err(|_error| ())?;
+    let mut rows = statement.query([]).map_err(|_error| ())?;
     let mut actual = Vec::new();
-    while let Some(row) = rows.next().map_err(|_| ())? {
-        actual.push(row.get::<_, String>(2).map_err(|_| ())?);
+    while let Some(row) = rows.next().map_err(|_error| ())? {
+        actual.push(row.get::<_, String>(2).map_err(|_error| ())?);
     }
     (actual == columns).then_some(()).ok_or(())
 }
@@ -162,14 +162,14 @@ fn validate_foreign_key(
 ) -> Result<(), ()> {
     let mut statement = connection
         .prepare(&format!("PRAGMA foreign_key_list('{table}')"))
-        .map_err(|_| ())?;
-    let mut rows = statement.query([]).map_err(|_| ())?;
+        .map_err(|_error| ())?;
+    let mut rows = statement.query([]).map_err(|_error| ())?;
     let mut actual = Vec::new();
-    while let Some(row) = rows.next().map_err(|_| ())? {
+    while let Some(row) = rows.next().map_err(|_error| ())? {
         actual.push((
-            row.get::<_, String>(2).map_err(|_| ())?,
-            row.get::<_, String>(3).map_err(|_| ())?,
-            row.get::<_, String>(4).map_err(|_| ())?,
+            row.get::<_, String>(2).map_err(|_error| ())?,
+            row.get::<_, String>(3).map_err(|_error| ())?,
+            row.get::<_, String>(4).map_err(|_error| ())?,
         ));
     }
     match expected {

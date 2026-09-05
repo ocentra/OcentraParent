@@ -18,16 +18,4 @@ impl TrustedDeviceRegistry {
     pub(super) fn remember_accepted_intent_id(&mut self, intent_id: String) {
         remember_bounded_replay_id(&mut self.accepted_intent_ids, intent_id);
     }
-
-    pub(super) fn merge_accepted_intent_ids(&mut self, ids: impl IntoIterator<Item = String>) {
-        for id in ids {
-            remember_bounded_replay_id(&mut self.accepted_intent_ids, id);
-        }
-    }
-
-    pub(super) fn merge_accepted_challenge_ids(&mut self, ids: impl IntoIterator<Item = String>) {
-        for id in ids {
-            remember_bounded_replay_id(&mut self.accepted_challenge_ids, id);
-        }
-    }
 }

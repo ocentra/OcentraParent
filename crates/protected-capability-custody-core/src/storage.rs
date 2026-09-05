@@ -9,9 +9,9 @@ mod configuration;
 mod record;
 mod schema;
 
-#[cfg(test)]
+#[path = "../tests/unit/storage_custody_transition_private.rs"]
 mod custody_transition_test;
-#[cfg(test)]
+#[path = "../tests/unit/storage_schema_private.rs"]
 mod storage_schema_test;
 
 pub(crate) const TABLE_NAME: &str = "protected_capability_custody_records";
@@ -54,7 +54,7 @@ impl From<rusqlite::Error> for StorageError {
 
 pub(crate) fn open_connection(path: &Path) -> Result<(Connection, bool), StorageError> {
     let was_empty = std::fs::metadata(path)
-        .map_err(|_| StorageError::Unavailable)?
+        .map_err(|_file_metadata_error| StorageError::Unavailable)?
         .len()
         == 0;
     let flags = OpenFlags::SQLITE_OPEN_READ_WRITE

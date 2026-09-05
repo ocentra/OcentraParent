@@ -1,6 +1,8 @@
 use std::collections::BTreeMap;
 
 use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::constants::enforcement as enforcement_constants;
+use ocentra_parent_agent_protocol::constants::v08_browser_domain_adapter_proof as browser_proof;
 use ocentra_parent_agent_protocol::constants::v08_cross_platform_enforcement_capability_proof as proof;
 use ocentra_parent_agent_protocol::enforcement::ParentPlatform;
 use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformAdapterExecutionState;
@@ -15,7 +17,8 @@ use crate::{
     enforcement_cross_platform_capability_proof_read_model::{
         v08_cross_platform_enforcement_capability_proof_read_model, GeneratedAtTextRef,
     },
-    test_invariants::{require_ok, require_some},
+    test_require_ok::require_ok,
+    test_require_some::require_some,
 };
 
 #[test]
@@ -94,8 +97,23 @@ fn cross_platform_read_model_does_not_upgrade_unproved_claims() {
         managed_browser.adapter_execution_state,
         V08CrossPlatformAdapterExecutionState::ReturnsManualRequired
     );
-    assert!(!windows_app_time.manual_proof_requirements.is_empty());
-    assert!(!managed_browser.manual_proof_requirements.is_empty());
+    assert_eq!(
+        windows_app_time.manual_proof_requirements,
+        vec![
+            enforcement_constants::ARTIFACT_APP_TIME_LIMIT_EXECUTOR.to_string(),
+            proof::REQUIREMENT_ROLLBACK.to_string(),
+            proof::REQUIREMENT_AUDIT_CUSTODY.to_string(),
+        ]
+    );
+    assert_eq!(
+        managed_browser.manual_proof_requirements,
+        vec![
+            browser_proof::REQUIREMENT_MANAGED_PROFILE.to_string(),
+            browser_proof::REQUIREMENT_ACTIVE_TAB.to_string(),
+            browser_proof::REQUIREMENT_ROLLBACK.to_string(),
+            browser_proof::REQUIREMENT_AUDIT_CUSTODY.to_string(),
+        ]
+    );
     assert_eq!(
         android_device_owner.product_claim_state,
         V08CrossPlatformEnforcementCapabilityClaimState::ManualRequired

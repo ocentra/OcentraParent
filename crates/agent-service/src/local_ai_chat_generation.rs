@@ -7,13 +7,17 @@ use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
 use ocentra_parent_agent_protocol::transport::AgentEventName;
 
 use crate::{
-    event_builder::build_event, local_ai_chat_generation_request::parse_generation_request,
+    event_builder::build_event,
+    local_ai_chat_generation_request::parse_generation_request,
+    local_ai_chat_generation_request_input::LocalAiChatGenerationRequest,
+    local_ai_chat_generation_result::unavailable_result,
     local_ai_chat_generation_runner::run_local_ai_chat_generation,
     local_ai_generation_payload::local_ai_chat_generation_payload,
     local_ai_provider_scheduler::local_ai_provider_scheduler,
     local_ai_runtime_config::LocalAiRuntimeConfigSnapshot,
-    local_ai_runtime_config_values::LocalAiUnavailableReason,
-    local_ai_runtime_status::local_ai_runtime_status_for_model_from_config, time::timestamp_now,
+    local_ai_runtime_config_values::{LocalAiRuntimeText, LocalAiUnavailableReason},
+    local_ai_runtime_status::local_ai_runtime_status_for_model_from_config,
+    time::timestamp_now,
 };
 
 pub async fn build_local_ai_chat_generation_report(
@@ -39,8 +43,8 @@ pub async fn build_local_ai_chat_generation_report(
                 )
                 .await
         }
-        Err(reason) => crate::local_ai_chat_generation_runner::unavailable_result_for_command(
-            command.message_id.as_str(),
+        Err(reason) => unavailable_result_for_command(
+            LocalAiRuntimeText(command.message_id.clone()),
             &config,
             LocalAiUnavailableReason(reason.0),
         ),
@@ -60,4 +64,18 @@ pub async fn build_local_ai_chat_generation_report(
         local_ai_chat_generation_payload(&result),
         None,
     )
+}
+
+fn unavailable_result_for_command(
+    message_id: LocalAiRuntimeText,
+    config: &LocalAiRuntimeConfigSnapshot,
+    reason: LocalAiUnavailableReason,
+) -> ocentra_parent_agent_protocol::local_ai_runtime::generation::LocalAiChatGenerationResult {
+    let request = LocalAiChatGenerationRequest {
+        model_id: config.model_id().0,
+        prompt: String::new(),
+        max_output_tokens: config.generation_max_tokens(),
+        timeout_ms: config.generation_timeout_ms(),
+    };
+    unavailable_result(message_id, config, &request, reason)
 }

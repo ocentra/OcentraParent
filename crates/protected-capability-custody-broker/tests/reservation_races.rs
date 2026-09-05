@@ -10,18 +10,8 @@ fn concurrent_service_entrypoints_do_not_mint_reservation_authority() {
     let first = thread::spawn(run_service);
     let second = thread::spawn(run_service);
 
-    let first_join = first.join();
-    assert!(first_join.is_ok());
-    let first_result = match first_join {
-        Ok(result) => result,
-        Err(_) => return,
-    };
-    let second_join = second.join();
-    assert!(second_join.is_ok());
-    let second_result = match second_join {
-        Ok(result) => result,
-        Err(_) => return,
-    };
+    let first_result = first.join().expect("first broker service thread joins");
+    let second_result = second.join().expect("second broker service thread joins");
 
     assert!(matches!(
         first_result,

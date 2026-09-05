@@ -43,35 +43,51 @@ pub(super) fn execute(
         adapter_result: None,
         rollback_required: false,
     };
-    persist_intent_and_execute(
+    persist_intent_and_execute(PendingExecution {
         context,
-        &mut store,
+        store: &mut store,
         request,
         grant,
         expected,
         trusted_issuer,
         target,
         receipt,
-    )
+    })
+}
+
+struct PendingExecution<'a> {
+    context: &'a AuthenticatedDeliveryExecutionContext,
+    store: &'a mut AuthenticatedDeliveryExecutionStore,
+    request: AuthenticatedDeliveryExecutionRequest,
+    grant: &'a AuthenticatedDeliveryGrant,
+    expected: &'a AuthenticatedDeliveryGrantExpectation,
+    trusted_issuer: &'a AuthenticatedDeliveryGrantTrustedIssuer,
+    target:
+        ocentra_parent_agent_core::enforcement_adapter::AuthenticatedOwnedProcessTerminationTarget,
+    receipt: AuthenticatedDeliveryExecutionReceipt,
 }
 
 fn persist_intent_and_execute(
-    context: &AuthenticatedDeliveryExecutionContext,
-    store: &mut AuthenticatedDeliveryExecutionStore,
-    request: AuthenticatedDeliveryExecutionRequest,
-    grant: &AuthenticatedDeliveryGrant,
-    expected: &AuthenticatedDeliveryGrantExpectation,
-    trusted_issuer: &AuthenticatedDeliveryGrantTrustedIssuer,
-    target: ocentra_parent_agent_core::enforcement_adapter::AuthenticatedOwnedProcessTerminationTarget,
-    receipt: AuthenticatedDeliveryExecutionReceipt,
+    execution: PendingExecution<'_>,
 ) -> Result<AuthenticatedDeliveryExecutionReceipt, AuthenticatedDeliveryExecutionApiError> {
-    let persisted = store
-        .persist_intent(&grant.issuer_key_id, &grant.nonce, &receipt)
+    let persisted = execution
+        .store
+        .persist_intent(
+            &execution.grant.issuer_key_id,
+            &execution.grant.nonce,
+            &execution.receipt,
+        )
         .map_err(|_error| AuthenticatedDeliveryExecutionApiError::StoreRejected)?;
     if !persisted {
         return Err(AuthenticatedDeliveryExecutionApiError::ReplayRejected);
     }
-    consume_grant_and_execute(
+    consume_grant_and_execute(execution)
+}
+
+fn consume_grant_and_execute(
+    execution: PendingExecution<'_>,
+) -> Result<AuthenticatedDeliveryExecutionReceipt, AuthenticatedDeliveryExecutionApiError> {
+    let PendingExecution {
         context,
         store,
         request,
@@ -80,19 +96,7 @@ fn persist_intent_and_execute(
         trusted_issuer,
         target,
         receipt,
-    )
-}
-
-fn consume_grant_and_execute(
-    context: &AuthenticatedDeliveryExecutionContext,
-    store: &mut AuthenticatedDeliveryExecutionStore,
-    request: AuthenticatedDeliveryExecutionRequest,
-    grant: &AuthenticatedDeliveryGrant,
-    expected: &AuthenticatedDeliveryGrantExpectation,
-    trusted_issuer: &AuthenticatedDeliveryGrantTrustedIssuer,
-    target: ocentra_parent_agent_core::enforcement_adapter::AuthenticatedOwnedProcessTerminationTarget,
-    receipt: AuthenticatedDeliveryExecutionReceipt,
-) -> Result<AuthenticatedDeliveryExecutionReceipt, AuthenticatedDeliveryExecutionApiError> {
+    } = execution;
     let mut grant_consumer =
         AuthenticatedDeliveryGrantConsumer::open(&context.store_path, trusted_issuer.clone())
             .map_err(|_error| AuthenticatedDeliveryExecutionApiError::GrantRejected)?;

@@ -19,7 +19,7 @@ use crate::{
         local_ai_runtime_status_from_config, unavailable_local_ai_runtime_status,
         unavailable_local_provider_adapter_probe,
     },
-    test_invariants::require_ok,
+    test_require_ok::require_ok,
 };
 
 #[test]

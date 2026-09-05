@@ -1,9 +1,8 @@
 import { useMemo, useState, type ReactElement, type ReactNode } from 'react';
 import { parentScreenEvidenceSettingsWritableUiProof as screenEvidenceSettingsWritableUiProof } from '../generated/parent-ui-screen-bridge';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
-import { PortalDetails } from '@ocentra-parent/portal-domain/details';
 import { PortalFormatting } from '@ocentra-parent/portal-domain/formatting';
-import { type PortalDisplayText } from '@ocentra-parent/portal-domain/display-text';
+import { decodeDisplayText, type PortalDisplayText } from '@ocentra-parent/portal-domain/display-text';
 import type { PortalRenderActions } from './portal-actions';
 import {
   createScreenSettingsGetCommandDraft,
@@ -20,6 +19,30 @@ type ScreenSettingsWritableDetailValue = ReactNode;
 type ScreenEvidenceSettingsWritableProof = ReturnType<typeof screenEvidenceSettingsWritableUiProof>;
 type ScreenEvidenceSettingsUiIntent = ScreenEvidenceSettingsWritableProof['intents'][number];
 type ScreenEvidenceSettingsUiIntentKey = ScreenEvidenceSettingsWritableProof['defaultIntentKey'];
+
+const SCREEN_SETTINGS_TEXT = {
+  mode: decodeDisplayText('Screen analysis mode'),
+  selectedSetting: decodeDisplayText('Selected setting'),
+  triggersAndPrivacy: decodeDisplayText('Triggers and privacy'),
+  rawImagesAndRemoteAccess: decodeDisplayText('Raw images and remote access'),
+  enabled: decodeDisplayText('Enabled'),
+  analysisMode: decodeDisplayText('Analysis mode'),
+  captureInterval: decodeDisplayText('Capture interval'),
+  captureScope: decodeDisplayText('Capture scope'),
+  redaction: decodeDisplayText('Redaction'),
+  triggers: decodeDisplayText('Triggers'),
+  temporaryImageLifetime: decodeDisplayText('Temporary image lifetime'),
+  policyDryRun: decodeDisplayText('Policy dry run'),
+  rawImageRetained: decodeDisplayText('Raw image retained'),
+  rawImageRetention: decodeDisplayText('Raw image retention'),
+  liveView: decodeDisplayText('Live view'),
+  rawImageUpload: decodeDisplayText('Raw image upload'),
+  remoteSummary: decodeDisplayText('Remote summary'),
+  remoteCustody: decodeDisplayText('Remote custody'),
+  none: 'None',
+  off: 'Off',
+  on: 'On',
+} as const;
 
 export function ScreenSettingsWritableControls({
   actions,
@@ -70,18 +93,14 @@ export function ScreenSettingsWritableControls({
 
   return (
     <>
-      <ScreenSettingsProofCard proof={proof} />
       <ScreenSettingsIntentPickerCard
-        proof={proof}
+        commandEnabled={commandEnabled}
+        intents={proof.intents}
         selectedIntent={selectedIntent}
         onSelectIntent={setSelectedIntentKey}
       />
-      <ScreenSettingsDraftCard
-        proofHeading={proof.draftHeading}
-        triggerHeading={proof.draftTriggerHeading}
-        selectedIntent={selectedIntent}
-      />
-      <ScreenSettingsRetentionCard proofHeading={proof.retentionHeading} selectedIntent={selectedIntent} />
+      <ScreenSettingsDraftCard selectedIntent={selectedIntent} />
+      <ScreenSettingsRetentionCard selectedIntent={selectedIntent} />
       <ScreenSettingsServiceCommandCard
         commandEnabled={commandEnabled}
         onRefresh={sendRefresh}
@@ -91,42 +110,32 @@ export function ScreenSettingsWritableControls({
         response={serviceResponse}
         serviceStatus={serviceStatus}
       />
-      <ScreenSettingsValidationCard proof={proof} selectedIntent={selectedIntent} />
     </>
   );
 }
 
-function ScreenSettingsProofCard({ proof }: { readonly proof: ScreenEvidenceSettingsWritableProof }): ReactElement {
-  return (
-    <article aria-label={proof.title} className={screenSettingsWritableCardClassName()}>
-      <h2>{proof.title}</h2>
-      <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
-        <ScreenSettingsWritableDetail label={PortalDetails.Status} value={proof.validationStatusValue} />
-        <ScreenSettingsWritableDetail label={PortalDetails.Reason} value={proof.note} />
-      </dl>
-    </article>
-  );
-}
-
 function ScreenSettingsIntentPickerCard({
-  proof,
+  commandEnabled,
+  intents,
   selectedIntent,
   onSelectIntent,
 }: {
-  readonly proof: ScreenEvidenceSettingsWritableProof;
+  readonly commandEnabled: boolean;
+  readonly intents: readonly ScreenEvidenceSettingsUiIntent[];
   readonly selectedIntent: ScreenEvidenceSettingsUiIntent;
   readonly onSelectIntent: (intentKey: ScreenEvidenceSettingsUiIntentKey) => void;
 }): ReactElement {
   return (
     <article className={screenSettingsWritableCardClassName()}>
-      <h2>{proof.intentLegend}</h2>
+      <h2>{SCREEN_SETTINGS_TEXT.mode}</h2>
       <div>
         <div className={PortalDom.Classes.RouteTabs}>
-          {proof.intents.map((intent) => (
+          {intents.map((intent) => (
             <button
               key={intent.intentKey}
               aria-pressed={intent.intentKey === selectedIntent.intentKey}
               className={screenSettingsIntentClassName(intent.intentKey, selectedIntent.intentKey)}
+              disabled={!commandEnabled}
               onClick={() => onSelectIntent(intent.intentKey)}
             >
               {intent.label}
@@ -140,45 +149,56 @@ function ScreenSettingsIntentPickerCard({
 }
 
 function ScreenSettingsDraftCard({
-  proofHeading,
-  triggerHeading,
   selectedIntent,
 }: {
-  readonly proofHeading: ReactNode;
-  readonly triggerHeading: ReactNode;
   readonly selectedIntent: ScreenEvidenceSettingsUiIntent;
 }): ReactElement {
   const setting = selectedIntent.setting;
   return (
     <>
       <article className={screenSettingsWritableCardClassName()}>
-        <h2>{proofHeading}</h2>
+        <h2>{SCREEN_SETTINGS_TEXT.selectedSetting}</h2>
         <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
           <ScreenSettingsWritableDetail
-            label={PortalDetails.Status}
+            label={SCREEN_SETTINGS_TEXT.enabled}
             value={readableBoolean(setting.screenAnalysisEnabled)}
           />
-          <ScreenSettingsWritableDetail label={PortalDetails.DryRun} value={setting.analysisMode} />
-          <ScreenSettingsWritableDetail label={PortalDetails.ExecutionState} value={setting.cadenceSeconds} />
-          <ScreenSettingsWritableDetail label={PortalDetails.Source} value={setting.allowedCaptureScope} />
-          <ScreenSettingsWritableDetail label={PortalDetails.PrivacyMode} value={setting.redactionMode} />
+          <ScreenSettingsWritableDetail
+            label={SCREEN_SETTINGS_TEXT.analysisMode}
+            value={readableToken(setting.analysisMode)}
+          />
+          <ScreenSettingsWritableDetail
+            label={SCREEN_SETTINGS_TEXT.captureInterval}
+            value={setting.screenAnalysisEnabled ? readableSeconds(setting.cadenceSeconds) : SCREEN_SETTINGS_TEXT.off}
+          />
+          <ScreenSettingsWritableDetail
+            label={SCREEN_SETTINGS_TEXT.captureScope}
+            value={readableToken(setting.allowedCaptureScope)}
+          />
+          <ScreenSettingsWritableDetail
+            label={SCREEN_SETTINGS_TEXT.redaction}
+            value={readableToken(setting.redactionMode)}
+          />
         </dl>
       </article>
       <article className={screenSettingsWritableCardClassName()}>
-        <h2>{triggerHeading}</h2>
+        <h2>{SCREEN_SETTINGS_TEXT.triggersAndPrivacy}</h2>
         <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
           <ScreenSettingsWritableDetail
-            label={PortalDetails.Events}
-            value={setting.enabledTriggers.join(PortalFormatting.EventDetailSeparator)}
+            label={SCREEN_SETTINGS_TEXT.triggers}
+            value={readableTokens(setting.enabledTriggers)}
           />
-          <ScreenSettingsWritableDetail label={PortalDetails.Custody} value={setting.temporaryImageTtlSeconds} />
           <ScreenSettingsWritableDetail
-            label={PortalDetails.PolicyPreview}
+            label={SCREEN_SETTINGS_TEXT.temporaryImageLifetime}
+            value={readableSeconds(setting.temporaryImageTtlSeconds)}
+          />
+          <ScreenSettingsWritableDetail
+            label={SCREEN_SETTINGS_TEXT.policyDryRun}
             value={readableBoolean(setting.policyUseEnabled)}
           />
           <ScreenSettingsWritableDetail
-            label={PortalDetails.DeletedEvidence}
-            value={readableBoolean(!setting.retainRawImage)}
+            label={SCREEN_SETTINGS_TEXT.rawImageRetained}
+            value={readableBoolean(setting.retainRawImage)}
           />
         </dl>
       </article>
@@ -187,49 +207,35 @@ function ScreenSettingsDraftCard({
 }
 
 function ScreenSettingsRetentionCard({
-  proofHeading,
   selectedIntent,
 }: {
-  readonly proofHeading: ReactNode;
   readonly selectedIntent: ScreenEvidenceSettingsUiIntent;
 }): ReactElement {
   const boundary = selectedIntent.remoteBoundarySetting;
   return (
     <article className={screenSettingsWritableCardClassName()}>
-      <h2>{proofHeading}</h2>
+      <h2>{SCREEN_SETTINGS_TEXT.rawImagesAndRemoteAccess}</h2>
       <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
         <ScreenSettingsWritableDetail
-          label={PortalDetails.DeletedEvidence}
-          value={boundary.rawScreenshotRetentionMode}
+          label={SCREEN_SETTINGS_TEXT.rawImageRetention}
+          value={readableToken(boundary.rawScreenshotRetentionMode)}
         />
-        <ScreenSettingsWritableDetail label={PortalDetails.ActiveState} value={boundary.liveViewMode} />
         <ScreenSettingsWritableDetail
-          label={PortalDetails.Transport}
+          label={SCREEN_SETTINGS_TEXT.liveView}
+          value={readableToken(boundary.liveViewMode)}
+        />
+        <ScreenSettingsWritableDetail
+          label={SCREEN_SETTINGS_TEXT.rawImageUpload}
           value={readableBoolean(boundary.rawScreenshotRemoteUploadEnabled)}
         />
-        <ScreenSettingsWritableDetail label={PortalDetails.Destination} value={boundary.remoteSummaryMode} />
         <ScreenSettingsWritableDetail
-          label={PortalDetails.Custody}
-          value={boundary.remoteSummaryDestinationCustodyState}
+          label={SCREEN_SETTINGS_TEXT.remoteSummary}
+          value={readableToken(boundary.remoteSummaryMode)}
         />
-      </dl>
-    </article>
-  );
-}
-
-function ScreenSettingsValidationCard({
-  proof,
-  selectedIntent,
-}: {
-  readonly proof: ScreenEvidenceSettingsWritableProof;
-  readonly selectedIntent: ScreenEvidenceSettingsUiIntent;
-}): ReactElement {
-  return (
-    <article className={screenSettingsWritableCardClassName()}>
-      <h2>{proof.validationStatusLabel}</h2>
-      <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
-        <ScreenSettingsWritableDetail label={PortalDetails.Status} value={proof.validationStatusValue} />
-        <ScreenSettingsWritableDetail label={PortalDetails.Reason} value={selectedIntent.setting.reason} />
+        <ScreenSettingsWritableDetail
+          label={SCREEN_SETTINGS_TEXT.remoteCustody}
+          value={readableToken(boundary.remoteSummaryDestinationCustodyState)}
+        />
       </dl>
     </article>
   );
@@ -278,5 +284,24 @@ function screenSettingsWritableCardClassName() {
 }
 
 function readableBoolean(value: boolean): ReactNode {
-  return value ? PortalDom.Attributes.True : PortalDom.Attributes.False;
+  return value ? SCREEN_SETTINGS_TEXT.on : SCREEN_SETTINGS_TEXT.off;
+}
+
+function readableSeconds(value: number): string {
+  if (value === 60) return '1 minute';
+  if (value % 60 === 0) return `${value / 60} minutes`;
+  return `${value} seconds`;
+}
+
+function readableTokens(values: readonly string[]): string {
+  if (values.length === 0) return SCREEN_SETTINGS_TEXT.none;
+  return values.map(readableToken).join(PortalFormatting.EventDetailSeparator);
+}
+
+function readableToken(value: string): string {
+  const spaced = value
+    .replace(/([a-z0-9])([A-Z])/gu, '$1 $2')
+    .replace(/[-_]+/gu, ' ')
+    .toLowerCase();
+  return spaced.length === 0 ? SCREEN_SETTINGS_TEXT.none : `${spaced[0]?.toUpperCase() ?? ''}${spaced.slice(1)}`;
 }

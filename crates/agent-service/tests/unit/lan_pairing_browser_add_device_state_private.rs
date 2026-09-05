@@ -30,7 +30,7 @@ use crate::lan_pairing_browser_add_device_state::browser_read_model_generated_at
 use crate::lan_pairing_browser_add_device_state::discovery_event_history::discovery_event_history;
 use crate::lan_pairing_browser_add_device_state::registry_projection::pairing_requests;
 use crate::lan_pairing_browser_add_device_state::replay_projection::effective_replay_projection;
-use crate::test_invariants::require_ok;
+use crate::test_require_ok::require_ok;
 use assertions::{
     assert_first_row_has_no_previous_event, assert_previous_event_chain, assert_row_contract,
     discovery_row,

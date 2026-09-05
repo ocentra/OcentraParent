@@ -14,9 +14,7 @@ impl PassiveDiscoveryListenerRuntime {
     pub(super) fn bind_due_listeners(&mut self) {
         let now = Instant::now();
         let mut changed = false;
-        let Some(listener_state) = self.listener_state.upgrade() else {
-            return;
-        };
+        let listener_state = Arc::clone(&self.runtime.passive_discovery_listener_state);
         for slot in &mut self.listener_slots {
             let Some(slot_changed) = bind_due_listener(slot, &listener_state, now) else {
                 break;
